@@ -5,6 +5,22 @@ import sys
 import time
 from bs4 import BeautifulSoup
 from selenium import webdriver
+import time
+import datetime
+ 
+class Timer(object):
+    def __init__(self):
+        self.start = datetime.datetime.now()
+ 
+    def remains(self, done):
+        now  = datetime.datetime.now()
+        #print(now-start)  # elapsed time
+        left = (1 - done) * (now - self.start) / done
+        sec = int(left.total_seconds())
+        if sec < 60:
+           return "{} seconds".format(sec)
+        else:
+           return "{} minutes".format(int(sec / 60))
 
 def GetTimeAndFA(url):
     #open with GET method 
@@ -106,7 +122,7 @@ def GetTotalFilms(resp):
     stringNumber = stringNumber.replace('.','')
     return int(stringNumber)
 
-def update_progress(progress):
+def update_progress(progress, timer):
     barLength = 20 # Modify this to change the length of the progress bar
     status = ""
     if isinstance(progress, int):
@@ -121,7 +137,7 @@ def update_progress(progress):
         progress = 1
         status = "Done...\r\n"
     block = int(round(barLength*progress))
-    text = "\rPercent: [{0}] {1:.2f}% {2}".format( "="*block + " "*(barLength-block), progress*100, status)
+    text = "\rPercent: [{0}] {1:.2f}% {2}".format( "="*block + " "*(barLength-block), progress*100, status) + timer.remains(progress)
     sys.stdout.write(text)
     sys.stdout.flush()
 
@@ -141,6 +157,7 @@ def ReadWatched(IdUser, ws):
         resp=requests.get(Vistas)
     totalFilms = GetTotalFilms(resp)
     line = IndexToLine(DataIndex, totalFilms) # linea de excel en la que estoy escribiendo
+    timer = Timer()
     while(resp.status_code==200):
         # we need a parser,Python built-in HTML parser is enough . 
         soup=BeautifulSoup(resp.text,'html.parser')
@@ -180,7 +197,7 @@ def ReadWatched(IdUser, ws):
                 SetCellValue(ws, line, 5, votantes)
             DataIndex +=1
             # actualizo la barra de progreso
-            update_progress(DataIndex/totalFilms)
+            update_progress(DataIndex/totalFilms, timer)
             # actualizo la linea de escritura en excel
             line = IndexToLine(DataIndex, totalFilms)
 
@@ -195,7 +212,7 @@ def ReadWatched(IdUser, ws):
 if __name__ == "__main__":
     Ids = {'Sasha': 1230513, 'Jorge': 1742789, 'Guillermo': 4627260, 'Daniel Gallego': 983049, 'Luminador': 7183467,
     'Will_llermo': 565861}
-    usuario = 'Sasha'
+    usuario = 'Will_llermo'
     print("Se van a importar los datos de ", usuario)
     input("Espero Enter...")
     Plantilla = 'Plantilla.xlsx'
