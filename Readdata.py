@@ -71,6 +71,7 @@ def SetCellValue(ws, line, col, value):
     cell.value = value
 
 def PassCaptchaAutomatic(url):
+    # no funciona
     driver = webdriver.Chrome()
     # Go to your page url
     driver.get(url)
@@ -117,7 +118,6 @@ def update_progress(progress):
     sys.stdout.flush()
 
 def IndexToLine(index, total):
-    
     return total - index + 2
 
 
@@ -148,7 +148,9 @@ def ReadWatched(IdUser, ws):
             # La votacion del usuario la leo desde fuera
             # no puedo leer la nota del usuario dentro de la ficha
             UserNote = i.contents[3].contents[1].contents[0]
-            SetCellValue(ws, line, 2, int(UserNote))
+            SetCellValue(ws, line, 2, int(UserNote))            
+            SetCellValue(ws, line, 10, str("=B" + str(line) + "+RAND()-0.5"))
+            SetCellValue(ws, line, 11, "=(B" + str(line) + "-1)*10/9")
             #guardo la url de la ficha de la pelicula
             url = i.contents[1].contents[1].contents[3].contents[3].contents[0].attrs['href']
             #Entro a la ficha y leo votacion popular, duracion y votantes
@@ -159,6 +161,11 @@ def ReadWatched(IdUser, ws):
             if (notaFA != 0):
                 # dejo la casilla en blanco si no logra leer ninguna nota de FA
                 SetCellValue(ws, line, 3, notaFA)
+                SetCellValue(ws, line, 6, "=ROUND(C" + str(line) + "*2, 0)/2")
+                SetCellValue(ws, line, 7, "=B" + str(line) + "-C" + str(line))
+                SetCellValue(ws, line, 8, "=ABS(G" + str(line) + ")")
+                SetCellValue(ws, line, 9, "=IF(G" + str(line) + ">0,1,0)")
+                SetCellValue(ws, line, 12, "=(C" + str(line) + "-1)*10/9")
             if (votantes != 0):
                 # dejo la casilla en blanco si no logra leer ninguna votantes
                 SetCellValue(ws, line, 5, votantes)
