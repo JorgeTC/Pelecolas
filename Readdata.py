@@ -1,5 +1,3 @@
-from os import waitpid
-from numpy.lib.function_base import append
 import requests
 from openpyxl import load_workbook
 from openpyxl.styles import PatternFill, Border, Side, Alignment, numbers, Font
@@ -128,7 +126,6 @@ def update_progress(progress):
     sys.stdout.flush()
 
 def IndexToLine(index, total):
-    return total - index + 2
     return total - index + 1
 
 
@@ -141,6 +138,7 @@ def ReadWatched(IdUser, ws):
     resp=requests.get(Vistas)
     if resp.status_code!=200:
         PassCaptcha()
+        resp=requests.get(Vistas)
     totalFilms = GetTotalFilms(resp)
     line = IndexToLine(DataIndex, totalFilms) # linea de excel en la que estoy escribiendo
     while(resp.status_code==200):
@@ -197,7 +195,7 @@ def ReadWatched(IdUser, ws):
 if __name__ == "__main__":
     Ids = {'Sasha': 1230513, 'Jorge': 1742789, 'Guillermo': 4627260, 'Daniel Gallego': 983049, 'Luminador': 7183467,
     'Will_llermo': 565861}
-    usuario = 'Jorge'
+    usuario = 'Sasha'
     print("Se van a importar los datos de ", usuario)
     input("Espero Enter...")
     Plantilla = 'Plantilla.xlsx'
