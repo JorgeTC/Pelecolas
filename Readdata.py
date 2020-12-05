@@ -2,6 +2,7 @@ from os import waitpid
 from numpy.lib.function_base import append
 import requests
 from openpyxl import load_workbook
+from openpyxl.styles import PatternFill, Border, Side, Alignment, numbers, Font
 import sys
 import time
 from bs4 import BeautifulSoup
@@ -69,6 +70,15 @@ def PassCaptcha():
 def SetCellValue(ws, line, col, value):
     cell = ws.cell(row = line, column=col)
     cell.value = value
+    # Configuramos el estilo de la celda
+    if (col == 5): # visionados. Ponemos punto de millar
+        cell.number_format = '#,##0'
+    if (col == 9): # 
+        cell.number_format = '0'
+        cell.font = Font(name = 'SimSun', bold = True)
+        cell.alignment=Alignment(horizontal='center', vertical='center')
+    if (col == 11 or col == 12): #reescala
+        cell.number_format = '0.00'
 
 def PassCaptchaAutomatic(url):
     # no funciona
@@ -119,6 +129,7 @@ def update_progress(progress):
 
 def IndexToLine(index, total):
     return total - index + 2
+    return total - index + 1
 
 
 def ReadWatched(IdUser, ws):
@@ -164,7 +175,7 @@ def ReadWatched(IdUser, ws):
                 SetCellValue(ws, line, 6, "=ROUND(C" + str(line) + "*2, 0)/2")
                 SetCellValue(ws, line, 7, "=B" + str(line) + "-C" + str(line))
                 SetCellValue(ws, line, 8, "=ABS(G" + str(line) + ")")
-                SetCellValue(ws, line, 9, "=IF(G" + str(line) + ">0,1,0)")
+                SetCellValue(ws, line, 9, "=IF($G" + str(line) + ">0,1,0.1)")
                 SetCellValue(ws, line, 12, "=(C" + str(line) + "-1)*10/9")
             if (votantes != 0):
                 # dejo la casilla en blanco si no logra leer ninguna votantes
