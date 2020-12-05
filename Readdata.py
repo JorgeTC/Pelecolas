@@ -175,7 +175,8 @@ def ReadWatched(IdUser, ws):
         ws.write(0, 6, nIndex)
         print("Error %d peliculas importadas", DataIndex )
 
-def main():
+
+if __name__ == "__main__":
     Ids = {'Sasha': 1230513, 'Jorge': 1742789, 'Guillermo': 4627260, 'Daniel Gallego': 983049, 'Luminador': 7183467,
     'Will_llermo': 565861}
     usuario = 'Will_llermo'
@@ -186,8 +187,3 @@ def main():
     worksheet = workbook.add_worksheet()
     ReadWatched(Ids[usuario], worksheet)
     workbook.close()
-    return True
-
-
-if __name__ == "__main__":
-    main()
