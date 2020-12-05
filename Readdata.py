@@ -62,7 +62,6 @@ def GetTimeAndFA(url):
         return GetTimeAndFA(url)
 
 def PassCaptcha():
-    time.sleep(0.5)
     print("\nPor favor, entra en FilmAffinity y pasa el capcha por mi.")
     input("Espero Enter...")
     return
