@@ -1,7 +1,7 @@
 from os import waitpid
 from numpy.lib.function_base import append
 import requests
-import xlsxwriter as xlsx
+from openpyxl import load_workbook
 import sys
 import time
 from bs4 import BeautifulSoup
@@ -65,6 +65,10 @@ def PassCaptcha():
     print("\nPor favor, entra en FilmAffinity y pasa el capcha por mi.")
     input("Espero Enter...")
     return
+    
+def SetCellValue(ws, line, col, value):
+    cell = ws.cell(row = line, column=col)
+    cell.value = value
 
 def PassCaptchaAutomatic(url):
     driver = webdriver.Chrome()
@@ -114,7 +118,7 @@ def update_progress(progress):
 
 def IndexToLine(index, total):
     
-    return total - index - 1
+    return total - index + 2
 
 
 def ReadWatched(IdUser, ws):
@@ -144,20 +148,20 @@ def ReadWatched(IdUser, ws):
             # La votacion del usuario la leo desde fuera
             # no puedo leer la nota del usuario dentro de la ficha
             UserNote = i.contents[3].contents[1].contents[0]
-            ws.write(line, 0, int(UserNote)) # excel
+            SetCellValue(ws, line, 2, int(UserNote))
             #guardo la url de la ficha de la pelicula
             url = i.contents[1].contents[1].contents[3].contents[3].contents[0].attrs['href']
             #Entro a la ficha y leo votacion popular, duracion y votantes
             notaFA, duracion, votantes = GetTimeAndFA(url)
             if (duracion != 0):
                 # dejo la casilla en blanco si no logra leer ninguna duración de FA
-                ws.write(line, 3, duracion) # excel
+                SetCellValue(ws, line, 4, duracion)
             if (notaFA != 0):
                 # dejo la casilla en blanco si no logra leer ninguna nota de FA
-                ws.write(line, 1, notaFA) # excel
+                SetCellValue(ws, line, 3, notaFA)
             if (votantes != 0):
                 # dejo la casilla en blanco si no logra leer ninguna votantes
-                ws.write(line, 4, votantes) # excel
+                SetCellValue(ws, line, 5, votantes)
             DataIndex +=1
             # actualizo la barra de progreso
             update_progress(DataIndex/totalFilms)
@@ -170,20 +174,18 @@ def ReadWatched(IdUser, ws):
         nIndex += 1
         Vistas = 'https://www.filmaffinity.com/es/userratings.php?user_id=' + str(IdUser) + '&p=' + str(nIndex) + '&orderby=4'
         resp=requests.get(Vistas)
-    if(DataIndex < totalFilms):
-        ws.write(0, 5, "nIndex")
-        ws.write(0, 6, nIndex)
-        print("Error %d peliculas importadas", DataIndex )
 
 
 if __name__ == "__main__":
     Ids = {'Sasha': 1230513, 'Jorge': 1742789, 'Guillermo': 4627260, 'Daniel Gallego': 983049, 'Luminador': 7183467,
     'Will_llermo': 565861}
-    usuario = 'Jorge'
+    usuario = 'Sasha'
     print("Se van a importar los datos de ", usuario)
     input("Espero Enter...")
-    ExcelName = 'demo_' + usuario + '.xlsx'
-    workbook = xlsx.Workbook(ExcelName)
-    worksheet = workbook.add_worksheet()
+    Plantilla = 'Sintaxis.xlsx'
+    ExcelName = 'Sintaxis_' + usuario + '.xlsx'
+    workbook = load_workbook(Plantilla)
+    worksheet = workbook[workbook.sheetnames[0]]
     ReadWatched(Ids[usuario], worksheet)
+    workbook.save(ExcelName)
     workbook.close()
