@@ -61,7 +61,7 @@ def GetTimeAndFA(url):
             for k in l.contents[1].contents:
                 # compruebo que k tiene .attrs
                 if k != '\n':
-                    # compruebo que estoy en un dato y uno en una etiqueta
+                    # compruebo que estoy en un dato y no en una etiqueta
                     if 'itemprop' in k.attrs:
                         if k.attrs['itemprop'] == 'duration':
                             duracion = k.contents[0]
@@ -73,10 +73,11 @@ def GetTimeAndFA(url):
     
     else:
         # Si ha saltado el capcha, paro el bucle
-        PassCaptcha()
+        PassCaptcha(url)
         return GetTimeAndFA(url)
 
-def PassCaptcha():
+def PassCaptcha(url):
+    bOk = PassCaptchaAutomatic(url)
     print("\nPor favor, entra en FilmAffinity y pasa el capcha por mi.")
     input("Espero Enter...")
     return
@@ -153,7 +154,7 @@ def ReadWatched(IdUser, ws):
     Vistas = 'https://www.filmaffinity.com/es/userratings.php?user_id=' + str(IdUser) + '&p=' + str(nIndex) + '&orderby=4'
     resp=requests.get(Vistas)
     if resp.status_code!=200:
-        PassCaptcha()
+        PassCaptcha(Vistas)
         resp=requests.get(Vistas)
     totalFilms = GetTotalFilms(resp)
     line = IndexToLine(DataIndex, totalFilms) # linea de excel en la que estoy escribiendo
