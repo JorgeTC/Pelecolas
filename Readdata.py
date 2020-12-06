@@ -1,10 +1,10 @@
 import requests
+import webbrowser
 from openpyxl import load_workbook
-from openpyxl.styles import PatternFill, Border, Side, Alignment, numbers, Font
+from openpyxl.styles import Alignment, Font
+# from openpyxl.styles import PatternFill, Border, Side, numbers
 import sys
-import time
 from bs4 import BeautifulSoup
-from selenium import webdriver
 import time
 import datetime
  
@@ -14,7 +14,6 @@ class Timer(object):
  
     def remains(self, done):
         now  = datetime.datetime.now()
-        #print(now-start)  # elapsed time
         left = (1 - done) * (now - self.start) / done
         sec = int(left.total_seconds())
         if sec < 60:
@@ -77,9 +76,13 @@ def GetTimeAndFA(url):
         return GetTimeAndFA(url)
 
 def PassCaptcha(url):
-    bOk = PassCaptchaAutomatic(url)
+
+    webbrowser.open(url)
+    resp=requests.get(url)
     print("\nPor favor, entra en FilmAffinity y pasa el capcha por mi.")
-    input("Espero Enter...")
+    while resp.status_code != 200:
+        time.sleep(3)
+        resp=requests.get(url)
     return
     
 def SetCellValue(ws, line, col, value):
@@ -88,31 +91,14 @@ def SetCellValue(ws, line, col, value):
     # Configuramos el estilo de la celda
     if (col == 5): # visionados. Ponemos punto de millar
         cell.number_format = '#,##0'
-    if (col == 9): # booleano mayor que
+    elif (col == 9): # booleano mayor que
         cell.number_format = '0'
         cell.font = Font(name = 'SimSun', bold = True)
         cell.alignment=Alignment(horizontal='center', vertical='center')
-    if (col == 11 or col == 12): #reescala
+    elif (col == 10):
+        cell.number_format = '0.0'
+    elif (col == 11 or col == 12): #reescala
         cell.number_format = '0.00'
-
-def PassCaptchaAutomatic(url):
-    # no funciona
-    driver = webdriver.Chrome()
-    # Go to your page url
-    driver.get(url)
-    # Get button you are going to click by its id ( also you could us find_element_by_css_selector to get element by css selector)
-    button_element = driver.find_element_by_class_name("content")
-    button_element = button_element.find_element_by_class_name("captcha")
-    button_element = button_element.find_element_by_class_name("g-recaptcha")
-    button_element.click()
-    time.sleep(1)
-    button_element = driver.find_element_by_xpath("/html/body/div[1]/div[2]/form[1]/div[3]")
-    button_element.click()
-    driver.close()
-
-    resp=requests.get(url)
-    #http_respone 200 means OK status 
-    return resp.status_code==200
 
 def GetTotalFilms(resp):
     soup=BeautifulSoup(resp.text,'html.parser')
@@ -128,17 +114,8 @@ def update_progress(progress, timer):
     status = ""
     if isinstance(progress, int):
         progress = float(progress)
-    if not isinstance(progress, float):
-        progress = 0
-        status = "error: progress var must be float\r\n"
-    if progress < 0:
-        progress = 0
-        status = "Halt...\r\n"
-    elif progress >= 1:
-        progress = 1
-        status = "Done...\r\n"
     block = int(round(barLength*progress))
-    text = "\rPercent: [{0}] {1:.2f}% {2}".format( "="*block + " "*(barLength-block), progress*100, status) + timer.remains(progress)
+    text = "\rPercent: [{0}] {1:.2f}% {2}".format( "="*block + " "*(barLength-block), progress*100, timer.remains(progress))
     sys.stdout.write(text)
     sys.stdout.flush()
 
@@ -199,9 +176,7 @@ def ReadWatched(IdUser, ws):
             update_progress(DataIndex/totalFilms, timer)
             # actualizo la linea de escritura en excel
             line = IndexToLine(DataIndex, totalFilms)
-
-
-
+            
         # Siguiente pagina del listado
         nIndex += 1
         Vistas = 'https://www.filmaffinity.com/es/userratings.php?user_id=' + str(IdUser) + '&p=' + str(nIndex) + '&orderby=4'
@@ -210,8 +185,8 @@ def ReadWatched(IdUser, ws):
 
 if __name__ == "__main__":
     Ids = {'Sasha': 1230513, 'Jorge': 1742789, 'Guillermo': 4627260, 'Daniel Gallego': 983049, 'Luminador': 7183467,
-    'Will_llermo': 565861}
-    usuario = 'Will_llermo'
+    'Will_llermo': 565861, 'Roger Peris': 3922745}
+    usuario = 'Guillermo'
     print("Se van a importar los datos de ", usuario)
     input("Espero Enter...")
     Plantilla = 'Plantilla.xlsx'
