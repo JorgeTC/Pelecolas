@@ -84,15 +84,7 @@ def PassCaptcha():
 def SetCellValue(ws, line, col, value):
     cell = ws.cell(row = line, column=col)
     cell.value = value
-    # Configuramos el estilo de la celda
-    if (col == 5): # visionados. Ponemos punto de millar
-        cell.number_format = '#,##0'
-    if (col == 9): # 
-        cell.number_format = '0'
-        cell.font = Font(name = 'SimSun', bold = True)
-        cell.alignment=Alignment(horizontal='center', vertical='center')
-    if (col == 11 or col == 12): #reescala
-        cell.number_format = '0.00'
+    # El estilo de la celda ya viene en la plantilla
 
 def PassCaptchaAutomatic(url):
     # no funciona
