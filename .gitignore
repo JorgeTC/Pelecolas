@@ -1,5 +1,8 @@
-﻿~$eseñas.docx
-Critica latex.pdf
+﻿# Ignoro los word, esto incluye Reseñas
+*.docx
+# Ignoro los pdf
+*.pdf
+# Ignoro los elementos relacionados con el LaTeX
 Critica latex.synctex.gz
 Critica latex.tex
 Formatos.txt
