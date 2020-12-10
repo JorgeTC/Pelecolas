@@ -186,7 +186,7 @@ def ReadWatched(IdUser, ws):
 if __name__ == "__main__":
     Ids = {'Sasha': 1230513, 'Jorge': 1742789, 'Guillermo': 4627260, 'Daniel Gallego': 983049, 'Luminador': 7183467,
     'Will_llermo': 565861, 'Roger Peris': 3922745}
-    usuario = 'Guillermo'
+    usuario = 'Jorge'
     print("Se van a importar los datos de ", usuario)
     input("Espero Enter...")
     Plantilla = 'Plantilla.xlsx'
