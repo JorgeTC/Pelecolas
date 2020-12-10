@@ -138,15 +138,11 @@ def ReadWatched(IdUser, ws):
     timer = Timer()
     while(resp.status_code==200):
         # we need a parser,Python built-in HTML parser is enough . 
-        soup=BeautifulSoup(resp.text,'html.parser')
+        soup = BeautifulSoup(resp.text,'html.parser')
 
-        mylist = soup.find_all('div')
+        mylist = soup.findAll("div", {"class": "user-ratings-movie"})
 
         for i in mylist:
-            if(not ('class' in i.attrs)):
-                continue
-            if(i.attrs['class'][0] != 'user-ratings-movie'):
-                continue
             # La votacion del usuario la leo desde fuera
             # no puedo leer la nota del usuario dentro de la ficha
             UserNote = i.contents[3].contents[1].contents[0]
