@@ -55,7 +55,7 @@ def GetTimeAndFA(url):
             duracion = l.find(itemprop="duration").contents[0]
         except:
             # caso en el que no está escrita la duración
-            duracion = 0
+            duracion = "0"
         # quito el sufijo min.
         duracion = int(duracion.split(' ', 1)[0])
 
@@ -172,7 +172,7 @@ def ReadWatched(IdUser, ws):
 if __name__ == "__main__":
     Ids = {'Sasha': 1230513, 'Jorge': 1742789, 'Guillermo': 4627260, 'Daniel Gallego': 983049, 'Luminador': 7183467,
     'Will_llermo': 565861, 'Roger Peris': 3922745}
-    usuario = 'Jorge'
+    usuario = 'Will_llermo'
     print("Se van a importar los datos de ", usuario)
     input("Espero Enter...")
     Plantilla = 'Plantilla.xlsx'
