@@ -29,10 +29,10 @@ def GetTimeAndFA(url):
         #print("Successfully opened the web page")
 
          # we need a parser,Python built-in HTML parser is enough . 
-        soup=BeautifulSoup(resp.text,'html.parser')
+        soup = BeautifulSoup(resp.text,'html.parser')
 
 
-        l=soup.find(id="movie-rat-avg")
+        l = soup.find(id="movie-rat-avg")
         try:
             # guardo la nota de FA en una ficha normal
             dNotaFA = float(l.attrs['content'])
@@ -50,7 +50,7 @@ def GetTimeAndFA(url):
             # caso en el que no hay suficientes votantes
             nVotantes = 0
         
-        l=soup.find(id="left-column")
+        l = soup.find(id = "left-column")
         if ('itemprop' in l.contents[1].contents[11].attrs and l.contents[1].contents[11].attrs['itemprop'] == 'duration'):
             # posicion habitual de la duracion
             duracion = l.contents[1].contents[11].contents[0]
@@ -82,7 +82,7 @@ def PassCaptcha(url):
     print("\nPor favor, entra en FilmAffinity y pasa el captcha por mí.")
     while resp.status_code != 200:
         time.sleep(3)
-        resp=requests.get(url)
+        resp = requests.get(url)
     return
     
 def SetCellValue(ws, line, col, value):
@@ -111,7 +111,6 @@ def GetTotalFilms(resp):
 
 def update_progress(progress, timer):
     barLength = 20 # Modify this to change the length of the progress bar
-    status = ""
     if isinstance(progress, int):
         progress = float(progress)
     block = int(round(barLength*progress))
