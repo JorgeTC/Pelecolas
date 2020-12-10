@@ -79,7 +79,7 @@ def PassCaptcha(url):
 
     webbrowser.open(url)
     resp=requests.get(url)
-    print("\nPor favor, entra en FilmAffinity y pasa el capcha por mi.")
+    print("\nPor favor, entra en FilmAffinity y pasa el captcha por mí.")
     while resp.status_code != 200:
         time.sleep(3)
         resp=requests.get(url)
