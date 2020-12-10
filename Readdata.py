@@ -50,21 +50,12 @@ def GetTimeAndFA(url):
             # caso en el que no hay suficientes votantes
             nVotantes = 0
         
-        l=soup.find(id="left-column")
-        if ('itemprop' in l.contents[1].contents[11].attrs and l.contents[1].contents[11].attrs['itemprop'] == 'duration'):
-            # posicion habitual de la duracion
-            duracion = l.contents[1].contents[11].contents[0]
-        else:
-            # si no está donde debe, lo busco
-            duracion = "0"
-            for k in l.contents[1].contents:
-                # compruebo que k tiene .attrs
-                if k != '\n':
-                    # compruebo que estoy en un dato y no en una etiqueta
-                    if 'itemprop' in k.attrs:
-                        if k.attrs['itemprop'] == 'duration':
-                            duracion = k.contents[0]
-                            break
+        l = soup.find(id="left-column")
+        try:
+            duracion = l.find(itemprop="duration").contents[0]
+        except:
+            # caso en el que no está escrita la duración
+            duracion = 0
         # quito el sufijo min.
         duracion = int(duracion.split(' ', 1)[0])
 
