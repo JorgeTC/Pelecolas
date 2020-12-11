@@ -22,59 +22,61 @@ class Timer(object):
            return "{} minutes".format(int(sec / 60))
 
 def GetTimeAndFA(url):
-    #open with GET method 
-    resp=requests.get(url)
-    #http_respone 200 means OK status 
-    if resp.status_code==200:
-        #print("Successfully opened the web page")
+    # Abro la página con una función que toma en cuenta el captcha
+    resp = SafeGetUrl(url)
+    # Parseo la página
+    soup = BeautifulSoup(resp.text,'html.parser')
 
-         # we need a parser,Python built-in HTML parser is enough . 
-        soup = BeautifulSoup(resp.text,'html.parser')
-
-
-        l = soup.find(id="movie-rat-avg")
-        try:
-            # guardo la nota de FA en una ficha normal
-            dNotaFA = float(l.attrs['content'])
-        except:
-            # caso en el que no hay nota de FA
-            dNotaFA = 0
-        
-        l=soup.find(itemprop="ratingCount")
-        try:
-             # guardo la cantidad de votantes en una ficha normal
-            nVotantes = l.attrs['content']
-            nVotantes = nVotantes.replace('.','')
-            nVotantes = int(nVotantes)
-        except:
-            # caso en el que no hay suficientes votantes
-            nVotantes = 0
-        
-        l = soup.find(id = "left-column")
-        try:
-            duracion = l.find(itemprop="duration").contents[0]
-        except:
-            # caso en el que no está escrita la duración
-            duracion = "0"
-        # quito el sufijo min.
-        duracion = int(duracion.split(' ', 1)[0])
-
-        return dNotaFA, duracion, nVotantes
+    # Comienzo a leer datos de la página
+    l = soup.find(id="movie-rat-avg")
+    try:
+        # guardo la nota de FA en una ficha normal
+        dNotaFA = float(l.attrs['content'])
+    except:
+        # caso en el que no hay nota de FA
+        dNotaFA = 0
     
-    else:
-        # Si ha saltado el capcha, paro el bucle
-        PassCaptcha(url)
-        return GetTimeAndFA(url)
+    l=soup.find(itemprop="ratingCount")
+    try:
+        # guardo la cantidad de votantes en una ficha normal
+        nVotantes = l.attrs['content']
+        # Elimino el punto de los millares
+        nVotantes = nVotantes.replace('.','')
+        nVotantes = int(nVotantes)
+    except:
+        # caso en el que no hay suficientes votantes
+        nVotantes = 0
+    
+    l = soup.find(id = "left-column")
+    try:
+        duracion = l.find(itemprop="duration").contents[0]
+    except:
+        # caso en el que no está escrita la duración
+        duracion = "0"
+    # quito el sufijo min.
+    duracion = int(duracion.split(' ', 1)[0])
+
+    return dNotaFA, duracion, nVotantes
+
+def SafeGetUrl(url):
+    #open with GET method 
+    resp = requests.get(url)
+    # Caso 429: too many requests
+    if resp.status_code == 429:
+        return PassCaptcha(url)
+    else: # No está contemplado el caso 404: not found
+        return resp
 
 def PassCaptcha(url):
-
+    # abro un navegador para poder pasar el Captcha
     webbrowser.open(url)
-    resp=requests.get(url)
+    resp = requests.get(url)
     print("\nPor favor, entra en FilmAffinity y pasa el captcha por mí.")
+    # Controlo que se haya pasado el Captcha
     while resp.status_code != 200:
-        time.sleep(3)
+        time.sleep(3) # intento recargar la página cada 3 segundos
         resp = requests.get(url)
-    return
+    return resp
     
 def SetCellValue(ws, line, col, value):
     cell = ws.cell(row = line, column=col)
@@ -104,7 +106,7 @@ def update_progress(progress, timer):
     barLength = 20 # Modify this to change the length of the progress bar
     if isinstance(progress, int):
         progress = float(progress)
-    block = int(round(barLength*progress))
+    block = int(round(barLength * progress))
     text = "\rPercent: [{0}] {1:.2f}% {2}".format( "="*block + " "*(barLength-block), progress*100, timer.remains(progress))
     sys.stdout.write(text)
     sys.stdout.flush()
@@ -119,17 +121,16 @@ def ReadWatched(IdUser, ws):
     duracion = 0
     nIndex = 1 # numero de pagina actual
     Vistas = 'https://www.filmaffinity.com/es/userratings.php?user_id=' + str(IdUser) + '&p=' + str(nIndex) + '&orderby=4'
-    resp=requests.get(Vistas)
-    if resp.status_code!=200:
-        PassCaptcha(Vistas)
-        resp=requests.get(Vistas)
+    resp = SafeGetUrl(Vistas)
+    
     totalFilms = GetTotalFilms(resp)
     line = IndexToLine(DataIndex, totalFilms) # linea de excel en la que estoy escribiendo
     timer = Timer()
-    while(resp.status_code==200):
+    while (DataIndex < totalFilms):
+
         # we need a parser,Python built-in HTML parser is enough . 
         soup = BeautifulSoup(resp.text,'html.parser')
-
+        # Guardo en una lista todas las películas de la página nIndex-ésima
         mylist = soup.findAll("div", {"class": "user-ratings-movie"})
 
         for i in mylist:
@@ -162,17 +163,17 @@ def ReadWatched(IdUser, ws):
             update_progress(DataIndex/totalFilms, timer)
             # actualizo la linea de escritura en excel
             line = IndexToLine(DataIndex, totalFilms)
-            
+
         # Siguiente pagina del listado
         nIndex += 1
         Vistas = 'https://www.filmaffinity.com/es/userratings.php?user_id=' + str(IdUser) + '&p=' + str(nIndex) + '&orderby=4'
-        resp=requests.get(Vistas)
+        resp = SafeGetUrl(Vistas)
 
 
 if __name__ == "__main__":
     Ids = {'Sasha': 1230513, 'Jorge': 1742789, 'Guillermo': 4627260, 'Daniel Gallego': 983049, 'Luminador': 7183467,
-    'Will_llermo': 565861, 'Roger Peris': 3922745}
-    usuario = 'Will_llermo'
+    'Will_llermo': 565861, 'Roger Peris': 3922745, 'Javi': 247783}
+    usuario = 'Sasha'
     print("Se van a importar los datos de ", usuario)
     input("Espero Enter...")
     Plantilla = 'Plantilla.xlsx'
