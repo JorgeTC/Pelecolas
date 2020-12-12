@@ -107,7 +107,7 @@ def update_progress(progress, timer):
     if isinstance(progress, int):
         progress = float(progress)
     block = int(round(barLength * progress))
-    text = "\rPercent: [{0}] {1:.2f}% {2}".format( "="*block + " "*(barLength-block), progress*100, timer.remains(progress))
+    text = "\r[{0}] {1:.2f}% {2}".format( "="*block + " "*(barLength-block), progress*100, timer.remains(progress))
     sys.stdout.write(text)
     sys.stdout.flush()
 
