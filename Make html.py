@@ -71,17 +71,17 @@ class html():
 
     def __init__(self):
         # Abro el documento para leerlo
-        self.doc = docx.Document('Reseñas.docx')
+        self.doc = docx.Document('c:\\Users\\usuario\\Desktop\\Jorges things\\Pelécolas\\Reseñas.docx')
 
         self.parrafos_critica = []
         self.titulo = ""
         self.año = ""
         self.duración = ""
 
-        self.titulos = []  # Hago una lista con todos los títulos que tienen una crítica escrita
+        self.titulos = {}  # Hago una lista con todos los títulos que tienen una crítica escrita
         search_title = False
 
-        for paragraph in self.doc.paragraphs: # Recorro todos los párrafos del documento
+        for i, paragraph in enumerate(self.doc.paragraphs): # Recorro todos los párrafos del documento
             if not search_title:
                 if paragraph.text == 'Películas':
                     # El encabezado de las críticas cinematográficas no me interesa
@@ -89,7 +89,7 @@ class html():
                 elif paragraph.text == 'Literatura':
                     # Cuando llegue al apartado de literatura dejo de contar
                     break
-                if paragraph.text == '' or paragraph.text == '\t':
+                if self.__fin_de_parrafo(paragraph.text):
                     # Si hay un doble salto de párrafo es que ha terminado una crítica
                     search_title = True # El inicio del siguiente párrafo será el título de la película
             else:
@@ -103,11 +103,12 @@ class html():
                         break
                     titulo += run.text
 
-                # Quito el separador, previsiblemente los dos puntos
+                # Quito el separador, previsiblemente los dos puntos.
                 titulo = titulo.strip(".: ")
-                self.titulos.append(titulo)
-                if self.titulos[-1] == '':  # Compruebo no haber añadido un título vacío
-                    self.titulos.pop()
+                if not self.__fin_de_parrafo(titulo):
+                    # Guardo el parrafo donde empieza la crítica.
+                    self.titulos[titulo] = i
+                else:
                     # Si hemos encontrado un doble salto de linea, hemos llegado a los libros
                     break
                 search_title = False # Devuelvo la variable a su valor original
@@ -155,9 +156,11 @@ class html():
         # No quiero que sea sensible a las mayúsculas
         titulo = titulo.lower()
 
-        if any(titulo == val.lower() for val in self.titulos):
-            # Caso de coincidencia exacta
-            return True
+        for val in self.titulos:
+            if titulo == val.lower():
+                # Caso de coincidencia exacta
+                self.titulo = val
+                return True
 
         # Si es posible, siguiero los títulos más cercanos al introducido
         self.__closest_title(titulo)
@@ -188,68 +191,39 @@ class html():
         str = re.sub(r'(.)\1+', r'\1', str)
         return str
 
+    @staticmethod
+    def __fin_de_parrafo(text):
+        return text == "" or text == "\t"
 
     def search_film(self):
         # Si no tengo los datos de la película, los pido
         if not self.titulo:
             self.ask_for_data()
+        # Empiezo a recorrer los párrafos desde el que sé que inicia la crítica que busco
+        for paragraph in self.doc.paragraphs[self.titulos[self.titulo]:]:
 
-        found = False
-        new_film = False
-        for paragraph in self.doc.paragraphs: # Recorro todos los párrafos del documento
-            if not found:
-                if not new_film:
-                    if paragraph.text == 'Películas':
-                        # El encabezado de las críticas cinematográficas no me interesa
-                        continue
-                    elif paragraph.text == 'Literatura':
-                        # Cuando llegue al apartado de literatura dejo de contar
-                        break
-                    if paragraph.text == '' or paragraph.text == '\t':
-                        # Si hay un doble salto de párrafo es que ha terminado una crítica
-                        new_film = True # El inicio del siguiente párrafo será el título de la película
+            if self.__fin_de_parrafo(paragraph.text):
+                # He llagado al final de la crítica. Dejo de leer el documento
+                return self.parrafos_critica
+            # Inicializo el párrafo
+            parr_text = ""
+
+            for run in paragraph.runs:
+                # Conservo las cursivas
+                if run.italic:
+                    parr_text += "<i>" + run.text + "</i>"
                 else:
-                    # Sé que estoy en un párrafo que es el primero de una crítica
-                    # Este párrafo comenzará con el título de la película
-                    # El título está en negrita y se separa de la crítica con dos puntos
-                    titulo = ""
-                    for run in paragraph.runs:
-                        # Conservo las negritas
-                        if not run.bold:  # He llagado al final del título
-                            break
-                        titulo += run.text
+                    parr_text += run.text
 
-                    # Quito el separador, previsiblemente los dos puntos
-                    titulo = titulo.strip(".: ")
+            if not self.parrafos_critica:
+                # Si es el primer párrafo elimino el título
+                parr_text = parr_text[len(self.titulo):]
+                parr_text = parr_text.lstrip(": ")
 
-                    if self.titulo.lower() == titulo.lower():
-                        found = True
-                    else:
-                        new_film = False # Devuelvo la variable a su valor original
-            if found:
-                if paragraph.text == '':
-                    # He llagado al final de la crítica. Dejo de leer el documento
-                    return self.parrafos_critica
-                # Inicializo el párrafo
-                parr_text = ""
-
-                for run in paragraph.runs:
-                    # Conservo las cursivas
-                    if run.italic:
-                        parr_text += "<i>" + run.text + "</i>"
-                    else:
-                        parr_text += run.text
-
-                if not self.parrafos_critica:
-                    titulo = parr_text.split(":")[0]
-                    # Si es el primer párrafo elimino el título
-                    parr_text = parr_text[len(titulo):]
-                    parr_text = parr_text.lstrip(": ")
-
-                # Añado saltos de línea para un html más legible
-                parr_text = parr_text.replace(". ", ".\n")
-                # Añado el texto a la lista de párrafos
-                self.parrafos_critica.append(parr_text)
+            # Añado saltos de línea para un html más legible
+            parr_text = parr_text.replace(". ", ".\n")
+            # Añado el texto a la lista de párrafos
+            self.parrafos_critica.append(parr_text)
 
         assert("No ha sido posible encontrar la reseña.")
 
