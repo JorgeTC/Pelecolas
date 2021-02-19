@@ -78,7 +78,7 @@ class html():
         self.año = ""
         self.duración = ""
 
-        self.titulos = {}  # Hago una lista con todos los títulos que tienen una crítica escrita
+        self.titulos = {}  # Hago un diccionario con todos los títulos que tienen una crítica escrita
         search_title = False
 
         for i, paragraph in enumerate(self.doc.paragraphs): # Recorro todos los párrafos del documento
