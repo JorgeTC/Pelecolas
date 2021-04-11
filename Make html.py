@@ -8,20 +8,20 @@ import time
 
 class Pelicula(object):
     def __init__(self, urlFA=None):
-            self.url_FA = str(urlFA)
-            resp = Pelicula.SafeGetUrl(self.url_FA)
-            if resp.status_code == 404:
-                self.exists = False
-                return  # Si el id no es correcto, dejo de construir la clase
-            else:
-                self.exists = True
+        self.url_FA = str(urlFA)
+        resp = Pelicula.SafeGetUrl(self.url_FA)
+        if resp.status_code == 404:
+            self.exists = False
+            return  # Si el id no es correcto, dejo de construir la clase
+        else:
+            self.exists = True
 
-            # Parseo la página
-            self.parsed_page = BeautifulSoup(resp.text,'html.parser')
+        # Parseo la página
+        self.parsed_page = BeautifulSoup(resp.text,'html.parser')
 
-            self.director = None
-            self.año = None
-            self.duración = None
+        self.director = None
+        self.año = None
+        self.duración = None
 
     def GetDirectorYearDuration(self):
 
