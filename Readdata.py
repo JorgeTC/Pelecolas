@@ -85,6 +85,40 @@ class Pelicula(object):
         # quito el sufijo min.
         self.duracion = int(self.duracion.split(' ', 1)[0])
 
+def es_valida(titulo):
+    """
+    Busca en el título que sea una película realmente
+    """
+    # Comprobamos que no tenga ninuno de los sufijos a evitar
+    if titulo.find("(C)") > 0: # Excluyo los cortos
+        return False
+    if titulo.find("(Miniserie de TV)") > 0: # Excluyo series de televisión
+        return False
+    if titulo.find("(Serie de TV)") > 0:
+        return False
+    if titulo.find("(TV)") > 0:
+        # Hay varios tipos de películas aquí.
+        # Algunos son programas de televisón, otros estrenos directos a tele.
+        # Hay también episosios concretos de series.
+        return False
+    if titulo.find("(Vídeo musical)") > 0:
+        return False
+    # No se ha encontrado sufijo, luego es una película
+    return True
+
+class IndexLine():
+    # Esta clase debería ser capaz de dar cualquier orden a las películas
+    def __init__(self, totales):
+        self.m_totales = totales
+        # Hay que inicializarlo para que no escriba en los encabezados
+        self.m_current = 2
+
+    def GetCurrentLine(self):
+        # Actualizo el valor
+        self.m_current += 1
+        # Devuelvo el valor antes de haberlo actualizado
+        return self.m_current - 1
+
 def GetUrlFromId(id):
     """
     Me espero el id en cadena, por si acaso hago la conversión
@@ -146,7 +180,8 @@ def ReadWatched(IdUser, ws):
     resp = SafeGetUrl(Vistas)
 
     totalFilms = GetTotalFilms(resp)
-    line = IndexToLine(DataIndex, totalFilms) # linea de excel en la que estoy escribiendo
+    Iline = IndexLine(totalFilms) # linea de excel en la que estoy escribiendo
+    line = Iline.GetCurrentLine()
     bar = ProgressBar()
     while (DataIndex < totalFilms):
 
@@ -156,6 +191,12 @@ def ReadWatched(IdUser, ws):
         mylist = soup.findAll("div", {"class": "user-ratings-movie"})
 
         for i in mylist:
+            titulo =  i.contents[1].contents[1].contents[3].contents[1].contents[0].contents[0]
+
+            if not es_valida(titulo):
+                DataIndex +=1
+                continue
+
             # La votacion del usuario la leo desde fuera
             # no puedo leer la nota del usuario dentro de la ficha
             UserNote = i.contents[3].contents[1].contents[1].contents[0]
@@ -188,7 +229,7 @@ def ReadWatched(IdUser, ws):
             # actualizo la barra de progreso
             bar.update(DataIndex/totalFilms)
             # actualizo la linea de escritura en excel
-            line = IndexToLine(DataIndex, totalFilms)
+            line = Iline.GetCurrentLine()
 
         # Siguiente pagina del listado
         nIndex += 1
