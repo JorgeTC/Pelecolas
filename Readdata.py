@@ -85,6 +85,12 @@ class Pelicula(object):
         # quito el sufijo min.
         self.duracion = int(self.duracion.split(' ', 1)[0])
 
+def GetUrlFromId(id):
+    """
+    Me espero el id en cadena, por si acaso hago la conversión
+    """
+    return 'https://www.filmaffinity.com/es/film' + str(id) + ".html"
+
 def SafeGetUrl(url):
     #open with GET method
     resp = requests.get(url)
@@ -152,12 +158,12 @@ def ReadWatched(IdUser, ws):
         for i in mylist:
             # La votacion del usuario la leo desde fuera
             # no puedo leer la nota del usuario dentro de la ficha
-            UserNote = i.contents[3].contents[1].contents[0]
+            UserNote = i.contents[3].contents[1].contents[1].contents[0]
             SetCellValue(ws, line, 2, int(UserNote))
             SetCellValue(ws, line, 10, str("=B" + str(line) + "+RAND()-0.5"))
             SetCellValue(ws, line, 11, "=(B" + str(line) + "-1)*10/9")
             #guardo la url de la ficha de la pelicula
-            url = i.contents[1].contents[1].contents[3].contents[3].contents[0].attrs['href']
+            url = GetUrlFromId(n_id)
             #Entro a la ficha y leo votacion popular, duracion y votantes
             pelicula = Pelicula(urlFA = url)
             pelicula.GetTimeAndFA()
