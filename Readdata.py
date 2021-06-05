@@ -162,6 +162,9 @@ def ReadWatched(IdUser, ws):
             SetCellValue(ws, line, 2, int(UserNote))
             SetCellValue(ws, line, 10, str("=B" + str(line) + "+RAND()-0.5"))
             SetCellValue(ws, line, 11, "=(B" + str(line) + "-1)*10/9")
+            # En la primera columna guardo la id para poder reconocerla
+            n_id = i.contents[1].contents[1].attrs['data-movie-id']
+            SetCellValue(ws, line, 1, int(n_id))
             #guardo la url de la ficha de la pelicula
             url = GetUrlFromId(n_id)
             #Entro a la ficha y leo votacion popular, duracion y votantes
