@@ -242,7 +242,10 @@ if __name__ == "__main__":
     'Will_llermo': 565861, 'Roger Peris': 3922745, 'Javi': 247783, 'El Feo': 867335}
     usuario = 'Jorge'
     print("Se van a importar los datos de ", usuario)
-    input("Espero Enter...")
+    inp = input("Espero Enter...")
+    if inp and inp in Ids.keys():
+        usuario = inp
+        print("Se van a importar los datos de ", usuario)
     Plantilla = 'Plantilla.xlsx'
     ExcelName = 'Sintaxis - ' + usuario + '.xlsx'
     workbook = load_workbook(Plantilla)
