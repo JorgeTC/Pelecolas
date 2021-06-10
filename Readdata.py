@@ -18,9 +18,9 @@ class Timer(object):
             left = (1 - done) * (now - self.start) / done
             sec = int(left.total_seconds())
             if sec < 60:
-                return "{} seconds".format(sec)
+                return "{} seconds   ".format(sec)
             else:
-                return "{} minutes".format(int(sec / 60))
+                return "{} minutes   ".format(int(sec / 60))
 
 class ProgressBar(object):
     def __init__(self):
