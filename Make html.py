@@ -71,48 +71,18 @@ class html():
 
     def __init__(self):
         # Abro el documento para leerlo
-        self.doc = docx.Document('c:\\Users\\usuario\\Desktop\\Jorges things\\Pelécolas\\Reseñas.docx')
+        self.doc = docx.Document("C:\\Users\\usuario\\Desktop\\Jorges things\\Reseñas\\Películas\\Películas.docx")
 
         self.parrafos_critica = []
         self.titulo = ""
         self.año = ""
         self.duración = ""
 
-        self.titulos = {}  # Hago un diccionario con todos los títulos que tienen una crítica escrita
-        search_title = False
+        # Hago una lista con todos los títulos que tienen una crítica escrita
+        self.titulos = {}
+        self.__read_titles()
 
-        for i, paragraph in enumerate(self.doc.paragraphs): # Recorro todos los párrafos del documento
-            if not search_title:
-                if paragraph.text == 'Películas':
-                    # El encabezado de las críticas cinematográficas no me interesa
-                    continue
-                elif paragraph.text == 'Literatura':
-                    # Cuando llegue al apartado de literatura dejo de contar
-                    break
-                if self.__fin_de_parrafo(paragraph.text):
-                    # Si hay un doble salto de párrafo es que ha terminado una crítica
-                    search_title = True # El inicio del siguiente párrafo será el título de la película
-            else:
-                # Sé que estoy en un párrafo que es el primero de una crítica
-                # Este párrafo comenzará con el título de la película
-                # El título se separa de la crítica con dos puntos
-                titulo = ""
-                for run in paragraph.runs:
-                # Conservo las negritas
-                    if not run.bold:  # he llegado al final del título
-                        break
-                    titulo += run.text
-
-                # Quito el separador, previsiblemente los dos puntos.
-                titulo = titulo.strip(".: ")
-                if not self.__fin_de_parrafo(titulo):
-                    # Guardo el parrafo donde empieza la crítica.
-                    self.titulos[titulo] = i
-                else:
-                    # Si hemos encontrado un doble salto de linea, hemos llegado a los libros
-                    break
-                search_title = False # Devuelvo la variable a su valor original
-
+        # Para el buscador de películas, defino los caracteres para los que no quiero que sea sensitivo
         self.__unwanted_chars = dict.fromkeys(map(ord, " ,!¡@#$?¿()."), None)
         self.__unwanted_chars.update(zip(map(ord, "áéíóú"),map(ord, "aeiou")))
         self.__unwanted_chars.update(zip(map(ord, "àèìòù"),map(ord, "aeiou")))
@@ -124,20 +94,73 @@ class html():
         while not exists_given_title:
             self.titulo = input("Introduzca título de la película: ")
             exists_given_title = self.exists(self.titulo)
+
         self.director = input("Introduzca director: ")
+        # Si en vez de un director se introduce la dirección de FA, no necesito nada más
         if not self.__interpretate_director():
             return
+
         self.año = input("Introduzca el año: ")
         self.duración = input("Introduzca duración de la película: ")
+
+    def __read_titles(self):
+        search_title = False
+
+        # Recorro todos los párrafos del documento
+        for i, paragraph in enumerate(self.doc.paragraphs):
+            if not search_title:
+                if paragraph.text == 'Películas':
+                    # El encabezado de las críticas cinematográficas no me interesa
+                    continue
+                elif paragraph.text == 'Literatura':
+                    # Cuando llegue al apartado de literatura dejo de contar
+                    break
+                if self.__fin_de_parrafo(paragraph.text):
+                    # Si hay un doble salto de párrafo es que ha terminado una crítica
+                    # El inicio del siguiente párrafo será el título de la película
+                    search_title = True
+            else:
+                # Sé que estoy en un párrafo que es el primero de una crítica
+                # Este párrafo comenzará con el título de la película
+
+                titulo = self.__read_title(paragraph.runs)
+
+                if not self.__fin_de_parrafo(titulo):
+                    # Guardo el parrafo donde empieza la crítica.
+                    self.titulos[titulo] = i
+                else:
+                    # Si hemos encontrado un doble salto de linea, hemos llegado a los libros
+                    break
+                # Devuelvo la variable a su valor original
+                search_title = False
+
+    def __read_title(self, paragraph):
+        '''
+        paragraph: debe ser la lista de runs de un párrafo
+        '''
+        titulo = ""
+
+        for run in paragraph:
+            # Conservo las negritas
+                if not run.bold:  # he llegado al final del título
+                    break
+                titulo += run.text
+
+        # Quito el separador, previsiblemente los dos puntos.
+        titulo = titulo.strip(".: ")
+
+        return titulo
 
     def __interpretate_director(self):
         # Si es un número, considero que se ha introducido un id de Filmaffinitty
         if self.director.isnumeric():
             url = 'https://www.filmaffinity.com/es/film' + self.director + '.html'
             return not self.__get_data_from_FA(url)
+
         if self.director.find("filmaffinity") >= 0:
             # Se ha introducido directamente la url
             return not self.__get_data_from_FA(self.director)
+
         else:
             # El director de la película es lo introducido por teclado
             return True
@@ -171,8 +194,11 @@ class html():
         # Intento buscar los casos más cercanos
         titulo = self.__normalize_string(titulo)
         found = False
+        # Recorro la lista de titulos
         for iter in self.titulos:
+            # Efectúo la comparación usando un título normalizado
             iter_ = self.__normalize_string(iter)
+            # Busco si se contienen mutuamente
             if titulo.find(iter_) >= 0 or iter_.find(titulo) >= 0:
                 # Hay suficiente concordancia como para sugerir el título
                 if not found:
