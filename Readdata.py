@@ -236,8 +236,7 @@ def ReadWatched(IdUser, ws):
         Vistas = 'https://www.filmaffinity.com/es/userratings.php?user_id=' + str(IdUser) + '&p=' + str(nIndex) + '&orderby=4'
         resp = SafeGetUrl(Vistas)
 
-
-if __name__ == "__main__":
+def get_user():
     Ids = {'Sasha': 1230513, 'Jorge': 1742789, 'Guillermo': 4627260, 'Daniel Gallego': 983049, 'Luminador': 7183467,
     'Will_llermo': 565861, 'Roger Peris': 3922745, 'Javi': 247783, 'El Feo': 867335}
     usuario = 'Jorge'
@@ -246,10 +245,16 @@ if __name__ == "__main__":
     if inp and inp in Ids.keys():
         usuario = inp
         print("Se van a importar los datos de ", usuario)
+
+    return usuario, Ids[usuario]
+
+
+if __name__ == "__main__":
+    usuario, id = get_user()
     Plantilla = 'Plantilla.xlsx'
     ExcelName = 'Sintaxis - ' + usuario + '.xlsx'
     workbook = load_workbook(Plantilla)
     worksheet = workbook[workbook.sheetnames[0]]
-    ReadWatched(Ids[usuario], worksheet)
+    ReadWatched(id, worksheet)
     workbook.save(ExcelName)
     workbook.close()
