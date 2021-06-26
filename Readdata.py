@@ -312,14 +312,28 @@ def get_user():
 
     return usuario, Ids[usuario]
 
+class ExcelMgr(object):
+    def __init__(self, usuario):
+        # El nombre de la plantilla siempre es el mismo
+        Plantilla = 'Plantilla.xlsx'
+        self.wb = load_workbook(Plantilla)
+        self.ws = self.wb[self.wb.sheetnames[0]]
+
+        self.ExcelName = 'Sintaxis - ' + usuario + '.xlsx'
+
+    def get_worksheet(self):
+        return self.ws
+
+    def save_wb(self):
+        self.wb.save(self.ExcelName)
+        self.wb.close()
 
 if __name__ == "__main__":
     usuario, id = get_user()
-    Plantilla = 'Plantilla.xlsx'
-    ExcelName = 'Sintaxis - ' + usuario + '.xlsx'
-    workbook = load_workbook(Plantilla)
-    worksheet = workbook[workbook.sheetnames[0]]
-    writer = Writer(id, worksheet)
+
+    ex_doc = ExcelMgr(usuario)
+
+    writer = Writer(id, ex_doc.get_worksheet())
     writer.read_watched()
-    workbook.save(ExcelName)
-    workbook.close()
+
+    ex_doc.save_wb()
