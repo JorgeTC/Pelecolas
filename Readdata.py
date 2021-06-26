@@ -238,7 +238,7 @@ def ReadWatched(IdUser, ws):
 
 def get_user():
     Ids = {'Sasha': 1230513, 'Jorge': 1742789, 'Guillermo': 4627260, 'Daniel Gallego': 983049, 'Luminador': 7183467,
-    'Will_llermo': 565861, 'Roger Peris': 3922745, 'Javi': 247783, 'El Feo': 867335}
+    'Will_llermo': 565861, 'Roger Peris': 3922745, 'Javi': 247783, 'El Feo': 867335, 'coleto': 527264}
     usuario = 'Jorge'
     print("Se van a importar los datos de ", usuario)
     inp = input("Espero Enter...")
