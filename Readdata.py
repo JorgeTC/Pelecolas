@@ -2,7 +2,7 @@ import requests
 import webbrowser
 from openpyxl import load_workbook
 from openpyxl.styles import Alignment, Font
-# from openpyxl.styles import PatternFill, Border, Side, numbers
+import ast
 import sys
 from bs4 import BeautifulSoup
 import time
@@ -37,46 +37,27 @@ class ProgressBar(object):
 
 class Pelicula(object):
     def __init__(self, movie_box):
-            self.titulo = self.get_title(movie_box)
-            self.user_note = self.get_user_note(movie_box)
-            self.id = self.get_id(movie_box)
-            self.url_FA = get_url_from_id(self.id)
+        self.titulo = self.__get_title(movie_box)
+        self.user_note = self.__get_user_note(movie_box)
+        self.id = self.__get_id(movie_box)
+        self.url_FA = get_url_from_id(self.id)
 
-            self.parsed_page = None
-            self.nota_FA = 0
-            self.votantes_FA = 0
-            self.duracion = 0
+        self.parsed_page = None
+        self.nota_FA = 0
+        self.votantes_FA = 0
+        self.duracion = 0
 
-    def get_title(self, film):
-        return film.contents[1].contents[1].contents[3].contents[1].contents[0].contents[0]
+    def __get_title(self, film_box):
+        return film_box.contents[1].contents[1].contents[3].contents[1].contents[0].contents[0]
 
-    def get_user_note(self, film):
-        return film.contents[3].contents[1].contents[1].contents[0]
+    def __get_user_note(self, film_box):
+        return film_box.contents[3].contents[1].contents[1].contents[0]
 
-    def get_id(self, film):
-        return film.contents[1].contents[1].attrs['data-movie-id']
+    def __get_id(self, film_box):
+        return film_box.contents[1].contents[1].attrs['data-movie-id']
 
-    def get_FA_url(self):
-        return self.url_FA
-
-    def valid(self):
-        return es_valida(self.titulo)
-
-    def get_parsed_page(self):
-        resp = safe_get_url(self.get_FA_url())
-        if resp.status_code == 404:
-            self.exists = False
-            return # Si el id no es correcto, dejo de construir la clase
-        else:
-            self.exists = True
-
-        # Parseo la página
-        self.parsed_page = BeautifulSoup(resp.text,'html.parser')
-
-    def get_time_and_FA(self):
-        if not self.parsed_page:
-            self.get_parsed_page()
-        # Comienzo a leer datos de la página
+    def get_nota_FA(self):
+        # Me espero que la página ya haya sido parseada
         l = self.parsed_page.find(id="movie-rat-avg")
         try:
             # guardo la nota de FA en una ficha normal
@@ -85,6 +66,8 @@ class Pelicula(object):
             # caso en el que no hay nota de FA
             self.nota_FA = 0
 
+    def get_votantes_FA(self):
+        # Me espero que la página ya haya sido parseada
         l = self.parsed_page.find(itemprop="ratingCount")
         try:
             # guardo la cantidad de votantes en una ficha normal
@@ -96,6 +79,8 @@ class Pelicula(object):
             # caso en el que no hay suficientes votantes
             self.votantes_FA = 0
 
+    def get_duracion(self):
+        # Me espero que la página ya haya sido parseada
         l = self.parsed_page.find(id = "left-column")
         try:
             self.duracion = l.find(itemprop="duration").contents[0]
@@ -104,6 +89,32 @@ class Pelicula(object):
             self.duracion = "0"
         # quito el sufijo min.
         self.duracion = int(self.duracion.split(' ', 1)[0])
+
+
+    def valid(self):
+        return es_valida(self.titulo)
+
+    def get_parsed_page(self):
+        resp = safe_get_url(self.url_FA)
+        if resp.status_code == 404:
+            # Si el id no es correcto, dejo de construir la clase
+            return
+
+        # Parseo la página
+        self.parsed_page = BeautifulSoup(resp.text,'html.parser')
+
+    def get_time_and_FA(self):
+        # Método que obtiene datos que necesitan parsear la ficha de la película
+        # Me aseguro de que esté parseada
+        if not self.parsed_page:
+            self.get_parsed_page()
+
+        # Llamo a las funciones que leen la ficha parseada
+        self.get_nota_FA()
+        self.get_votantes_FA()
+        self.get_duracion()
+
+
 
 def es_valida(titulo):
     """
@@ -139,7 +150,7 @@ class IndexLine():
         # Devuelvo el valor antes de haberlo actualizado
         return self.m_current - 1
 
-    def int(self):
+    def __int__(self):
         return self.m_current
 
 def get_url_from_id(id):
@@ -182,18 +193,6 @@ def set_cell_value(ws, line, col, value):
         cell.number_format = '0.0'
     elif (col == 11 or col == 12): #reescala
         cell.number_format = '0.00'
-
-def GetTotalFilms(resp):
-    soup=BeautifulSoup(resp.text,'html.parser')
-    # me espero que haya un único "value-box active-tab"
-    mydivs = soup.find("a", {"class": "value-box active-tab"})
-    stringNumber = mydivs.contents[3].contents[1]
-    # Elimino el punto de los millares
-    stringNumber = stringNumber.replace('.','')
-    return int(stringNumber)
-
-def IndexToLine(index, total):
-    return total - index + 1
 
 class Writer(object):
     def __init__(self, id, worksheet):
@@ -267,7 +266,7 @@ class Writer(object):
 
     def write_in_excel(self, film):
         # Convierto el iterador en un entero
-        line = self.line.int()
+        line = int(self.line)
         # La votacion del usuario la leo desde fuera
         # no puedo leer la nota del usuario dentro de la ficha
         UserNote = film.user_note
@@ -275,8 +274,7 @@ class Writer(object):
         set_cell_value(self.ws, line, 10, str("=B" + str(line) + "+RAND()-0.5"))
         set_cell_value(self.ws, line, 11, "=(B" + str(line) + "-1)*10/9")
         # En la primera columna guardo la id para poder reconocerla
-        n_id = film.id
-        set_cell_value(self.ws, line, 1, int(n_id))
+        set_cell_value(self.ws, line, 1, int(film.id))
         film.get_time_and_FA()
         if (film.duracion != 0):
             # dejo la casilla en blanco si no logra leer ninguna duración de FA
@@ -300,17 +298,42 @@ class Writer(object):
         self.film_index += 1
         self.bar.update(self.film_index/self.total_films)
 
-def get_user():
-    Ids = {'Sasha': 1230513, 'Jorge': 1742789, 'Guillermo': 4627260, 'Daniel Gallego': 983049, 'Luminador': 7183467,
-    'Will_llermo': 565861, 'Roger Peris': 3922745, 'Javi': 247783, 'El Feo': 867335, 'coleto': 527264}
-    usuario = 'Jorge'
-    print("Se van a importar los datos de ", usuario)
-    inp = input("Espero Enter...")
-    if inp and inp in Ids.keys():
-        usuario = inp
-        print("Se van a importar los datos de ", usuario)
+class Usuario(object):
+    def __init__(self):
+        self.ids = self.read_dict()
+        self.nombre = "Jorge"
+        self.id = 0
 
-    return usuario, Ids[usuario]
+        self.ask_user()
+
+    def read_dict(self):
+        file = open("usuarios.json", "r")
+        contents = file.read()
+        dictionary = ast.literal_eval(contents)
+
+        file.close()
+
+        return dictionary
+
+    def ask_user(self):
+        while self.id == 0:
+            # Informamos de qué usuario está cargado
+            print("Se van a importar los datos de ", self.nombre)
+            inp = input("Espero Enter...")
+
+            # No se ha introducido nada por teclado
+            if not inp:
+                self.id = self.ids[self.nombre]
+                return
+
+            valid_key = inp in self.ids.keys()
+            # Si se ha introducido un nombre válido lo guardo como el usuario
+            if inp and valid_key:
+                self.nombre = inp
+
+            if valid_key:
+                print("Se van a importar los datos de ", self.nombre)
+                self.id = self.ids[self.nombre]
 
 class ExcelMgr(object):
     def __init__(self, usuario):
@@ -329,11 +352,11 @@ class ExcelMgr(object):
         self.wb.close()
 
 if __name__ == "__main__":
-    usuario, id = get_user()
+    usuario = Usuario()
 
-    ex_doc = ExcelMgr(usuario)
+    ex_doc = ExcelMgr(usuario.nombre)
 
-    writer = Writer(id, ex_doc.get_worksheet())
+    writer = Writer(usuario.id, ex_doc.get_worksheet())
     writer.read_watched()
 
     ex_doc.save_wb()
