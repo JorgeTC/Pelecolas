@@ -179,21 +179,6 @@ def PassCaptcha(url):
         resp = requests.get(url)
     return resp
 
-def set_cell_value(ws, line, col, value):
-    cell = ws.cell(row = line, column=col)
-    cell.value = value
-    # Configuramos el estilo de la celda
-    if (col == 5): # visionados. Ponemos punto de millar
-        cell.number_format = '#,##0'
-    elif (col == 9): # booleano mayor que
-        cell.number_format = '0'
-        cell.font = Font(name = 'SimSun', bold = True)
-        cell.alignment=Alignment(horizontal='center', vertical='center')
-    elif (col == 10):
-        cell.number_format = '0.0'
-    elif (col == 11 or col == 12): #reescala
-        cell.number_format = '0.00'
-
 class Writer(object):
     def __init__(self, id, worksheet):
         # numero de usuario en string
@@ -270,29 +255,48 @@ class Writer(object):
         # La votacion del usuario la leo desde fuera
         # no puedo leer la nota del usuario dentro de la ficha
         UserNote = film.user_note
-        set_cell_value(self.ws, line, 2, int(UserNote))
-        set_cell_value(self.ws, line, 10, str("=B" + str(line) + "+RAND()-0.5"))
-        set_cell_value(self.ws, line, 11, "=(B" + str(line) + "-1)*10/9")
+        self.set_cell_value(line, 2, int(UserNote))
+        self.set_cell_value(line, 10, str("=B" + str(line) + "+RAND()-0.5"))
+        self.set_cell_value(line, 11, "=(B" + str(line) + "-1)*10/9")
         # En la primera columna guardo la id para poder reconocerla
-        set_cell_value(self.ws, line, 1, int(film.id))
+        self.set_cell_value(line, 1, int(film.id))
         film.get_time_and_FA()
         if (film.duracion != 0):
             # dejo la casilla en blanco si no logra leer ninguna duración de FA
-            set_cell_value(self.ws, line, 4, film.duracion)
+            self.set_cell_value(line, 4, film.duracion)
         if (film.nota_FA != 0):
             # dejo la casilla en blanco si no logra leer ninguna nota de FA
-            set_cell_value(self.ws, line, 3, film.nota_FA)
-            set_cell_value(self.ws, line, 6, "=ROUND(C" + str(line) + "*2, 0)/2")
-            set_cell_value(self.ws, line, 7, "=B" + str(line) + "-C" + str(line))
-            set_cell_value(self.ws, line, 8, "=ABS(G" + str(line) + ")")
-            set_cell_value(self.ws, line, 9, "=IF($G" + str(line) + ">0,1,0.1)")
-            set_cell_value(self.ws, line, 12, "=(C" + str(line) + "-1)*10/9")
+            self.set_cell_value(line, 3, film.nota_FA)
+            self.set_cell_value(line, 6, "=ROUND(C" + str(line) + "*2, 0)/2")
+            self.set_cell_value(line, 7, "=B" + str(line) + "-C" + str(line))
+            self.set_cell_value(line, 8, "=ABS(G" + str(line) + ")")
+            self.set_cell_value(line, 9, "=IF($G" + str(line) + ">0,1,0.1)")
+            self.set_cell_value(line, 12, "=(C" + str(line) + "-1)*10/9")
         if (film.votantes_FA != 0):
             # dejo la casilla en blanco si no logra leer ninguna votantes
-            set_cell_value(self.ws, line, 5, film.votantes_FA)
+            self.set_cell_value(line, 5, film.votantes_FA)
 
         # Como he escrito en el excel, paso a la línea siguiente
         self.line.get_current_line()
+
+    def set_cell_value(self, line, col, value):
+        cell = self.ws.cell(row = line, column=col)
+        cell.value = value
+        # Configuramos el estilo de la celda atendiendo a su columna
+        # visionados. Ponemos punto de millar
+        if (col == 5):
+            cell.number_format = '#,##0'
+        # booleano mayor que
+        elif (col == 9):
+            cell.number_format = '0'
+            cell.font = Font(name = 'SimSun', bold = True)
+            cell.alignment=Alignment(horizontal='center', vertical='center')
+        # Nota del usuario más el ruido
+        elif (col == 10):
+            cell.number_format = '0.0'
+        #reescala
+        elif (col == 11 or col == 12):
+            cell.number_format = '0.00'
 
     def next_film(self):
         self.film_index += 1
