@@ -320,24 +320,26 @@ class Usuario(object):
         return dictionary
 
     def ask_user(self):
-        while self.id == 0:
+        while True:
             # Informamos de qué usuario está cargado
             print("Se van a importar los datos de ", self.nombre)
             inp = input("Espero Enter...")
 
             # No se ha introducido nada por teclado
             if not inp:
-                self.id = self.ids[self.nombre]
-                return
+                break
 
-            valid_key = inp in self.ids.keys()
+            # Se ha introducido un nombre incorrecto.
+            # Doy una nueva oportunidad para que introduzca otro nombre
+            if not (inp in self.ids.keys()):
+                continue
             # Si se ha introducido un nombre válido lo guardo como el usuario
-            if inp and valid_key:
-                self.nombre = inp
+            self.nombre = inp
+            print("Se van a importar los datos de ", self.nombre)
+            break
 
-            if valid_key:
-                print("Se van a importar los datos de ", self.nombre)
-                self.id = self.ids[self.nombre]
+        # Sólo hemos salido del bucle si el id es válido
+        self.id = self.ids[self.nombre]
 
 class ExcelMgr(object):
     def __init__(self, usuario):
