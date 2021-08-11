@@ -5,12 +5,13 @@ class WordReader():
     def __init__(self):
         # Abro el documento para leerlo
         sz_literatura = self.__get_word_file_name()
+        # Me quedo con el nombre del archivo sin la extensión.
+        self.header = sz_literatura[:sz_literatura.find(".")]
         # Me guardo sólo los párrafos, es lo que voy a iterar más adelante
         self.paragraphs = docx.Document(sz_literatura).paragraphs
 
         # Lista con todos los títulos que encuentre.
         self.titulos = []
-        pass
 
     def __get_title(self, paragraph):
 
@@ -55,7 +56,7 @@ class WordReader():
     def __is_header(self, text):
         # Quiero que el código valga para contar las películas y los libros.
         # No sé qué encabezado me voy a encontrar en mi documento.
-        return text == 'Literatura' or text == 'Películas'
+        return text == self.header
 
     def __get_word_file_name(self):
         # Me espero un único archivo docx
