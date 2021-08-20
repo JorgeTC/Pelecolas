@@ -29,6 +29,10 @@ class ProgressBar(object):
         self.barLength = 20
         self.progress = 0.0
 
+    def __del__(self):
+        self.update(1)
+        del self.timer
+
     def update(self, done):
         self.progress = float(done)
         block = int(round(self.barLength * self.progress))
@@ -51,7 +55,7 @@ def extract_text():
     file=docx.Document(PATH+NAME)
 
     # Extraigo en una lista todo el texto del documento
-    parr_lis=[parr.text for parr in file.paragraphs[:10] if parr.text]
+    parr_lis=[parr.text for parr in file.paragraphs[:] if parr.text]
 
     del file
 
@@ -88,15 +92,21 @@ def desconjugar(palabras):
             new_dict[pal_doc] = palabras[index][1]
 
         timer.update(index/total)
+    del timer
+
+    new_dict = sort_dict(new_dict)
 
     return new_dict
+
+def sort_dict(freq):
+    return sorted(freq.items(), key=lambda item: item[1], reverse=True)
 
 def get_frequencies(palabras):
     # Guardamos las frecuencias
     freq=FreqDist(palabras)
 
     # Ordeno las frecuencias
-    freq = sorted(freq.items(), key=lambda item: item[1], reverse=True)
+    freq = sort_dict(freq)
 
     return freq
 
@@ -107,7 +117,7 @@ def write_csv(freq_dict):
     # Escribo los encabezados
     output_file.write("Palabra,ocurrencias\n")
 
-    for key, val in freq_dict.items():
+    for key, val in freq_dict:
         output_file.write("{},{}\n".format(key, val))
 
     output_file.close()
