@@ -5,9 +5,12 @@ from nltk.corpus import stopwords
 from nltk import FreqDist
 import datetime
 import sys
+import torch
 
 PATH="C:\\Users\\usuario\\Desktop\\Jorges things\\Reseñas\\Películas\\"
 NAME="Películas.docx"
+
+MODEL_FOLDER="C:\\Users\\usuario\\stanza_resources\\es\\lemma\\"
 
 class Timer(object):
     def __init__(self):
@@ -74,29 +77,78 @@ def list_words(my_parr):
 
     return palabras_punct
 
+class Desconjugador:
+    def __init__(self, palabras) -> None:
+        # No es un diccionario, es una lista de pares
+        self.palabras = palabras
 
-def desconjugar(palabras):
-    new_dict = {}
+        self.__emprove_lemma()
 
-    nlp = stanza.Pipeline("es", verbose=False)
+        self.nlp = stanza.Pipeline('es', package='ancora',
+                                    processors='tokenize,pos,lemma',
+                                    lemma_model_path=MODEL_FOLDER+'ancora_customized.pt',
+                                    verbose=False)
 
-    keys = [palabra[0] for palabra in palabras]
-    total = len(keys)
-    timer = ProgressBar()
-    for index, pal in enumerate(keys):
-        pal_doc = nlp(pal).sentences[0].words[0].lemma
+        pass
 
-        if pal_doc in new_dict.keys():
-            new_dict[pal_doc] += palabras[index][1]
-        else:
-            new_dict[pal_doc] = palabras[index][1]
+    def __emprove_lemma(self):
 
-        timer.update(index/total)
-    del timer
+        model = torch.load(MODEL_FOLDER + "ancora.pt", map_location='cpu')
 
-    new_dict = sort_dict(new_dict)
+        self.word_dict, self.composite_dict = model['dicts']
 
-    return new_dict
+        self.__add_word('peli', 'película', 'NOUN')
+        self.__add_word('pelis', 'película', 'NOUN')
+        self.__add_word('dirigido', 'dirigir', 'VERB')
+        self.__add_word('zooms', 'zoom', 'NOUN')
+        self.__add_word('ciges', 'Ciges', 'PROPN')
+        self.__add_word('camarera', 'camarero', 'NOUN')
+        self.__add_word('famosísimo', 'famoso', 'ADJ')
+        self.__add_word('famosísimos', 'famoso', 'ADJ')
+        self.__add_word('famosísima', 'famoso', 'ADJ')
+        self.__add_word('famosísimas', 'famoso', 'ADJ')
+        self.__add_word('delgadísimo', 'delgado', 'ADJ')
+        self.__add_word('vuelca', 'volcar', 'VERB')
+        self.__add_word('puesta', 'puesto', 'ADJ')
+        self.__add_word('chica', 'chico', 'NOUN')
+        self.__add_word('niña', 'niño', 'NOUN')
+        self.__add_word('muchísimo', 'mucho', '')
+
+        torch.save(model, MODEL_FOLDER + 'ancora_customized.pt')
+
+        pass
+
+    def __add_word(self, word, lema, category):
+        self.composite_dict[(word, category)] = lema
+        self.word_dict[word] = lema
+
+    def desconjugar(self):
+
+        new_dict = {}
+
+        nlp = stanza.Pipeline('es', package='ancora', processors='tokenize,pos,lemma', lemma_model_path=MODEL_FOLDER+'ancora_customized.pt', verbose=False)
+
+        keys = [palabra[0] for palabra in self.palabras]
+        total = len(keys)
+        timer = ProgressBar()
+        for index, pal in enumerate(keys):
+
+            # Si la palabra es una única letra, no nos da información
+            if( len(pal) == 1 ):
+                pass
+
+            pal_doc = nlp(pal).sentences[0].words[0].lemma
+
+            if pal_doc in new_dict.keys():
+                new_dict[pal_doc] += self.palabras[index][1]
+            else:
+                new_dict[pal_doc] = self.palabras[index][1]
+
+            timer.update(index/total)
+        del timer
+
+        self.palabras = sort_dict(new_dict)
+
 
 def sort_dict(freq):
     return sorted(freq.items(), key=lambda item: item[1], reverse=True)
@@ -130,8 +182,9 @@ if __name__ == "__main__":
     # Hacemos una primera limpieza de palabras repetidas
     freq = get_frequencies(palabras)
 
-    freq = desconjugar(freq)
+    nlp = Desconjugador(freq)
+    nlp.desconjugar()
 
-    write_csv(freq)
+    write_csv(nlp.palabras)
 
     input("Espero enter")
