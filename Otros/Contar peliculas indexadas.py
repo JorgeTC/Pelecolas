@@ -8,11 +8,11 @@ from bs4 import BeautifulSoup
 import time
 import datetime
 import random
- 
+
 class Timer(object):
     def __init__(self):
         self.start = datetime.datetime.now()
- 
+
     def remains(self, done):
         if done == 0:
             return "Infinity"
@@ -35,7 +35,7 @@ def GetTimeAndFA(soup):
         # caso en el que no hay nota de FA
         dNotaFA = 0
         return 0, 0, 0 # No pierdo el timepo leyendo otros datos
-    
+
     l=soup.find(itemprop="ratingCount")
     try:
         # guardo la cantidad de votantes en una ficha normal
@@ -46,7 +46,7 @@ def GetTimeAndFA(soup):
     except:
         # caso en el que no hay suficientes votantes
         nVotantes = 0
-    
+
     l = soup.find(id = "left-column")
     try:
         duracion = l.find(itemprop="duration").contents[0]
@@ -60,7 +60,7 @@ def GetTimeAndFA(soup):
 
 def SafeGetUrl(CodigoPelicula):
     url = 'https://www.filmaffinity.com/es/film' + str(CodigoPelicula) + '.html'
-    #open with GET method 
+    #open with GET method
     resp = requests.get(url)
     # Caso 429: too many requests
     if resp.status_code == 429:
@@ -77,7 +77,7 @@ def PassCaptcha(url):
         time.sleep(3) # intento recargar la página cada 3 segundos
         resp = requests.get(url)
     return resp
-    
+
 def SetCellValue(ws, line, col, value):
     cell = ws.cell(row = line, column=col)
     cell.value = value
@@ -119,15 +119,15 @@ def ReadWatched(ws):
     DataIndex = 0 # contador de peliculas
     notaFA = 0.0
     duracion = 0
-    
+
     totalFilms = 500
     line = IndexToLine(DataIndex, totalFilms) # linea de excel en la que estoy escribiendo
     timer = Timer()
     while (DataIndex < totalFilms):
         resp = SafeGetUrl()
-        # we need a parser,Python built-in HTML parser is enough . 
+        # we need a parser,Python built-in HTML parser is enough .
         soup = BeautifulSoup(resp.text,'html.parser')
-        
+
         #Entro a la ficha y leo votacion popular, duracion y votantes
         notaFA, duracion, votantes = GetTimeAndFA(soup)
         if notaFA == 0:
@@ -155,6 +155,11 @@ def ReadWatched(ws):
 
 
 if __name__ == "__main__":
+
+    # Script sin pulir que pretende acceder a las ids de FilmAffinity
+    # y comprobar cuáles de ellas corresponden a una película.
+    # En un tiempo absurdamente largo, contará todas las películas que tiene indexadas FA.
+
     timer = Timer()
     contador = 0
     for i in range(100000, 1000000):
@@ -162,5 +167,5 @@ if __name__ == "__main__":
         resp = SafeGetUrl(i)
         if resp.status_code != 404:
             contador += 1
-    
+
     print(contador)
