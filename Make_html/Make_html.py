@@ -2,13 +2,15 @@ import docx
 import re
 from .Pelicula import Pelicula
 from .WordReader import WordReader
+from pathlib import Path
 
 
 class html():
 
-    def __init__(self):
+    def __init__(self, folder):
+        self.folder = folder
         # Abro el documento para leerlo
-        self.doc = docx.Document("Películas.docx")
+        self.doc = docx.Document(folder / "Películas.docx")
 
         self.parrafos_critica = []
         self.titulo = ""
@@ -16,15 +18,12 @@ class html():
         self.duración = ""
 
         # Hago una lista con todos los títulos que tienen una crítica escrita
-        reader = WordReader()
+        reader = WordReader(folder)
         reader.list_titles()
         self.titulos = reader.titulos
 
         # Para el buscador de películas, defino los caracteres para los que no quiero que sea sensitivo
-        self.__unwanted_chars = dict.fromkeys(map(ord, " ,!¡@#$?¿()."), None)
-        self.__unwanted_chars.update(zip(map(ord, "áéíóú"),map(ord, "aeiou")))
-        self.__unwanted_chars.update(zip(map(ord, "àèìòù"),map(ord, "aeiou")))
-        self.__unwanted_chars.update(zip(map(ord, "âêîôû"),map(ord, "aeiou")))
+        self.__unwanted_chars = self.__make_unwanted_chars()
 
     def ask_for_data(self):
         exists_given_title = False
@@ -40,6 +39,18 @@ class html():
 
         self.año = input("Introduzca el año: ")
         self.duración = input("Introduzca duración de la película: ")
+
+    def __make_unwanted_chars(self):
+
+        # No quiero que los caracteres de puntuación afecten al buscar la película
+        chars_dict = dict.fromkeys(map(ord, " ,!¡@#$?¿()."), None)
+        # Elimino los tipos de tildes
+        chars_dict.update(zip(map(ord, "áéíóú"),map(ord, "aeiou")))
+        chars_dict.update(zip(map(ord, "àèìòù"),map(ord, "aeiou")))
+        chars_dict.update(zip(map(ord, "âêîôû"),map(ord, "aeiou")))
+        chars_dict.update(zip(map(ord, "äëïöü"),map(ord, "aeiou")))
+
+        return chars_dict
 
     def __interpretate_director(self):
         # Si es un número, considero que se ha introducido un id de Filmaffinitty
@@ -147,7 +158,8 @@ class html():
 
         self.search_film()
 
-        reseña = open("Reseña " + str(self.titulo) + ".html", mode="w",encoding="utf-8")
+        sz_file_name = "Reseña " + str(self.titulo) + ".html"
+        reseña = open(self.folder / sz_file_name, mode="w",encoding="utf-8")
 
         # Escribo el encabezado
         reseña.write("<!-- Encabezado -->\n")

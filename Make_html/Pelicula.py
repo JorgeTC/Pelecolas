@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 import sys
 sys.path.append("../")
-from Readdata.safe_url import safe_get_url
+from .safe_url import safe_get_url
 
 
 class Pelicula(object):

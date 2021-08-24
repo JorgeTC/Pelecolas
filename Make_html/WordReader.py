@@ -1,12 +1,13 @@
 import docx
-import os
+from pathlib import Path
 
 class WordReader():
-    def __init__(self):
+    def __init__(self, folder):
         # Abro el documento para leerlo
-        sz_literatura = self.__get_word_file_name()
+        sz_literatura = self.__get_word_file_name(folder)
         # Me quedo con el nombre del archivo sin la extensión.
-        self.header = sz_literatura[:sz_literatura.find(".")]
+        self.header = sz_literatura.stem
+        self.folder = sz_literatura.parent
         # Me guardo sólo los párrafos, es lo que voy a iterar más adelante
         self.paragraphs = docx.Document(sz_literatura).paragraphs
 
@@ -58,10 +59,10 @@ class WordReader():
         # No sé qué encabezado me voy a encontrar en mi documento.
         return text == self.header
 
-    def __get_word_file_name(self):
+    def __get_word_file_name(self, folder):
         # Me espero un único archivo docx
-        all_files = os.listdir()
-        all_files = [x for x in all_files if x.endswith(".docx")]
+        all_files = [x for x in folder.iterdir()]
+        all_files = [x for x in all_files if x.suffix.lower() == ".docx"]
 
         return all_files[0]
 
@@ -111,7 +112,7 @@ class WordReader():
         return self.titulos.keys()
 
     def write_list(self):
-        titulos_doc = open("Titulos de reseñas.txt", "w")
+        titulos_doc = open(self.folder / "Titulos de reseñas.txt", "w")
 
         for titulo in self.titulos:
             titulos_doc.write(titulo + "\n")
