@@ -1,70 +1,7 @@
 import docx
 import re
-from bs4 import BeautifulSoup
-import requests
-import webbrowser
-import time
-
-
-class Pelicula(object):
-    def __init__(self, urlFA=None):
-        self.url_FA = str(urlFA)
-        resp = Pelicula.SafeGetUrl(self.url_FA)
-        if resp.status_code == 404:
-            self.exists = False
-            return  # Si el id no es correcto, dejo de construir la clase
-        else:
-            self.exists = True
-
-        # Parseo la página
-        self.parsed_page = BeautifulSoup(resp.text,'html.parser')
-
-        self.director = None
-        self.año = None
-        self.duración = None
-
-    def GetDirectorYearDuration(self):
-
-        l = self.parsed_page.find(id="left-column")
-        try:
-            self.duración = l.find(itemprop="duration").contents[0]
-        except:
-            return False
-            # caso en el que no está escrita la duración
-        # quito el sufijo min.
-        self.duración = int(self.duración.split(' ', 1)[0])
-
-        try:
-            self.director = l.find(itemprop="director").contents[0].contents[0].contents[0]
-        except:
-            return False
-
-        try:
-            self.año = l.find(itemprop="datePublished").contents[0]
-        except:
-            return False
-
-    @staticmethod
-    def SafeGetUrl(url):
-        # open with GET method
-        resp = requests.get(url)
-        # Caso 429: too many requests
-        if resp.status_code == 429:
-            return Pelicula.PassCaptcha(url)
-        else:  # No está contemplado el caso 404: not found
-            return resp
-
-    @staticmethod
-    def PassCaptcha(url):
-        # abro un navegador para poder pasar el Captcha
-        webbrowser.open(url)
-        resp = requests.get(url)
-        print("\nPor favor, entra en FilmAffinity y pasa el captcha por mí.")
-        # Controlo que se haya pasado el Captcha
-        while resp.status_code != 200:
-            time.sleep(3)  # intento recargar la página cada 3 segundos
-            resp = requests.get(url)
-        return resp
+from .Pelicula import Pelicula
+from .WordReader import WordReader
 
 
 class html():
@@ -79,8 +16,9 @@ class html():
         self.duración = ""
 
         # Hago una lista con todos los títulos que tienen una crítica escrita
-        self.titulos = {}
-        self.__read_titles()
+        reader = WordReader()
+        reader.list_titles()
+        self.titulos = reader.titulos
 
         # Para el buscador de películas, defino los caracteres para los que no quiero que sea sensitivo
         self.__unwanted_chars = dict.fromkeys(map(ord, " ,!¡@#$?¿()."), None)
@@ -102,54 +40,6 @@ class html():
 
         self.año = input("Introduzca el año: ")
         self.duración = input("Introduzca duración de la película: ")
-
-    def __read_titles(self):
-        search_title = False
-
-        # Recorro todos los párrafos del documento
-        for i, paragraph in enumerate(self.doc.paragraphs):
-            if not search_title:
-                if paragraph.text == 'Películas':
-                    # El encabezado de las críticas cinematográficas no me interesa
-                    continue
-                elif paragraph.text == 'Literatura':
-                    # Cuando llegue al apartado de literatura dejo de contar
-                    break
-                if self.__fin_de_parrafo(paragraph.text):
-                    # Si hay un doble salto de párrafo es que ha terminado una crítica
-                    # El inicio del siguiente párrafo será el título de la película
-                    search_title = True
-            else:
-                # Sé que estoy en un párrafo que es el primero de una crítica
-                # Este párrafo comenzará con el título de la película
-
-                titulo = self.__read_title(paragraph.runs)
-
-                if not self.__fin_de_parrafo(titulo):
-                    # Guardo el parrafo donde empieza la crítica.
-                    self.titulos[titulo] = i
-                else:
-                    # Si hemos encontrado un doble salto de linea, hemos llegado a los libros
-                    break
-                # Devuelvo la variable a su valor original
-                search_title = False
-
-    def __read_title(self, paragraph):
-        '''
-        paragraph: debe ser la lista de runs de un párrafo
-        '''
-        titulo = ""
-
-        for run in paragraph:
-            # Conservo las negritas
-                if not run.bold:  # he llegado al final del título
-                    break
-                titulo += run.text
-
-        # Quito el separador, previsiblemente los dos puntos.
-        titulo = titulo.strip(".: ")
-
-        return titulo
 
     def __interpretate_director(self):
         # Si es un número, considero que se ha introducido un id de Filmaffinitty
@@ -229,7 +119,7 @@ class html():
         for paragraph in self.doc.paragraphs[self.titulos[self.titulo]:]:
 
             if self.__fin_de_parrafo(paragraph.text):
-                # He llagado al final de la crítica. Dejo de leer el documento
+                # He llegado al final de la crítica. Dejo de leer el documento
                 return self.parrafos_critica
             # Inicializo el párrafo
             parr_text = ""
@@ -242,7 +132,7 @@ class html():
                     parr_text += run.text
 
             if not self.parrafos_critica:
-                # Si es el primer párrafo elimino el título
+                # Si es el primer párrafo, elimino el título
                 parr_text = parr_text[len(self.titulo):]
                 parr_text = parr_text.lstrip(": ")
 
