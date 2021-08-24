@@ -71,7 +71,7 @@ class html():
 
     def __init__(self):
         # Abro el documento para leerlo
-        self.doc = docx.Document("C:\\Users\\usuario\\Desktop\\Jorges things\\Reseñas\\Películas\\Películas.docx")
+        self.doc = docx.Document("Películas.docx")
 
         self.parrafos_critica = []
         self.titulo = ""
