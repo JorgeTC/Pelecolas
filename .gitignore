@@ -9,3 +9,6 @@ Formatos.txt
 # ignore all the excel files except for the Plantilla
 *.xlsx
 !Plantilla.xlsx
+# archivos compilados generados por python
+__pycache__/
+*.pyc
