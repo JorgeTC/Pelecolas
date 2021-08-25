@@ -64,7 +64,7 @@ class Writer(object):
             # Itero las películas en mi página actual
             for film in self.film_list:
                 # Convierto lo leído de la página a un objeto película
-                film = Pelicula(film)
+                film = Pelicula(movie_box=film)
 
                 # Compruebo que su título sea válido
                 if film.valid():

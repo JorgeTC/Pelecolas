@@ -8,6 +8,14 @@ def get_url_from_id(id):
     """
     return 'https://www.filmaffinity.com/es/film' + str(id) + ".html"
 
+def get_id_from_url(url):
+    # Elimino el .html
+    url = url.split(".")[-2]
+    # Tomo los úlyimos 6 caracteres
+    id = url[:-6]
+
+    return id
+
 def es_valida(titulo):
     """
     Busca en el título que sea una película realmente
@@ -30,16 +38,34 @@ def es_valida(titulo):
     return True
 
 class Pelicula(object):
-    def __init__(self, movie_box):
-        self.titulo = self.__get_title(movie_box)
-        self.user_note = self.__get_user_note(movie_box)
-        self.id = self.__get_id(movie_box)
-        self.url_FA = get_url_from_id(self.id)
+    def __init__(self, movie_box=None, id=None, url=None):
+
+        self.titulo = ""
+        self.user_note = ""
+        self.id = ""
+        self.url_FA = ""
+
+        if movie_box:
+            self.titulo = self.__get_title(movie_box)
+            self.user_note = self.__get_user_note(movie_box)
+            self.id = self.__get_id(movie_box)
+            self.url_FA = get_url_from_id(self.id)
+        elif id:
+            self.id = str(id)
+            self.url_FA = get_url_from_id(self.id)
+        elif url:
+            self.url_FA = str(url)
+            self.id = get_id_from_url(self.url_FA)
 
         self.parsed_page = None
         self.nota_FA = 0
         self.votantes_FA = 0
         self.duracion = 0
+        self.director = ""
+        self.año = None
+        self.__exists = bool()
+
+        self.get_parsed_page()
 
     def __get_title(self, film_box):
         return film_box.contents[1].contents[1].contents[3].contents[1].contents[0].contents[0]
@@ -91,8 +117,10 @@ class Pelicula(object):
     def get_parsed_page(self):
         resp = safe_get_url(self.url_FA)
         if resp.status_code == 404:
+            self.__exists = False
             # Si el id no es correcto, dejo de construir la clase
             return
+        self.__exists = True
 
         # Parseo la página
         self.parsed_page = BeautifulSoup(resp.text,'html.parser')
@@ -107,3 +135,14 @@ class Pelicula(object):
         self.get_nota_FA()
         self.get_votantes_FA()
         self.get_duracion()
+
+    def get_director(self):
+        l = self.parsed_page.find(itemprop="director")
+        self.director = l.contents[0].contents[0].contents[0]
+
+    def get_año(self):
+        l = self.parsed_page.find(itemprop="datePublished")
+        self.año = l.contents[0]
+
+    def exists(self):
+        return self.__exists
