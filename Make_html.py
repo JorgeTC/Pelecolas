@@ -68,7 +68,7 @@ class html():
 
     def __get_data_from_FA(self, url):
         peli = Pelicula(urlFA=url)
-        if not peli.exists:
+        if not peli.exists():
             return False
         peli.get_director()
         self.director = peli.director

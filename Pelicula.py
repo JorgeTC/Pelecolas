@@ -38,7 +38,7 @@ def es_valida(titulo):
     return True
 
 class Pelicula(object):
-    def __init__(self, movie_box=None, id=None, url=None):
+    def __init__(self, movie_box=None, id=None, urlFA=None):
 
         self.titulo = ""
         self.user_note = ""
@@ -53,8 +53,8 @@ class Pelicula(object):
         elif id:
             self.id = str(id)
             self.url_FA = get_url_from_id(self.id)
-        elif url:
-            self.url_FA = str(url)
+        elif urlFA:
+            self.url_FA = str(urlFA)
             self.id = get_id_from_url(self.url_FA)
 
         self.parsed_page = None
