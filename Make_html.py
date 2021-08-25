@@ -68,12 +68,14 @@ class html():
 
     def __get_data_from_FA(self, url):
         peli = Pelicula(urlFA=url)
-        if not peli.exists:
+        if not peli.exists():
             return False
-        peli.GetDirectorYearDuration()
+        peli.get_director()
         self.director = peli.director
+        peli.get_año()
         self.año = peli.año
-        self.duración = peli.duración
+        peli.get_duracion()
+        self.duración = peli.duracion
         return True
 
     def exists(self,titulo):
