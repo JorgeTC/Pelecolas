@@ -1,6 +1,7 @@
 
 from bs4 import BeautifulSoup
 import pandas as pd
+import concurrent.futures
 from openpyxl.styles import Alignment, Font
 from .ProgressBar import ProgressBar
 from .safe_url import safe_get_url
@@ -68,9 +69,13 @@ class Writer(object):
 
         # Itero hasta que haya leído todas las películas
         while (self.film_index < self.total_films):
+
+            valid_film_list = [Pelicula(box) for box in self.film_list]
+            valid_film_list = [film for film in valid_film_list if film.valid()]
+
             # Itero las películas en mi página actual
-            for film in self.film_list:
-                self.read_film(film)
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                executor.map(self.read_film, valid_film_list)
 
             self.next_page()
 
@@ -89,11 +94,11 @@ class Writer(object):
 
     def read_film(self, film):
         # Convierto lo leído de la página a un objeto película
-        film = Pelicula(movie_box=film)
+        #film = Pelicula(movie_box=film)
 
         # Compruebo que su título sea válido
-        if not film.valid():
-            return
+        #if not film.valid():
+        #    return
 
         # Escribo sus datos en el excel
         self.add_to_df(film)
