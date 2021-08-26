@@ -6,6 +6,7 @@ from pandas.core.frame import DataFrame
 from .ProgressBar import ProgressBar
 from .safe_url import safe_get_url
 from .Pelicula import Pelicula
+from math import ceil, floor
 
 class Writer(object):
     def __init__(self, id, worksheet):
@@ -14,7 +15,7 @@ class Writer(object):
         # Contador de peliculas
         self.film_index = 0
         # Numero de pagina actual
-        self.page_index = 0
+        self.page_index = 1
 
         # Barra de progreso
         self.bar = ProgressBar()
@@ -23,21 +24,42 @@ class Writer(object):
         self.soup_page = None
         # Lista de peliculas que hay en la página actual
         self.film_list = []
-        #Inicializo las dos variables
-        self.next_page()
 
         # Votaciones en total
         self.total_films = self.get_total_films()
+        # Rellenar la lista de film_list
+        self.get_all_boxes()
         # Hoja de excel
         self.ws = worksheet
 
     def get_total_films(self):
+
+        url = self.get_list_url(self.page_index)
+        resp = safe_get_url(url)
+        # Guardo la página ya parseada
+        self.soup_page = BeautifulSoup(resp.text,'html.parser')
+
         # me espero que haya un único "value-box active-tab"
         mydivs = self.soup_page.find("a", {"class": "value-box active-tab"})
         stringNumber = mydivs.contents[3].contents[1]
         # Elimino el punto de los millares
         stringNumber = stringNumber.replace('.','')
         return int(stringNumber)
+
+    def get_all_boxes(self):
+        n_pages = ceil(self.total_films / 20)
+        url_pages = [self.get_list_url(i + 1) for i in range(n_pages)]
+
+        executor = concurrent.futures.ThreadPoolExecutor()
+        self.film_list = list(executor.map(self.list_boxes, url_pages))
+
+
+    def list_boxes(self, url):
+        resp = safe_get_url(url)
+        # Guardo la página ya parseada
+        soup_page = BeautifulSoup(resp.text,'html.parser')
+        # Leo todas las películas que haya en ella
+        return list(soup_page.findAll("div", {"class": "user-ratings-movie"}))
 
     def get_list_url(self, page_index):
         sz_ans = 'https://www.filmaffinity.com/es/userratings.php?user_id=' + self.id_user + '&p='
@@ -47,18 +69,13 @@ class Writer(object):
 
     def next_page(self):
 
-        self.film_index += len(self.film_list)
+
+        self.film_index += len(self.film_list[self.page_index-1])
         if self.film_index:
             self.bar.update(self.film_index/self.total_films)
 
         # Anavanzo a la siguiente página
         self.page_index += 1
-        url = self.get_list_url(self.page_index)
-        resp = safe_get_url(url)
-        # Guardo la página ya parseada
-        self.soup_page = BeautifulSoup(resp.text,'html.parser')
-        # Leo todas las películas que haya en ella
-        self.film_list = self.soup_page.findAll("div", {"class": "user-ratings-movie"})
 
     def read_watched(self):
         # Creo un objeto para hacer la gestión de paralelización
@@ -73,7 +90,7 @@ class Writer(object):
         while (self.film_index < self.total_films):
             # Lsita de las películas válidas en la página actual.
             # No puedo modificar self.film_list
-            valid_film_list = [Pelicula(box) for box in self.film_list]
+            valid_film_list = [Pelicula(box) for box in self.film_list[self.page_index-1]]
             valid_film_list = [film for film in valid_film_list if film.valid()]
 
             # Itero las películas en mi página actual
