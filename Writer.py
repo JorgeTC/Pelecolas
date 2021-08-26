@@ -68,6 +68,8 @@ class Writer(object):
 
                 # Compruebo que su título sea válido
                 if film.valid():
+                    # Cuando ya sé que la película es válida, leo sus datos
+                    film.get_time_and_FA()
                     # Escribo sus datos en el excel
                     self.write_in_excel(film)
 
