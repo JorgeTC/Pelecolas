@@ -2,7 +2,6 @@
 from bs4 import BeautifulSoup
 import pandas as pd
 from openpyxl.styles import Alignment, Font
-from .IndexLine import IndexLine
 from .ProgressBar import ProgressBar
 from .safe_url import safe_get_url
 from .Pelicula import Pelicula
@@ -16,6 +15,9 @@ class Writer(object):
         # Numero de pagina actual
         self.page_index = 0
 
+        # Barra de progreso
+        self.bar = ProgressBar()
+
         # Descargo la propia página actual. Es una página "de fuera".
         self.soup_page = None
         # Lista de peliculas que hay en la página actual
@@ -25,10 +27,6 @@ class Writer(object):
 
         # Votaciones en total
         self.total_films = self.get_total_films()
-        # Linea del excel en la que estoy escribiendo
-        self.line = IndexLine(self.total_films)
-        # Barra de progreso
-        self.bar = ProgressBar()
         # Hoja de excel
         self.ws = worksheet
 
@@ -50,6 +48,11 @@ class Writer(object):
         return sz_ans
 
     def next_page(self):
+
+        self.film_index += len(self.film_list)
+        if self.film_index:
+            self.bar.update(self.film_index/self.total_films)
+
         # Anavanzo a la siguiente página
         self.page_index += 1
         url = self.get_list_url(self.page_index)
@@ -67,11 +70,7 @@ class Writer(object):
         while (self.film_index < self.total_films):
             # Itero las películas en mi página actual
             for film in self.film_list:
-
                 self.read_film(film)
-
-                # Paso a la siguiente película
-                self.next_film()
 
             self.next_page()
 
@@ -82,7 +81,7 @@ class Writer(object):
 
         film.get_time_and_FA()
 
-        self.df.append({'Id' : film.id,
+        self.df = self.df.append({'Id' : film.id,
                         'User Note' : film.user_note,
                         'Duration' : film.duracion,
                         'Voters' : film.votantes_FA,
@@ -114,7 +113,7 @@ class Writer(object):
         self.set_cell_value(line, 11, "=(B" + str(line) + "-1)*10/9")
         # En la primera columna guardo la id para poder reconocerla
         self.set_cell_value(line, 1, int(film['Id']))
-        film.get_time_and_FA()
+
         if (film['Duration'] != 0):
             # dejo la casilla en blanco si no logra leer ninguna duración de FA
             self.set_cell_value(line, 4, film['Duration'])
@@ -130,8 +129,6 @@ class Writer(object):
             # dejo la casilla en blanco si no logra leer ninguna votantes
             self.set_cell_value(line, 5, film['Voters'])
 
-        # Como he escrito en el excel, paso a la línea siguiente
-        self.line.get_current_line()
 
     def set_cell_value(self, line, col, value):
         cell = self.ws.cell(row = line, column=col)
