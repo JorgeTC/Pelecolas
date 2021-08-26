@@ -15,6 +15,9 @@ class Timer(object):
             else:
                 return "{} minutes   ".format(int(sec / 60))
 
+    def reset(self):
+        self.start = datetime.datetime.now()
+
 class ProgressBar(object):
     def __init__(self):
         self.timer = Timer()

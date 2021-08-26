@@ -1,7 +1,8 @@
 
 from bs4 import BeautifulSoup
+import concurrent.futures
 from openpyxl.styles import Alignment, Font
-from .IndexLine import IndexLine
+from pandas.core.frame import DataFrame
 from .ProgressBar import ProgressBar
 from .safe_url import safe_get_url
 from .Pelicula import Pelicula
@@ -15,6 +16,9 @@ class Writer(object):
         # Numero de pagina actual
         self.page_index = 0
 
+        # Barra de progreso
+        self.bar = ProgressBar()
+
         # Descargo la propia página actual. Es una página "de fuera".
         self.soup_page = None
         # Lista de peliculas que hay en la página actual
@@ -24,10 +28,6 @@ class Writer(object):
 
         # Votaciones en total
         self.total_films = self.get_total_films()
-        # Linea del excel en la que estoy escribiendo
-        self.line = IndexLine(self.total_films)
-        # Barra de progreso
-        self.bar = None
         # Hoja de excel
         self.ws = worksheet
 
@@ -46,6 +46,11 @@ class Writer(object):
         return sz_ans
 
     def next_page(self):
+
+        self.film_index += len(self.film_list)
+        if self.film_index:
+            self.bar.update(self.film_index/self.total_films)
+
         # Anavanzo a la siguiente página
         self.page_index += 1
         url = self.get_list_url(self.page_index)
@@ -56,57 +61,76 @@ class Writer(object):
         self.film_list = self.soup_page.findAll("div", {"class": "user-ratings-movie"})
 
     def read_watched(self):
-        # Creo una barra de proceso
-        self.bar = ProgressBar()
+        # Creo un objeto para hacer la gestión de paralelización
+        executor = concurrent.futures.ThreadPoolExecutor()
+        # Creo una lista de listas donde se guardarán los datos de las películas
+        rows_data=[]
+
+        # Creo una barra de progreso
+        self.bar.timer.reset()
 
         # Itero hasta que haya leído todas las películas
         while (self.film_index < self.total_films):
+            # Lsita de las películas válidas en la página actual.
+            # No puedo modificar self.film_list
+            valid_film_list = [Pelicula(box) for box in self.film_list]
+            valid_film_list = [film for film in valid_film_list if film.valid()]
+
             # Itero las películas en mi página actual
-            for film in self.film_list:
-                # Convierto lo leído de la página a un objeto película
-                film = Pelicula(movie_box=film)
+            rows_data += list(executor.map(self.read_film, valid_film_list))
 
-                # Compruebo que su título sea válido
-                if film.valid():
-                    # Cuando ya sé que la película es válida, leo sus datos
-                    film.get_time_and_FA()
-                    # Escribo sus datos en el excel
-                    self.write_in_excel(film)
-
-                # Paso a la siguiente película
-                self.next_film()
-
+            # Avanzo a la siguiente página de películas vistas por el usuario
             self.next_page()
 
-    def write_in_excel(self, film):
-        # Convierto el iterador en un entero
-        line = int(self.line)
+        df = DataFrame(rows_data,
+                        columns=['Id', 'User Note', 'Duration', 'Voters', 'Note FA'])
+
+        for index, row in df.iterrows():
+            self.write_in_excel(index, row)
+
+    def read_film(self, film):
+        # Hacemos la parte más lenta, que necesita parsear la página.
+        film.get_time_and_FA()
+
+        # Es importante este orden porque debe coincidir
+        # con los encabezados del DataFrame que generaremos
+        return [film.id,
+                film.user_note,
+                film.duracion,
+                film.votantes_FA,
+                film.nota_FA]
+
+
+    def write_in_excel(self, line, film):
+
+        # La enumeración empezará en 0,
+        # pero sólo esribimos datos a partir de la segunda linea.
+        line = line + 2
+
         # La votacion del usuario la leo desde fuera
         # no puedo leer la nota del usuario dentro de la ficha
-        UserNote = film.user_note
+        UserNote = film['User Note']
         self.set_cell_value(line, 2, int(UserNote))
         self.set_cell_value(line, 10, str("=B" + str(line) + "+RAND()-0.5"))
         self.set_cell_value(line, 11, "=(B" + str(line) + "-1)*10/9")
         # En la primera columna guardo la id para poder reconocerla
-        self.set_cell_value(line, 1, int(film.id))
-        film.get_time_and_FA()
-        if (film.duracion != 0):
+        self.set_cell_value(line, 1, int(film['Id']))
+
+        if (film['Duration'] != 0):
             # dejo la casilla en blanco si no logra leer ninguna duración de FA
-            self.set_cell_value(line, 4, film.duracion)
-        if (film.nota_FA != 0):
+            self.set_cell_value(line, 4, film['Duration'])
+        if (film['Note FA'] != 0):
             # dejo la casilla en blanco si no logra leer ninguna nota de FA
-            self.set_cell_value(line, 3, film.nota_FA)
+            self.set_cell_value(line, 3, film['Note FA'])
             self.set_cell_value(line, 6, "=ROUND(C" + str(line) + "*2, 0)/2")
             self.set_cell_value(line, 7, "=B" + str(line) + "-C" + str(line))
             self.set_cell_value(line, 8, "=ABS(G" + str(line) + ")")
             self.set_cell_value(line, 9, "=IF($G" + str(line) + ">0,1,0.1)")
             self.set_cell_value(line, 12, "=(C" + str(line) + "-1)*10/9")
-        if (film.votantes_FA != 0):
+        if (film['Voters'] != 0):
             # dejo la casilla en blanco si no logra leer ninguna votantes
-            self.set_cell_value(line, 5, film.votantes_FA)
+            self.set_cell_value(line, 5, film['Voters'])
 
-        # Como he escrito en el excel, paso a la línea siguiente
-        self.line.get_current_line()
 
     def set_cell_value(self, line, col, value):
         cell = self.ws.cell(row = line, column=col)
