@@ -65,7 +65,6 @@ class Pelicula(object):
         self.año = None
         self.__exists = bool()
 
-        self.get_parsed_page()
 
     def __get_title(self, film_box):
         return film_box.contents[1].contents[1].contents[3].contents[1].contents[0].contents[0]
@@ -137,10 +136,18 @@ class Pelicula(object):
         self.get_duracion()
 
     def get_director(self):
+
+        if not self.parsed_page:
+            self.get_parsed_page()
+
         l = self.parsed_page.find(itemprop="director")
         self.director = l.contents[0].contents[0].contents[0]
 
     def get_año(self):
+
+        if not self.parsed_page:
+            self.get_parsed_page()
+
         l = self.parsed_page.find(itemprop="datePublished")
         self.año = l.contents[0]
 
