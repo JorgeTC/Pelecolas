@@ -1,5 +1,6 @@
 
 from bs4 import BeautifulSoup
+import pandas as pd
 from openpyxl.styles import Alignment, Font
 from .IndexLine import IndexLine
 from .ProgressBar import ProgressBar
@@ -27,9 +28,12 @@ class Writer(object):
         # Linea del excel en la que estoy escribiendo
         self.line = IndexLine(self.total_films)
         # Barra de progreso
-        self.bar = None
+        self.bar = ProgressBar()
         # Hoja de excel
         self.ws = worksheet
+
+        # DataFrame para guardar los datos antes de volcarlos al excel
+        self.df = pd.DataFrame(columns=['Id', 'User Note', 'Duration', 'Note FA', 'Voters'])
 
     def get_total_films(self):
         # me espero que haya un único "value-box active-tab"
@@ -56,54 +60,75 @@ class Writer(object):
         self.film_list = self.soup_page.findAll("div", {"class": "user-ratings-movie"})
 
     def read_watched(self):
-        # Creo una barra de proceso
-        self.bar = ProgressBar()
+        # Creo una barra de progreso
+        self.bar.timer.reset()
 
         # Itero hasta que haya leído todas las películas
         while (self.film_index < self.total_films):
             # Itero las películas en mi página actual
             for film in self.film_list:
-                # Convierto lo leído de la página a un objeto película
-                film = Pelicula(movie_box=film)
 
-                # Compruebo que su título sea válido
-                if film.valid():
-                    # Cuando ya sé que la película es válida, leo sus datos
-                    film.get_time_and_FA()
-                    # Escribo sus datos en el excel
-                    self.write_in_excel(film)
+                self.read_film(film)
 
                 # Paso a la siguiente película
                 self.next_film()
 
             self.next_page()
 
-    def write_in_excel(self, film):
-        # Convierto el iterador en un entero
-        line = int(self.line)
+        for index, row in self.df.iterrows():
+            self.write_in_excel(index, row)
+
+    def add_to_df(self, film):
+
+        film.get_time_and_FA()
+
+        self.df.append({'Id' : film.id,
+                        'User Note' : film.user_note,
+                        'Duration' : film.duracion,
+                        'Voters' : film.votantes_FA,
+                        'Note FA' : film.nota_FA}, ignore_index=True)
+
+    def read_film(self, film):
+        # Convierto lo leído de la página a un objeto película
+        film = Pelicula(movie_box=film)
+
+        # Compruebo que su título sea válido
+        if not film.valid():
+            return
+
+        # Escribo sus datos en el excel
+        self.add_to_df(film)
+
+
+    def write_in_excel(self, line, film):
+
+        # La enumeración empezará en 0,
+        # pero sólo esribimos datos a partir de la segunda linea.
+        line = line + 2
+
         # La votacion del usuario la leo desde fuera
         # no puedo leer la nota del usuario dentro de la ficha
-        UserNote = film.user_note
+        UserNote = film['User Note']
         self.set_cell_value(line, 2, int(UserNote))
         self.set_cell_value(line, 10, str("=B" + str(line) + "+RAND()-0.5"))
         self.set_cell_value(line, 11, "=(B" + str(line) + "-1)*10/9")
         # En la primera columna guardo la id para poder reconocerla
-        self.set_cell_value(line, 1, int(film.id))
+        self.set_cell_value(line, 1, int(film['Id']))
         film.get_time_and_FA()
-        if (film.duracion != 0):
+        if (film['Duration'] != 0):
             # dejo la casilla en blanco si no logra leer ninguna duración de FA
-            self.set_cell_value(line, 4, film.duracion)
-        if (film.nota_FA != 0):
+            self.set_cell_value(line, 4, film['Duration'])
+        if (film['Note FA'] != 0):
             # dejo la casilla en blanco si no logra leer ninguna nota de FA
-            self.set_cell_value(line, 3, film.nota_FA)
+            self.set_cell_value(line, 3, film['Note FA'])
             self.set_cell_value(line, 6, "=ROUND(C" + str(line) + "*2, 0)/2")
             self.set_cell_value(line, 7, "=B" + str(line) + "-C" + str(line))
             self.set_cell_value(line, 8, "=ABS(G" + str(line) + ")")
             self.set_cell_value(line, 9, "=IF($G" + str(line) + ">0,1,0.1)")
             self.set_cell_value(line, 12, "=(C" + str(line) + "-1)*10/9")
-        if (film.votantes_FA != 0):
+        if (film['Voters'] != 0):
             # dejo la casilla en blanco si no logra leer ninguna votantes
-            self.set_cell_value(line, 5, film.votantes_FA)
+            self.set_cell_value(line, 5, film['Voters'])
 
         # Como he escrito en el excel, paso a la línea siguiente
         self.line.get_current_line()
