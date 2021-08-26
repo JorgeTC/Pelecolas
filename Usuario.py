@@ -12,6 +12,7 @@ class Usuario(object):
     def read_dict(self):
 
         sz_curr_folder = Path(__file__).resolve().parent
+        sz_curr_folder = sz_curr_folder / "Readdata"
         sz_json = sz_curr_folder / "usuarios.json"
 
         file = open(sz_json, "r")

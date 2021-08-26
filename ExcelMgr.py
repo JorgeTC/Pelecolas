@@ -8,6 +8,7 @@ class ExcelMgr(object):
         Plantilla = 'Plantilla.xlsx'
 
         sz_curr_folder = Path(__file__).resolve().parent
+        sz_curr_folder = sz_curr_folder / "Readdata"
         Plantilla = sz_curr_folder / Plantilla
 
         self.wb = load_workbook(Plantilla)
@@ -22,7 +23,7 @@ class ExcelMgr(object):
 
         sz_curr_folder = Path(__file__).resolve().parent
         # Me voy hasta la carpeta Reseñas
-        sz_curr_folder = sz_curr_folder.parent.parent
+        sz_curr_folder = sz_curr_folder.parent
         # Entro a la carpeta películas
         sz_curr_folder = sz_curr_folder / "Películas"
 
