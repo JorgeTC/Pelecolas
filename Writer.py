@@ -83,8 +83,7 @@ class Writer(object):
             self.next_page()
 
         df = DataFrame(rows_data,
-                        columns=['Id', 'User Note', 'Duration', 'Voters', 'Note FA'],
-                        index=False)
+                        columns=['Id', 'User Note', 'Duration', 'Voters', 'Note FA'])
 
         for index, row in df.iterrows():
             self.write_in_excel(index, row)
