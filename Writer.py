@@ -1,8 +1,8 @@
 
 from bs4 import BeautifulSoup
-import pandas as pd
 import concurrent.futures
 from openpyxl.styles import Alignment, Font
+from pandas.core.frame import DataFrame
 from .ProgressBar import ProgressBar
 from .safe_url import safe_get_url
 from .Pelicula import Pelicula
@@ -30,9 +30,6 @@ class Writer(object):
         self.total_films = self.get_total_films()
         # Hoja de excel
         self.ws = worksheet
-
-        # DataFrame para guardar los datos antes de volcarlos al excel
-        self.df = pd.DataFrame(columns=['Id', 'User Note', 'Duration', 'Note FA', 'Voters'])
 
     def get_total_films(self):
         # me espero que haya un único "value-box active-tab"
@@ -64,44 +61,45 @@ class Writer(object):
         self.film_list = self.soup_page.findAll("div", {"class": "user-ratings-movie"})
 
     def read_watched(self):
+        # Creo un objeto para hacer la gestión de paralelización
+        executor = concurrent.futures.ThreadPoolExecutor()
+        # Creo una lista de listas donde se guardarán los datos de las películas
+        rows_data=[]
+
         # Creo una barra de progreso
         self.bar.timer.reset()
 
         # Itero hasta que haya leído todas las películas
         while (self.film_index < self.total_films):
-
+            # Lsita de las películas válidas en la página actual.
+            # No puedo modificar self.film_list
             valid_film_list = [Pelicula(box) for box in self.film_list]
             valid_film_list = [film for film in valid_film_list if film.valid()]
 
             # Itero las películas en mi página actual
-            with concurrent.futures.ThreadPoolExecutor() as executor:
-                executor.map(self.read_film, valid_film_list)
+            rows_data += list(executor.map(self.read_film, valid_film_list))
 
+            # Avanzo a la siguiente página de películas vistas por el usuario
             self.next_page()
 
-        for index, row in self.df.iterrows():
+        df = DataFrame(rows_data,
+                        columns=['Id', 'User Note', 'Duration', 'Voters', 'Note FA'],
+                        index=False)
+
+        for index, row in df.iterrows():
             self.write_in_excel(index, row)
 
-    def add_to_df(self, film):
-
+    def read_film(self, film):
+        # Hacemos la parte más lenta, que necesita parsear la página.
         film.get_time_and_FA()
 
-        self.df = self.df.append({'Id' : film.id,
-                        'User Note' : film.user_note,
-                        'Duration' : film.duracion,
-                        'Voters' : film.votantes_FA,
-                        'Note FA' : film.nota_FA}, ignore_index=True)
-
-    def read_film(self, film):
-        # Convierto lo leído de la página a un objeto película
-        #film = Pelicula(movie_box=film)
-
-        # Compruebo que su título sea válido
-        #if not film.valid():
-        #    return
-
-        # Escribo sus datos en el excel
-        self.add_to_df(film)
+        # Es importante este orden porque debe coincidir
+        # con los encabezados del DataFrame que generaremos
+        return [film.id,
+                film.user_note,
+                film.duracion,
+                film.votantes_FA,
+                film.nota_FA]
 
 
     def write_in_excel(self, line, film):
