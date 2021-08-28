@@ -79,7 +79,7 @@ class Writer(object):
 
     def read_watched(self):
         # Creo un objeto para hacer la gestión de paralelización
-        executor = concurrent.futures.ThreadPoolExecutor()
+        executor = concurrent.futures.ThreadPoolExecutor(max_workers=20)
         # Creo una lista de listas donde se guardarán los datos de las películas
         rows_data=[]
 
