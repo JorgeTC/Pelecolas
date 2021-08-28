@@ -1,0 +1,32 @@
+{
+    "configurations": [
+        {
+            "name": "Read data",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/../Películas/Readdata.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Contar libros",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/../Literatura/Contar criticas.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Contar peliculas",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/../Películas/Contar criticas.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Write html",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/../Películas/Make html.py",
+            "console": "integratedTerminal"
+        }
+    ]
+}
