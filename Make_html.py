@@ -69,8 +69,10 @@ class html():
     def __get_data_from_FA(self, url):
         peli = Pelicula(urlFA=url)
         peli.get_parsed_page()
+
         if not peli.exists():
             return False
+
         peli.get_director()
         self.director = peli.director
         peli.get_año()
