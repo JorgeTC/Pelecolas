@@ -127,6 +127,12 @@ class Searcher():
     def __elegir_url(self, lista):
         # Tengo una lista de películas con sus años.
         # Miro cuál de ellas me sirve más.
+
+        # Guardo todas las que sean coincidentes.
+        # Espero que sólo sea una.
+        coincidentes = []
+
+        # Itero las películas candidatas
         for candidato in lista:
             # Si el año no coincide, no es esta la película que busco
             if self.año and self.año != candidato.año:
@@ -134,9 +140,15 @@ class Searcher():
 
             # Si el título coincide, devuelvo esa url.
             if self.title.lower() == candidato.titulo.lower():
-                return candidato.url
+                coincidentes.append(candidato)
 
-        return ""
+        # Una vez hecha la búsqueda, miro cuántas películas me sirven.
+        if len(coincidentes) == 1:
+            coincidentes[0].url
+        else:
+            # Hay varios candidatos igual de válidos.
+            # no puedo devolver nada con certeza.
+            return ""
 
 
 
