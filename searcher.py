@@ -46,9 +46,9 @@ class Searcher():
         self.parsed_page = BeautifulSoup(req.text,'html.parser')
 
         self.__get_redirected_url()
-        self.__estado = self.clarify_case()
+        self.__estado = self.__clarify_case()
 
-    def search_boxes(self):
+    def __search_boxes(self):
 
         if self.__estado != VARIOS_RESULTADOS:
             return
@@ -83,7 +83,7 @@ class Searcher():
 
         return lista_peliculas
 
-    def clarify_case(self):
+    def __clarify_case(self):
 
         # Ya me han redireccionado
         # Mirando la url puedo distinguir los tres casos.
@@ -117,7 +117,7 @@ class Searcher():
             return self.film_url
 
         if self.__estado == VARIOS_RESULTADOS:
-            lista_peliculas = self.search_boxes()
+            lista_peliculas = self.__search_boxes()
             self.film_url = self.__elegir_url(lista_peliculas)
             return self.film_url
 
@@ -137,11 +137,6 @@ class Searcher():
                 return candidato.url
 
         return ""
-
-
-
-
-
 
 
 
