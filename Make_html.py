@@ -33,10 +33,6 @@ class html():
             self.titulo = input("Introduzca título de la película: ")
             exists_given_title = self.exists(self.titulo)
 
-        suggested_url = self.__search_film()
-        if suggested_url and self.__get_data_from_FA(suggested_url):
-            return
-
         self.director = input("Introduzca director: ")
         # Si en vez de un director se introduce la dirección de FA, no necesito nada más
         if not self.__interpretate_director():
@@ -67,6 +63,16 @@ class html():
         return chars_dict
 
     def __interpretate_director(self):
+
+        # Caso en el que no se ha introducido nada.
+        # Busco la ficha automáticamente.
+        if not self.director:
+            suggested_url = self.__search_film()
+            if suggested_url and self.__get_data_from_FA(suggested_url):
+                # Lo introducido no es un director.
+                # Considero que no necesito más información.
+                return False
+
         # Si es un número, considero que se ha introducido un id de Filmaffinitty
         if self.director.isnumeric():
             url = 'https://www.filmaffinity.com/es/film' + self.director + '.html'
