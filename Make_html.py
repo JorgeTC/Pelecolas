@@ -17,6 +17,7 @@ class html():
         self.titulo = ""
         self.año = ""
         self.duración = ""
+        self.director = ""
 
         # Hago una lista con todos los títulos que tienen una crítica escrita
         reader = WordReader(folder)
@@ -33,10 +34,11 @@ class html():
             self.titulo = input("Introduzca título de la película: ")
             exists_given_title = self.exists(self.titulo)
 
-        self.director = input("Introduzca director: ")
-        # Si en vez de un director se introduce la dirección de FA, no necesito nada más
-        if not self.__interpretate_director():
-            return
+        while not self.director:
+            self.director = input("Introduzca director: ")
+            # Si en vez de un director se introduce la dirección de FA, no necesito nada más
+            if not self.__interpretate_director():
+                return
 
         self.año = input("Introduzca el año: ")
         self.duración = input("Introduzca duración de la película: ")
