@@ -1,6 +1,13 @@
 {
     "configurations": [
         {
+            "name": "test",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal"
+        },
+        {
             "name": "Read data",
             "type": "python",
             "request": "launch",
