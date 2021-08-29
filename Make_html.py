@@ -3,6 +3,7 @@ import re
 from .Pelicula import Pelicula
 from .WordReader import WordReader
 from pathlib import Path
+from .searcher import Searcher
 
 
 class html():
@@ -32,6 +33,10 @@ class html():
             self.titulo = input("Introduzca título de la película: ")
             exists_given_title = self.exists(self.titulo)
 
+        suggested_url = self.__search_film()
+        if suggested_url and self.__get_data_from_FA(suggested_url):
+            return
+
         self.director = input("Introduzca director: ")
         # Si en vez de un director se introduce la dirección de FA, no necesito nada más
         if not self.__interpretate_director():
@@ -39,6 +44,15 @@ class html():
 
         self.año = input("Introduzca el año: ")
         self.duración = input("Introduzca duración de la película: ")
+
+    def __search_film(self):
+        # Busco el título en los registros de filmaffinity
+
+        # Obtengo el título sin el posible año entre paréntesis
+        search = Searcher(self.titulo)
+
+        url_encontrado = search.get_url()
+        return url_encontrado
 
     def __make_unwanted_chars(self):
 

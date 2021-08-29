@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup
-from safe_url import safe_get_url
+from .safe_url import safe_get_url
 
 # Clase para guardar los datos que se lean
 class TituloYAño():
@@ -20,8 +20,8 @@ class Searcher():
         self.title = to_search
 
         año_primera_pos = self.title.rfind("(") + 1
-        año_ultima_por = self.title.rfind(')') - 1
-        candidato_año = self.title[año_primera_pos::año_ultima_por]
+        año_ultima_por = self.title.rfind(')')
+        candidato_año = self.title[año_primera_pos:año_ultima_por]
         if str(candidato_año).isnumeric():
             self.año = int(candidato_año)
         else:
@@ -29,15 +29,15 @@ class Searcher():
             año_primera_pos = -1
 
         if año_primera_pos != -1:
-            self.title = self.title[:año_primera_pos]
-        self.title.strip()
+            self.title = self.title[:año_primera_pos - 1]
+        self.title = self.title.strip()
 
         # Creo la url para buscar ese título
         # Cambio los espacios para poder tener una sola url
-        self.title =self.title.replace(" ", "+")
+        title_for_url =self.title.replace(" ", "+")
         # Añado el prefijo
         pref = "https://www.filmaffinity.com/es/search.php?stext="
-        self.search_url = pref + self.title
+        self.search_url = pref + title_for_url
 
         # Creo una variable para cuando encuentre a película
         self.film_url = ''
@@ -76,6 +76,7 @@ class Searcher():
             title_box = p.find('div', {'class' : 'mc-title'})
             url = title_box.contents[0].previous_element.contents[0].attrs['href']
             title = title_box.contents[0].previous_element.contents[0].attrs['title']
+            title = title.strip()
 
             # Lo añado a la lista
             lista_peliculas.append(TituloYAño(title,curr_year,url))
@@ -123,7 +124,7 @@ class Searcher():
         # No he sido capaz de encontrar nada
         return ""
 
-    def __elegir_url(self, lista : list(TituloYAño)):
+    def __elegir_url(self, lista):
         # Tengo una lista de películas con sus años.
         # Miro cuál de ellas me sirve más.
         for candidato in lista:
