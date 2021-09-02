@@ -1,9 +1,8 @@
 import docx
-import re
 from .Pelicula import Pelicula
 from .WordReader import WordReader
-from pathlib import Path
 from .searcher import Searcher
+from .list_title_mgr import TitleMgr
 
 
 class html():
@@ -19,57 +18,41 @@ class html():
         self.duración = ""
         self.director = ""
 
-        # Hago una lista con todos los títulos que tienen una crítica escrita
+        # Hago un diccionario con todos los títulos que tienen una crítica escrita
         reader = WordReader(folder)
         reader.list_titles()
         self.titulos = reader.titulos
 
-        # Para el buscador de películas, defino los caracteres para los que no quiero que sea sensitivo
-        self.__unwanted_chars = self.__make_unwanted_chars()
+        # Objeto para buscar si el título que ha pedido el usuario
+        # está disponible en el archivo word.
+        self.quisiste_decir = TitleMgr( list(self.titulos.keys()) )
+
 
     def ask_for_data(self):
-        exists_given_title = False
+
         # Pido los datos de la película que voy a buscar
-        while not exists_given_title:
+        while not self.titulo:
             self.titulo = input("Introduzca título de la película: ")
-            exists_given_title = self.exists(self.titulo)
+            self.titulo = self.quisiste_decir.exact_key(self.titulo)
+
+        # Trato de buscar información de esta película en FA.
+        FA = Searcher(self.titulo)
+        FA.print_state()
 
         while not self.director:
             self.director = input("Introduzca director: ")
             # Si en vez de un director se introduce la dirección de FA, no necesito nada más
-            if not self.__interpretate_director():
+            if not self.__interpretate_director(FA.get_url()):
                 return
 
         self.año = input("Introduzca el año: ")
         self.duración = input("Introduzca duración de la película: ")
 
-    def __search_film(self):
-        # Busco el título en los registros de filmaffinity
-
-        # Obtengo el título sin el posible año entre paréntesis
-        search = Searcher(self.titulo)
-
-        url_encontrado = search.get_url()
-        return url_encontrado
-
-    def __make_unwanted_chars(self):
-
-        # No quiero que los caracteres de puntuación afecten al buscar la película
-        chars_dict = dict.fromkeys(map(ord, " ,!¡@#$?¿()."), None)
-        # Elimino los tipos de tildes
-        chars_dict.update(zip(map(ord, "áéíóú"),map(ord, "aeiou")))
-        chars_dict.update(zip(map(ord, "àèìòù"),map(ord, "aeiou")))
-        chars_dict.update(zip(map(ord, "âêîôû"),map(ord, "aeiou")))
-        chars_dict.update(zip(map(ord, "äëïöü"),map(ord, "aeiou")))
-
-        return chars_dict
-
-    def __interpretate_director(self):
+    def __interpretate_director(self, suggested_url):
 
         # Caso en el que no se ha introducido nada.
         # Busco la ficha automáticamente.
         if not self.director:
-            suggested_url = self.__search_film()
             if suggested_url and self.__get_data_from_FA(suggested_url):
                 # Lo introducido no es un director.
                 # Considero que no necesito más información.
@@ -103,47 +86,6 @@ class html():
         self.duración = peli.duracion
         return True
 
-    def exists(self,titulo):
-        # No quiero que sea sensible a las mayúsculas
-        titulo = titulo.lower()
-
-        for val in self.titulos:
-            if titulo == val.lower():
-                # Caso de coincidencia exacta
-                self.titulo = val
-                return True
-
-        # Si es posible, siguiero los títulos más cercanos al introducido
-        self.__closest_title(titulo)
-
-        return False
-
-    def __closest_title(self, titulo):
-        # Intento buscar los casos más cercanos
-        titulo = self.__normalize_string(titulo)
-        found = False
-        # Recorro la lista de titulos
-        for iter in self.titulos:
-            # Efectúo la comparación usando un título normalizado
-            iter_ = self.__normalize_string(iter)
-            # Busco si se contienen mutuamente
-            if titulo.find(iter_) >= 0 or iter_.find(titulo) >= 0:
-                # Hay suficiente concordancia como para sugerir el título
-                if not found:
-                    # Aún no he impreso nada por pantalla
-                    print("Quizás quisiste decir...")
-                    found = True
-                # Imprimo el título original. El que se ha leído en el documento
-                print(iter)
-
-    def __normalize_string(self, str):
-        # Elimino las mayúsculas
-        str = str.lower()
-        # Elimino espacios, signos de puntuación y acentos
-        str = str.translate(self.__unwanted_chars)
-        # Elimino caracteres repetidos
-        str = re.sub(r'(.)\1+', r'\1', str)
-        return str
 
     @staticmethod
     def __fin_de_parrafo(text):

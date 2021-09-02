@@ -19,15 +19,21 @@ class Searcher():
     def __init__(self, to_search):
         self.title = to_search
 
+        # Busco si lo introducido contiene un año.
         año_primera_pos = self.title.rfind("(")
         año_ultima_por = self.title.rfind(')')
         candidato_año = self.title[año_primera_pos + 1:año_ultima_por]
+        # Es posible que hay acosas entre paréntesis qeu no sea un año.
+        # Por eso, compruebo que aquello que está entre paréntesis sean números.
         if año_primera_pos > 0 and año_ultima_por > 0 and str(candidato_año).isnumeric():
             self.año = int(candidato_año)
         else:
             self.año = 0
+            # Sé que no he encontrado un año.
+            # Guardo el código de no encontrado, -1.
             año_primera_pos = -1
 
+        # Modifico el título para guardar el título sin el año.
         if año_primera_pos != -1:
             self.title = self.title[:año_primera_pos]
         self.title = self.title.strip()
@@ -41,15 +47,21 @@ class Searcher():
 
         # Creo una variable para cuando encuentre a película
         self.film_url = ''
+        self.__coincidente = None
 
+        # Guardo la página de búsqueda parseada.
         req = safe_get_url(self.search_url)
         self.parsed_page = BeautifulSoup(req.text,'html.parser')
 
+        # Ya he hecho la búsqueda.
+        # Quiero saber qué se ha conseguido, en qué caso estamos.
+        # Antes de hacer esta distinción, necesito ver si FilmAffinity me ha redirigido.
         self.__get_redirected_url()
         self.__estado = self.__clarify_case()
 
     def __search_boxes(self):
 
+        # Sólo tengo un listado de películas encontradas cuando tenga muchos resultados.
         if self.__estado != VARIOS_RESULTADOS:
             return
 
@@ -144,11 +156,32 @@ class Searcher():
 
         # Una vez hecha la búsqueda, miro cuántas películas me sirven.
         if len(coincidentes) == 1:
-            return coincidentes[0].url
+            self.__coincidente = coincidentes[0]
+            return self.__coincidente.url
         else:
             # Hay varios candidatos igual de válidos.
             # no puedo devolver nada con certeza.
             return ""
+
+    def print_state(self):
+
+        # Si no se ha encontrado nada, no hay nada que imprimir
+        if not self.resultados():
+            return
+
+        # He encontrado la película
+        if self.__estado == ENCONTRADA:
+            print("Se ha encontrado una única película llamada", self.title)
+            return
+
+        # Tengo varias películas
+        # if self.__estado == VARIOS_RESULTADOS:
+        # Llamo al cálculo de self.film_url
+        self.get_url()
+        if self.film_url:
+            print("Se ha encontrado una única película llamada", self.title, \
+                "del año", self.__coincidente.año)
+
 
 
 
