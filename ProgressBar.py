@@ -20,13 +20,16 @@ class Timer(object):
 
 class ProgressBar(object):
     def __init__(self):
-        self.timer = Timer()
+        self.__timer = Timer()
         self.barLength = 20
         self.progress = 0.0
 
     def update(self, done):
         self.progress = float(done)
         block = int(round(self.barLength * self.progress))
-        text = "\r[{0}] {1:.2f}% {2}".format( "="*block + " "*(self. barLength-block), self. progress*100, self.timer.remains(self.progress))
+        text = "\r[{0}] {1:.2f}% {2}".format( "="*block + " "*(self. barLength-block), self. progress*100, self.__timer.remains(self.progress))
         sys.stdout.write(text)
         sys.stdout.flush()
+
+    def reset_timer(self):
+        self.__timer.reset()
