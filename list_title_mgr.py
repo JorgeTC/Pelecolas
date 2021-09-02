@@ -21,9 +21,7 @@ class TitleMgr():
         self.ls_norm = [self.__normalize_string(title) for title in self.ls_lower]
 
 
-
-        # Variables caché, para no repetir cálculos para un mismo título
-        self.__titulo = ""
+        # Variables para guardar el resultado del cálculo.
         self.__exists = False
         self.__position = -1
 
@@ -41,11 +39,9 @@ class TitleMgr():
 
     def exists(self, titulo):
 
-        # Miro el caché para no buscar algo que ya haya buscado
-        if titulo == self.__titulo:
-            return self.__exists
-        else:
-            self.__titulo = titulo
+        # Inicio las variables de búsqueda
+        self.__exists = False
+        self.__position = -1
 
         # No quiero que sea sensible a las mayúsculas
         titulo = titulo.lower()
@@ -91,9 +87,8 @@ class TitleMgr():
         return str
 
     def exact_key(self, title):
-        # Me espero que me den el mismo título cuya existencia ya he comprobado
-        if title != self.__titulo:
-            self.exists(title)
+
+        self.exists(title)
 
         # Variables exists y position ya calculadas.
         if self.__exists:
