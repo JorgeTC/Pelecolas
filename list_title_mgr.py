@@ -20,6 +20,11 @@ class TitleMgr():
         # defino los caracteres para los que no quiero que sea sensitivo
         self.__unwanted_chars = self.__make_unwanted_chars()
 
+        # Variables caché, para no repetir cálculos para un mismo título
+        self.__titulo = ""
+        self.__exists = False
+        self.__position = -1
+
     def __make_unwanted_chars(self):
 
         # No quiero que los caracteres de puntuación afecten al buscar la película
@@ -33,13 +38,23 @@ class TitleMgr():
         return chars_dict
 
     def exists(self, titulo):
+
+        # Miro el caché para no buscar algo que ya haya buscado
+        if titulo == self.__titulo:
+            return self.__exists
+        else:
+            self.__titulo = titulo
+
         # No quiero que sea sensible a las mayúsculas
         titulo = titulo.lower()
 
-        for val in self.ls_title:
-            if titulo == val.lower():
-                # Caso de coincidencia exacta
-                self.titulo = val
+        for i, val in enumerate(self.ls_lower):
+            if titulo == val:
+
+                # Guardo el booleano para el caché
+                self.__exists = True
+                # Guardo la posición para saber cuál es la llave que le corresponde
+                self.__position = i
                 return True
 
         # Si es posible, siguiero los títulos más cercanos al introducido
@@ -52,18 +67,17 @@ class TitleMgr():
         titulo = self.__normalize_string(titulo)
         found = False
         # Recorro la lista de titulos
-        for iter in self.ls_title:
-            # Efectúo la comparación usando un título normalizado
-            iter_ = self.__normalize_string(iter)
+        for ori, normalized in zip(self.ls_title, self.ls_norm):
+
             # Busco si se contienen mutuamente
-            if titulo.find(iter_) >= 0 or iter_.find(titulo) >= 0:
+            if titulo.find(normalized) >= 0 or normalized.find(titulo) >= 0:
                 # Hay suficiente concordancia como para sugerir el título
                 if not found:
                     # Aún no he impreso nada por pantalla
                     print("Quizás quisiste decir...")
                     found = True
                 # Imprimo el título original. El que se ha leído en el documento
-                print(iter)
+                print(ori)
 
     def __normalize_string(self, str):
         # Elimino las mayúsculas
@@ -73,3 +87,15 @@ class TitleMgr():
         # Elimino caracteres repetidos
         str = re.sub(r'(.)\1+', r'\1', str)
         return str
+
+    def exact_key(self, title):
+        # Me espero que me den el mismo título cuya existencia ya he comprobado
+        if title != self.__titulo:
+            self.exists(title)
+
+        # Variables exists y position ya calculadas.
+        if self.__exists:
+            return self.ls_title[self.__position]
+        else:
+            # Ya sé que no está en la lista de llaves.
+            return ""
