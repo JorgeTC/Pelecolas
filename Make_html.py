@@ -25,15 +25,15 @@ class html():
 
         # Objeto para buscar si el título que ha pedido el usuario
         # está disponible en el archivo word.
-        self.quisiste_decir = TitleMgr( self.titulos.keys() )
+        self.quisiste_decir = TitleMgr( list(self.titulos.keys()) )
 
 
     def ask_for_data(self):
-        exists_given_title = False
+
         # Pido los datos de la película que voy a buscar
-        while not exists_given_title:
+        while not self.titulo:
             self.titulo = input("Introduzca título de la película: ")
-            exists_given_title = self.quisiste_decir.exists(self.titulo)
+            self.titulo = self.quisiste_decir.exact_key(self.titulo)
 
         while not self.director:
             self.director = input("Introduzca director: ")

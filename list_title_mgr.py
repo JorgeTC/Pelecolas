@@ -10,6 +10,10 @@ class TitleMgr():
         # Yo sólo necesito las llaves de ese diccionario.
         self.ls_title = title_list
 
+        # defino los caracteres para los que no quiero que sea sensitivo
+        # necesario para la operación de normalización.
+        self.__unwanted_chars = self.__make_unwanted_chars()
+
         # Hago dos versiones más de la lista de títulos.
         # Uno en minísculas
         self.ls_lower = [title.lower() for title in self.ls_title]
@@ -17,8 +21,6 @@ class TitleMgr():
         self.ls_norm = [self.__normalize_string(title) for title in self.ls_lower]
 
 
-        # defino los caracteres para los que no quiero que sea sensitivo
-        self.__unwanted_chars = self.__make_unwanted_chars()
 
         # Variables caché, para no repetir cálculos para un mismo título
         self.__titulo = ""
