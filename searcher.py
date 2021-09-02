@@ -19,17 +19,17 @@ class Searcher():
     def __init__(self, to_search):
         self.title = to_search
 
-        año_primera_pos = self.title.rfind("(") + 1
+        año_primera_pos = self.title.rfind("(")
         año_ultima_por = self.title.rfind(')')
-        candidato_año = self.title[año_primera_pos:año_ultima_por]
-        if str(candidato_año).isnumeric():
+        candidato_año = self.title[año_primera_pos + 1:año_ultima_por]
+        if año_primera_pos > 0 and año_ultima_por > 0 and str(candidato_año).isnumeric():
             self.año = int(candidato_año)
         else:
             self.año = 0
             año_primera_pos = -1
 
         if año_primera_pos != -1:
-            self.title = self.title[:año_primera_pos - 1]
+            self.title = self.title[:año_primera_pos]
         self.title = self.title.strip()
 
         # Creo la url para buscar ese título
@@ -144,7 +144,7 @@ class Searcher():
 
         # Una vez hecha la búsqueda, miro cuántas películas me sirven.
         if len(coincidentes) == 1:
-            coincidentes[0].url
+            return coincidentes[0].url
         else:
             # Hay varios candidatos igual de válidos.
             # no puedo devolver nada con certeza.
