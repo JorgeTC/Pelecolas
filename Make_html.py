@@ -35,30 +35,24 @@ class html():
             self.titulo = input("Introduzca título de la película: ")
             self.titulo = self.quisiste_decir.exact_key(self.titulo)
 
+        # Trato de buscar información de esta película en FA.
+        FA = Searcher(self.titulo)
+        FA.print_state()
+
         while not self.director:
             self.director = input("Introduzca director: ")
             # Si en vez de un director se introduce la dirección de FA, no necesito nada más
-            if not self.__interpretate_director():
+            if not self.__interpretate_director(FA.get_url()):
                 return
 
         self.año = input("Introduzca el año: ")
         self.duración = input("Introduzca duración de la película: ")
 
-    def __search_film(self):
-        # Busco el título en los registros de filmaffinity
-
-        # Obtengo el título sin el posible año entre paréntesis
-        search = Searcher(self.titulo)
-
-        url_encontrado = search.get_url()
-        return url_encontrado
-
-    def __interpretate_director(self):
+    def __interpretate_director(self, suggested_url):
 
         # Caso en el que no se ha introducido nada.
         # Busco la ficha automáticamente.
         if not self.director:
-            suggested_url = self.__search_film()
             if suggested_url and self.__get_data_from_FA(suggested_url):
                 # Lo introducido no es un director.
                 # Considero que no necesito más información.
