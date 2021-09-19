@@ -1,8 +1,10 @@
 import docx
-from .Pelicula import Pelicula
-from .WordReader import WordReader
-from .searcher import Searcher
+import re
+
 from .list_title_mgr import TitleMgr
+from .Pelicula import Pelicula
+from .searcher import Searcher
+from .WordReader import WordReader
 
 
 class html():
@@ -91,7 +93,7 @@ class html():
     def __fin_de_parrafo(text):
         return text == "" or text == "\t"
 
-    def search_film(self):
+    def __get_text(self):
         # Si no tengo los datos de la película, los pido
         if not self.titulo:
             self.ask_for_data()
@@ -125,7 +127,7 @@ class html():
 
     def write_html(self):
 
-        self.search_film()
+        self.__get_text()
 
         sz_file_name = "Reseña " + str(self.titulo) + ".html"
         reseña = open(self.folder / sz_file_name, mode="w",encoding="utf-8")
@@ -142,10 +144,7 @@ class html():
         # Iteramos los párrafos
         reseña.write("\n<!-- Párrafos -->\n")
         for parrafo in self.parrafos_critica:
-            reseña.write("<div style=\"margin: 16px 0px; text-align: justify; text-indent: 21.25pt;\">\n")
-            reseña.write("<span style=\"font-family: &quot;times new roman&quot; , serif; margin: 0px;\">\n")
-            reseña.write(str(parrafo))
-            reseña.write("\n</span></div>\n")
+            self.__write_paragraph(reseña, parrafo)
 
         # Escribo los botones de Twitter
         reseña.write("\n<p>")
@@ -156,6 +155,43 @@ class html():
         reseña.write("<a href=\"https://twitter.com/share?ref_src=twsrc%5Etfw\" class=\"twitter-share-button\" data-show-count=\"false\">Tweet</a><script async src=\"https://platform.twitter.com/widgets.js\" charset=\"utf-8\"></script>\n")
 
         reseña.close()
+
+    def __write_paragraph(self, file, parrafo):
+
+        # Si todo el párrafo entero es una cita, lo alineo todo a la derecha
+        # Compruebo si todo el párrafo son cursivas
+        all_italic = self.__is_all_italic(parrafo)
+
+        if not all_italic:
+            # Formato para un párrafo normal
+            file.write("<div style=\"margin: 16px 0px; text-align: justify; text-indent: 21.25pt;\">\n")
+            file.write("<span style=\"font-family: &quot;times new roman&quot; , serif; margin: 0px;\">\n")
+        else:
+            # Formato para un párrafo que es íntegro una cita
+            file.write("<div class=\"MsoNormalCxSpMiddle\" style=\"text-align: right;\">\n")
+            file.write("<span style=\"font-family: &quot;times new roman&quot; , serif;\">\n")
+        file.write(str(parrafo))
+        file.write("\n</span></div>\n")
+
+    def __is_all_italic(self, text : str):
+        # Hago listas con todas las listas de itálicas
+        apertura_italica =[m.start() for m in re.finditer("<i>", text)]
+        cierre_italica = [m.start() for m in re.finditer("</i>", text)]
+
+        # Me espero que ambas listas tengan la misma longitud
+        # Si hay más de una itálica, hay algún trozo de párrafo que no está en cursiva
+        if len(apertura_italica) != 1 or len(cierre_italica) != 1:
+            return False
+
+        # Compruebo que la itálica empiece con el párrafo
+        if apertura_italica[0] != 0:
+            return False
+        # Compruebo que la itálica termine con el párrafo
+        if cierre_italica[0] != len(text) - len("</i>"):
+            return False
+
+        return True
+
 
 if __name__ == "__main__":
     Documento = html()
