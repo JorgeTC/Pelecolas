@@ -148,6 +148,7 @@ class html():
             reseña.write("\n</span></div>\n")
 
         # Escribo los botones de Twitter
+        reseña.write("\n<p>")
         reseña.write("\n<!--Boton follow-->\n")
         reseña.write("<a href=\"https://twitter.com/pelecolas?ref_src=twsrc%5Etfw\" class=\"twitter-follow-button\" data-show-count=\"false\">\n")
         reseña.write("Follow @pelecolas</a><script async src=\"https://platform.twitter.com/widgets.js\" charset=\"utf-8\"></script>\n")
