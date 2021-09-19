@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 from .safe_url import safe_get_url
+import urllib.parse
 
 # Clase para guardar los datos que se lean
 class TituloYAño():
@@ -39,11 +40,7 @@ class Searcher():
         self.title = self.title.strip()
 
         # Creo la url para buscar ese título
-        # Cambio los espacios para poder tener una sola url
-        title_for_url =self.title.replace(" ", "+")
-        # Añado el prefijo
-        pref = "https://www.filmaffinity.com/es/search.php?stext="
-        self.search_url = pref + title_for_url
+        self.search_url = self.__get_search_url()
 
         # Creo una variable para cuando encuentre a película
         self.film_url = ''
@@ -58,6 +55,20 @@ class Searcher():
         # Antes de hacer esta distinción, necesito ver si FilmAffinity me ha redirigido.
         self.__get_redirected_url()
         self.__estado = self.__clarify_case()
+
+    def __get_search_url(self):
+        # Convierto los caracteres no alfanuméricpos en hexadecimal
+        # No puedo convertir los espacios:
+        # FilmAffinity convierte los espacios en +.
+        title_for_url = urllib.parse.quote(self.title, safe=" ")
+
+        # Cambio los espacios para poder tener una sola url
+        title_for_url = title_for_url.replace(" ", "+")
+
+        # Añado el prefijo
+        pref = "https://www.filmaffinity.com/es/search.php?stext="
+
+        return pref + title_for_url
 
     def __search_boxes(self):
 
