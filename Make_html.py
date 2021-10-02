@@ -134,12 +134,9 @@ class html():
 
         # Escribo el encabezado
         reseña.write("<!-- Encabezado -->\n")
-        reseña.write("<div style=\"text-align: right;\">\n")
-        reseña.write("<span style=\"font-family: &quot;courier new&quot; , &quot;courier&quot; , monospace;\">Dir.: " + str(self.director) + "</span></div>\n")
-        reseña.write("<div style=\"text-align: right;\">\n")
-        reseña.write("<span style=\"font-family: &quot;courier new&quot; , &quot;courier&quot; , monospace;\">" + str(self.año) + "</span></div>\n")
-        reseña.write("<div style=\"text-align: right;\">\n")
-        reseña.write("<span style=\"font-family: &quot;courier new&quot; , &quot;courier&quot; , monospace;\">" + str(self.duración) + " min.</span></div>\n")
+        self.__write_header_data(reseña, "Dir.: " + str(self.director))
+        self.__write_header_data(reseña, str(self.año))
+        self.__write_header_data(reseña, str(self.duración) + " min.")
 
         # Iteramos los párrafos
         reseña.write("\n<!-- Párrafos -->\n")
@@ -161,6 +158,12 @@ class html():
                      "charset=\"utf-8\"></script>\n")
 
         reseña.close()
+
+    def __write_header_data(self, file, text):
+        file.write("<div style=\"text-align: right;\">\n")
+        file.write("<span style=\"font-family: &quot;courier new&quot; , &quot;courier&quot; , monospace;\">" +
+                    str(text) + "</span></div>\n")
+
 
     def __write_paragraph(self, file, parrafo):
 
