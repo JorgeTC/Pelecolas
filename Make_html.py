@@ -103,15 +103,9 @@ class html():
             if self.__fin_de_parrafo(paragraph.text):
                 # He llegado al final de la crítica. Dejo de leer el documento
                 return self.parrafos_critica
-            # Inicializo el párrafo
-            parr_text = ""
 
-            for run in paragraph.runs:
-                # Conservo las cursivas
-                if run.italic:
-                    parr_text += "<i>" + run.text + "</i>"
-                else:
-                    parr_text += run.text
+            # Convierto el contenido del párrafo a html
+            parr_text = self.__parr_to_html(paragraph)
 
             if not self.parrafos_critica:
                 # Si es el primer párrafo, elimino el título
@@ -124,6 +118,39 @@ class html():
             self.parrafos_critica.append(parr_text)
 
         assert("No ha sido posible encontrar la reseña.")
+
+    def __parr_to_html(self, paragraph):
+        # Inicializo el párrafo
+        parr_text = ""
+
+        # Conservo las cursivas
+        # Si hay dos cursivas consecutivas las quiero unir como una sola
+        b_prev_it = False
+        b_curr_it = False
+
+        for run in paragraph.runs:
+            # Si todo son espacios, realmente no ha habido cambio de cursivas
+            if not run.text.isspace():
+                b_curr_it = run.italic
+
+            # Acabo de entrar a una cursiva, abro i
+            if b_curr_it and not b_prev_it:
+                parr_text += "<i>"
+            # Acabo de salir de una cursiva, cierro i
+            if not b_curr_it and b_prev_it:
+                parr_text += "</i>"
+
+            # Añado el texto
+            parr_text += run.text
+
+            # Actualizo la itálica del párrafo anterior
+            b_prev_it = b_curr_it
+
+        # Si he terminado el bucle, es posible que me haya dejado la última itálica sin cerrar
+        if b_prev_it:
+            parr_text += "</i>"
+
+        return parr_text
 
     def write_html(self):
 
