@@ -161,7 +161,7 @@ class html():
 
     def __write_header_data(self, file, text):
         file.write("<div style=\"text-align: right;\">\n")
-        file.write("<span style=\"font-family: &quot;courier new&quot; , &quot;courier&quot; , monospace;\">" +
+        file.write("<span style=\"font-family: 'courier new', 'courier', monospace;\">" +
                     str(text) + "</span></div>\n")
 
 
@@ -174,11 +174,11 @@ class html():
         if not all_italic:
             # Formato para un párrafo normal
             file.write("<div style=\"margin: 16px 0px; text-align: justify; text-indent: 21.25pt;\">\n")
-            file.write("<span style=\"font-family: &quot;times new roman&quot; , serif; margin: 0px;\">\n")
+            file.write("<span style=\"font-family: 'times new roman', serif; margin: 0px;\">\n")
         else:
             # Formato para un párrafo que es íntegro una cita
             file.write("<div class=\"MsoNormalCxSpMiddle\" style=\"text-align: right;\">\n")
-            file.write("<span style=\"font-family: &quot;times new roman&quot; , serif;\">\n")
+            file.write("<span style=\"font-family: 'times new roman', serif;\">\n")
         file.write(str(parrafo))
         file.write("\n</span></div>\n")
 
