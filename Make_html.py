@@ -134,12 +134,9 @@ class html():
 
         # Escribo el encabezado
         reseña.write("<!-- Encabezado -->\n")
-        reseña.write("<div style=\"text-align: right;\">\n")
-        reseña.write("<span style=\"font-family: &quot;courier new&quot; , &quot;courier&quot; , monospace;\">Dir.: " + str(self.director) + "</span></div>\n")
-        reseña.write("<div style=\"text-align: right;\">\n")
-        reseña.write("<span style=\"font-family: &quot;courier new&quot; , &quot;courier&quot; , monospace;\">" + str(self.año) + "</span></div>\n")
-        reseña.write("<div style=\"text-align: right;\">\n")
-        reseña.write("<span style=\"font-family: &quot;courier new&quot; , &quot;courier&quot; , monospace;\">" + str(self.duración) + " min.</span></div>\n")
+        self.__write_header_data(reseña, "Dir.: " + str(self.director))
+        self.__write_header_data(reseña, str(self.año))
+        self.__write_header_data(reseña, str(self.duración) + " min.")
 
         # Iteramos los párrafos
         reseña.write("\n<!-- Párrafos -->\n")
@@ -149,12 +146,24 @@ class html():
         # Escribo los botones de Twitter
         reseña.write("\n<p>")
         reseña.write("\n<!--Boton follow-->\n")
-        reseña.write("<a href=\"https://twitter.com/pelecolas?ref_src=twsrc%5Etfw\" class=\"twitter-follow-button\" data-show-count=\"false\">\n")
-        reseña.write("Follow @pelecolas</a><script async src=\"https://platform.twitter.com/widgets.js\" charset=\"utf-8\"></script>\n")
+        reseña.write("<a href=\"https://twitter.com/pelecolas?ref_src=twsrc%5Etfw\" " +
+                     "class=\"twitter-follow-button\" data-show-count=\"false\">\n")
+        reseña.write("Follow @pelecolas</a>\n"+
+                     "<script async src=\"https://platform.twitter.com/widgets.js\"" +
+                     "charset=\"utf-8\"></script>\n")
         reseña.write("\n<!--Boton compartir-->\n")
-        reseña.write("<a href=\"https://twitter.com/share?ref_src=twsrc%5Etfw\" class=\"twitter-share-button\" data-show-count=\"false\">Tweet</a><script async src=\"https://platform.twitter.com/widgets.js\" charset=\"utf-8\"></script>\n")
+        reseña.write("<a href=\"https://twitter.com/share?ref_src=twsrc%5Etfw\" " +
+                     "class=\"twitter-share-button\" data-show-count=\"false\">Tweet</a>\n" +
+                     "<script async src=\"https://platform.twitter.com/widgets.js\"\n"+
+                     "charset=\"utf-8\"></script>\n")
 
         reseña.close()
+
+    def __write_header_data(self, file, text):
+        file.write("<div style=\"text-align: right;\">\n")
+        file.write("<span style=\"font-family: 'courier new', 'courier', monospace;\">" +
+                    str(text) + "</span></div>\n")
+
 
     def __write_paragraph(self, file, parrafo):
 
@@ -165,11 +174,11 @@ class html():
         if not all_italic:
             # Formato para un párrafo normal
             file.write("<div style=\"margin: 16px 0px; text-align: justify; text-indent: 21.25pt;\">\n")
-            file.write("<span style=\"font-family: &quot;times new roman&quot; , serif; margin: 0px;\">\n")
+            file.write("<span style=\"font-family: 'times new roman', serif; margin: 0px;\">\n")
         else:
             # Formato para un párrafo que es íntegro una cita
             file.write("<div class=\"MsoNormalCxSpMiddle\" style=\"text-align: right;\">\n")
-            file.write("<span style=\"font-family: &quot;times new roman&quot; , serif;\">\n")
+            file.write("<span style=\"font-family: 'times new roman', serif;\">\n")
         file.write(str(parrafo))
         file.write("\n</span></div>\n")
 
