@@ -149,10 +149,16 @@ class html():
         # Escribo los botones de Twitter
         reseña.write("\n<p>")
         reseña.write("\n<!--Boton follow-->\n")
-        reseña.write("<a href=\"https://twitter.com/pelecolas?ref_src=twsrc%5Etfw\" class=\"twitter-follow-button\" data-show-count=\"false\">\n")
-        reseña.write("Follow @pelecolas</a><script async src=\"https://platform.twitter.com/widgets.js\" charset=\"utf-8\"></script>\n")
+        reseña.write("<a href=\"https://twitter.com/pelecolas?ref_src=twsrc%5Etfw\" " +
+                     "class=\"twitter-follow-button\" data-show-count=\"false\">\n")
+        reseña.write("Follow @pelecolas</a>\n"+
+                     "<script async src=\"https://platform.twitter.com/widgets.js\"" +
+                     "charset=\"utf-8\"></script>\n")
         reseña.write("\n<!--Boton compartir-->\n")
-        reseña.write("<a href=\"https://twitter.com/share?ref_src=twsrc%5Etfw\" class=\"twitter-share-button\" data-show-count=\"false\">Tweet</a><script async src=\"https://platform.twitter.com/widgets.js\" charset=\"utf-8\"></script>\n")
+        reseña.write("<a href=\"https://twitter.com/share?ref_src=twsrc%5Etfw\" " +
+                     "class=\"twitter-share-button\" data-show-count=\"false\">Tweet</a>\n" +
+                     "<script async src=\"https://platform.twitter.com/widgets.js\"\n"+
+                     "charset=\"utf-8\"></script>\n")
 
         reseña.close()
 
