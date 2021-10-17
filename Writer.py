@@ -130,7 +130,7 @@ class Writer(object):
         UserNote = film['User Note']
         self.__set_cell_value(line, 2, int(UserNote))
         self.__set_cell_value(line, 10, str("=B" + str(line) + "+RAND()-0.5"))
-        self.__set_cell_value(line, 11, "=(B" + str(line) + "-1)*10/9")
+        self.__set_cell_value(line, 12, "=(B" + str(line) + "-1)*10/9")
         # En la primera columna guardo la id para poder reconocerla
         self.__set_cell_value(line, 1, film['Title'], int(film['Id']))
 
@@ -144,7 +144,8 @@ class Writer(object):
             self.__set_cell_value(line, 7, "=B" + str(line) + "-C" + str(line))
             self.__set_cell_value(line, 8, "=ABS(G" + str(line) + ")")
             self.__set_cell_value(line, 9, "=IF($G" + str(line) + ">0,1,0.1)")
-            self.__set_cell_value(line, 12, "=(C" + str(line) + "-1)*10/9")
+            self.__set_cell_value(line, 13, "=(C" + str(line) + "-1)*10/9")
+            self.__set_cell_value(line, 11, "=C" + str(line) + "+(RAND()-0.5)/10")
         if (film['Voters'] != 0):
             # dejo la casilla en blanco si no logra leer ninguna votantes
             self.__set_cell_value(line, 5, film['Voters'])
@@ -165,8 +166,11 @@ class Writer(object):
         # Nota del usuario más el ruido
         elif (col == 10):
             cell.number_format = '0.0'
+        # Nota de FA más el ruido
+        elif (col == 11):
+            cell.number_format = '0.00'
         #reescala
-        elif (col == 11 or col == 12):
+        elif (col == 12 or col == 13):
             cell.number_format = '0.00'
         # Nombre de la película con un hipervínculo
         elif (col == 1):
