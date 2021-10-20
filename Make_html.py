@@ -6,6 +6,7 @@ from .Pelicula import Pelicula
 from .searcher import Searcher
 from .WordReader import WordReader
 
+SZ_INVALID_CHAR = "\/:*?<>|"
 
 class html():
 
@@ -156,7 +157,11 @@ class html():
 
         self.__get_text()
 
-        sz_file_name = "Reseña " + str(self.titulo) + ".html"
+        # Limpio el titulo de la película por si tiene caracteres no válidos para un archivo de Windows
+        sz_file_name = "".join(i for i in str(self.titulo) if i not in SZ_INVALID_CHAR)
+        # Compongo el nombre completo del archivo
+        sz_file_name = "Reseña " + sz_file_name + ".html"
+        # Abro el archivo en modo escritura
         reseña = open(self.folder / sz_file_name, mode="w",encoding="utf-8")
 
         # Escribo el encabezado
