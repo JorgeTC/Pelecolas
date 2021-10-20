@@ -9,6 +9,12 @@ from .Pelicula import Pelicula
 from math import ceil
 
 class Writer(object):
+
+    columns = ["Id", "Mia", "FA", "Duracion", "Visionados",
+            "FA redondeo", "Diferencia", "Diferencia abs", "Me ha gustado",
+            "Mia + ruido", "FA + ruido", "Mia rees", "FA rees"]
+    columns = dict(zip(columns, range(1,len(columns)+1)))
+
     def __init__(self, id, worksheet):
         # numero de usuario en string
         self.id_user = str(id)
@@ -128,27 +134,40 @@ class Writer(object):
         # La votacion del usuario la leo desde fuera
         # no puedo leer la nota del usuario dentro de la ficha
         UserNote = film['User Note']
-        self.__set_cell_value(line, 2, int(UserNote))
-        self.__set_cell_value(line, 10, str("=B" + str(line) + "+RAND()-0.5"))
-        self.__set_cell_value(line, 12, "=(B" + str(line) + "-1)*10/9")
+        self.__set_cell_value(line, self.columns["Mia"],
+                                int(UserNote))
+        self.__set_cell_value(line, self.columns["Mia + ruido"],
+                                "=B" + str(line) + "+RAND()-0.5")
+        self.__set_cell_value(line, self.columns["Mia rees"],
+                                "=(B" + str(line) + "-1)*10/9")
         # En la primera columna guardo la id para poder reconocerla
-        self.__set_cell_value(line, 1, film['Title'], int(film['Id']))
+        self.__set_cell_value(line, self.columns["Id"],
+                                film['Title'], int(film['Id']))
 
         if (film['Duration'] != 0):
             # dejo la casilla en blanco si no logra leer ninguna duración de FA
-            self.__set_cell_value(line, 4, film['Duration'])
+            self.__set_cell_value(line, self.columns["Duracion"],
+                                    film['Duration'])
         if (film['Note FA'] != 0):
             # dejo la casilla en blanco si no logra leer ninguna nota de FA
-            self.__set_cell_value(line, 3, film['Note FA'])
-            self.__set_cell_value(line, 6, "=ROUND(C" + str(line) + "*2, 0)/2")
-            self.__set_cell_value(line, 7, "=B" + str(line) + "-C" + str(line))
-            self.__set_cell_value(line, 8, "=ABS(G" + str(line) + ")")
-            self.__set_cell_value(line, 9, "=IF($G" + str(line) + ">0,1,0.1)")
-            self.__set_cell_value(line, 13, "=(C" + str(line) + "-1)*10/9")
-            self.__set_cell_value(line, 11, "=C" + str(line) + "+(RAND()-0.5)/10")
+            self.__set_cell_value(line, self.columns["FA"],
+                                    film['Note FA'])
+            self.__set_cell_value(line, self.columns["FA redondeo"],
+                                    "=ROUND(C" + str(line) + "*2, 0)/2")
+            self.__set_cell_value(line, self.columns["Diferencia"],
+                                    "=B" + str(line) + "-C" + str(line))
+            self.__set_cell_value(line, self.columns["Diferencia abs"],
+                                    "=ABS(G" + str(line) + ")")
+            self.__set_cell_value(line, self.columns["Me ha gustado"],
+                                    "=IF($G" + str(line) + ">0,1,0.1)")
+            self.__set_cell_value(line, self.columns["FA rees"],
+                                    "=(C" + str(line) + "-1)*10/9")
+            self.__set_cell_value(line, self.columns["FA + ruido"],
+                                    "=C" + str(line) + "+(RAND()-0.5)/10")
         if (film['Voters'] != 0):
             # dejo la casilla en blanco si no logra leer ninguna votantes
-            self.__set_cell_value(line, 5, film['Voters'])
+            self.__set_cell_value(line, self.columns["Visionados"],
+                                    film['Voters'])
 
 
     def __set_cell_value(self, line, col, value, id=0):
@@ -156,24 +175,25 @@ class Writer(object):
         cell.value = value
         # Configuramos el estilo de la celda atendiendo a su columna
         # visionados. Ponemos punto de millar
-        if (col == 5):
+        if (col == self.columns["Visionados"]):
             cell.number_format = '#,##0'
         # booleano mayor que
-        elif (col == 9):
+        elif (col == self.columns["Me ha gustado"]):
             cell.number_format = '0'
             cell.font = Font(name = 'SimSun', bold = True)
             cell.alignment=Alignment(horizontal='center', vertical='center')
         # Nota del usuario más el ruido
-        elif (col == 10):
+        elif (col == self.columns["Mia + ruido"]):
             cell.number_format = '0.0'
         # Nota de FA más el ruido
-        elif (col == 11):
+        elif (col == self.columns["FA + ruido"]):
             cell.number_format = '0.00'
         #reescala
-        elif (col == 12 or col == 13):
+        elif (col == self.columns["Mia rees"] or
+              col == self.columns["FA rees"]):
             cell.number_format = '0.00'
         # Nombre de la película con un hipervínculo
-        elif (col == 1):
+        elif (col == self.columns["Id"]):
             # Añado un hipervínculo a su página
             cell.style = 'Hyperlink'
             cell.hyperlink = "https://www.filmaffinity.com/es/film" + str(id) + ".html"
