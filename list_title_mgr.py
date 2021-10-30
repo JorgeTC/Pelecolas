@@ -24,6 +24,8 @@ class TitleMgr():
         # Variables para guardar el resultado del cálculo.
         self.__exists = False
         self.__position = -1
+        # Indices para cuando haya que sugerir resultados
+        self.__lsn_suggestions = []
 
     def __make_unwanted_chars(self):
 
@@ -42,6 +44,7 @@ class TitleMgr():
         # Inicio las variables de búsqueda
         self.__exists = False
         self.__position = -1
+        self.__lsn_suggestions.clear()
 
         # No quiero que sea sensible a las mayúsculas
         titulo = titulo.lower()
@@ -63,19 +66,23 @@ class TitleMgr():
     def __closest_title(self, titulo):
         # Intento buscar los casos más cercanos
         titulo = self.__normalize_string(titulo)
-        found = False
+
         # Recorro la lista de titulos
-        for ori, normalized in zip(self.ls_title, self.ls_norm):
+        for index, normalized in enumerate(self.ls_norm):
 
             # Busco si se contienen mutuamente
             if titulo.find(normalized) >= 0 or normalized.find(titulo) >= 0:
                 # Hay suficiente concordancia como para sugerir el título
-                if not found:
-                    # Aún no he impreso nada por pantalla
-                    print("Quizás quisiste decir...")
-                    found = True
-                # Imprimo el título original. El que se ha leído en el documento
-                print(ori)
+                self.__lsn_suggestions.append(index)
+
+        # Si he encontrado titulos para sugerir, los imprimo
+        if not self.__lsn_suggestions:
+            return
+
+        print("Quizás quisiste decir...")
+        for index in self.__lsn_suggestions:
+            # Imprimo el título original. El que se ha leído en el documento
+            print(self.ls_title[index])
 
     def __normalize_string(self, str):
         # Elimino las mayúsculas
