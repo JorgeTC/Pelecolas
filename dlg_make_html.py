@@ -1,4 +1,5 @@
 import keyboard
+import time
 from .list_title_mgr import TitleMgr
 from .Pelicula import Pelicula
 from .searcher import Searcher
@@ -76,10 +77,13 @@ class DlgHtml():
     def __ask_for_title(self):
         # Quiero que las flechas de arriba y abajo me sirvan para iterar la lista de títulos sugeridos
         self.curr_index = -1
+        self.written_len = 0
+        self.__keyboard_listen = True
 
         # Escribo la funcionalidad de las flechas para poder recorrer las sugerencias
         keyboard.add_hotkey('up arrow', self.__on_up_key)
         keyboard.add_hotkey('down arrow', self.__on_down_key)
+        keyboard.on_press(self.__on_any_key)
 
         while not self.titulo:
             self.curr_index = -1
@@ -87,13 +91,21 @@ class DlgHtml():
             self.titulo = self.quisiste_decir.exact_key(self.titulo)
 
         # Cancelo la funcionalidad de las hotkeys
-        keyboard.unhook_all_hotkeys()
+        keyboard.unhook_all()
         del self.curr_index
+        del self.written_len
+        del self.__keyboard_listen
 
     def __on_up_key(self):
+
+        if not self.__keyboard_listen:
+            return
+        self.__keyboard_listen = False
+
         # si no tengo ninguna sugerencia, no puedo recorrer nada
         list_size = self.quisiste_decir.get_suggested_titles_count()
         if not list_size:
+            self.__keyboard_listen = True
             return
 
         self.__clear_written()
@@ -109,12 +121,21 @@ class DlgHtml():
         if (self.curr_index != -1):
             curr_suggested = self.quisiste_decir.get_suggested_title(
                 self.curr_index)
+            self.written_len = len(curr_suggested)
             keyboard.write(curr_suggested)
 
+        self.__keyboard_listen = True
+
     def __on_down_key(self):
+
+        if not self.__keyboard_listen:
+            return
+        self.__keyboard_listen = False
+
         # si no tengo ninguna sugerencia, no puedo recorrer nada
         list_size = self.quisiste_decir.get_suggested_titles_count()
         if not list_size:
+            self.__keyboard_listen = True
             return
 
         self.__clear_written()
@@ -132,6 +153,26 @@ class DlgHtml():
                 self.curr_index)
             keyboard.write(curr_suggested)
 
+        self.__keyboard_listen = True
+
+    def __on_any_key(self, curr_pressed):
+
+        if not self.__keyboard_listen:
+            return
+
+        if curr_pressed.event_type != 'down':
+            return
+
+        key_name = curr_pressed.name
+
+        if len(key_name) == 1 or key_name == 'space':
+            self.written_len = self.written_len + 1
+        elif key_name == 'backspace':
+            self.written_len = self.written_len - 1
+        else:
+            return
+
     def __clear_written(self):
-        for _ in range(70):
+        for _ in range(self.written_len):
             keyboard.send('backspace')
+            time.sleep(0.001)
