@@ -1,12 +1,13 @@
-import docx
 import re
 
-from .list_title_mgr import TitleMgr
+import docx
+
+from .dlg_make_html import DlgHtml
 from .Pelicula import Pelicula
-from .searcher import Searcher
 from .WordReader import WordReader
 
 SZ_INVALID_CHAR = "\/:*?<>|"
+
 
 class html():
 
@@ -16,79 +17,25 @@ class html():
         self.doc = docx.Document(folder / "Películas.docx")
 
         self.parrafos_critica = []
-        self.titulo = ""
-        self.año = ""
-        self.duración = ""
-        self.director = ""
+        # Objeto Pelicula para guardar los datos que necesito para escribir el html
+        # quiero de ella su titulo, año, duración, y director
+        self.data = Pelicula()
 
         # Hago un diccionario con todos los títulos que tienen una crítica escrita
         reader = WordReader(folder)
         reader.list_titles()
         self.titulos = reader.titulos
 
-        # Objeto para buscar si el título que ha pedido el usuario
-        # está disponible en el archivo word.
-        self.quisiste_decir = TitleMgr( list(self.titulos.keys()) )
-
-
     def ask_for_data(self):
-
-        # Pido los datos de la película que voy a buscar
-        while not self.titulo:
-            self.titulo = input("Introduzca título de la película: ")
-            self.titulo = self.quisiste_decir.exact_key(self.titulo)
-
-        # Trato de buscar información de esta película en FA.
-        FA = Searcher(self.titulo)
-        FA.print_state()
-
-        while not self.director:
-            self.director = input("Introduzca director: ")
-            # Si en vez de un director se introduce la dirección de FA, no necesito nada más
-            if not self.__interpretate_director(FA.get_url()):
-                return
-
-        self.año = input("Introduzca el año: ")
-        self.duración = input("Introduzca duración de la película: ")
-
-    def __interpretate_director(self, suggested_url):
-
-        # Caso en el que no se ha introducido nada.
-        # Busco la ficha automáticamente.
-        if not self.director:
-            if suggested_url and self.__get_data_from_FA(suggested_url):
-                # Lo introducido no es un director.
-                # Considero que no necesito más información.
-                return False
-
-        # Si es un número, considero que se ha introducido un id de Filmaffinitty
-        if self.director.isnumeric():
-            url = 'https://www.filmaffinity.com/es/film' + self.director + '.html'
-            return not self.__get_data_from_FA(url)
-
-        if self.director.find("filmaffinity") >= 0:
-            # Se ha introducido directamente la url
-            return not self.__get_data_from_FA(self.director)
-
-        else:
-            # El director de la película es lo introducido por teclado
-            return True
-
-    def __get_data_from_FA(self, url):
-        peli = Pelicula(urlFA=url)
-        peli.get_parsed_page()
-
-        if not peli.exists():
-            return False
-
-        peli.get_director()
-        self.director = peli.director
-        peli.get_año()
-        self.año = peli.año
-        peli.get_duracion()
-        self.duración = peli.duracion
-        return True
-
+        # Diálogo para pedir los datos necesarios para crear el html
+        # Necesito darle una lista de todos los títulos que tengo en el word
+        dlg = DlgHtml(list(self.titulos.keys()))
+        # Llamo al diálogo para que pida por la consola los datos que necesito
+        dlg.ask_for_data()
+        self.data.titulo = dlg.titulo
+        self.data.año = dlg.año
+        self.data.duracion = dlg.duración
+        self.data.director = dlg.director
 
     @staticmethod
     def __fin_de_parrafo(text):
@@ -96,10 +43,10 @@ class html():
 
     def __get_text(self):
         # Si no tengo los datos de la película, los pido
-        if not self.titulo:
+        if not self.data.titulo:
             self.ask_for_data()
         # Empiezo a recorrer los párrafos desde el que sé que inicia la crítica que busco
-        for paragraph in self.doc.paragraphs[self.titulos[self.titulo]:]:
+        for paragraph in self.doc.paragraphs[self.titulos[self.data.titulo]:]:
 
             if self.__fin_de_parrafo(paragraph.text):
                 # He llegado al final de la crítica. Dejo de leer el documento
@@ -110,7 +57,7 @@ class html():
 
             if not self.parrafos_critica:
                 # Si es el primer párrafo, elimino el título
-                parr_text = parr_text[len(self.titulo):]
+                parr_text = parr_text[len(self.data.titulo):]
                 parr_text = parr_text.lstrip(": ")
 
             # Añado saltos de línea para un html más legible
@@ -158,17 +105,18 @@ class html():
         self.__get_text()
 
         # Limpio el titulo de la película por si tiene caracteres no válidos para un archivo de Windows
-        sz_file_name = "".join(i for i in str(self.titulo) if i not in SZ_INVALID_CHAR)
+        sz_file_name = "".join(i for i in str(
+            self.data.titulo) if i not in SZ_INVALID_CHAR)
         # Compongo el nombre completo del archivo
         sz_file_name = "Reseña " + sz_file_name + ".html"
         # Abro el archivo en modo escritura
-        reseña = open(self.folder / sz_file_name, mode="w",encoding="utf-8")
+        reseña = open(self.folder / sz_file_name, mode="w", encoding="utf-8")
 
         # Escribo el encabezado
         reseña.write("<!-- Encabezado -->\n")
-        self.__write_header_data(reseña, "Dir.: " + str(self.director))
-        self.__write_header_data(reseña, str(self.año))
-        self.__write_header_data(reseña, str(self.duración) + " min.")
+        self.__write_header_data(reseña, "Dir.: " + str(self.data.director))
+        self.__write_header_data(reseña, str(self.data.año))
+        self.__write_header_data(reseña, str(self.data.duracion) + " min.")
 
         # Iteramos los párrafos
         reseña.write("\n<!-- Párrafos -->\n")
@@ -180,13 +128,13 @@ class html():
         reseña.write("\n<!--Boton follow-->\n")
         reseña.write("<a href=\"https://twitter.com/pelecolas?ref_src=twsrc%5Etfw\" " +
                      "class=\"twitter-follow-button\" data-show-count=\"false\">\n")
-        reseña.write("Follow @pelecolas</a>\n"+
+        reseña.write("Follow @pelecolas</a>\n" +
                      "<script async src=\"https://platform.twitter.com/widgets.js\"" +
                      "charset=\"utf-8\"></script>\n")
         reseña.write("\n<!--Boton compartir-->\n")
         reseña.write("<a href=\"https://twitter.com/share?ref_src=twsrc%5Etfw\" " +
                      "class=\"twitter-share-button\" data-show-count=\"false\">Tweet</a>\n" +
-                     "<script async src=\"https://platform.twitter.com/widgets.js\"\n"+
+                     "<script async src=\"https://platform.twitter.com/widgets.js\"\n" +
                      "charset=\"utf-8\"></script>\n")
 
         reseña.close()
@@ -194,8 +142,7 @@ class html():
     def __write_header_data(self, file, text):
         file.write("<div style=\"text-align: right;\">\n")
         file.write("<span style=\"font-family: 'courier new', 'courier', monospace;\">" +
-                    str(text) + "</span></div>\n")
-
+                   str(text) + "</span></div>\n")
 
     def __write_paragraph(self, file, parrafo):
 
@@ -205,18 +152,22 @@ class html():
 
         if not all_italic:
             # Formato para un párrafo normal
-            file.write("<div style=\"margin: 16px 0px; text-align: justify; text-indent: 21.25pt;\">\n")
-            file.write("<span style=\"font-family: 'times new roman', serif; margin: 0px;\">\n")
+            file.write(
+                "<div style=\"margin: 16px 0px; text-align: justify; text-indent: 21.25pt;\">\n")
+            file.write(
+                "<span style=\"font-family: 'times new roman', serif; margin: 0px;\">\n")
         else:
             # Formato para un párrafo que es íntegro una cita
-            file.write("<div class=\"MsoNormalCxSpMiddle\" style=\"text-align: right;\">\n")
-            file.write("<span style=\"font-family: 'times new roman', serif;\">\n")
+            file.write(
+                "<div class=\"MsoNormalCxSpMiddle\" style=\"text-align: right;\">\n")
+            file.write(
+                "<span style=\"font-family: 'times new roman', serif;\">\n")
         file.write(str(parrafo))
         file.write("\n</span></div>\n")
 
-    def __is_all_italic(self, text : str):
+    def __is_all_italic(self, text: str):
         # Hago listas con todas las listas de itálicas
-        apertura_italica =[m.start() for m in re.finditer("<i>", text)]
+        apertura_italica = [m.start() for m in re.finditer("<i>", text)]
         cierre_italica = [m.start() for m in re.finditer("</i>", text)]
 
         # Me espero que ambas listas tengan la misma longitud
