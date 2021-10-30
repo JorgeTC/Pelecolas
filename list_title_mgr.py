@@ -1,11 +1,10 @@
 import re
 
-# Clase para hallar el título más próximo.
-# Cuando se inserta intítulo por teclado trato de buscar el título más parecido
-# de las reseñas que hay escritas.
-
 
 class TitleMgr():
+    # Clase para hallar el título más próximo.
+    # Cuando se inserta un título por teclado trato de buscar el título más parecido
+    # de las reseñas que hay escritas.
     def __init__(self, title_list):
         # Copio todos los títulos disponibles.
         # La clase html los tiene en forma de diccionario.
@@ -21,7 +20,6 @@ class TitleMgr():
         self.ls_lower = [title.lower() for title in self.ls_title]
         # Otro con los títulos normalizados
         self.ls_norm = [self.__normalize_string(title) for title in self.ls_lower]
-
 
         # Variables para guardar el resultado del cálculo.
         self.__exists = False
