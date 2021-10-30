@@ -34,10 +34,10 @@ class TitleMgr():
         # No quiero que los caracteres de puntuación afecten al buscar la película
         chars_dict = dict.fromkeys(map(ord, " ,!¡@#$?¿()."), None)
         # Elimino los tipos de tildes
-        chars_dict.update(zip(map(ord, "áéíóú"),map(ord, "aeiou")))
-        chars_dict.update(zip(map(ord, "àèìòù"),map(ord, "aeiou")))
-        chars_dict.update(zip(map(ord, "âêîôû"),map(ord, "aeiou")))
-        chars_dict.update(zip(map(ord, "äëïöü"),map(ord, "aeiou")))
+        chars_dict.update(zip(map(ord, "áéíóú"), map(ord, "aeiou")))
+        chars_dict.update(zip(map(ord, "àèìòù"), map(ord, "aeiou")))
+        chars_dict.update(zip(map(ord, "âêîôû"), map(ord, "aeiou")))
+        chars_dict.update(zip(map(ord, "äëïöü"), map(ord, "aeiou")))
 
         return chars_dict
 

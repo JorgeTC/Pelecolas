@@ -1,11 +1,20 @@
 import keyboard
-import time
+import sys
 from .list_title_mgr import TitleMgr
 from .Pelicula import Pelicula
 from .searcher import Searcher
 
 
 class DlgHtml():
+
+    # Mensajes para pedir información
+    ASK_TITLE = "Introduzca título de la película: "
+    ASK_DIRECTOR = "Introduzca director: "
+    ASK_YEAR = "Introduzca el año: "
+    ASK_DURATION = "Introduzca duración de la película: "
+
+    # Longitud máxima que me espero de un título
+    MAX_TITLE_LENGTH = 50
 
     def __init__(self, title_list) -> None:
         # Objeto para buscar si el título que ha pedido el usuario
@@ -28,13 +37,13 @@ class DlgHtml():
         FA.print_state()
 
         while not self.director:
-            self.director = input("Introduzca director: ")
+            self.director = input(self.ASK_DIRECTOR)
             # Si en vez de un director se introduce la dirección de FA, no necesito nada más
             if not self.__interpretate_director(FA.get_url()):
                 return
 
-        self.año = input("Introduzca el año: ")
-        self.duración = input("Introduzca duración de la película: ")
+        self.año = input(self.ASK_YEAR)
+        self.duración = input(self.ASK_DURATION)
 
     def __interpretate_director(self, suggested_url):
 
@@ -76,25 +85,30 @@ class DlgHtml():
 
     def __ask_for_title(self):
         # Quiero que las flechas de arriba y abajo me sirvan para iterar la lista de títulos sugeridos
-        self.curr_index = -1
-        self.written_len = 0
+        # Las hago variables de la clase para poder acceder a ellas desde las hotkey
+        self.__curr_index = -1
         self.__keyboard_listen = True
+        self.__list_size = 0
 
         # Escribo la funcionalidad de las flechas para poder recorrer las sugerencias
         keyboard.add_hotkey('up arrow', self.__on_up_key)
         keyboard.add_hotkey('down arrow', self.__on_down_key)
-        keyboard.on_press(self.__on_any_key)
 
         while not self.titulo:
-            self.curr_index = -1
-            self.titulo = input("Introduzca título de la película: ")
+            # Inicializo las variables antes de llamar a input
+            self.__curr_index = -1
+            self.__list_size = self.quisiste_decir.get_suggested_titles_count()
+            # Al llamar a input es cuando me espero que se itilicen las flechas
+            self.titulo = input(self.ASK_TITLE)
+            # Se ha introducido un título, compruebo que sea correcto
             self.titulo = self.quisiste_decir.exact_key(self.titulo)
 
         # Cancelo la funcionalidad de las hotkeys
         keyboard.unhook_all()
-        del self.curr_index
-        del self.written_len
+        # Elimino las variables que me servían solo para esto
+        del self.__curr_index
         del self.__keyboard_listen
+        del self.__list_size
 
     def __on_up_key(self):
 
@@ -103,25 +117,23 @@ class DlgHtml():
         self.__keyboard_listen = False
 
         # si no tengo ninguna sugerencia, no puedo recorrer nada
-        list_size = self.quisiste_decir.get_suggested_titles_count()
-        if not list_size:
+        if not self.__list_size:
             self.__keyboard_listen = True
             return
 
         self.__clear_written()
         # Compruebo si el índice es demasiado bajo (-1)
-        if (self.curr_index < 0):
+        if (self.__curr_index < 0):
             # Le doy la última posición en la lista
-            self.curr_index = list_size - 1
+            self.__curr_index = self.__list_size - 1
         else:
             # Puedo bajar una posición el título
-            self.curr_index = self.curr_index - 1
+            self.__curr_index = self.__curr_index - 1
 
         # Si el índice corresponde a un título, lo escribo
-        if (self.curr_index != -1):
+        if (self.__curr_index != -1):
             curr_suggested = self.quisiste_decir.get_suggested_title(
-                self.curr_index)
-            self.written_len = len(curr_suggested)
+                self.__curr_index)
             keyboard.write(curr_suggested)
 
         self.__keyboard_listen = True
@@ -133,46 +145,40 @@ class DlgHtml():
         self.__keyboard_listen = False
 
         # si no tengo ninguna sugerencia, no puedo recorrer nada
-        list_size = self.quisiste_decir.get_suggested_titles_count()
-        if not list_size:
+        if not self.__list_size:
             self.__keyboard_listen = True
             return
 
         self.__clear_written()
         # Compruebo si puedo aumentar mi posición en la lista
-        if (self.curr_index < list_size - 1):
+        if (self.__curr_index < self.__list_size - 1):
             # Puedo aumentar en la lista
-            self.curr_index = self.curr_index + 1
+            self.__curr_index = self.__curr_index + 1
         else:
             # Doy la vuelta a la lista, empiezo por -1
-            self.curr_index = - 1
+            self.__curr_index = - 1
 
         # Si el índice corresponde a un título, lo escribo
-        if (self.curr_index != -1):
+        if (self.__curr_index != -1):
             curr_suggested = self.quisiste_decir.get_suggested_title(
-                self.curr_index)
+                self.__curr_index)
             keyboard.write(curr_suggested)
 
         self.__keyboard_listen = True
 
-    def __on_any_key(self, curr_pressed):
-
-        if not self.__keyboard_listen:
-            return
-
-        if curr_pressed.event_type != 'down':
-            return
-
-        key_name = curr_pressed.name
-
-        if len(key_name) == 1 or key_name == 'space':
-            self.written_len = self.written_len + 1
-        elif key_name == 'backspace':
-            self.written_len = self.written_len - 1
-        else:
-            return
-
     def __clear_written(self):
-        for _ in range(self.written_len):
+        # Al pulsar las teclas, también se está navegando entre los últimos inputs de teclado
+        # Hago que se expliciten en la consola para poder borrarlos
+        sys.stdout.flush()
+        # Borro lo que haya escrito para que no lo detecte el input
+        for _ in range(self.MAX_TITLE_LENGTH):
             keyboard.send('backspace')
-            time.sleep(0.001)
+        # Llevo el cursor al inicio de la linea
+        sys.stdout.write('\r')
+        # Imprimo la pregunta
+        print(self.ASK_TITLE, end="")
+        # Añado espacios en blanco
+        sys.stdout.write(" " * self.MAX_TITLE_LENGTH)
+        # Devuelvo el cursor a donde le pertenece
+        sys.stdout.write('\b' * self.MAX_TITLE_LENGTH)
+        sys.stdout.flush()
