@@ -14,7 +14,7 @@ class DlgHtml():
     ASK_DURATION = "Introduzca duración de la película: "
 
     # Longitud máxima que me espero de un título
-    MAX_TITLE_LENGTH = 50
+    MAX_TITLE_LENGTH = 60
 
     def __init__(self, title_list) -> None:
         # Objeto para buscar si el título que ha pedido el usuario
