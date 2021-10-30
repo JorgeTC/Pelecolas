@@ -1,9 +1,10 @@
 import re
 
-# Clase para hallar el título más próximo.
-# Cuando se inserta intítulo por teclado trato de buscar el título más parecido
-# de las reseñas que hay escritas.
+
 class TitleMgr():
+    # Clase para hallar el título más próximo.
+    # Cuando se inserta un título por teclado trato de buscar el título más parecido
+    # de las reseñas que hay escritas.
     def __init__(self, title_list):
         # Copio todos los títulos disponibles.
         # La clase html los tiene en forma de diccionario.
@@ -20,20 +21,21 @@ class TitleMgr():
         # Otro con los títulos normalizados
         self.ls_norm = [self.__normalize_string(title) for title in self.ls_lower]
 
-
         # Variables para guardar el resultado del cálculo.
         self.__exists = False
         self.__position = -1
+        # Indices para cuando haya que sugerir resultados
+        self.__lsn_suggestions = []
 
     def __make_unwanted_chars(self):
 
         # No quiero que los caracteres de puntuación afecten al buscar la película
         chars_dict = dict.fromkeys(map(ord, " ,!¡@#$?¿()."), None)
         # Elimino los tipos de tildes
-        chars_dict.update(zip(map(ord, "áéíóú"),map(ord, "aeiou")))
-        chars_dict.update(zip(map(ord, "àèìòù"),map(ord, "aeiou")))
-        chars_dict.update(zip(map(ord, "âêîôû"),map(ord, "aeiou")))
-        chars_dict.update(zip(map(ord, "äëïöü"),map(ord, "aeiou")))
+        chars_dict.update(zip(map(ord, "áéíóú"), map(ord, "aeiou")))
+        chars_dict.update(zip(map(ord, "àèìòù"), map(ord, "aeiou")))
+        chars_dict.update(zip(map(ord, "âêîôû"), map(ord, "aeiou")))
+        chars_dict.update(zip(map(ord, "äëïöü"), map(ord, "aeiou")))
 
         return chars_dict
 
@@ -42,6 +44,7 @@ class TitleMgr():
         # Inicio las variables de búsqueda
         self.__exists = False
         self.__position = -1
+        self.__lsn_suggestions.clear()
 
         # No quiero que sea sensible a las mayúsculas
         titulo = titulo.lower()
@@ -63,19 +66,19 @@ class TitleMgr():
     def __closest_title(self, titulo):
         # Intento buscar los casos más cercanos
         titulo = self.__normalize_string(titulo)
-        found = False
+
         # Recorro la lista de titulos
-        for ori, normalized in zip(self.ls_title, self.ls_norm):
+        for index, normalized in enumerate(self.ls_norm):
 
             # Busco si se contienen mutuamente
             if titulo.find(normalized) >= 0 or normalized.find(titulo) >= 0:
                 # Hay suficiente concordancia como para sugerir el título
-                if not found:
-                    # Aún no he impreso nada por pantalla
-                    print("Quizás quisiste decir...")
-                    found = True
-                # Imprimo el título original. El que se ha leído en el documento
-                print(ori)
+                self.__lsn_suggestions.append(index)
+
+        # Si he encontrado titulos para sugerir, los imprimo
+        if not self.__lsn_suggestions:
+            return
+        self.print()
 
     def __normalize_string(self, str):
         # Elimino las mayúsculas
@@ -96,3 +99,23 @@ class TitleMgr():
         else:
             # Ya sé que no está en la lista de llaves.
             return ""
+
+    def print(self):
+
+        # Si no tengo sugerencias que hacer, no imprimo nada
+        if not self.__lsn_suggestions:
+            return
+
+        print("Quizás quisiste decir...")
+        for index in self.__lsn_suggestions:
+            # Imprimo el título original. El que se ha leído en el documento
+            print(self.ls_title[index])
+
+    def get_suggested_titles_count(self):
+        return len(self.__lsn_suggestions)
+
+    def get_suggested_title(self, index):
+        # Obtengo la posición que el indexésimo título ocupa en la lista de títulos
+        suggested_index = self.__lsn_suggestions[index]
+        # Devuelvo el título
+        return self.ls_title[suggested_index]
