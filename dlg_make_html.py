@@ -90,12 +90,17 @@ class DlgHtml():
         keyboard.unhook_all_hotkeys()
         del self.curr_index
 
-    def __on_down_key(self):
+    def __on_up_key(self):
+        # si no tengo ninguna sugerencia, no puedo recorrer nada
+        list_size = self.quisiste_decir.get_suggested_titles_count()
+        if not list_size:
+            return
+
         self.__clear_written()
         # Compruebo si el índice es demasiado bajo (-1)
         if (self.curr_index < 0):
             # Le doy la última posición en la lista
-            self.curr_index = self.quisiste_decir.get_suggested_titles_count() - 1
+            self.curr_index = list_size - 1
         else:
             # Puedo bajar una posición el título
             self.curr_index = self.curr_index - 1
@@ -106,10 +111,15 @@ class DlgHtml():
                 self.curr_index)
             keyboard.write(curr_suggested)
 
-    def __on_up_key(self):
+    def __on_down_key(self):
+        # si no tengo ninguna sugerencia, no puedo recorrer nada
+        list_size = self.quisiste_decir.get_suggested_titles_count()
+        if not list_size:
+            return
+
         self.__clear_written()
         # Compruebo si puedo aumentar mi posición en la lista
-        if (self.curr_index < self.quisiste_decir.get_suggested_titles_count()):
+        if (self.curr_index < list_size - 1):
             # Puedo aumentar en la lista
             self.curr_index = self.curr_index + 1
         else:
