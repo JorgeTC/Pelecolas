@@ -1,3 +1,4 @@
+import keyboard
 from .list_title_mgr import TitleMgr
 from .Pelicula import Pelicula
 from .searcher import Searcher
@@ -18,9 +19,8 @@ class DlgHtml():
 
     def ask_for_data(self):
         # Pido los datos de la película que voy a buscar
-        while not self.titulo:
-            self.titulo = input("Introduzca título de la película: ")
-            self.titulo = self.quisiste_decir.exact_key(self.titulo)
+        # Titulo
+        self.__ask_for_title()
 
         # Trato de buscar información de esta película en FA.
         FA = Searcher(self.titulo)
@@ -72,3 +72,56 @@ class DlgHtml():
         peli.get_duracion()
         self.duración = peli.duracion
         return True
+
+    def __ask_for_title(self):
+        # Quiero que las flechas de arriba y abajo me sirvan para iterar la lista de títulos sugeridos
+        self.curr_index = -1
+
+        # Escribo la funcionalidad de las flechas para poder recorrer las sugerencias
+        keyboard.add_hotkey('up arrow', self.__on_up_key)
+        keyboard.add_hotkey('down arrow', self.__on_down_key)
+
+        while not self.titulo:
+            self.curr_index = -1
+            self.titulo = input("Introduzca título de la película: ")
+            self.titulo = self.quisiste_decir.exact_key(self.titulo)
+
+        # Cancelo la funcionalidad de las hotkeys
+        keyboard.unhook_all_hotkeys()
+        del self.curr_index
+
+    def __on_down_key(self):
+        self.__clear_written()
+        # Compruebo si el índice es demasiado bajo (-1)
+        if (self.curr_index < 0):
+            # Le doy la última posición en la lista
+            self.curr_index = self.quisiste_decir.get_suggested_titles_count() - 1
+        else:
+            # Puedo bajar una posición el título
+            self.curr_index = self.curr_index - 1
+
+        # Si el índice corresponde a un título, lo escribo
+        if (self.curr_index != -1):
+            curr_suggested = self.quisiste_decir.get_suggested_title(
+                self.curr_index)
+            keyboard.write(curr_suggested)
+
+    def __on_up_key(self):
+        self.__clear_written()
+        # Compruebo si puedo aumentar mi posición en la lista
+        if (self.curr_index < self.quisiste_decir.get_suggested_titles_count()):
+            # Puedo aumentar en la lista
+            self.curr_index = self.curr_index + 1
+        else:
+            # Doy la vuelta a la lista, empiezo por -1
+            self.curr_index = - 1
+
+        # Si el índice corresponde a un título, lo escribo
+        if (self.curr_index != -1):
+            curr_suggested = self.quisiste_decir.get_suggested_title(
+                self.curr_index)
+            keyboard.write(curr_suggested)
+
+    def __clear_written(self):
+        for _ in range(70):
+            keyboard.send('backspace')

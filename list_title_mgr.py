@@ -3,6 +3,8 @@ import re
 # Clase para hallar el título más próximo.
 # Cuando se inserta intítulo por teclado trato de buscar el título más parecido
 # de las reseñas que hay escritas.
+
+
 class TitleMgr():
     def __init__(self, title_list):
         # Copio todos los títulos disponibles.
@@ -78,11 +80,7 @@ class TitleMgr():
         # Si he encontrado titulos para sugerir, los imprimo
         if not self.__lsn_suggestions:
             return
-
-        print("Quizás quisiste decir...")
-        for index in self.__lsn_suggestions:
-            # Imprimo el título original. El que se ha leído en el documento
-            print(self.ls_title[index])
+        self.print()
 
     def __normalize_string(self, str):
         # Elimino las mayúsculas
@@ -103,3 +101,23 @@ class TitleMgr():
         else:
             # Ya sé que no está en la lista de llaves.
             return ""
+
+    def print(self):
+
+        # Si no tengo sugerencias que hacer, no imprimo nada
+        if not self.__lsn_suggestions:
+            return
+
+        print("Quizás quisiste decir...")
+        for index in self.__lsn_suggestions:
+            # Imprimo el título original. El que se ha leído en el documento
+            print(self.ls_title[index])
+
+    def get_suggested_titles_count(self):
+        return len(self.__lsn_suggestions)
+
+    def get_suggested_title(self, index):
+        # Obtengo la posición que el indexésimo título ocupa en la lista de títulos
+        suggested_index = self.__lsn_suggestions[index]
+        # Devuelvo el título
+        return self.ls_title[suggested_index]
