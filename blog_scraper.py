@@ -2,15 +2,15 @@ import csv
 import os
 from concurrent import futures
 from datetime import date
-from pathlib import Path
 
 from bs4 import BeautifulSoup
 from pandas import DateOffset
 
 from .safe_url import safe_get_url
+from .blog_csv_mgr import BlogCsvMgr
 
 
-class BlogScraper():
+class BlogScraper(BlogCsvMgr):
     BLOG_SITE = 'https://pelecolas.blogspot.com'
 
     HEADER_CSV = ['Titulo', 'Link', 'Director']
@@ -20,14 +20,6 @@ class BlogScraper():
         self.__last_month = date.today()
         # Guardo el primer mes que tiene reseña
         self.__first_month = date(2019, 5, 1)
-
-        # Creo el csv donde guardo los datos de las entradas
-        # Obtengo la dirección del csv
-        sz_curr_folder = Path(__file__).resolve().parent
-        sz_csv_folder = sz_curr_folder / "Make_html"
-        self.__sz_csv_file = sz_csv_folder / "bog_data.csv"
-        # Miro si existe el archivo antes de crearlo
-        self.exists_csv = os.path.isfile(self.__sz_csv_file)
 
         # Abro el archivo y se lo doy al objeto que escribe el csv
         self.__csv_file = None
@@ -102,7 +94,7 @@ class BlogScraper():
 
     def __open_csv(self):
         self.__csv_file = open(self.__sz_csv_file, 'w',
-                               encoding="utf-8", newline='')
+                               encoding=self.ENCODING, newline='')
         self.__csv_writer = csv.writer(self.__csv_file)
 
 

@@ -1,10 +1,10 @@
 import csv
-from pathlib import Path
 
+from .blog_csv_mgr import BlogCsvMgr
 from .blog_scraper import BlogScraper
 
 
-class Quoter():
+class Quoter(BlogCsvMgr):
     INI_QUOTE_CHAR = "“"
     FIN_QUOTE_CHAR = "”"
 
@@ -14,7 +14,7 @@ class Quoter():
     def __init__(self) -> None:
         # Necesito el csv, así que lo escribo
         scraper = BlogScraper()
-        if not scraper.exists_csv:
+        if self.is_needed():
             scraper.write_csv()
 
         # Guardo las citaciones que vaya sugeriendo
@@ -27,13 +27,8 @@ class Quoter():
         # No quiero citarme a mi mismo
         self.titulo = ""
 
-        # Creo el csv donde guardo los datos de las entradas
-        # Obtengo la dirección del csv
-        sz_curr_folder = Path(__file__).resolve().parent
-        sz_csv_folder = sz_curr_folder / "Make_html"
-        sz_csv_file = sz_csv_folder / "bog_data.csv"
         # Lector de csv
-        self.__csv_file = open(sz_csv_file, encoding="utf-8")
+        self.__csv_file = open(self.__sz_csv_file, encoding=self.ENCODING)
         self.__csv_reader = csv.reader(self.__csv_file, delimiter=",")
         self.__csv_reader = list(self.__csv_reader)
 
