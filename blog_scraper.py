@@ -39,16 +39,13 @@ class BlogScraper(BlogCsvMgr):
 
         return sz_dir
 
-    def get_data_from_month(self, month: date):
-        # Obtengo la dirección del mes inrtoducido
-        sz_dir = self.get_month_dir(month)
+    def get_data_from_month(self, sz_dir: str):
         # Descargo la página
         text = safe_get_url(sz_dir)
         # Parseo la página
         parsed_page = BeautifulSoup(text.text, 'html.parser')
         # Obtengo una lista de todas las reseñas
-        reseñas = parsed_page.find("div", {"class": "blog-posts hfeed"})
-        reseñas = reseñas.find_all("div", {"class": "date-outer"})
+        reseñas = parsed_page.find_all("div", {"class": "date-outer"})
         reseñas = [i.find('div', itemprop='blogPost') for i in reseñas]
 
         ans_data = []
@@ -81,10 +78,11 @@ class BlogScraper(BlogCsvMgr):
         while curr_month <= self.__last_month:
             months.append(curr_month)
             curr_month = curr_month + DateOffset(months=1)
+        months_url = [self.get_month_dir(month) for month in months]
 
         # Creo un objeto para hacer la gestión de paralelización
         executor = futures.ThreadPoolExecutor(max_workers=20)
-        extracted_data = list(executor.map(self.get_data_from_month, months))
+        extracted_data = list(executor.map(self.get_data_from_month, months_url))
         to_write = [i for month in extracted_data for i in month]
         # Escribo lo leído en el csv
         self.__csv_writer.writerows(to_write)
