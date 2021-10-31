@@ -38,6 +38,7 @@ class html():
         dlg.ask_for_data()
         self.data = dlg.data
         self.__citas.titulo = self.data.titulo
+        self.__citas.director = self.data.director
         # Le digo al citador sobre qué película trabaja
 
     @staticmethod

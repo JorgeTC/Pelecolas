@@ -1,7 +1,11 @@
 import csv
 
+import textacy
+import urllib.parse
+
 from .blog_csv_mgr import BlogCsvMgr
 from .blog_scraper import BlogScraper
+from .dlg_bool import YesNo
 
 
 class Quoter(BlogCsvMgr):
@@ -10,6 +14,7 @@ class Quoter(BlogCsvMgr):
 
     OPEN_LINK = "<a href=\"{}\">"
     CLOSE_LINK = "</a>"
+    LINK_LABEL = "https://pelecolas.blogspot.com/search/label/{}"
 
     def __init__(self) -> None:
         # Necesito el csv, así que lo escribo
@@ -26,11 +31,18 @@ class Quoter(BlogCsvMgr):
         # Película actual.
         # No quiero citarme a mi mismo
         self.titulo = ""
+        # Director actual, no quiero citarle
+        self.director = ""
 
         # Lector de csv
         self.__csv_file = open(self.sz_csv_file, encoding=self.ENCODING)
         self.__csv_reader = csv.reader(self.__csv_file, delimiter=",")
         self.__csv_reader = list(self.__csv_reader)
+
+        # Procesador de lenguaje para obtener nombres propios
+        # Cargando el modelo en español de spacy
+        self.__nlp = textacy.load_spacy_lang('es_core_news_sm')
+        self.__get_directors_indexed()
 
     def quote_parr(self, text):
         # Guardo el párrafo recién introducido
@@ -84,7 +96,68 @@ class Quoter(BlogCsvMgr):
         self.__fin_comillas_pos = [i + delta for i in self.__fin_comillas_pos]
 
     def __quote_directors(self):
+        # Con procesamiento extraigo lo que puede ser un nombre
+        nombres = self.extract_names(self.__ori_text)
+        # Inicio una lista para buscar apariciones de los directores en el texto
+        self.__ini_director_pos = []
+        # Compruebo que el nombre corresponda con un director indexado
+        for nombre in nombres:
+            for director in self.__all_director:
+                # No quiero citar dos veces el mismo director
+                if director in self.__directors:
+                    continue
+                # No quiero citar al director actual
+                if director == self.director:
+                    continue
+                # Puede que sólo esté escrito el apellido del director
+                if not nombre.lower() in director.lower():
+                    continue
+                # Pido confirmación al usuario de la cita
+                if not self.__ask_confirmation(nombre, director):
+                    continue
+                citation = {'pos': self.__ori_text.find(nombre),
+                            'director': director,
+                            'len': len(nombre)}
+                self.__ini_director_pos.append(citation)
+                # Lo guardo como director ya citado
+                self.__directors.append(director)
+                break
+
+        # Ahora ya tengo los índices que quería
+        for cit in self.__ini_director_pos:
+            self.__add_director_link(cit)
+
         pass
+
+    def __ask_confirmation(self, nombre, director):
+        # Si son idénticos, evidentemente es una cita
+        if nombre == director:
+            return True
+        # En caso contrario, pregunto
+        pregunta = "¿Es {} una cita de {}? ".format(nombre, director)
+        question = YesNo(pregunta)
+        ans = question.get_ans()
+        return bool(ans)
+
+    def __add_director_link(self, cit):
+        # Construyo el link
+        dir = urllib.parse.quote(cit['director'])
+        link = self.LINK_LABEL.format(dir)
+        # Construyo el html para el enlace
+        ini_link = self.OPEN_LINK.format(link)
+        # Miro la posición dentro del texto
+        position = cit['pos']
+        self.__ori_text = insert_string_in_position(
+            self.__ori_text, ini_link, position)
+        # Actualizo la posición del cierre del hipervínculo
+        position = position + cit['len'] + len(ini_link)
+        self.__ori_text = insert_string_in_position(
+            self.__ori_text, self.CLOSE_LINK, position)
+        # Actualizo todo el resto de índices
+        delta = len(ini_link) + len(self.CLOSE_LINK)
+        for cit in self.__ini_director_pos:
+            cit['len'] = cit['len'] + delta
+
 
     def __row_in_csv(self, title: str):
         for index, row in enumerate(self.__csv_reader):
@@ -93,6 +166,23 @@ class Quoter(BlogCsvMgr):
 
         # No lo hemos encontrado
         return -1
+
+    def extract_names(self, text):
+        # Usando un procesador de lenguaje natural extraigo los nombres del párrafo
+        texto_procesado = self.__nlp(text)
+
+        personajes = []
+        for ent in texto_procesado.ents:
+            # Sólo lo añado a mi lista si la etiqueta asignada dice personaje
+            if ent.label_ == 'PER':
+                if ent.lemma_ not in personajes:
+                    personajes.append(str(ent.lemma_))
+
+        return personajes
+
+    def __get_directors_indexed(self):
+        # Listamos los directores que hay en el csv asegurando una única ocurrencia de ellos
+        self.__all_director = list(set([row[2] for row in self.__csv_reader]))
 
 
 def find(s, ch):

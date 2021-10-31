@@ -1,5 +1,4 @@
 import csv
-import os
 from concurrent import futures
 from datetime import date
 
