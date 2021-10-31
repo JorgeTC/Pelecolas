@@ -6,12 +6,12 @@ from datetime import datetime
 class BlogCsvMgr():
     # Creo el csv donde guardo los datos de las entradas
     # Obtengo la dirección del csv
-    __sz_csv_file = Path(__file__).resolve().parent
-    __sz_csv_file = __sz_csv_file / "Make_html"
-    __sz_csv_file = __sz_csv_file / "bog_data.csv"
+    sz_csv_file = Path(__file__).resolve().parent
+    sz_csv_file = sz_csv_file / "Make_html"
+    sz_csv_file = sz_csv_file / "bog_data.csv"
 
     # Booleano que me dice si el archivo existe
-    exists_csv = os.path.isfile(__sz_csv_file)
+    exists_csv = os.path.isfile(sz_csv_file)
 
     # Codificación con la que escribo y leo el csv
     ENCODING = "utf-8"
@@ -23,7 +23,7 @@ class BlogCsvMgr():
 
         # Si entre la última creación del csv y
         # el momento actual ha pasado un viernes, recalculo el csv
-        secs = os.path.getmtime(self.__sz_csv_file)
+        secs = os.path.getmtime(self.sz_csv_file)
         date_last_modification = datetime.fromtimestamp(secs)
         week_day = date_last_modification.weekday()
         days_till_next_friday = (4 - week_day) % 7

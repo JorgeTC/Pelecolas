@@ -93,7 +93,7 @@ class BlogScraper(BlogCsvMgr):
         self.exists_csv = True
 
     def __open_csv(self):
-        self.__csv_file = open(self.__sz_csv_file, 'w',
+        self.__csv_file = open(self.sz_csv_file, 'w',
                                encoding=self.ENCODING, newline='')
         self.__csv_writer = csv.writer(self.__csv_file)
 

@@ -28,7 +28,7 @@ class Quoter(BlogCsvMgr):
         self.titulo = ""
 
         # Lector de csv
-        self.__csv_file = open(self.__sz_csv_file, encoding=self.ENCODING)
+        self.__csv_file = open(self.sz_csv_file, encoding=self.ENCODING)
         self.__csv_reader = csv.reader(self.__csv_file, delimiter=",")
         self.__csv_reader = list(self.__csv_reader)
 
