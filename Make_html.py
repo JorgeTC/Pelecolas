@@ -5,6 +5,7 @@ import docx
 from .dlg_make_html import DlgHtml
 from .Pelicula import Pelicula
 from .WordReader import WordReader
+from .quoter import Quoter
 
 SZ_INVALID_CHAR = "\/:*?<>|"
 
@@ -26,6 +27,9 @@ class html():
         reader.list_titles()
         self.titulos = reader.titulos
 
+        # Objeto para hacer las citas de forma automática
+        self.__citas = Quoter()
+
     def ask_for_data(self):
         # Diálogo para pedir los datos necesarios para crear el html
         # Necesito darle una lista de todos los títulos que tengo en el word
@@ -36,6 +40,8 @@ class html():
         self.data.año = dlg.año
         self.data.duracion = dlg.duración
         self.data.director = dlg.director
+        # Le digo al citador sobre qué película trabaja
+        self.__citas.titulo = self.data.titulo
 
     @staticmethod
     def __fin_de_parrafo(text):
@@ -59,6 +65,9 @@ class html():
                 # Si es el primer párrafo, elimino el título
                 parr_text = parr_text[len(self.data.titulo):]
                 parr_text = parr_text.lstrip(": ")
+
+            # Añado las citas a otras reseñas
+            parr_text = self.__citas.quote_parr(parr_text)
 
             # Añado saltos de línea para un html más legible
             parr_text = parr_text.replace(". ", ".\n")

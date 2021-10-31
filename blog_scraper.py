@@ -1,4 +1,5 @@
 import csv
+import os
 from concurrent import futures
 from datetime import date
 from pathlib import Path
@@ -24,16 +25,18 @@ class BlogScraper():
         # Obtengo la dirección del csv
         sz_curr_folder = Path(__file__).resolve().parent
         sz_csv_folder = sz_curr_folder / "Make_html"
-        sz_csv_file = sz_csv_folder / "bog_data.csv"
+        self.__sz_csv_file = sz_csv_folder / "bog_data.csv"
+        # Miro si existe el archivo antes de crearlo
+        self.exists_csv = os.path.isfile(self.__sz_csv_file)
+
         # Abro el archivo y se lo doy al objeto que escribe el csv
-        self.__csv_file = open(sz_csv_file, 'w', encoding="utf-8", newline='')
-        self.__csv_writer = csv.writer(self.__csv_file)
-        # Escribo el header del csv
-        self.__csv_writer.writerow(self.HEADER_CSV)
+        self.__csv_file = None
+        self.__csv_writer = None
 
     def __del__(self):
         # Cuando se elimina la clase, cierro el archivo
-        self.__csv_file.close()
+        if self.__csv_file:
+            self.__csv_file.close()
 
     def get_month_dir(self, month: date):
         # Empiezo con la dirección del blog
@@ -77,6 +80,10 @@ class BlogScraper():
         return ans_data
 
     def write_csv(self):
+        # Escribo el header del csv
+        self.__open_csv()
+        self.__csv_writer.writerow(self.HEADER_CSV)
+
         # Hago la lista de los meses en los que quiero leer
         months = []
         curr_month = self.__first_month
@@ -90,6 +97,13 @@ class BlogScraper():
         to_write = [i for month in extracted_data for i in month]
         # Escribo lo leído en el csv
         self.__csv_writer.writerows(to_write)
+
+        self.exists_csv = True
+
+    def __open_csv(self):
+        self.__csv_file = open(self.__sz_csv_file, 'w',
+                               encoding="utf-8", newline='')
+        self.__csv_writer = csv.writer(self.__csv_file)
 
 
 def main():
