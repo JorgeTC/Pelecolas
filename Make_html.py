@@ -32,10 +32,7 @@ class html():
         dlg = DlgHtml(list(self.titulos.keys()))
         # Llamo al diálogo para que pida por la consola los datos que necesito
         dlg.ask_for_data()
-        self.data.titulo = dlg.titulo
-        self.data.año = dlg.año
-        self.data.duracion = dlg.duración
-        self.data.director = dlg.director
+        self.data = dlg.data
 
     @staticmethod
     def __fin_de_parrafo(text):
