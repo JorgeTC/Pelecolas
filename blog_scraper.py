@@ -1,15 +1,19 @@
+import csv
+from concurrent import futures
 from datetime import date
 from pathlib import Path
-from safe_url import safe_get_url
+
 from bs4 import BeautifulSoup
-import csv
 from pandas import DateOffset
+
+from .safe_url import safe_get_url
 
 
 class BlogScraper():
     BLOG_SITE = 'https://pelecolas.blogspot.com'
 
     HEADER_CSV = ['Titulo', 'Link', 'Director']
+
     def __init__(self) -> None:
         # Guardo el mes actual
         self.__last_month = date.today()
@@ -47,11 +51,13 @@ class BlogScraper():
         # Descargo la página
         text = safe_get_url(sz_dir)
         # Parseo la página
-        parsed_page = BeautifulSoup(text.text,'html.parser')
+        parsed_page = BeautifulSoup(text.text, 'html.parser')
         # Obtengo una lista de todas las reseñas
         reseñas = parsed_page.find("div", {"class": "blog-posts hfeed"})
         reseñas = reseñas.find_all("div", {"class": "date-outer"})
         reseñas = [i.find('div', itemprop='blogPost') for i in reseñas]
+
+        ans_data = []
 
         # Itero las reseñas para sacarles los datos
         for reseña in reseñas:
@@ -66,19 +72,30 @@ class BlogScraper():
             director = director[director.find(':') + 1:].strip()
 
             datos = [name, link, director]
-            self.__csv_writer.writerow(datos)
+            ans_data.append(datos)
+
+        return ans_data
 
     def write_csv(self):
+        # Hago la lista de los meses en los que quiero leer
+        months = []
         curr_month = self.__first_month
         while curr_month <= self.__last_month:
-            self.get_data_from_month(curr_month)
+            months.append(curr_month)
             curr_month = curr_month + DateOffset(months=1)
+
+        # Creo un objeto para hacer la gestión de paralelización
+        executor = futures.ThreadPoolExecutor(max_workers=20)
+        extracted_data = list(executor.map(self.get_data_from_month, months))
+        to_write = [i for month in extracted_data for i in month]
+        # Escribo lo leído en el csv
+        self.__csv_writer.writerows(to_write)
 
 
 def main():
     innn = BlogScraper()
-    test_month = date(2019,5,1)
     innn.write_csv()
+
 
 if __name__ == '__main__':
     main()
