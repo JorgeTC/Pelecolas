@@ -22,7 +22,7 @@ class BlogScraper():
         sz_csv_folder = sz_curr_folder / "Make_html"
         sz_csv_file = sz_csv_folder / "bog_data.csv"
         # Abro el archivo y se lo doy al objeto que escribe el csv
-        self.__csv_file = open(sz_csv_file, 'w', encoding="utf-8")
+        self.__csv_file = open(sz_csv_file, 'w', encoding="utf-8", newline='')
         self.__csv_writer = csv.writer(self.__csv_file)
         # Escribo el header del csv
         self.__csv_writer.writerow(self.HEADER_CSV)
