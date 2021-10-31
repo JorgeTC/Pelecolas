@@ -13,9 +13,6 @@ class DlgHtml():
     ASK_YEAR = "Introduzca el año: "
     ASK_DURATION = "Introduzca duración de la película: "
 
-    # Longitud máxima que me espero de un título
-    MAX_TITLE_LENGTH = 60
-
     def __init__(self, title_list) -> None:
         # Objeto para buscar si el título que ha pedido el usuario
         # está disponible en el archivo word.
@@ -171,14 +168,4 @@ class DlgHtml():
         # Hago que se expliciten en la consola para poder borrarlos
         sys.stdout.flush()
         # Borro lo que haya escrito para que no lo detecte el input
-        for _ in range(self.MAX_TITLE_LENGTH):
-            keyboard.send('backspace')
-        # Llevo el cursor al inicio de la linea
-        sys.stdout.write('\r')
-        # Imprimo la pregunta
-        print(self.ASK_TITLE, end="")
-        # Añado espacios en blanco
-        sys.stdout.write(" " * self.MAX_TITLE_LENGTH)
-        # Devuelvo el cursor a donde le pertenece
-        sys.stdout.write('\b' * self.MAX_TITLE_LENGTH)
-        sys.stdout.flush()
+        keyboard.send('esc')
