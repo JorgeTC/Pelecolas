@@ -12,3 +12,4 @@ Formatos.txt
 # archivos compilados generados por python
 __pycache__/
 *.pyc
+Make_html/bog_data.csv
