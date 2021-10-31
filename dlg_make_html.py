@@ -58,7 +58,7 @@ class DlgHtml():
 
         if self.data.director.find("filmaffinity") >= 0:
             # Se ha introducido directamente la url
-            return not self.__get_data_from_FA(self.director)
+            return not self.__get_data_from_FA(self.data.director)
 
         else:
             # El director de la película es lo introducido por teclado
