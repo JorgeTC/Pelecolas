@@ -119,3 +119,6 @@ class TitleMgr():
         suggested_index = self.__lsn_suggestions[index]
         # Devuelvo el título
         return self.ls_title[suggested_index]
+
+    def get_suggestions(self):
+        return [self.ls_title[index] for index in self.__lsn_suggestions]
