@@ -82,6 +82,7 @@ class DlgHtml(DlgScrollBase):
         return True
 
     def get_ans_body(self):
+        # Función sobreescrita de la clase base
         while not self.data.titulo:
             # Inicializo las variables antes de llamar a input
             self.curr_index = -1

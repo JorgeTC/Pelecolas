@@ -24,7 +24,7 @@ class DlgScrollBase():
         self.curr_index = self.min_index
 
     def get_ans(self):
-
+        # Doy a las flechas las funciones para hacer scroll
         keyboard.add_hotkey('up arrow', self.__scroll_up)
         keyboard.add_hotkey('down arrow', self.__scroll_down)
 
@@ -36,6 +36,8 @@ class DlgScrollBase():
         return ans
 
     def get_ans_body(self):
+        # Función para sobreescribir.
+        # Es la que hace la petición efectiva de un elemento de la lista
         while not self.sz_ans:
             # Inicializo las variables antes de llamar a input
             self.curr_index = self.min_index
@@ -63,10 +65,10 @@ class DlgScrollBase():
             # Le doy la última posición en la lista
             self.curr_index = self.n_options - 1
         else:
-            # Puedo bajar una posición el título
+            # Puedo bajar una posición en la lista
             self.curr_index = self.curr_index - 1
 
-        # Si el índice corresponde a un título, lo escribo
+        # Si el índice corresponde a un elemento de la lista, lo escribo
         if (self.curr_index != -1):
             curr_suggested = self.__get_option_by_index()
             keyboard.write(curr_suggested)
@@ -87,6 +89,7 @@ class DlgScrollBase():
             self.__keyboard_listen = True
             return
 
+        # Limpio la consola
         self.__clear_written()
         # Compruebo si puedo aumentar mi posición en la lista
         if (self.curr_index < self.n_options - 1):
@@ -97,7 +100,7 @@ class DlgScrollBase():
             # Empiezo por 0 si no existe opción vacía
             self.curr_index = self.min_index
 
-        # Si el índice corresponde a un título, lo escribo
+        # Si el índice corresponde a un elemento de la lista, lo escribo
         if (self.curr_index != -1):
             curr_suggested = self.__get_option_by_index()
             keyboard.write(curr_suggested)
@@ -112,6 +115,7 @@ class DlgScrollBase():
         keyboard.send('esc')
 
     def __check_ans(self, ans):
+        # Compruebo si la respuesta está en la lista
         if ans in self.sz_options:
             return ans
         else:
