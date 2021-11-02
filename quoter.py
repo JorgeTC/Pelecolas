@@ -25,6 +25,7 @@ class Quoter(BlogCsvMgr):
         # Guardo las citaciones que vaya sugeriendo
         self.__directors = []
         self.__titles = []
+        self.__personajes = []
 
         # Texto que estoy estudiando actualmente
         self.__ori_text = ""
@@ -102,6 +103,11 @@ class Quoter(BlogCsvMgr):
         self.__ini_director_pos = []
         # Compruebo que el nombre corresponda con un director indexado
         for nombre in nombres:
+            # Si ya he preguntado por este nombre paso al siguiente
+            if nombre in self.__personajes:
+                continue
+            # Lo guardo como nombre ya preguntado
+            self.__personajes.append(nombre)
             for director in self.__all_director:
                 # No quiero citar dos veces el mismo director
                 if director in self.__directors:
