@@ -4,6 +4,7 @@ class YesNo(DlgScrollBase):
     def __init__(self, question) -> None:
         self.sz_question = question
         self.sz_options = ["Sí", "No"]
+        self.n_options = 2
         self.curr_index = 1
         self.min_index = 0
 
