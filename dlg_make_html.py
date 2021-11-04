@@ -79,6 +79,7 @@ class DlgHtml(DlgScrollBase):
         self.data.get_director()
         self.data.get_año()
         self.data.get_duracion()
+        self.data.get_country()
         return True
 
     def get_ans_body(self):
