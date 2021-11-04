@@ -63,6 +63,7 @@ class Pelicula(object):
         self.duracion = 0
         self.director = ""
         self.año = None
+        self.pais = ""
         self.__exists = bool()
 
 
@@ -109,6 +110,16 @@ class Pelicula(object):
         # quito el sufijo min.
         self.duracion = int(self.duracion.split(' ', 1)[0])
 
+    def get_country(self):
+
+        if not self.parsed_page:
+            self.get_parsed_page()
+
+        try:
+            self.pais = self.parsed_page.find(id="country-img").contents[0].attrs['alt']
+        except:
+            # caso en el que no está escrita la duración
+            self.pais = ""
 
     def valid(self):
         return es_valida(self.titulo)

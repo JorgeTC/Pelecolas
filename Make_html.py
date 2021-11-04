@@ -1,6 +1,7 @@
 import re
 
 import docx
+import pyperclip
 
 from .dlg_make_html import DlgHtml
 from .Pelicula import Pelicula
@@ -190,6 +191,33 @@ class html():
             return False
 
         return True
+
+    def copy_labels(self):
+        # Calcula una string con todas las etiquetas estándar que lleva una reseña
+        sz_labels = ""
+        # Cronológicas
+        # Siglo
+        if (int(self.data.año) < 2000):
+            siglo = "Siglo XX"
+        else:
+            siglo = "Siglo XXI"
+        sz_labels += siglo + ", "
+        # Década
+        decade = int(self.data.año) - int(self.data.año) % 10
+        decade = str(decade) + "'s"
+        sz_labels += decade + ", "
+        # Año
+        year = str(self.data.año)
+        sz_labels += year + ", "
+
+        # Director
+        sz_labels += self.data.director + ", "
+
+        # País
+        sz_labels += self.data.pais + ", "
+
+        # Copio la cadena en el portapapeles
+        pyperclip.copy(sz_labels)
 
 
 if __name__ == "__main__":
