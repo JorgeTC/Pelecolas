@@ -180,11 +180,23 @@ class Quoter(BlogCsvMgr):
         personajes = []
         for ent in texto_procesado.ents:
             # Sólo lo añado a mi lista si la etiqueta asignada dice personaje
-            if ent.label_ == 'PER':
+            if self.__is_person(ent):
                 if ent.lemma_ not in personajes:
                     personajes.append(str(ent.lemma_))
 
         return personajes
+
+    def __is_person(self, ent):
+        # Aplico un correctivo a los Coen
+        if ( ent.lemma_ == 'Coen' ):
+            return True
+
+        # Elimino los pronombres
+        if (ent.lemma_ == 'yo'):
+            return False
+
+        # Caso general en el que me fio del modelo
+        return ent.label_ == 'PER'
 
     def __get_directors_indexed(self):
         # Listamos los directores que hay en el csv asegurando una única ocurrencia de ellos
