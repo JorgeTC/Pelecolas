@@ -14,7 +14,8 @@ class DlgHtml(DlgScrollBase):
     ASK_DURATION = "Introduzca duración de la película: "
 
     def __init__(self, title_list) -> None:
-        title_list = self.__unpublished(title_list)
+        if True:
+            title_list = self.__unpublished(title_list)
         # Objeto para buscar si el título que ha pedido el usuario
         # está disponible en el archivo word.
         self.quisiste_decir = TitleMgr(title_list)
