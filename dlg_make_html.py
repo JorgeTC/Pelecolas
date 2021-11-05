@@ -2,6 +2,7 @@ from .list_title_mgr import TitleMgr
 from .Pelicula import Pelicula
 from .searcher import Searcher
 from .dlg_scroll_base import DlgScrollBase
+from .blog_csv_mgr import BlogCsvMgr
 
 
 class DlgHtml(DlgScrollBase):
@@ -13,6 +14,7 @@ class DlgHtml(DlgScrollBase):
     ASK_DURATION = "Introduzca duración de la película: "
 
     def __init__(self, title_list) -> None:
+        title_list = self.__unpublished(title_list)
         # Objeto para buscar si el título que ha pedido el usuario
         # está disponible en el archivo word.
         self.quisiste_decir = TitleMgr(title_list)
@@ -82,6 +84,43 @@ class DlgHtml(DlgScrollBase):
         self.data.get_country()
         return True
 
+    def __unpublished(self, ls_titles):
+        # Objeto capaz de leer el csv con todos los títulos publicados
+        csv = BlogCsvMgr()
+        csv = csv.open_to_read()
+        # Elimino la linea de encabezados
+        csv.pop(0)
+        # Obtengo la lista de títulos,
+        # por si están entrecomillados, quito las comillas
+        published = [title[0].strip("\"") for title in csv]
+        published = [str(title.lower()) for title in published]
+        lower_titles = [str(title.lower()) for title in ls_titles]
+
+        ls_unpublished = []
+        for i, title in enumerate(lower_titles):
+            # Compruebo que no tenga escrito el año
+            candidato_año = get_year(title)
+            # Tiene escrito el año
+            if candidato_año.isnumeric():
+                # Quito el año del título
+                title = title[:title.rfind('(')]
+                # Quito los espacios que hayan podido quedar
+                title = title.strip()
+                # Compruebo que esté el título en la lista de publicados
+                index = all_indices_in_list(published, title)
+                # Compruebo que el año sea correcto
+                if not any(candidato_año == csv[ocurr][3] for ocurr in index):
+                    # Añado el título con las mayúsculas originales
+                    ls_unpublished.append(ls_titles[i])
+
+            # No tiene año
+            elif title not in published:
+                # Añado el título con las mayúsculas originales
+                ls_unpublished.append(ls_titles[i])
+
+        return ls_unpublished
+
+
     def get_ans_body(self):
         # Función sobreescrita de la clase base
         while not self.data.titulo:
@@ -95,3 +134,21 @@ class DlgHtml(DlgScrollBase):
             self.data.titulo = self.quisiste_decir.exact_key(self.data.titulo)
 
         return self.data.titulo
+
+
+def all_indices_in_list(ls, el):
+    ans_indices = []
+    for i, l in enumerate(ls):
+        if el == l:
+            ans_indices.append(i)
+
+    return ans_indices
+
+def get_year(title:str):
+    año_primera_pos = title.rfind("(")
+    año_ultima_por = title.rfind(')')
+    candidato_año = ""
+    if año_primera_pos > 0 and año_ultima_por > 0:
+        candidato_año = title[año_primera_pos + 1:año_ultima_por]
+
+    return candidato_año
