@@ -1,4 +1,3 @@
-import csv
 from concurrent import futures
 from datetime import date
 
@@ -12,7 +11,7 @@ from .blog_csv_mgr import BlogCsvMgr
 class BlogScraper(BlogCsvMgr):
     BLOG_SITE = 'https://pelecolas.blogspot.com'
 
-    HEADER_CSV = ['Titulo', 'Link', 'Director']
+    HEADER_CSV = ['Titulo', 'Link', 'Director', 'Año']
 
     def __init__(self) -> None:
         # Guardo el mes actual
@@ -21,13 +20,13 @@ class BlogScraper(BlogCsvMgr):
         self.__first_month = date(2019, 5, 1)
 
         # Abro el archivo y se lo doy al objeto que escribe el csv
-        self.__csv_file = None
+        self.csv_file = None
         self.__csv_writer = None
 
     def __del__(self):
         # Cuando se elimina la clase, cierro el archivo
-        if self.__csv_file:
-            self.__csv_file.close()
+        if self.csv_file:
+            self.csv_file.close()
 
     def get_month_dir(self, month: date):
         # Empiezo con la dirección del blog
@@ -59,17 +58,20 @@ class BlogScraper(BlogCsvMgr):
             link = header.contents[1].attrs['href']
             # Trabajo el cuerpo, quiero director
             body = reseña.find('div', itemprop='description articleBody')
-            director = body.find('div').contents[1].contents[0]
+            divs = body.find_all('div')
+            director = divs[0].contents[1].contents[0]
             director = director[director.find(':') + 1:].strip()
+            # Quiero año
+            año = divs[1].contents[1].contents[0]
 
-            datos = [name, link, director]
+            datos = [name, link, director, año]
             ans_data.append(datos)
 
         return ans_data
 
     def write_csv(self):
         # Escribo el header del csv
-        self.__open_csv()
+        self.__csv_writer = self.open_to_write()
         self.__csv_writer.writerow(self.HEADER_CSV)
 
         # Hago la lista de los meses en los que quiero leer
@@ -89,10 +91,6 @@ class BlogScraper(BlogCsvMgr):
 
         self.exists_csv = True
 
-    def __open_csv(self):
-        self.__csv_file = open(self.sz_csv_file, 'w',
-                               encoding=self.ENCODING, newline='')
-        self.__csv_writer = csv.writer(self.__csv_file)
 
 
 def main():
