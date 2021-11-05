@@ -1,5 +1,3 @@
-import csv
-
 import textacy
 import urllib.parse
 
@@ -36,9 +34,7 @@ class Quoter(BlogCsvMgr):
         self.director = ""
 
         # Lector de csv
-        self.__csv_file = open(self.sz_csv_file, encoding=self.ENCODING)
-        self.__csv_reader = csv.reader(self.__csv_file, delimiter=",")
-        self.__csv_reader = list(self.__csv_reader)
+        self.__csv_reader = self.open_to_read()
 
         # Procesador de lenguaje para obtener nombres propios
         # Cargando el modelo en español de spacy

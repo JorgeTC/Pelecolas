@@ -69,7 +69,7 @@ class BlogScraper(BlogCsvMgr):
 
     def write_csv(self):
         # Escribo el header del csv
-        self.__open_csv()
+        self.__csv_writer = self.open_to_write()
         self.__csv_writer.writerow(self.HEADER_CSV)
 
         # Hago la lista de los meses en los que quiero leer
@@ -89,10 +89,6 @@ class BlogScraper(BlogCsvMgr):
 
         self.exists_csv = True
 
-    def __open_csv(self):
-        self.__csv_file = open(self.sz_csv_file, 'w',
-                               encoding=self.ENCODING, newline='')
-        self.__csv_writer = csv.writer(self.__csv_file)
 
 
 def main():

@@ -1,4 +1,5 @@
 import os
+import csv
 from pathlib import Path
 from datetime import datetime
 
@@ -31,3 +32,17 @@ class BlogCsvMgr():
         passed = today - date_last_modification
 
         return (passed.days > days_till_next_friday)
+
+    def open_to_read(self):
+        self.csv_file = open(self.sz_csv_file, encoding=self.ENCODING)
+        csv_reader = csv.reader(self.csv_file, delimiter=",")
+        csv_reader = list(csv_reader)
+
+        return csv_reader
+
+    def open_to_write(self):
+        self.csv_file = open(self.sz_csv_file, 'w',
+                               encoding=self.ENCODING, newline='')
+        csv_writer = csv.writer(self.csv_file)
+
+        return csv_writer
