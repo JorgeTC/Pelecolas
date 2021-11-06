@@ -1,10 +1,12 @@
 from .Make_html import html
-from .dlg_config import DlgConfig
+import keyboard
 
 def main(path):
 
-    config = DlgConfig()
-    config.run()
+    if keyboard.is_pressed('ctrl'):
+        from .dlg_config import DlgConfig
+        config = DlgConfig()
+        config.run()
 
     Documento = html(path)
     Documento.write_html()

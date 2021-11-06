@@ -1,8 +1,15 @@
 from .Usuario import Usuario
 from .ExcelMgr import ExcelMgr
 from .Writer import Writer
+import keyboard
 
 def main():
+
+    if keyboard.is_pressed('ctrl'):
+        from .dlg_config import DlgConfig
+        config = DlgConfig()
+        config.run()
+
     usuario = Usuario()
 
     ex_doc = ExcelMgr(usuario.nombre)
