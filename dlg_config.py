@@ -1,5 +1,6 @@
 from .dlg_scroll_base import DlgScrollBase
 import configparser
+from pathlib import Path
 
 SZ_FILE = "General.ini"
 
@@ -24,7 +25,8 @@ class DlgConfig(DlgScrollBase):
         # Abro el lector del archivo
         self.config = configparser.ConfigParser()
         # Abro el archivo
-        self.config.read(SZ_FILE)
+        self.sz_path = Path(__file__).resolve().parent / SZ_FILE
+        self.config.read(self.sz_path)
 
         # Qué estoy configurando actualmente
         self.__curr_section = ""
@@ -33,7 +35,7 @@ class DlgConfig(DlgScrollBase):
         self.fill_default_values()
 
     def __del__(self):
-        with open(SZ_FILE, 'w') as configfile:
+        with open(self.sz_path, 'w') as configfile:
             self.config.write(configfile)
 
     def fill_default_values(self):
