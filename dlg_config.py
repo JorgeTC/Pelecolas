@@ -7,16 +7,17 @@ SZ_SECTIONS = "Secciones: "
 SZ_PARÁMETROS = "Parámetros: "
 SZ_NEW_VALUE = "Nuevo valor de {}: "
 
-S_HTML = "HTML"
-S_READDATA = "READDATA"
-
-P_FILTER_PUBLISHED = "Filter published"
-P_FILTER_FA = "Filter FilmAffinity"
-
 SZ_WELCOME = "## BIENVENIDO A LA CONFIGURACIÓN ##"
 SZ_CLOSE = "### SALIENDO DE LA CONFIGURACIÓN ##"
+SZ_PRINT_VALUE = "  {}: {}"
 
 class DlgConfig(DlgScrollBase):
+
+    S_HTML = "HTML"
+    S_READDATA = "READDATA"
+
+    P_FILTER_PUBLISHED = "Filter published"
+    P_FILTER_FA = "Filter FilmAffinity"
 
     def __init__(self):
         super().__init__(question="", options=[], empty_option=True, empty_ans=True)
@@ -31,19 +32,15 @@ class DlgConfig(DlgScrollBase):
 
         self.fill_default_values()
 
-        print(SZ_WELCOME)
-
     def __del__(self):
         with open(SZ_FILE, 'w') as configfile:
             self.config.write(configfile)
 
-        print(SZ_CLOSE)
-
     def fill_default_values(self):
         # Configuraciones para html
-        self.add_default_value(S_HTML, P_FILTER_PUBLISHED, False)
+        self.add_default_value(self.S_HTML, self.P_FILTER_PUBLISHED, False)
         # Configuraciones para readdata
-        self.add_default_value(S_READDATA, P_FILTER_FA, 1)
+        self.add_default_value(self.S_READDATA, self.P_FILTER_FA, 1)
         pass
 
     def add_default_value(self, section, param, value):
@@ -55,8 +52,10 @@ class DlgConfig(DlgScrollBase):
             self.config.set(section, param, str(value))
 
     def run(self):
+        print(SZ_WELCOME)
+        self.print()
         self.__choose_section()
-
+        print(SZ_CLOSE)
 
     def __choose_section(self):
         # Me muevo hasta la sección que sea menester
@@ -86,3 +85,18 @@ class DlgConfig(DlgScrollBase):
     def __set_param(self):
         ans = input(SZ_NEW_VALUE.format(self.__curr_param))
         self.config[self.__curr_section][self.__curr_param] = ans
+
+    def get_value(self, section, param):
+        return self.config[section][param]
+
+    def get_bool(self, section, param):
+        return self.config.getboolean(section, param)
+
+    def print(self):
+        for section in self.config.sections():
+            self.print_section(section)
+
+    def print_section(self, section):
+        print(section.upper())
+        for param in self.config[section]:
+            print(SZ_PRINT_VALUE.format(param, self.config[section][param]))
