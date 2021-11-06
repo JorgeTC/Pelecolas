@@ -10,11 +10,12 @@ class DlgScrollBase():
     __keyboard_listen = True
     sz_ans = ""
 
-    def __init__(self, question="", options=[], empty_option=True):
+    def __init__(self, question="", options=[], empty_option=True, empty_ans=False):
         self.sz_question = question
         self.sz_options = options
         self.n_options = len(self.sz_options)
         self.b_empty_option = empty_option
+        self.b_empty_ans = empty_ans
 
         if (self.b_empty_option):
             self.min_index = -1
@@ -36,6 +37,7 @@ class DlgScrollBase():
         return ans
 
     def get_ans_body(self):
+        self.sz_ans=""
         # Función para sobreescribir.
         # Es la que hace la petición efectiva de un elemento de la lista
         while not self.sz_ans:
@@ -43,6 +45,8 @@ class DlgScrollBase():
             self.curr_index = self.min_index
             # Al llamar a input es cuando me espero que se itilicen las flechas
             self.sz_ans = input(self.sz_question)
+            if not self.sz_ans and self.b_empty_ans:
+                return self.sz_ans
             # Se ha introducido un título, compruebo que sea correcto
             self.sz_ans = self.__check_ans(self.sz_ans)
 
