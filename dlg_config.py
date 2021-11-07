@@ -1,7 +1,10 @@
-from .dlg_scroll_base import DlgScrollBase
 import configparser
-import keyboard
+import time
 from pathlib import Path
+
+import keyboard
+
+from .dlg_scroll_base import DlgScrollBase
 
 SZ_FILE = "General.ini"
 
@@ -12,6 +15,7 @@ SZ_NEW_VALUE = "Nuevo valor de {}: "
 SZ_WELCOME = "## BIENVENIDO A LA CONFIGURACIÓN ##"
 SZ_CLOSE = "### SALIENDO DE LA CONFIGURACIÓN ##"
 SZ_PRINT_VALUE = "  {}: {}"
+
 
 class DlgConfig(DlgScrollBase):
 
@@ -74,7 +78,8 @@ class DlgConfig(DlgScrollBase):
     def __choose_param(self):
         # Me muevo hasta la sección que sea menester
         self.sz_question = SZ_PARÁMETROS
-        self.sz_options = list(dict(self.config.items(self.__curr_section)).keys())
+        self.sz_options = list(
+            dict(self.config.items(self.__curr_section)).keys())
         self.n_options = len(self.sz_options)
         self.b_empty_option = True
         self.__curr_param = self.get_ans()
@@ -105,7 +110,34 @@ class DlgConfig(DlgScrollBase):
             print(SZ_PRINT_VALUE.format(param, self.config[section][param]))
 
 
+# Variable que me dice si el menú se ha abierto o no
+MENU_OPEN = False
+
+
 def manage_config():
-    if keyboard.is_pressed('ctrl'):
+    # Gestión para abrir el menú si se inicia el programa pulsando control
+
+    def on_ctrl():
+        # Si está pulsada la tecla control, abro el menú
+
+        # Establezco que el menú ha sido abierto
+        global MENU_OPEN
+        MENU_OPEN = True
+        # Evito que se pueda seguir escuhando al teclado.
+        # Debo hacerlo antes de abrir el manú porque
+        # tiene sus propios eventos de teclado.
+        keyboard.unhook_all()
+        # Abro el diálogo
         config = DlgConfig()
         config.run()
+
+    # Asocio el evento con la tecla control
+    keyboard.add_hotkey('ctrl', on_ctrl())
+    # Espero para que llegue el evento
+    time.sleep(0.1)
+    # Compruebo si se ha abierto el menú
+    global MENU_OPEN
+    if not MENU_OPEN:
+        # Si no se ha abierto, ya ha pasado el tiempo.
+        # No doy más oportunidad a que se vuelva a abrir.
+        keyboard.unhook_all()
