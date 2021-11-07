@@ -86,13 +86,14 @@ class DlgConfig(DlgScrollBase):
 
         if self.__curr_param:
             self.__set_param()
+            self.print_section(self.__curr_section)
             self.__choose_param()
         else:
             self.__choose_section()
 
     def __set_param(self):
         ans = input(SZ_NEW_VALUE.format(self.__curr_param))
-        self.config[self.__curr_section][self.__curr_param] = ans
+        self.config.set(self.__curr_section, self.__curr_param, ans)
 
     def get_value(self, section, param):
         return self.config[section][param]
@@ -130,6 +131,7 @@ def manage_config():
         # Abro el diálogo
         config = DlgConfig()
         config.run()
+        del config
 
     # Asocio el evento con la tecla control
     keyboard.add_hotkey('ctrl', on_ctrl())
