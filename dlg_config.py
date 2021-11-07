@@ -134,7 +134,7 @@ def manage_config():
         del config
 
     # Asocio el evento con la tecla control
-    keyboard.add_hotkey('ctrl', on_ctrl())
+    keyboard.add_hotkey('ctrl', on_ctrl)
     # Espero para que llegue el evento
     time.sleep(0.1)
     # Compruebo si se ha abierto el menú
