@@ -1,14 +1,12 @@
 from .Usuario import Usuario
 from .ExcelMgr import ExcelMgr
 from .Writer import Writer
-import keyboard
+from .dlg_config import manage_config
+
 
 def main():
 
-    if keyboard.is_pressed('ctrl'):
-        from .dlg_config import DlgConfig
-        config = DlgConfig()
-        config.run()
+    manage_config()
 
     usuario = Usuario()
 

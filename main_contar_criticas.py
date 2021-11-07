@@ -1,13 +1,10 @@
 from .WordReader import WordReader
-import keyboard
+from .dlg_config import manage_config
 
 
 def main(path):
 
-    if keyboard.is_pressed('ctrl'):
-        from .dlg_config import DlgConfig
-        config = DlgConfig()
-        config.run()
+    manage_config()
 
     reader = WordReader(path)
     reader.list_titles()

@@ -1,5 +1,6 @@
 from .dlg_scroll_base import DlgScrollBase
 import configparser
+import keyboard
 from pathlib import Path
 
 SZ_FILE = "General.ini"
@@ -102,3 +103,9 @@ class DlgConfig(DlgScrollBase):
         print(section.upper())
         for param in self.config[section]:
             print(SZ_PRINT_VALUE.format(param, self.config[section][param]))
+
+
+def manage_config():
+    if keyboard.is_pressed('ctrl'):
+        config = DlgConfig()
+        config.run()
