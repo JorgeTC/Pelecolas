@@ -96,6 +96,9 @@ class DlgConfig(DlgScrollBase):
     def get_value(self, section, param):
         return self.config[section][param]
 
+    def get_int(self, section, param):
+        return self.config.getint(section, param)
+
     def get_bool(self, section, param):
         return self.config.getboolean(section, param)
 

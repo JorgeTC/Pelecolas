@@ -1,12 +1,15 @@
-
 from bs4 import BeautifulSoup
+
+from .dlg_config import DlgConfig
 from .safe_url import safe_get_url
+
 
 def get_url_from_id(id):
     """
     Me espero el id en cadena, por si acaso hago la conversión
     """
     return 'https://www.filmaffinity.com/es/film' + str(id) + ".html"
+
 
 def get_id_from_url(url):
     # Elimino el .html
@@ -16,26 +19,38 @@ def get_id_from_url(url):
 
     return id
 
+
+# Leo de forma global la configuración de filtro de películas.
+# De esta forma no tengo que acceder al ini para cada película.
+config = DlgConfig()
+SET_VALID_FILM = config.get_int(config.S_READDATA, config.P_FILTER_FA)
+
+
 def es_valida(titulo):
     """
     Busca en el título que sea una película realmente
     """
+    global SET_VALID_FILM
     # Comprobamos que no tenga ninuno de los sufijos a evitar
-    if titulo.find("(C)") > 0: # Excluyo los cortos
-        return False
-    if titulo.find("(Miniserie de TV)") > 0: # Excluyo series de televisión
-        return False
+    # Filtro los cortos
+    if titulo.find("(C)") > 0:
+        return SET_VALID_FILM & (1 << 5)
+    # Excluyo series de televisión
+    if titulo.find("(Miniserie de TV)") > 0:
+        return SET_VALID_FILM & (1 << 4)
     if titulo.find("(Serie de TV)") > 0:
-        return False
+        return SET_VALID_FILM & (1 << 3)
     if titulo.find("(TV)") > 0:
         # Hay varios tipos de películas aquí.
         # Algunos son programas de televisón, otros estrenos directos a tele.
         # Hay también episosios concretos de series.
-        return False
+        return SET_VALID_FILM & (1 << 2)
+    # Filtro los videos musicales
     if titulo.find("(Vídeo musical)") > 0:
-        return False
+        return SET_VALID_FILM & (1 << 1)
     # No se ha encontrado sufijo, luego es una película
-    return True
+    return SET_VALID_FILM & (1 << 0)
+
 
 class Pelicula(object):
     def __init__(self, movie_box=None, id=None, urlFA=None):
@@ -66,7 +81,6 @@ class Pelicula(object):
         self.pais = ""
         self.__exists = bool()
 
-
     def __get_title(self, film_box):
         return film_box.contents[1].contents[1].contents[3].contents[1].contents[0].contents[0]
 
@@ -93,7 +107,7 @@ class Pelicula(object):
             # guardo la cantidad de votantes en una ficha normal
             self.votantes_FA = l.attrs['content']
             # Elimino el punto de los millares
-            self.votantes_FA = self.votantes_FA.replace('.','')
+            self.votantes_FA = self.votantes_FA.replace('.', '')
             self.votantes_FA = int(self.votantes_FA)
         except:
             # caso en el que no hay suficientes votantes
@@ -101,7 +115,7 @@ class Pelicula(object):
 
     def get_duracion(self):
         # Me espero que la página ya haya sido parseada
-        l = self.parsed_page.find(id = "left-column")
+        l = self.parsed_page.find(id="left-column")
         try:
             self.duracion = l.find(itemprop="duration").contents[0]
         except:
@@ -116,7 +130,8 @@ class Pelicula(object):
             self.get_parsed_page()
 
         try:
-            self.pais = self.parsed_page.find(id="country-img").contents[0].attrs['alt']
+            self.pais = self.parsed_page.find(
+                id="country-img").contents[0].attrs['alt']
         except:
             # caso en el que no está escrita la duración
             self.pais = ""
@@ -133,7 +148,7 @@ class Pelicula(object):
         self.__exists = True
 
         # Parseo la página
-        self.parsed_page = BeautifulSoup(resp.text,'html.parser')
+        self.parsed_page = BeautifulSoup(resp.text, 'html.parser')
 
     def get_time_and_FA(self):
         # Método que obtiene datos que necesitan parsear la ficha de la película
