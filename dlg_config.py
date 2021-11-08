@@ -1,8 +1,6 @@
 import configparser
-import time
 from pathlib import Path
 
-import keyboard
 
 from .dlg_scroll_base import DlgScrollBase
 
@@ -22,8 +20,8 @@ class DlgConfig(DlgScrollBase):
     S_HTML = "HTML"
     S_READDATA = "READDATA"
 
-    P_FILTER_PUBLISHED = "Filter published"
-    P_FILTER_FA = "Filter FilmAffinity"
+    P_FILTER_PUBLISHED = "Filter_published"
+    P_FILTER_FA = "Filter_FilmAffinity"
 
     def __init__(self):
         super().__init__(question="", options=[], empty_option=True, empty_ans=True)
@@ -39,7 +37,7 @@ class DlgConfig(DlgScrollBase):
 
         self.fill_default_values()
 
-    def __del__(self):
+    def save_config(self):
         with open(self.sz_path, 'w') as configfile:
             self.config.write(configfile)
 
@@ -111,35 +109,15 @@ class DlgConfig(DlgScrollBase):
             print(SZ_PRINT_VALUE.format(param, self.config[section][param]))
 
 
-# Variable que me dice si el menú se ha abierto o no
-MENU_OPEN = False
-
-
 def manage_config():
-    # Gestión para abrir el menú si se inicia el programa pulsando control
+    # Importo los módulos de windows para comprobar el teclado
+    import win32api
+    import win32con
 
-    def on_ctrl():
-        # Si está pulsada la tecla control, abro el menú
-
-        # Establezco que el menú ha sido abierto
-        global MENU_OPEN
-        MENU_OPEN = True
-        # Evito que se pueda seguir escuhando al teclado.
-        # Debo hacerlo antes de abrir el manú porque
-        # tiene sus propios eventos de teclado.
-        keyboard.unhook_all()
+    # Comrpuebo si la tecla control está apretada
+    if win32api.GetAsyncKeyState(win32con.VK_CONTROL) & 0x8000 > 0:
         # Abro el diálogo
         config = DlgConfig()
         config.run()
-        del config
+        config.save_config()
 
-    # Asocio el evento con la tecla control
-    keyboard.add_hotkey('ctrl', on_ctrl)
-    # Espero para que llegue el evento
-    time.sleep(0.1)
-    # Compruebo si se ha abierto el menú
-    global MENU_OPEN
-    if not MENU_OPEN:
-        # Si no se ha abierto, ya ha pasado el tiempo.
-        # No doy más oportunidad a que se vuelva a abrir.
-        keyboard.unhook_all()
