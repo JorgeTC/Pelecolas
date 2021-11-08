@@ -158,7 +158,7 @@ class Quoter(BlogCsvMgr):
         # Actualizo todo el resto de índices
         delta = len(ini_link) + len(self.CLOSE_LINK)
         for cit in self.__ini_director_pos:
-            cit['len'] = cit['len'] + delta
+            cit['pos'] = cit['pos'] + delta
 
 
     def __row_in_csv(self, title: str):
