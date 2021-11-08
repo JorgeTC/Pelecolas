@@ -1,3 +1,4 @@
+from .dlg_config import DlgConfig
 from .list_title_mgr import TitleMgr
 from .Pelicula import Pelicula
 from .searcher import Searcher
@@ -14,7 +15,8 @@ class DlgHtml(DlgScrollBase):
     ASK_DURATION = "Introduzca duración de la película: "
 
     def __init__(self, title_list) -> None:
-        if True:
+        config = DlgConfig()
+        if config.get_bool(config.S_HTML, config.P_FILTER_PUBLISHED):
             title_list = self.__unpublished(title_list)
         # Objeto para buscar si el título que ha pedido el usuario
         # está disponible en el archivo word.

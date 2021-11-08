@@ -1,8 +1,13 @@
 from .Usuario import Usuario
 from .ExcelMgr import ExcelMgr
 from .Writer import Writer
+from .dlg_config import manage_config
+
 
 def main():
+
+    manage_config()
+
     usuario = Usuario()
 
     ex_doc = ExcelMgr(usuario.nombre)
