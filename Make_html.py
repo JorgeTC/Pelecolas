@@ -38,9 +38,9 @@ class html():
         # Llamo al diálogo para que pida por la consola los datos que necesito
         dlg.ask_for_data()
         self.data = dlg.data
+        # Le digo al citador sobre qué película trabaja
         self.__citas.titulo = self.data.titulo
         self.__citas.director = self.data.director
-        # Le digo al citador sobre qué película trabaja
 
     @staticmethod
     def __fin_de_parrafo(text):
