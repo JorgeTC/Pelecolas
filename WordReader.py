@@ -1,5 +1,4 @@
 import docx
-from pathlib import Path
 
 class WordReader():
     def __init__(self, folder):
