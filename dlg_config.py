@@ -83,13 +83,13 @@ class DlgConfig(DlgScrollBase):
         self.__curr_param = self.get_ans()
 
         if self.__curr_param:
-            self.__set_param()
+            self.__ask_param()
             self.print_section(self.__curr_section)
             self.__choose_param()
         else:
             self.__choose_section()
 
-    def __set_param(self):
+    def __ask_param(self):
         ans = input(SZ_NEW_VALUE.format(self.__curr_param))
         self.config.set(self.__curr_section, self.__curr_param, ans)
 
@@ -111,6 +111,7 @@ class DlgConfig(DlgScrollBase):
         for param in self.config[section]:
             print(SZ_PRINT_VALUE.format(param, self.config[section][param]))
 
+CONFIG = DlgConfig()
 
 def manage_config():
     # Importo los módulos de windows para comprobar el teclado
@@ -120,7 +121,6 @@ def manage_config():
     # Comrpuebo si la tecla control está apretada
     if win32api.GetAsyncKeyState(win32con.VK_CONTROL) & 0x8000 > 0:
         # Abro el diálogo
-        config = DlgConfig()
-        config.run()
-        config.save_config()
+        CONFIG.run()
+        CONFIG.save_config()
 

@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 
-from .dlg_config import DlgConfig
+from .dlg_config import CONFIG
 from .safe_url import safe_get_url
 
 
@@ -19,18 +19,11 @@ def get_id_from_url(url):
 
     return id
 
-
-# Leo de forma global la configuración de filtro de películas.
-# De esta forma no tengo que acceder al ini para cada película.
-config = DlgConfig()
-SET_VALID_FILM = config.get_int(config.S_READDATA, config.P_FILTER_FA)
-
-
+SET_VALID_FILM = CONFIG.get_int(CONFIG.S_READDATA, CONFIG.P_FILTER_FA)
 def es_valida(titulo):
     """
     Busca en el título que sea una película realmente
     """
-    global SET_VALID_FILM
     # Comprobamos que no tenga ninuno de los sufijos a evitar
     # Filtro los cortos
     if titulo.find("(C)") > 0:

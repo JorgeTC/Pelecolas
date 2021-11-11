@@ -1,4 +1,3 @@
-from .WordReader import WordReader
 from .dlg_config import manage_config
 
 
@@ -6,6 +5,7 @@ def main(path):
 
     manage_config()
 
+    from .WordReader import WordReader
     reader = WordReader(path)
     reader.list_titles()
     reader.write_list()
