@@ -19,12 +19,11 @@ def get_id_from_url(url):
 
     return id
 
-
+SET_VALID_FILM = CONFIG.get_int(CONFIG.S_READDATA, CONFIG.P_FILTER_FA)
 def es_valida(titulo):
     """
     Busca en el título que sea una película realmente
     """
-    SET_VALID_FILM = CONFIG.get_int(CONFIG.S_READDATA, CONFIG.P_FILTER_FA)
     # Comprobamos que no tenga ninuno de los sufijos a evitar
     # Filtro los cortos
     if titulo.find("(C)") > 0:
