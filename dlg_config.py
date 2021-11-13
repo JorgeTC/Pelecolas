@@ -22,6 +22,7 @@ class DlgConfig(DlgScrollBase):
 
     P_FILTER_PUBLISHED = "Filter_published"
     P_FILTER_FA = "Filter_FilmAffinity"
+    P_DEFAULT_USER = "Mem_user_FA"
 
     def __init__(self):
         super().__init__(question="", options=[], empty_option=True, empty_ans=True)
@@ -46,6 +47,7 @@ class DlgConfig(DlgScrollBase):
         self.add_default_value(self.S_HTML, self.P_FILTER_PUBLISHED, False)
         # Configuraciones para readdata
         self.add_default_value(self.S_READDATA, self.P_FILTER_FA, 1)
+        self.add_default_value(self.S_READDATA, self.P_DEFAULT_USER, 'Jorge')
         pass
 
     def add_default_value(self, section, param, value):
@@ -95,6 +97,17 @@ class DlgConfig(DlgScrollBase):
 
     def get_value(self, section, param):
         return self.config[section][param]
+
+    def set_value(self, section, param, value):
+        # Me espero que se introduzca un valor en una sección que existe
+        if param not in self.config[section]:
+            assert("{} no pertenece a la sección {}.".format(param, section))
+
+        # Lo cambio en el objeto
+        self.config.set(section, param, str(value))
+
+        # Actualizo el archivo ini
+        self.save_config()
 
     def get_int(self, section, param):
         return self.config.getint(section, param)

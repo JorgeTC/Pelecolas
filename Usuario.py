@@ -1,10 +1,15 @@
 from pathlib import Path
+from .dlg_scroll_base import DlgScrollBase
+from .dlg_config import CONFIG
 import ast
 
 class Usuario(object):
+
+    SZ_QUESTION = "Se van a importtar los datos de {}\nEspero enter..."
+
     def __init__(self):
         self.ids = self.read_dict()
-        self.nombre = "Jorge"
+        self.nombre = CONFIG.get_value(CONFIG.S_READDATA, CONFIG.P_DEFAULT_USER)
         self.id = 0
 
         self.ask_user()
@@ -24,23 +29,13 @@ class Usuario(object):
         return dictionary
 
     def ask_user(self):
-        while True:
-            # Informamos de qué usuario está cargado
-            print("Se van a importar los datos de ", self.nombre)
-            inp = input("Espero Enter...")
+        asker = DlgScrollBase(question=self.SZ_QUESTION.format(self.nombre),
+                                options=list(self.ids.keys()))
 
-            # No se ha introducido nada por teclado
-            if not inp:
-                break
+        self.nombre = asker.get_ans()
 
-            # Se ha introducido un nombre incorrecto.
-            # Doy una nueva oportunidad para que introduzca otro nombre
-            if not (inp in self.ids.keys()):
-                continue
-            # Si se ha introducido un nombre válido lo guardo como el usuario
-            self.nombre = inp
-            print("Se van a importar los datos de ", self.nombre)
-            break
-
-        # Sólo hemos salido del bucle si el id es válido
+        # Sé que el diálogo me ha dado un usuario válido, estará en el diccionario
         self.id = self.ids[self.nombre]
+
+        # Guardo la última elección del usuario en el ini
+        CONFIG.set_value(CONFIG.S_READDATA, CONFIG.P_DEFAULT_USER, self.nombre)
