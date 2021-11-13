@@ -30,9 +30,13 @@ class Usuario(object):
 
     def ask_user(self):
         asker = DlgScrollBase(question=self.SZ_QUESTION.format(self.nombre),
-                                options=list(self.ids.keys()))
-
-        self.nombre = asker.get_ans()
+                                options=list(self.ids.keys()),
+                                empty_ans=True)
+        # Pido el nombre del usuario cuyos datos se quieren importar
+        nombre = asker.get_ans()
+        # Si no se ha introducido nada por teclado, utilizo el nombre default.
+        if nombre:
+            self.nombre = nombre
 
         # Sé que el diálogo me ha dado un usuario válido, estará en el diccionario
         self.id = self.ids[self.nombre]
