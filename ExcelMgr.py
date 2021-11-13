@@ -19,13 +19,7 @@ class ExcelMgr(object):
     def get_worksheet(self):
         return self.ws
 
-    def save_wb(self):
+    def save_wb(self, path):
 
-        sz_curr_folder = Path(__file__).resolve().parent
-        # Me voy hasta la carpeta Reseñas
-        sz_curr_folder = sz_curr_folder.parent
-        # Entro a la carpeta películas
-        sz_curr_folder = sz_curr_folder / "Películas"
-
-        self.wb.save(sz_curr_folder / self.ExcelName)
+        self.wb.save(path / self.ExcelName)
         self.wb.close()
