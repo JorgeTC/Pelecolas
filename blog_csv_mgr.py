@@ -21,6 +21,11 @@ class BlogCsvMgr():
         # Si el archivo no existe, hay que crearlo
         if not self.exists_csv:
             return True
+        # Compruebo que el archivo no esté vacío
+        csv_file_temp = open(self.sz_csv_file, encoding=self.ENCODING)
+        csv_reader = csv.reader(csv_file_temp, delimiter=",")
+        if len(list(csv_reader)) < 2:
+            return True
 
         # Si entre la última creación del csv y
         # el momento actual ha pasado un viernes, recalculo el csv
