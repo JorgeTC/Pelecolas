@@ -5,7 +5,7 @@ import ast
 
 class Usuario(object):
 
-    SZ_QUESTION = "Se van a importtar los datos de {}\nEspero enter..."
+    SZ_QUESTION = "Se van a importar los datos de {}\nEspero enter..."
 
     def __init__(self):
         self.ids = self.read_dict()
