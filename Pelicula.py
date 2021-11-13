@@ -1,14 +1,9 @@
 from bs4 import BeautifulSoup
 
+from .url_FA import URL_FILM_ID
 from .dlg_config import CONFIG
 from .safe_url import safe_get_url
 
-
-def get_url_from_id(id):
-    """
-    Me espero el id en cadena, por si acaso hago la conversión
-    """
-    return 'https://www.filmaffinity.com/es/film' + str(id) + ".html"
 
 
 def get_id_from_url(url):
@@ -57,10 +52,10 @@ class Pelicula(object):
             self.titulo = self.__get_title(movie_box)
             self.user_note = self.__get_user_note(movie_box)
             self.id = self.__get_id(movie_box)
-            self.url_FA = get_url_from_id(self.id)
+            self.url_FA = URL_FILM_ID(self.id)
         elif id:
             self.id = str(id)
-            self.url_FA = get_url_from_id(self.id)
+            self.url_FA = URL_FILM_ID(self.id)
         elif urlFA:
             self.url_FA = str(urlFA)
             self.id = get_id_from_url(self.url_FA)

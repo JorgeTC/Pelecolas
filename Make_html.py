@@ -11,6 +11,7 @@ from .quoter import Quoter
 SZ_INVALID_CHAR = "\/:*?<>|"
 SZ_HTML_COMMENT = "\n<!-- {} -->\n".format
 SZ_HTML_TITLE = "<!-- \n{}\n -->\n".format
+SZ_HTML_FILE = "Reseña {}.html".format
 
 
 class html():
@@ -118,7 +119,7 @@ class html():
         sz_file_name = "".join(i for i in str(
             self.data.titulo) if i not in SZ_INVALID_CHAR)
         # Compongo el nombre completo del archivo
-        sz_file_name = "Reseña " + sz_file_name + ".html"
+        sz_file_name = SZ_HTML_FILE(sz_file_name)
         # Abro el archivo en modo escritura
         reseña = open(self.folder / sz_file_name, mode="w", encoding="utf-8")
 
@@ -140,16 +141,16 @@ class html():
         # Escribo los botones de Twitter
         reseña.write("\n<p>")
         reseña.write(SZ_HTML_COMMENT('Botón follow'))
-        reseña.write("<a href=\"https://twitter.com/pelecolas?ref_src=twsrc%5Etfw\" " +
-                     "class=\"twitter-follow-button\" data-show-count=\"false\">\n")
-        reseña.write("Follow @pelecolas</a>\n" +
-                     "<script async src=\"https://platform.twitter.com/widgets.js\"" +
-                     "charset=\"utf-8\"></script>\n")
+        reseña.write("<a href=\"https://twitter.com/pelecolas?ref_src=twsrc%5Etfw\" \
+                      class=\"twitter-follow-button\" data-show-count=\"false\">\n")
+        reseña.write("Follow @pelecolas</a>\n \
+                      <script async src=\"https://platform.twitter.com/widgets.js\" \
+                      charset=\"utf-8\"></script>\n")
         reseña.write(SZ_HTML_COMMENT('Botón compartir'))
-        reseña.write("<a href=\"https://twitter.com/share?ref_src=twsrc%5Etfw\" " +
-                     "class=\"twitter-share-button\" data-show-count=\"false\">Tweet</a>\n" +
-                     "<script async src=\"https://platform.twitter.com/widgets.js\"\n" +
-                     "charset=\"utf-8\"></script>\n")
+        reseña.write("<a href=\"https://twitter.com/share?ref_src=twsrc%5Etfw\"  \
+                      class=\"twitter-share-button\" data-show-count=\"false\">Tweet</a>\n \
+                      <script async src=\"https://platform.twitter.com/widgets.js\"\n \
+                      charset=\"utf-8\"></script>\n")
 
         reseña.close()
 

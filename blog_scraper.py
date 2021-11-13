@@ -8,8 +8,10 @@ from .safe_url import safe_get_url
 from .blog_csv_mgr import BlogCsvMgr
 
 
+BLOG_MONTH = 'https://pelecolas.blogspot.com/{}/{:02d}/'.format
+
+
 class BlogScraper(BlogCsvMgr):
-    BLOG_SITE = 'https://pelecolas.blogspot.com'
 
     HEADER_CSV = ['Titulo', 'Link', 'Director', 'Año']
 
@@ -29,14 +31,8 @@ class BlogScraper(BlogCsvMgr):
             self.csv_file.close()
 
     def get_month_dir(self, month: date):
-        # Empiezo con la dirección del blog
-        sz_dir = self.BLOG_SITE + "/"
-        # Añado el año
-        sz_dir = sz_dir + str(month.year) + "/"
-        # Añado el mes
-        sz_dir = sz_dir + '{:02d}'.format(month.month) + "/"
-
-        return sz_dir
+        # Dirección del blog, año y mes
+        return BLOG_MONTH(month.year, month.month)
 
     def get_data_from_month(self, sz_dir: str):
         # Descargo la página

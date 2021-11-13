@@ -1,6 +1,10 @@
-from bs4 import BeautifulSoup
-from .safe_url import safe_get_url
 import urllib.parse
+
+from bs4 import BeautifulSoup
+
+from . import url_FA
+from .safe_url import safe_get_url
+
 
 # Clase para guardar los datos que se lean
 class TituloYAño():
@@ -9,14 +13,19 @@ class TituloYAño():
         self.año = year
         self.url = url
 
+
 ################ MACROS CLASIFICAR LA PÁGINA ################
 ENCONTRADA = 1
 VARIOS_RESULTADOS = 2
 NO_ENCONTRADA = 3
 ERROR = 4
 #############################################################
+SZ_ONLY_ONE_FILM = "Se ha encontrado una única película llamada {}.".format
+SZ_ONLY_ONE_FILM_YEAR = "Se ha encontrado una única película llamada {} del año {}".format
+
 
 class Searcher():
+
     def __init__(self, to_search):
         self.title = to_search
 
@@ -48,7 +57,7 @@ class Searcher():
 
         # Guardo la página de búsqueda parseada.
         req = safe_get_url(self.search_url)
-        self.parsed_page = BeautifulSoup(req.text,'html.parser')
+        self.parsed_page = BeautifulSoup(req.text, 'html.parser')
 
         # Ya he hecho la búsqueda.
         # Quiero saber qué se ha conseguido, en qué caso estamos.
@@ -65,10 +74,8 @@ class Searcher():
         # Cambio los espacios para poder tener una sola url
         title_for_url = title_for_url.replace(" ", "+")
 
-        # Añado el prefijo
-        pref = "https://www.filmaffinity.com/es/search.php?stext="
-
-        return pref + title_for_url
+        # Devuelvo la dirección de búsqueda
+        return url_FA.URL_SEARCH(title_for_url)
 
     def __search_boxes(self):
 
@@ -77,12 +84,14 @@ class Searcher():
             return
 
         # Caja donde están todos los resultados
-        peliculas_encontradas = self.parsed_page.find_all('div',{'class': "z-search"})
+        peliculas_encontradas = self.parsed_page.find_all(
+            'div', {'class': "z-search"})
         # Se han hecho tres búsquedas: título, director, reparto
         # la única que me interesa es la primera: título.
         peliculas_encontradas = peliculas_encontradas[0]
         peliculas_encontradas = peliculas_encontradas.find_all('div')
-        peliculas_encontradas = [div for div in peliculas_encontradas if div.get('class')[0] == 'se-it']
+        peliculas_encontradas = [div for div in peliculas_encontradas if div.get('class')[
+            0] == 'se-it']
 
         lista_peliculas = []
         curr_year = 0
@@ -90,19 +99,19 @@ class Searcher():
         for p in peliculas_encontradas:
             # Leo el año...
             if len(p.get('class')) > 1:
-                year = p.find('div', {'class' : 'ye-w'})
+                year = p.find('div', {'class': 'ye-w'})
                 curr_year = int(year.contents[0])
 
             # ...si no encuentro el año, el año que ya tengo leído me sirve.
 
             # Leo el título y el enlace
-            title_box = p.find('div', {'class' : 'mc-title'})
+            title_box = p.find('div', {'class': 'mc-title'})
             url = title_box.contents[0].previous_element.contents[0].attrs['href']
             title = title_box.contents[0].previous_element.contents[0].attrs['title']
             title = title.strip()
 
             # Lo añado a la lista
-            lista_peliculas.append(TituloYAño(title,curr_year,url))
+            lista_peliculas.append(TituloYAño(title, curr_year, url))
 
         return lista_peliculas
 
@@ -124,7 +133,8 @@ class Searcher():
         return ERROR
 
     def __get_redirected_url(self):
-        self.film_url = self.parsed_page.find('meta', property='og:url')['content']
+        self.film_url = self.parsed_page.find(
+            'meta', property='og:url')['content']
 
     def encontrada(self):
         return self.__estado == ENCONTRADA
@@ -182,7 +192,7 @@ class Searcher():
 
         # He encontrado la película
         if self.__estado == ENCONTRADA:
-            print("Se ha encontrado una única película llamada", self.title)
+            print(SZ_ONLY_ONE_FILM(self.title))
             return
 
         # Tengo varias películas
@@ -190,10 +200,7 @@ class Searcher():
         # Llamo al cálculo de self.film_url
         self.get_url()
         if self.film_url:
-            print("Se ha encontrado una única película llamada", self.title, \
-                "del año", self.__coincidente.año)
-
-
+            print(SZ_ONLY_ONE_FILM_YEAR(self.title, self.__coincidente.año))
 
 
 if __name__ == '__main__':
