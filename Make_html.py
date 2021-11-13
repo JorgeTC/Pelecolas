@@ -9,6 +9,8 @@ from .WordReader import WordReader
 from .quoter import Quoter
 
 SZ_INVALID_CHAR = "\/:*?<>|"
+SZ_HTML_COMMENT = "\n<!-- {} -->\n".format
+SZ_HTML_TITLE = "<!-- \n{}\n -->\n".format
 
 
 class html():
@@ -120,26 +122,30 @@ class html():
         # Abro el archivo en modo escritura
         reseña = open(self.folder / sz_file_name, mode="w", encoding="utf-8")
 
+        # Escribo el título de la película en mayúsculas.
+        # Quiero poder copiar del html el nombre del post
+        reseña.write(SZ_HTML_TITLE(self.data.titulo.upper()))
+
         # Escribo el encabezado
-        reseña.write("<!-- Encabezado -->\n")
+        reseña.write(SZ_HTML_COMMENT('Encabezado'))
         self.__write_header_data(reseña, "Dir.: " + str(self.data.director))
         self.__write_header_data(reseña, str(self.data.año))
         self.__write_header_data(reseña, str(self.data.duracion) + " min.")
 
         # Iteramos los párrafos
-        reseña.write("\n<!-- Párrafos -->\n")
+        reseña.write(SZ_HTML_COMMENT('Párrafos'))
         for parrafo in self.parrafos_critica:
             self.__write_paragraph(reseña, parrafo)
 
         # Escribo los botones de Twitter
         reseña.write("\n<p>")
-        reseña.write("\n<!--Boton follow-->\n")
+        reseña.write(SZ_HTML_COMMENT('Botón follow'))
         reseña.write("<a href=\"https://twitter.com/pelecolas?ref_src=twsrc%5Etfw\" " +
                      "class=\"twitter-follow-button\" data-show-count=\"false\">\n")
         reseña.write("Follow @pelecolas</a>\n" +
                      "<script async src=\"https://platform.twitter.com/widgets.js\"" +
                      "charset=\"utf-8\"></script>\n")
-        reseña.write("\n<!--Boton compartir-->\n")
+        reseña.write(SZ_HTML_COMMENT('Botón compartir'))
         reseña.write("<a href=\"https://twitter.com/share?ref_src=twsrc%5Etfw\" " +
                      "class=\"twitter-share-button\" data-show-count=\"false\">Tweet</a>\n" +
                      "<script async src=\"https://platform.twitter.com/widgets.js\"\n" +
