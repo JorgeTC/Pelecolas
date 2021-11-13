@@ -17,6 +17,7 @@ ERROR = 4
 #############################################################
 
 class Searcher():
+    URL_SEARCH = "https://www.filmaffinity.com/es/search.php?stext={}"
     def __init__(self, to_search):
         self.title = to_search
 
@@ -65,10 +66,8 @@ class Searcher():
         # Cambio los espacios para poder tener una sola url
         title_for_url = title_for_url.replace(" ", "+")
 
-        # Añado el prefijo
-        pref = "https://www.filmaffinity.com/es/search.php?stext="
-
-        return pref + title_for_url
+        # Devuelvo la dirección de búsqueda
+        return self.URL_SEARCH.format(title_for_url)
 
     def __search_boxes(self):
 
