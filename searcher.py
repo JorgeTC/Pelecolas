@@ -192,6 +192,7 @@ class Searcher():
 
         # He encontrado la película
         if self.__estado == ENCONTRADA:
+            print(SZ_ONLY_ONE_FILM(self.title))
             return
 
         # Tengo varias películas
@@ -199,6 +200,7 @@ class Searcher():
         # Llamo al cálculo de self.film_url
         self.get_url()
         if self.film_url:
+            print(SZ_ONLY_ONE_FILM_YEAR(self.title, self.__coincidente.año))
 
 
 if __name__ == '__main__':
