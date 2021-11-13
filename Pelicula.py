@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 
-from .Writer import URL_FILM_ID
+from .url_FA import URL_FILM_ID
 from .dlg_config import CONFIG
 from .safe_url import safe_get_url
 

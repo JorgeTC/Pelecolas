@@ -1,4 +1,4 @@
-from .Writer import URL_FILM_ID
+from .url_FA import URL_FILM_ID
 from .dlg_config import CONFIG
 from .list_title_mgr import TitleMgr
 from .Pelicula import Pelicula

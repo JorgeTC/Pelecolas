@@ -1,6 +1,10 @@
-from bs4 import BeautifulSoup
-from .safe_url import safe_get_url
 import urllib.parse
+
+from bs4 import BeautifulSoup
+
+from . import url_FA
+from .safe_url import safe_get_url
+
 
 # Clase para guardar los datos que se lean
 class TituloYAño():
@@ -17,7 +21,7 @@ ERROR = 4
 #############################################################
 
 class Searcher():
-    URL_SEARCH = "https://www.filmaffinity.com/es/search.php?stext={}"
+
     def __init__(self, to_search):
         self.title = to_search
 
@@ -67,7 +71,7 @@ class Searcher():
         title_for_url = title_for_url.replace(" ", "+")
 
         # Devuelvo la dirección de búsqueda
-        return self.URL_SEARCH.format(title_for_url)
+        return url_FA.URL_SEARCH(title_for_url)
 
     def __search_boxes(self):
 

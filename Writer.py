@@ -1,16 +1,15 @@
 
-from bs4 import BeautifulSoup
 import concurrent.futures
-from openpyxl.styles import Alignment, Font
-from pandas.core.frame import DataFrame
-from .ProgressBar import ProgressBar
-from .safe_url import safe_get_url
-from .Pelicula import Pelicula
 from math import ceil
 
+from bs4 import BeautifulSoup
+from openpyxl.styles import Alignment, Font
+from pandas.core.frame import DataFrame
 
-URL_USER_PAGE = 'https://www.filmaffinity.com/es/userratings.php?user_id={}&p={}&orderby=4'.format
-URL_FILM_ID = "https://www.filmaffinity.com/es/film{}.html".format
+from . import url_FA
+from .Pelicula import Pelicula
+from .ProgressBar import ProgressBar
+from .safe_url import safe_get_url
 
 
 class Writer(object):
@@ -74,7 +73,7 @@ class Writer(object):
 
     def get_list_url(self, page_index):
         # Compongo la url dado el usuario y el índice
-        return URL_USER_PAGE(self.id_user, str(page_index))
+        return url_FA.URL_USER_PAGE(self.id_user, str(page_index))
 
     def __next_page(self):
 
@@ -199,7 +198,7 @@ class Writer(object):
         elif (col == self.columns["Id"]):
             # Añado un hipervínculo a su página
             cell.style = 'Hyperlink'
-            cell.hyperlink = URL_FILM_ID(id)
+            cell.hyperlink = url_FA.URL_FILM_ID(id)
             # Fuerzo el formato como texto
             cell.number_format = '@'
 
