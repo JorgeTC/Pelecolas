@@ -8,6 +8,11 @@ from .safe_url import safe_get_url
 from .Pelicula import Pelicula
 from math import ceil
 
+
+URL_USER_PAGE = 'https://www.filmaffinity.com/es/userratings.php?user_id={}&p={}&orderby=4'.format
+URL_FILM_ID = "https://www.filmaffinity.com/es/film{}.html".format
+
+
 class Writer(object):
 
     columns = ["Id", "Mia", "FA", "Duracion", "Visionados",
@@ -68,10 +73,8 @@ class Writer(object):
         return list(soup_page.findAll("div", {"class": "user-ratings-movie"}))
 
     def get_list_url(self, page_index):
-        sz_ans = 'https://www.filmaffinity.com/es/userratings.php?user_id=' + self.id_user + '&p='
-        sz_ans = sz_ans + str(page_index) + '&orderby=4'
-
-        return sz_ans
+        # Compongo la url dado el usuario y el índice
+        return URL_USER_PAGE(self.id_user, str(page_index))
 
     def __next_page(self):
 
@@ -137,9 +140,9 @@ class Writer(object):
         self.__set_cell_value(line, self.columns["Mia"],
                                 int(UserNote))
         self.__set_cell_value(line, self.columns["Mia + ruido"],
-                                "=B" + str(line) + "+RAND()-0.5")
+                                "=B{}+RAND()-0.5".format(line))
         self.__set_cell_value(line, self.columns["Mia rees"],
-                                "=(B" + str(line) + "-1)*10/9")
+                                "=(B{}-1)*10/9".format(line))
         # En la primera columna guardo la id para poder reconocerla
         self.__set_cell_value(line, self.columns["Id"],
                                 film['Title'], int(film['Id']))
@@ -153,17 +156,17 @@ class Writer(object):
             self.__set_cell_value(line, self.columns["FA"],
                                     film['Note FA'])
             self.__set_cell_value(line, self.columns["FA redondeo"],
-                                    "=ROUND(C" + str(line) + "*2, 0)/2")
+                                    "=ROUND(C{}*2, 0)/2".format(line))
             self.__set_cell_value(line, self.columns["Diferencia"],
-                                    "=B" + str(line) + "-C" + str(line))
+                                    "=B{0}-C{0}".format(line))
             self.__set_cell_value(line, self.columns["Diferencia abs"],
-                                    "=ABS(G" + str(line) + ")")
+                                    "=ABS(G{})".format(line))
             self.__set_cell_value(line, self.columns["Me ha gustado"],
-                                    "=IF($G" + str(line) + ">0,1,0.1)")
+                                    "=IF($G{}>0,1,0.1)".format(line))
             self.__set_cell_value(line, self.columns["FA rees"],
-                                    "=(C" + str(line) + "-1)*10/9")
+                                    "=(C{}-1)*10/9".format(line))
             self.__set_cell_value(line, self.columns["FA + ruido"],
-                                    "=C" + str(line) + "+(RAND()-0.5)/10")
+                                    "=C{}+(RAND()-0.5)/10".format(line))
         if (film['Voters'] != 0):
             # dejo la casilla en blanco si no logra leer ninguna votantes
             self.__set_cell_value(line, self.columns["Visionados"],
@@ -196,7 +199,7 @@ class Writer(object):
         elif (col == self.columns["Id"]):
             # Añado un hipervínculo a su página
             cell.style = 'Hyperlink'
-            cell.hyperlink = "https://www.filmaffinity.com/es/film" + str(id) + ".html"
+            cell.hyperlink = URL_FILM_ID(id)
             # Fuerzo el formato como texto
             cell.number_format = '@'
 
