@@ -1,7 +1,7 @@
 from .dlg_config import manage_config
 
 
-def main():
+def main(path):
 
     manage_config()
 
@@ -16,7 +16,7 @@ def main():
     writer = Writer(usuario.id, ex_doc.get_worksheet())
     writer.read_watched()
 
-    ex_doc.save_wb()
+    ex_doc.save_wb(path)
 
 if __name__ == "__main__":
     main()
