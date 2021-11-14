@@ -4,8 +4,8 @@ from datetime import date
 from bs4 import BeautifulSoup
 from pandas import DateOffset
 
-from .safe_url import safe_get_url
-from .blog_csv_mgr import BlogCsvMgr
+from safe_url import safe_get_url
+from blog_csv_mgr import BlogCsvMgr
 
 
 BLOG_MONTH = 'https://pelecolas.blogspot.com/{}/{:02d}/'.format

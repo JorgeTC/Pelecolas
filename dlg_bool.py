@@ -1,4 +1,4 @@
-from .dlg_scroll_base import DlgScrollBase
+from dlg_scroll_base import DlgScrollBase
 
 class YesNo(DlgScrollBase):
     def __init__(self, question) -> None:

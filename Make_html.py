@@ -3,10 +3,10 @@ import re
 import docx
 import pyperclip
 
-from .dlg_make_html import DlgHtml
-from .Pelicula import Pelicula
-from .WordReader import WordReader
-from .quoter import Quoter
+from dlg_make_html import DlgHtml
+from Pelicula import Pelicula
+from WordReader import WordReader
+from quoter import Quoter
 
 SZ_INVALID_CHAR = "\/:*?<>|"
 SZ_HTML_COMMENT = "\n<!-- {} -->\n".format

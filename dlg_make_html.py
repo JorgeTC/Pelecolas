@@ -1,10 +1,10 @@
-from .url_FA import URL_FILM_ID
-from .dlg_config import CONFIG
-from .list_title_mgr import TitleMgr
-from .Pelicula import Pelicula
-from .searcher import Searcher
-from .dlg_scroll_base import DlgScrollBase
-from .blog_csv_mgr import BlogCsvMgr
+from url_FA import URL_FILM_ID
+from dlg_config import CONFIG
+from list_title_mgr import TitleMgr
+from Pelicula import Pelicula
+from searcher import Searcher
+from dlg_scroll_base import DlgScrollBase
+from blog_csv_mgr import BlogCsvMgr
 
 
 class DlgHtml(DlgScrollBase):

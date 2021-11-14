@@ -1,6 +1,6 @@
 from pathlib import Path
-from .dlg_scroll_base import DlgScrollBase
-from .dlg_config import CONFIG
+from dlg_scroll_base import DlgScrollBase
+from dlg_config import CONFIG
 import ast
 
 class Usuario(object):

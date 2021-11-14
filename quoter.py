@@ -1,9 +1,9 @@
 import textacy
 import urllib.parse
 
-from .blog_csv_mgr import BlogCsvMgr
-from .blog_scraper import BlogScraper
-from .dlg_bool import YesNo
+from blog_csv_mgr import BlogCsvMgr
+from blog_scraper import BlogScraper
+from dlg_bool import YesNo
 
 
 class Quoter(BlogCsvMgr):
