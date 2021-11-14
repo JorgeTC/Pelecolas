@@ -1,18 +1,13 @@
-﻿# Ignoro los word, esto incluye Reseñas
-*.docx
-# Ignoro los pdf
-*.pdf
-# Ignoro los elementos relacionados con el LaTeX
-Critica latex.synctex.gz
-Critica latex.tex
-Formatos.txt
-# ignore all the excel files except for the Plantilla
-*.xlsx
-!Plantilla.xlsx
-# archivos compilados generados por python
+﻿# Archivos generados por python
 __pycache__/
 *.pyc
-# Lectura que hará del blog con scraping
-Make_html/bog_data.csv
+
+# Archivo de configuración.
+# Se generará automáticamente si no está disponible
 General.ini
+
+# Archivos que genera el código
+# Resultado de haber leído el blog
+Make_html/bog_data.csv
+# Resultado de medición de tiempo de ejecución
 Debug_time/time_log.csv
