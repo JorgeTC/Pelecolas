@@ -5,7 +5,8 @@ Un proyecto para gestionar la cinefilia.
 Hay una doble gestión.
 El perfil de FilmAffinity y un Word con reseñas y su posible publicación en un blog.
 
-# Índice
+## Índice
+
 1. [Estructura](#Estructura)
     1. [Code](#Code)
     2. [Películas](#Películas)
