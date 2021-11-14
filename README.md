@@ -48,6 +48,23 @@ El repositorio de git se debe clonar en la carpeta Code.
 Debe contener un archivo `.docx` con las reseñas.
 El nombre de la carpeta puede cambiar, pero siempre debe tener el mismo nombre que el `.docx`.
 
+El archivo debe iniciar con una linea con el nombre del archivo.
+Después se añade un doble salto de línea.
+A partir ahí comenzará una lista de reseñas.
+
+Cada reseña empezará con el título de la película y `:` en negrita.
+Si existen dos películas (reseñadas o no) con el mismo nombre, se escribirá entre paréntesis el año de la película.
+
+Las reseñas deberán estar separadas entre sí por un doble salto de línea.
+
+Se espera que cuando se cite literalmente una frase de la película, se haga en cursvia.
+
+Cuando se mencione el título de otra película (reseñada o no) se haga entre comillas: “Otro título”.
+
+La idea es que todas las reseñas estén contenidas en un mismo archivo Word.
+
+Para comprobar qué consigue leer el código en nuestro documento de Word, se recomienda la ejecución de [`main_contar_criticas.py`](#Contar_criticas).
+
 #### Archivos python
 
 Los archivos `.py` sirven para ejecutar los archivos main del repositorio.
@@ -73,26 +90,6 @@ if __name__ == "__main__":
 
 Si el `main` escogido no necesita la dirección, modificaremos la llamada.
 Igualmente hay que incluir las líneas previas a la importación de la función `main`.
-
-## Archivo Word
-
-Como se ha dicho antes, debe tener el mismo nombre que la carpeta que lo contiene.
-El archivo debe iniciar con una linea con el nombre del archivo.
-Después se añade un doble salto de línea.
-A partir ahí comenzará una lista de reseñas.
-
-Cada reseña empezará con el título de la película y `:` en negrita.
-Si existen dos películas (reseñadas o no) con el mismo nombre, se escribirá entre paréntesis el año de la película.
-
-Las reseñas deberán estar separadas entre sí por un doble salto de línea.
-
-Se espera que cuando se cite literalmente una frase de la película, se haga en cursvia.
-
-Cuando se mencione el título de otra película (reseñada o no) se haga entre comillas: “Otro título”.
-
-La idea es que todas las reseñas estén contenidas en un mismo archivo Word.
-
-Para comprobar qué consigue leer el código en nuestro documento de Word, se recomienda la ejecución de [`main_contar_criticas.py`](#Contar_criticas).
 
 ## mains
 
