@@ -1,6 +1,5 @@
 import re
 
-import docx
 import pyperclip
 
 from dlg_make_html import DlgHtml
@@ -17,11 +16,11 @@ SZ_HTML_FILE = "Reseña {}.html".format
 class html():
 
     def __init__(self, folder):
+        # Guardo la capreta donde crearé el html
         self.folder = folder
-        # Abro el documento para leerlo
-        self.doc = docx.Document(folder / "Películas.docx")
-
+        # Creo una lista para guardar el texto de la crítica con el formato html
         self.parrafos_critica = []
+
         # Objeto Pelicula para guardar los datos que necesito para escribir el html
         # quiero de ella su titulo, año, duración, y director
         self.data = Pelicula()
@@ -29,6 +28,10 @@ class html():
         # Hago un diccionario con todos los títulos que tienen una crítica escrita
         reader = WordReader(folder)
         reader.list_titles()
+        # Guardo una lista de párrafos del word
+        self.doc_paragraphs = reader.paragraphs
+        # Hago un diccionario donde, dado un título,
+        # obtengo el índice de la lista donde empieza la crítica
         self.titulos = reader.titulos
 
         # Objeto para hacer las citas de forma automática
@@ -54,7 +57,7 @@ class html():
         if not self.data.titulo:
             self.ask_for_data()
         # Empiezo a recorrer los párrafos desde el que sé que inicia la crítica que busco
-        for paragraph in self.doc.paragraphs[self.titulos[self.data.titulo]:]:
+        for paragraph in self.doc_paragraphs[self.titulos[self.data.titulo]:]:
 
             if self.__fin_de_parrafo(paragraph.text):
                 # He llegado al final de la crítica. Dejo de leer el documento
