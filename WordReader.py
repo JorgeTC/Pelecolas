@@ -3,12 +3,12 @@ import docx
 class WordReader():
     def __init__(self, folder):
         # Abro el documento para leerlo
-        sz_literatura = self.__get_word_file_name(folder)
+        sz_doc_path = self.__get_word_file_name(folder)
         # Me quedo con el nombre del archivo sin la extensión.
-        self.header = sz_literatura.stem
-        self.folder = sz_literatura.parent
+        self.header = sz_doc_path.stem
+        self.folder = sz_doc_path.parent
         # Me guardo sólo los párrafos, es lo que voy a iterar más adelante
-        self.paragraphs = docx.Document(sz_literatura).paragraphs
+        self.paragraphs = docx.Document(sz_doc_path).paragraphs
 
         # Lista con todos los títulos que encuentre.
         self.titulos = {}
