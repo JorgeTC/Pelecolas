@@ -22,6 +22,7 @@ El perfil de FilmAffinity y un Word con reseñas y su posible publicación en un
         3. [Quoter](#Quoter)
         4. [Etiquetas](#Etiquetas)
 4. [Config](#Config)
+5. [Agradecimientos](#Agradecimientos)
 
 ## Estructura
 
@@ -171,3 +172,32 @@ Se abrirá el menú de configuración antes de ejecutar el programa.
 En el menú de configuración se tiene acceso a todos los parámetros de todas las secciones.
 Se puede elegir la sección y el parámetro con las flechas de arriba y abajo.
 Para salir de una sección simplemente púlsese enter sin escribir ningún parámetro.
+
+## Agradecimientos
+
+Por corregirme los imports,
+por pisotear y escupir sobre cada linea de código que escribía,
+por ser la primera en escuchar cada idea antes de escribirla;
+por ser la primera en oír cómo la idea fracasaba...
+Por enseñarme qué es un csv, un dataframe y por enseñarme a leer un html.
+Por enseñarme markdown y permitir que estas mismas líneas existan.
+Por enseñarme a componer rutas.
+Por hacerme evitar los espaghettis.
+Por ser la únca responsable de que este proyecto sea más de un único archivo.
+Por soportar los nombres de archivos con espacios, mi enorme dependencia del ratón,
+mi alergia a la consola y mis dobles clicks.
+Por responder incondicionalmente a mis llamadas de Skype.
+
+Por recordarme que hay que dormir.
+Por contestar a mis preguntas en circunstancias y a horas intempestivas.
+Por sacarme de paseo incluso cuando me he portado mal.
+Por ser el más fuerte motivo que me separa del código.
+
+También por ver a mi lado las películas que bien merecidamente nadie ha visto.
+Por convertir por primera vez aquel docx a pdf y leerselo aquella primera vez.
+Por aquella captura de pantalla de la segunda crítica que escribí en mi vida.
+
+Por seguir entrando al blog y por ser mi única editora.
+
+Y por seguir ahí a pesar de todo.
+Este proyecto no sería posible sin [Sasha](https://github.com/sashiyalala)
