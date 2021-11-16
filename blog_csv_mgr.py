@@ -3,6 +3,8 @@ import csv
 from pathlib import Path
 from datetime import datetime
 
+from dlg_config import CONFIG
+
 
 class BlogCsvMgr():
     # Creo el csv donde guardo los datos de las entradas
@@ -21,6 +23,13 @@ class BlogCsvMgr():
         # Si el archivo no existe, hay que crearlo
         if not self.exists_csv:
             return True
+
+        # Si la configuración fuerza la creación del CSV, hay que crearlo
+        if CONFIG.get_bool(CONFIG.S_HTML, CONFIG.P_SCRAP_BLOG):
+            # Devuelvo a False, la próxima vez se seguirá el algoritmo habitual
+            CONFIG.set_value(CONFIG.S_HTML, CONFIG.P_SCRAP_BLOG, False)
+            return True
+
         # Compruebo que el archivo no esté vacío
         csv_file_temp = open(self.sz_csv_file, encoding=self.ENCODING)
         csv_reader = csv.reader(csv_file_temp, delimiter=",")

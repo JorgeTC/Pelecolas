@@ -21,6 +21,7 @@ class DlgConfig(DlgScrollBase):
     S_READDATA = "READDATA"
 
     P_FILTER_PUBLISHED = "Filter_published"
+    P_SCRAP_BLOG = "Force_bog_scraping"
     P_FILTER_FA = "Filter_FilmAffinity"
     P_DEFAULT_USER = "Mem_user_FA"
 
@@ -45,6 +46,7 @@ class DlgConfig(DlgScrollBase):
     def fill_default_values(self):
         # Configuraciones para html
         self.add_default_value(self.S_HTML, self.P_FILTER_PUBLISHED, False)
+        self.add_default_value(self.S_HTML, self.P_SCRAP_BLOG, False)
         # Configuraciones para readdata
         self.add_default_value(self.S_READDATA, self.P_FILTER_FA, 1)
         self.add_default_value(self.S_READDATA, self.P_DEFAULT_USER, 'Jorge')
