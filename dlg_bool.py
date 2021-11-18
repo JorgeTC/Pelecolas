@@ -1,7 +1,8 @@
 from dlg_scroll_base import DlgScrollBase
 
 class YesNo(DlgScrollBase):
-    def __init__(self, question) -> None:
+    def __init__(self, question, empty_ans=False) -> None:
+        DlgScrollBase.__init__(self, question, empty_ans=empty_ans)
         self.sz_question = question
         self.sz_options = ["Sí", "No"]
         self.n_options = 2
