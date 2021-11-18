@@ -7,6 +7,7 @@ class DlgScrollBase():
     n_options = 0
     min_index = -1
     b_empty_option = True
+    b_empty_ans = False
     __keyboard_listen = True
     sz_ans = ""
 
