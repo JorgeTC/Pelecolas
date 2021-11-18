@@ -198,6 +198,16 @@ class Quoter(BlogCsvMgr):
         # Listamos los directores que hay en el csv asegurando una única ocurrencia de ellos
         self.__all_director = list(set([row[2] for row in self.__csv_reader]))
 
+    def reset(self):
+        # Dejo el objeto listo para usar de nuevo
+        # Elimino todos los datos relativos a la última reseña
+        self.titulo = ""
+        self.director = ""
+        # Limpio las listas de las citaciones ya realizadas
+        self.__directors.clear()
+        self.__titles.clear()
+        self.__personajes.clear()
+
 
 def find(s, ch):
     return [i for i, ltr in enumerate(s) if ltr == ch]

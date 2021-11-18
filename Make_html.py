@@ -229,6 +229,11 @@ class html():
         # Copio la cadena en el portapapeles
         pyperclip.copy(sz_labels)
 
+    def reset(self):
+        self.parrafos_critica.clear()
+        self.data = Pelicula()
+        self.__citas.reset()
+
 
 if __name__ == "__main__":
     Documento = html()
