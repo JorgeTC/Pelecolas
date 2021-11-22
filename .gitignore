@@ -11,3 +11,5 @@ General.ini
 Make_html/bog_data.csv
 # Resultado de medición de tiempo de ejecución
 Debug_time/time_log.csv
+client_secrets.json
+blogger.dat
