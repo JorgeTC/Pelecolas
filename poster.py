@@ -1,3 +1,5 @@
+from datetime import datetime
+import pytz
 from googleapiclient import sample_tools
 from oauth2client import client
 from dlg_config import CONFIG
@@ -35,16 +37,22 @@ class Poster():
         if self.blog['id'] != self.BLOG_ID:
             return False
 
+        time_zone = pytz.timezone('CET')
+        str_date = datetime(2025,11,23,21,51, tzinfo=time_zone).isoformat()
         # Creo el contenido que voy a publicar
         body = {
             "kind": "blogger#post",
             "title": title,
-            "content": content
+            "content": content,
+            "labels": "a,b,c",
+            "published": str_date
         }
 
         try:
             # Añado el post como borrador
-            self.posts.insert(blogId=self.BLOG_ID, body=body, isDraft=True).execute()
+            f = self.posts.insert(blogId=self.BLOG_ID, body=body, isDraft=False)
+            f.execute()
+
         except client.AccessTokenRefreshError:
             print ('The credentials have been revoked or expired, please re-run'
                 'the application to re-authorize')
