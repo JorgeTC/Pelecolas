@@ -1,12 +1,13 @@
 from googleapiclient import sample_tools
 from oauth2client import client
+from dlg_config import CONFIG
 
 class Poster():
     SERVICE, _ = sample_tools.init(
         [__file__], 'blogger', 'v3', __doc__, __file__,
         scope='https://www.googleapis.com/auth/blogger')
 
-    BLOG_ID = '4259058779347983900'
+    BLOG_ID = CONFIG.get_value(CONFIG.S_POST, CONFIG.P_BLOG_ID)
 
     def __init__(self):
         try:
