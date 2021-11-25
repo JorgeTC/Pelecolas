@@ -27,6 +27,7 @@ class DlgConfig(DlgScrollBase):
     P_DEFAULT_USER = "Mem_user_FA"
     P_BLOG_ID = "Blog_id"
     P_DATE = "Posting_date"
+    P_TIME = "Posting_time"
 
     def __init__(self):
         super().__init__(question="", options=[], empty_option=True, empty_ans=True)
