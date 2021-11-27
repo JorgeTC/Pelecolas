@@ -19,11 +19,14 @@ class DlgConfig(DlgScrollBase):
 
     S_HTML = "HTML"
     S_READDATA = "READDATA"
+    S_COUNT_FILMS = "CONTAR"
 
     P_FILTER_PUBLISHED = "Filter_published"
     P_SCRAP_BLOG = "Force_bog_scraping"
     P_FILTER_FA = "Filter_FilmAffinity"
     P_DEFAULT_USER = "Mem_user_FA"
+    P_ADD_YEAR = "Add_year"
+    P_ADD_INDEX = "Add_index"
 
     def __init__(self):
         super().__init__(question="", options=[], empty_option=True, empty_ans=True)
@@ -50,6 +53,9 @@ class DlgConfig(DlgScrollBase):
         # Configuraciones para readdata
         self.add_default_value(self.S_READDATA, self.P_FILTER_FA, 1)
         self.add_default_value(self.S_READDATA, self.P_DEFAULT_USER, 'Jorge')
+        # Configuraciones para escribir el txt
+        self.add_default_value(self.S_COUNT_FILMS, self.P_ADD_YEAR, False)
+        self.add_default_value(self.S_COUNT_FILMS, self.P_ADD_INDEX, False)
         pass
 
     def add_default_value(self, section, param, value):
