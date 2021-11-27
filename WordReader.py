@@ -1,4 +1,5 @@
 import docx
+from dlg_config import CONFIG
 
 class WordReader():
     def __init__(self, folder):
@@ -111,10 +112,20 @@ class WordReader():
         return self.titulos.keys()
 
     def write_list(self):
+        # Abro el documento txt para escribirlo
         titulos_doc = open(self.folder / "Titulos de reseñas.txt", "w")
 
-        for titulo in self.titulos:
-            titulos_doc.write(titulo + "\n")
+        # Miro si hay que excribir el índice
+        b_index = CONFIG.get_bool(CONFIG.S_COUNT_FILMS, CONFIG.P_ADD_INDEX)
+
+        for index, titulo in enumerate(self.titulos):
+            line = ""
+            if b_index:
+                line = str(index + 1) + " "
+
+            line = line + titulo + "\n"
+
+            titulos_doc.write(line)
 
         # cierro el documento
         titulos_doc.close()
