@@ -1,5 +1,6 @@
 {
     "configurations": [
+
         {
             "name": "test",
             "type": "python",
@@ -33,6 +34,13 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/../Películas/Make html.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Post html",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/../Películas/publish_html.py",
             "console": "integratedTerminal"
         }
     ]

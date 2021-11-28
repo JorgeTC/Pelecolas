@@ -16,7 +16,6 @@ def main(path):
     while b_otra:
         # Genero el html
         Documento.write_html()
-        Documento.copy_labels()
         Documento.reset()
 
         # Pregunto si quiere generar otra reseña
