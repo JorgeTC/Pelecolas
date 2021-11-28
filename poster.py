@@ -26,33 +26,60 @@ class Poster():
             self.posts = self.SERVICE.posts()
 
             self.blog = thisusersblogs['items'][0]
+            for blog in thisusersblogs['items']:
+                if blog['id'] == self.BLOG_ID:
+                    self.blog = blog
 
         except client.AccessTokenRefreshError:
             print ('The credentials have been revoked or expired, please re-run'
                 'the application to re-authorize')
 
-    def add_post(self, content, title):
+    def add_post(self, content, title, labels):
 
         # Compruebo que el blog que tengo guardado sea el correcto
         if self.blog['id'] != self.BLOG_ID:
             return False
 
-        time_zone = pytz.timezone('CET')
-        str_date = datetime(2025,11,23,21,51, tzinfo=time_zone).isoformat()
+        # Cuándo se va a publicar la reseña
+        str_date = self.__get_publish_datatime()
+
         # Creo el contenido que voy a publicar
         body = {
             "kind": "blogger#post",
             "title": title,
             "content": content,
-            "labels": "a,b,c",
             "published": str_date
         }
+        # Solo añado las etiquetas si son válidas
+        if labels:
+            body["labels"] = labels
 
         try:
-            # Añado el post como borrador
-            f = self.posts.insert(blogId=self.BLOG_ID, body=body, isDraft=False)
+            # Miro si la configuración me pide que lo publique como borrador
+            bDraft = CONFIG.get_bool(CONFIG.S_POST, CONFIG.P_AS_DRAFT)
+            f = self.posts.insert(blogId=self.BLOG_ID, body=body, isDraft=bDraft)
             f.execute()
 
         except client.AccessTokenRefreshError:
             print ('The credentials have been revoked or expired, please re-run'
                 'the application to re-authorize')
+
+    def __get_publish_datatime(self):
+        # Obtengo qué día tengo que publicar la reseña
+        sz_date = CONFIG.get_value(CONFIG.S_POST, CONFIG.P_DATE)
+        if sz_date.lower() == 'auto':
+            pass
+        else:
+            sz_date = sz_date.split("/")
+            sz_day = int(sz_date[0])
+            sz_month = int(sz_date[1])
+            sz_year = int(sz_date[2])
+        # Obtengo a qué hora tengo que publicar la reseña
+        sz_time = CONFIG.get_value(CONFIG.S_POST, CONFIG.P_TIME)
+        sz_hour = int(sz_time.split(":")[0])
+        sz_minute = int(sz_time.split(":")[1])
+
+        return datetime(sz_year, sz_month, sz_day,
+                        sz_hour,sz_minute,
+                        tzinfo=pytz.UTC).isoformat()
+

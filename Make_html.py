@@ -1,7 +1,5 @@
 import re
 
-import pyperclip
-
 from dlg_make_html import DlgHtml
 from Pelicula import Pelicula
 from WordReader import WordReader
@@ -155,6 +153,9 @@ class html():
                      "<script async src=\"https://platform.twitter.com/widgets.js\"\n" +
                      "charset=\"utf-8\"></script>\n")
 
+        # Etiquetas para publicar la reseña
+        reseña.write(SZ_HTML_COMMENT(self.get_labels()))
+
         reseña.close()
 
     def __write_header_data(self, file, text):
@@ -202,7 +203,7 @@ class html():
 
         return True
 
-    def copy_labels(self):
+    def get_labels(self):
         # Calcula una string con todas las etiquetas estándar que lleva una reseña
         sz_labels = ""
         # Cronológicas
@@ -226,8 +227,8 @@ class html():
         # País
         sz_labels += self.data.pais + ", "
 
-        # Copio la cadena en el portapapeles
-        pyperclip.copy(sz_labels)
+        # Devuelvo la lista de etiquetas
+        return sz_labels
 
     def reset(self):
         self.parrafos_critica.clear()

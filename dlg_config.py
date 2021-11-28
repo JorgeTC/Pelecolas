@@ -32,6 +32,7 @@ class DlgConfig(DlgScrollBase):
     P_BLOG_ID = "Blog_id"
     P_DATE = "Posting_date"
     P_TIME = "Posting_time"
+    P_AS_DRAFT = "As_draft"
 
     def __init__(self):
         super().__init__(question="", options=[], empty_option=True, empty_ans=True)
@@ -65,6 +66,8 @@ class DlgConfig(DlgScrollBase):
         #Configuraciones para post
         self.add_default_value(self.S_POST, self.P_BLOG_ID, '4259058779347983900')
         self.add_default_value(self.S_POST, self.P_DATE, 'auto')
+        self.add_default_value(self.S_POST, self.P_TIME, '20:00')
+        self.add_default_value(self.S_POST, self.P_AS_DRAFT, False)
 
     def add_default_value(self, section, param, value):
         # Si no existe la sección, la añado

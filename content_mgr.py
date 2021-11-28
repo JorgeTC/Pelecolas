@@ -15,16 +15,37 @@ class ContentMgr():
         # Quito la palabra reseña y la extensión
         return html_path.name[len('Reseña '):-len('.html')]
 
-    def __get_title_from_index(self, html_index):
-        return self.__get_title_from_html(self.htmls[html_index])
+    def __get_labels(self, parr):
+        # Compruebo que sea un comentario
+        # de lo contrario no tengo las etiquetas escritas en el documento
+        if parr.find("<!--") < 0:
+            return ""
 
-    def get_title_and_content(self):
+        # Efectivamente la última linea es un comentario
+        # limpio el comentario
+        parr = parr[len("<!--"):-len("-->")]
+
+        return parr
+
+
+    def get_content(self):
 
         dlg = DlgScrollBase(question="Elija una reseña disponible:",
                             options=self.titles)
         choice = dlg.get_ans()
         file_name = SZ_HTML_FILE(choice)
         with open(self.dir / file_name, 'r', encoding="utf-8") as res:
+            # Obtengo en una única string todo lo que voy a publicar
             content = res.read()
+            # Leo en la última línea las etiquetas que acompañan a la reseña
+            lines = content.splitlines()
+            labels = self.__get_labels(lines[-1])
 
-        return (choice.upper(), content)
+        # Devuelvo la información en un diccionario
+        post_info = {
+            'title' : choice.upper(),
+            'content' : content,
+            'labels' : labels
+        }
+
+        return post_info

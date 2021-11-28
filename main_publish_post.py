@@ -8,9 +8,11 @@ def main(argv):
 
 
     mgr = ContentMgr(argv)
-    tit, con = mgr.get_title_and_content()
+    post_data = mgr.get_content()
     post = Poster()
-    post.add_post(title=tit, content=con)
+    post.add_post(title=post_data['title'],
+                  content=post_data['content'],
+                  labels=post_data['labels'])
 
 if __name__ == '__main__':
     main(__file__)
