@@ -21,6 +21,8 @@ El perfil de FilmAffinity y un Word con reseñas y su posible publicación en un
         2. [Scroll de títulos](#Scroll-de-títulos)
         3. [Quoter](#Quoter)
         4. [Etiquetas](#Etiquetas)
+    4. [Publish_post](#Publish-post)
+    5. [Make_and_publish](#Make-and-publish)
 4. [Config](#Config)
 5. [Agradecimientos](#Agradecimientos)
 
@@ -167,7 +169,30 @@ Para contestar _Sí_ o _No_ basta con movernos con las flechas de arriba y abajo
 #### Etiquetas
 
 Todas las reseñas tienen unas etiquetas fijas: siglo, década, año, director y país.
-Dado que esta información se conoce, tras efectuar el html, se añade al portapapeles del equipo una cadena con las etiquetas lista para ser pegada en el blog.
+Dado que esta información se conoce, tras efectuar el html, se añade como comentario al final del html.
+
+### Publish post
+
+Se publicará en el blog un html que se enceuntren en la carpeta _Películas_.
+Los html deben tener como nombre `Reseña _titulo_.html`.
+
+Para que sea posible la publicación la carpeta _Películas_ debe tener los permisos pertinentes para acceder al blog.
+Son un archivo `blogger.dat` y `client_secrets.json`.
+El blog elegido será el que tiene el id especificado en el ini.
+
+En el archivo de configuración se puede elegir fecha, hora y si la publicación se hará en borrador o no.
+La hora debe estar explícita `hh:mm`.
+La fecha puede escribirse con formato `dd/mm/aaaa` o bien puede escribirse la palabra `auto`.
+En este último caso el programa buscará en el blog cuál es el próximo viernes disponible.
+Se avisará al usuario por consola de cuál es la fecha elegida.
+
+Como las [etiquetas](#Etiquetas) de la reseña están escritas en la última línea del html, se leerá este contenido y se escribirá como etiquetas de la publicación.
+
+### Make and publish
+
+Crea y publica un html.
+Tiene todas las prestaciones de las secciones [Make_html](#Make-html) y [Publish_post](#Publish-post).
+Tras publicar el html, elimina el archivo.
 
 ## Config
 
