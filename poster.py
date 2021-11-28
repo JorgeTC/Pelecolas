@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import pytz
 from googleapiclient import sample_tools
 from oauth2client import client
@@ -68,18 +68,72 @@ class Poster():
         # Obtengo qué día tengo que publicar la reseña
         sz_date = CONFIG.get_value(CONFIG.S_POST, CONFIG.P_DATE)
         if sz_date.lower() == 'auto':
-            pass
+            day, month, year = self.__get_automatic_date()
         else:
             sz_date = sz_date.split("/")
-            sz_day = int(sz_date[0])
-            sz_month = int(sz_date[1])
-            sz_year = int(sz_date[2])
+            day = int(sz_date[0])
+            month = int(sz_date[1])
+            year = int(sz_date[2])
         # Obtengo a qué hora tengo que publicar la reseña
         sz_time = CONFIG.get_value(CONFIG.S_POST, CONFIG.P_TIME)
         sz_hour = int(sz_time.split(":")[0])
         sz_minute = int(sz_time.split(":")[1])
 
-        return datetime(sz_year, sz_month, sz_day,
+        return datetime(year, month, day,
                         sz_hour,sz_minute,
                         tzinfo=pytz.UTC).isoformat()
 
+    def __get_automatic_date(self):
+
+        # Hago una lista de todos los posts programados a partir de hoy
+        today = datetime.today().date()
+        start_date = datetime(today.year, today.month, today.day,
+                        tzinfo=pytz.UTC).isoformat()
+
+        ls = self.posts.list(blogId=self.BLOG_ID,
+                            maxResults = 50,
+                            status = 'SCHEDULED',
+                            startDate = start_date)
+        execute = ls.execute()
+
+        # Obtengo todos los posts que están programados
+        try:
+            scheduled = execute['items']
+        except:
+            scheduled = []
+
+        dates = []
+        # Extraigo todas las fechas que ya tienen asignado un blog
+        for post in scheduled:
+            # Leo la fecha
+            publish_date = post['published']
+            year = int(publish_date[0:4])
+            month = int(publish_date[5:7])
+            day = int(publish_date[8:10])
+            publish_date = str(datetime(year,month,day).date())
+            # La añado a mi lista
+            dates.append(publish_date)
+
+        # Busco los viernes disponibles
+        # Voy al próximo viernes
+        week_day = today.weekday()
+        days_till_next_friday = (4 - week_day) % 7
+        next_friday = today + timedelta(days=days_till_next_friday)
+
+        # Avanzo por los viernes hasta encontrar uno que esté disponible
+        found = ""
+        while not found:
+            # Convierto a string
+            str_next_friday = str(next_friday)
+            # Si no se encuentra entre las fechas con reseña, he econtrado un viernes disponible
+            if str_next_friday not in dates:
+                found = str_next_friday
+            # Avanzo al siguiente viernes
+            next_friday = next_friday + timedelta(days=days_till_next_friday)
+
+        # Devuelvo la fecha encontrada como números
+        year = int(found[0:4])
+        month = int(found[5:7])
+        day = int(found[8:10])
+
+        return (day, month, year)

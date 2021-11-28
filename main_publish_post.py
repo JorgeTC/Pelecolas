@@ -1,11 +1,11 @@
-from poster import Poster
-from content_mgr import ContentMgr
 from dlg_config import manage_config
 
 def main(argv):
 
     manage_config()
 
+    from poster import Poster
+    from content_mgr import ContentMgr
 
     mgr = ContentMgr(argv)
     post_data = mgr.get_content()
