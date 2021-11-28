@@ -129,7 +129,7 @@ class Poster():
             if str_next_friday not in dates:
                 found = str_next_friday
             # Avanzo al siguiente viernes
-            next_friday = next_friday + timedelta(days=days_till_next_friday)
+            next_friday = next_friday + timedelta(days=7)
 
         # Devuelvo la fecha encontrada como números
         year = int(found[0:4])
