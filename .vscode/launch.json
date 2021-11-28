@@ -42,6 +42,13 @@
             "request": "launch",
             "program": "${workspaceFolder}/../Películas/publish_html.py",
             "console": "integratedTerminal"
+        },
+        {
+            "name": "Make and post",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/../Películas/make_and_publish.py",
+            "console": "integratedTerminal"
         }
     ]
 }
