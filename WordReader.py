@@ -17,12 +17,19 @@ class WordReader():
         # Itero todos los docx que he encontrado
         for word in sz_doc_path:
             # Obtengo el año actual
-            year = word.stem.split(SEPARATOR_YEAR)[1]
+            try:
+                year = word.stem.split(SEPARATOR_YEAR)[1]
+            except IndexError:
+                year = "2017"
             # Guardo en qué párrafo empieza el año actual
             self.years_parr[year] = len(self.paragraphs)
             # Añado los párrafos del docx actual
             # Evito añadir el primero, donde está el título del documento
-            self.paragraphs = self.paragraphs + docx.Document(word).paragraphs[1:]
+            try:
+                self.paragraphs = self.paragraphs + docx.Document(word).paragraphs[1:]
+            except:
+                pass
+
 
         # Lista con todos los títulos que encuentre.
         self.titulos = {}
