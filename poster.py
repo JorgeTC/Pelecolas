@@ -59,6 +59,9 @@ class Poster():
             bDraft = CONFIG.get_bool(CONFIG.S_POST, CONFIG.P_AS_DRAFT)
             f = self.posts.insert(blogId=self.BLOG_ID, body=body, isDraft=bDraft)
             f.execute()
+            # Si no está programada como borrador, aviso al usuario de cuándo se va a publicar la reseña
+            if not bDraft:
+                print("La reseña de {} se publicará el {}".format(title, str_date[:10]))
 
         except client.AccessTokenRefreshError:
             print ('The credentials have been revoked or expired, please re-run'
@@ -129,7 +132,7 @@ class Poster():
             if str_next_friday not in dates:
                 found = str_next_friday
             # Avanzo al siguiente viernes
-            next_friday = next_friday + timedelta(days=days_till_next_friday)
+            next_friday = next_friday + timedelta(days=7)
 
         # Devuelvo la fecha encontrada como números
         year = int(found[0:4])

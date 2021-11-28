@@ -27,13 +27,9 @@ class ContentMgr():
 
         return parr
 
-
-    def get_content(self):
-
-        dlg = DlgScrollBase(question="Elija una reseña disponible:",
-                            options=self.titles)
-        choice = dlg.get_ans()
-        file_name = SZ_HTML_FILE(choice)
+    def extract_html(self, title):
+        # Obtengo el nombre del archivo html
+        file_name = SZ_HTML_FILE(title)
         with open(self.dir / file_name, 'r', encoding="utf-8") as res:
             # Obtengo en una única string todo lo que voy a publicar
             content = res.read()
@@ -43,9 +39,17 @@ class ContentMgr():
 
         # Devuelvo la información en un diccionario
         post_info = {
-            'title' : choice.upper(),
+            'title' : title.upper(),
             'content' : content,
             'labels' : labels
         }
 
         return post_info
+
+    def get_content(self):
+        # Abro el diálogo para obtener el título entre los html que hay
+        dlg = DlgScrollBase(question="Elija una reseña disponible:",
+                            options=self.titles)
+        choice = dlg.get_ans()
+        # Teniendo el título, extraigo los datos del html
+        return self.extract_html(choice)

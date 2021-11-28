@@ -1,4 +1,5 @@
 import re
+import os
 
 from dlg_make_html import DlgHtml
 from Pelicula import Pelicula
@@ -16,6 +17,8 @@ class html():
     def __init__(self, folder):
         # Guardo la capreta donde crearé el html
         self.folder = folder
+        # Variable para el nombre del archivo
+        self.sz_file_name = ""
         # Creo una lista para guardar el texto de la crítica con el formato html
         self.parrafos_critica = []
 
@@ -117,12 +120,12 @@ class html():
         self.__get_text()
 
         # Limpio el titulo de la película por si tiene caracteres no válidos para un archivo de Windows
-        sz_file_name = "".join(i for i in str(
+        self.sz_file_name = "".join(i for i in str(
             self.data.titulo) if i not in SZ_INVALID_CHAR)
         # Compongo el nombre completo del archivo
-        sz_file_name = SZ_HTML_FILE(sz_file_name)
+        self.sz_file_name = SZ_HTML_FILE(self.sz_file_name)
         # Abro el archivo en modo escritura
-        reseña = open(self.folder / sz_file_name, mode="w", encoding="utf-8")
+        reseña = open(self.folder / self.sz_file_name, mode="w", encoding="utf-8")
 
         # Escribo el título de la película en mayúsculas.
         # Quiero poder copiar del html el nombre del post
@@ -234,6 +237,11 @@ class html():
         self.parrafos_critica.clear()
         self.data = Pelicula()
         self.__citas.reset()
+        self.sz_file_name = ""
+
+    def delete_file(self):
+        # Elimino el último html que he escrito
+        os.remove(self.folder / self.sz_file_name)
 
 
 if __name__ == "__main__":
