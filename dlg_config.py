@@ -27,6 +27,7 @@ class DlgConfig(DlgScrollBase):
     P_DEFAULT_USER = "Mem_user_FA"
     P_ADD_YEAR = "Add_year"
     P_ADD_INDEX = "Add_index"
+    P_WORD_FOLDER = "Folder_with_words"
 
     def __init__(self):
         super().__init__(question="", options=[], empty_option=True, empty_ans=True)
@@ -56,6 +57,7 @@ class DlgConfig(DlgScrollBase):
         # Configuraciones para escribir el txt
         self.add_default_value(self.S_COUNT_FILMS, self.P_ADD_YEAR, False)
         self.add_default_value(self.S_COUNT_FILMS, self.P_ADD_INDEX, False)
+        self.add_default_value(self.S_COUNT_FILMS, self.P_WORD_FOLDER, "Word")
         pass
 
     def add_default_value(self, section, param, value):
