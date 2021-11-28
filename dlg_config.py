@@ -19,12 +19,16 @@ class DlgConfig(DlgScrollBase):
 
     S_HTML = "HTML"
     S_READDATA = "READDATA"
+    S_COUNT_FILMS = "CONTAR"
     S_POST = "POST"
 
     P_FILTER_PUBLISHED = "Filter_published"
     P_SCRAP_BLOG = "Force_bog_scraping"
     P_FILTER_FA = "Filter_FilmAffinity"
     P_DEFAULT_USER = "Mem_user_FA"
+    P_ADD_YEAR = "Add_year"
+    P_ADD_INDEX = "Add_index"
+    P_WORD_FOLDER = "Folder_with_words"
     P_BLOG_ID = "Blog_id"
     P_DATE = "Posting_date"
     P_TIME = "Posting_time"
@@ -54,6 +58,10 @@ class DlgConfig(DlgScrollBase):
         # Configuraciones para readdata
         self.add_default_value(self.S_READDATA, self.P_FILTER_FA, 1)
         self.add_default_value(self.S_READDATA, self.P_DEFAULT_USER, 'Jorge')
+        # Configuraciones para escribir el txt
+        self.add_default_value(self.S_COUNT_FILMS, self.P_ADD_YEAR, False)
+        self.add_default_value(self.S_COUNT_FILMS, self.P_ADD_INDEX, False)
+        self.add_default_value(self.S_COUNT_FILMS, self.P_WORD_FOLDER, "Word")
         #Configuraciones para post
         self.add_default_value(self.S_POST, self.P_BLOG_ID, '4259058779347983900')
         self.add_default_value(self.S_POST, self.P_DATE, 'auto')

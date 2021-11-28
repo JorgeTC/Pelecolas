@@ -10,7 +10,7 @@ El perfil de FilmAffinity y un Word con reseñas y su posible publicación en un
 1. [Estructura](#Estructura)
     1. [Code](#Code)
     2. [Películas](#Películas)
-        1. [Archivo Word](#Archivo-Word)
+        1. [Archivos Word](#Archivos-Word)
         2. [Archivos python](#Archivos-python)
 2. [Archivo Word](#archivo-word-1)
 3. [mains](#mains)
@@ -33,7 +33,10 @@ Parent
     ├── Code
     |   └──...
     └── Películas
-        ├── Películas.docx
+        ├── Word
+        |   ├── Películas - 2017.docx
+        |   ├── Películas - 2018.docx
+        |   └──...
         ├── read_data.py
         └──...
 ```
@@ -44,10 +47,12 @@ El repositorio de git se debe clonar en la carpeta Code.
 
 ### Películas
 
-#### Archivo Word
+#### Archivos Word
 
-Debe contener un archivo `.docx` con las reseñas.
-El nombre de la carpeta puede cambiar, pero siempre debe tener el mismo nombre que el `.docx`.
+En una carpeta se deben guardar todos los archivos Word.
+El nombre de la carpeta se puede configurar en el ini.
+El nombre de los archivos debe ser todos iguales.
+A este nombre se le añade ` - ` seguido del año de ese documento.
 
 El archivo debe iniciar con una linea con el nombre del archivo.
 Después se añade un doble salto de línea.
@@ -115,6 +120,10 @@ Este criterio de filtrado se puede configurar.
 
 Recorre todo el archivo Word listando las críticas que encuentre.
 Al terminar esta lectura, en la carpeta desde la que se llame generará un `.txt` con todas las películas encontradas.
+
+En el archivo ini se puede configurar si se quiere añadir el índice del título a su izquierda.
+También se puede añadir un separador por años.
+Los años son los que lee del nombre del Word cuyos títulos está listando.
 
 ### Make_html
 
