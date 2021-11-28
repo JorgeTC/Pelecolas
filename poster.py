@@ -68,6 +68,7 @@ class Poster():
         # Obtengo qué día tengo que publicar la reseña
         sz_date = CONFIG.get_value(CONFIG.S_POST, CONFIG.P_DATE)
         if sz_date.lower() == 'auto':
+            self.__get_automatic_date()
             pass
         else:
             sz_date = sz_date.split("/")
@@ -83,3 +84,13 @@ class Poster():
                         sz_hour,sz_minute,
                         tzinfo=pytz.UTC).isoformat()
 
+    def __get_automatic_date(self):
+
+        today = datetime.today().date()
+
+        today = datetime(today.year, today.month, today.day,
+                        tzinfo=pytz.UTC).isoformat()
+
+        ls = self.posts.list(blogId=self.BLOG_ID,
+                             maxResults = 50,
+                             startDate = today)
