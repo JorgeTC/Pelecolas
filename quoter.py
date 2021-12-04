@@ -2,6 +2,7 @@ import textacy
 import urllib.parse
 
 from blog_csv_mgr import BlogCsvMgr
+from blog_csv_mgr import CSV_COLUMN
 from blog_scraper import BlogScraper
 from dlg_bool import YesNo
 
@@ -76,7 +77,7 @@ class Quoter(BlogCsvMgr):
 
     def __add_post_link(self, row):
         # Construyo el html para el enlace
-        ini_link = self.OPEN_LINK.format(self.__csv_reader[row][1])
+        ini_link = self.OPEN_LINK.format(self.__csv_reader[row][CSV_COLUMN.LINK])
         # La posición dentro de mi texto me la indica
         # el primer elemento de las listas de índices
         position = self.__ini_comillas_pos[0] + 1
