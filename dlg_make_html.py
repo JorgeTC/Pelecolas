@@ -157,17 +157,7 @@ def all_indices_in_list(ls, el):
     Dado un elemento, lo busco en una lista.
     Devuelvo las posiciones de la lista que contengan al elemento
     '''
-    # Incializo la lista que devolveré
-    ans_indices = []
-
-    # Itero la lista introducida
-    for i, l in enumerate(ls):
-        # Compuebo que el elemento actual de la lista sea lo que estoy buscando
-        if el == l:
-            # Añado el índice actual a la lista que devolveré
-            ans_indices.append(i)
-
-    return ans_indices
+    return [i for i, ltr in enumerate(ls) if ltr == el]
 
 def get_year(title:str):
     '''
