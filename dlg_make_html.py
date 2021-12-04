@@ -1,4 +1,5 @@
 from blog_csv_mgr import BlogCsvMgr
+from blog_csv_mgr import CSV_COLUMN
 from dlg_config import CONFIG
 from dlg_scroll_base import DlgScrollBase
 from list_title_mgr import TitleMgr
@@ -114,7 +115,7 @@ class DlgHtml(DlgScrollBase):
                 # Compruebo que esté el título en la lista de publicados
                 index = all_indices_in_list(published, title)
                 # Compruebo que el año sea correcto
-                if not any(candidato_año == csv[ocurr][3] for ocurr in index):
+                if not any(candidato_año == csv[ocurr][CSV_COLUMN.YEAR] for ocurr in index):
                     # Añado el título con las mayúsculas originales
                     ls_unpublished.append(ls_titles[i])
 
