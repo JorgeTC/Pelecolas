@@ -91,15 +91,12 @@ class DlgHtml(DlgScrollBase):
 
     def __unpublished(self, ls_titles):
         # Objeto capaz de leer el csv con todos los títulos publicados
-        csv = BlogCsvMgr()
-        csv = csv.open_to_read()
-        # Elimino la linea de encabezados
-        csv.pop(0)
+        csv = BlogCsvMgr().open_to_read()
+        csv = csv + self.get_scheduled_csv()
         # Obtengo la lista de títulos,
         # por si están entrecomillados, quito las comillas
         published = [title[0].strip("\"") for title in csv]
         published = [str(title.lower()) for title in published]
-        published = published + self.get_scheduled()
         lower_titles = [str(title.lower()) for title in ls_titles]
 
         ls_unpublished = []
@@ -141,7 +138,11 @@ class DlgHtml(DlgScrollBase):
 
         return self.data.titulo
 
-    def get_scheduled(self):
+    def get_scheduled_csv(self):
+        # Pido la lista de posts por publicar
+        return POSTER.get_scheduled_as_list()
+
+    def get_scheduled_titles(self):
 
         # Pido la lista de posts por publicar
         scheduled = POSTER.get_scheduled()

@@ -3,6 +3,7 @@ import pytz
 from googleapiclient import sample_tools
 from oauth2client import client
 from dlg_config import CONFIG
+from bs4 import BeautifulSoup
 
 class Poster():
     SERVICE, _ = sample_tools.init(
@@ -146,6 +147,30 @@ class Poster():
             scheduled = []
 
         return scheduled
+
+    def get_scheduled_as_list(self):
+        # Quiero una lista de listas.
+        ans = []
+        # Cada sublista deberá tener 4 elementos:
+        # título, link(vacío), director y año
+        scheduled = self.get_scheduled()
+
+        for post in scheduled:
+            title = post['title']
+            # Parseo el contenido
+            body = BeautifulSoup(post['content'], 'html.parser')
+
+            # Extraigo los datos que quiero
+            divs = body.find_all('div')
+            director = divs[0].contents[1].contents[0]
+            director = director[director.find(':') + 1:].strip()
+            # Quiero año
+            year = divs[1].contents[1].contents[0]
+
+            ans.append([title, "", director, year])
+
+        return ans
+
 
 # Creo un objeto global
 POSTER = Poster()
