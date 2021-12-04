@@ -140,18 +140,35 @@ class DlgHtml(DlgScrollBase):
 
 
 def all_indices_in_list(ls, el):
+    '''
+    Dado un elemento, lo busco en una lista.
+    Devuelvo las posiciones de la lista que contengan al elemento
+    '''
+    # Incializo la lista que devolveré
     ans_indices = []
+
+    # Itero la lista introducida
     for i, l in enumerate(ls):
+        # Compuebo que el elemento actual de la lista sea lo que estoy buscando
         if el == l:
+            # Añado el índice actual a la lista que devolveré
             ans_indices.append(i)
 
     return ans_indices
 
 def get_year(title:str):
+    '''
+    Dado un título de los escritos en el word,
+    quiero extraer el posible título que tenga entre paréntesis
+    '''
+    # Busco paréntesis en el título introducido
     año_primera_pos = title.rfind("(")
     año_ultima_por = title.rfind(')')
-    candidato_año = ""
-    if año_primera_pos > 0 and año_ultima_por > 0:
-        candidato_año = title[año_primera_pos + 1:año_ultima_por]
 
-    return candidato_año
+    # Compruebo si he encontrado paréntesis
+    if año_primera_pos > 0 and año_ultima_por > 0:
+        # Devuelvo lo que haya contenido entre paréntesis
+        return title[año_primera_pos + 1:año_ultima_por]
+    else:
+        # No se ha encontrado año, devuelvo una cadena vacía
+        return ""
