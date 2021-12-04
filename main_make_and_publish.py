@@ -6,7 +6,7 @@ def main(path):
 
     from Make_html import html
     from dlg_bool import YesNo
-    from poster import Poster
+    from poster import POSTER
     from content_mgr import ContentMgr
 
 
@@ -24,8 +24,7 @@ def main(path):
         mgr = ContentMgr(path)
         post_data = mgr.extract_html(Documento.data.titulo)
         # Le doy al objeto que añade el post al blog todos los datos
-        post = Poster()
-        post.add_post(title=post_data['title'],
+        POSTER.add_post(title=post_data['title'],
                   content=post_data['content'],
                   labels=post_data['labels'])
 
