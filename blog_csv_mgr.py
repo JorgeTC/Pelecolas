@@ -5,6 +5,11 @@ from datetime import datetime
 
 from dlg_config import CONFIG
 
+class CSV_COLUMN:
+    TITLE = 0
+    LINK = 1
+    DIRECTOR = 2
+    YEAR = 3
 
 class BlogCsvMgr():
     # Creo el csv donde guardo los datos de las entradas
