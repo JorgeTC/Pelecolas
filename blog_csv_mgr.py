@@ -55,9 +55,15 @@ class BlogCsvMgr():
     def open_to_read(self):
         self.csv_file = open(self.sz_csv_file, encoding=self.ENCODING)
         csv_reader = csv.reader(self.csv_file, delimiter=",")
+        # Convierto lo leído en listas
+        # Es una lista que contiene cada linea expresada como lista
         csv_reader = list(csv_reader)
 
-        return csv_reader
+        try:
+            # Devuelvo la lista sin la primera fila, que tiene los encabezados
+            return csv_reader[1:]
+        except:
+            return []
 
     def open_to_write(self):
         self.csv_file = open(self.sz_csv_file, 'w',
