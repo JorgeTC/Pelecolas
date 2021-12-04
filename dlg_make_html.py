@@ -98,6 +98,7 @@ class DlgHtml(DlgScrollBase):
         # por si están entrecomillados, quito las comillas
         published = [title[0].strip("\"") for title in csv]
         published = [str(title.lower()) for title in published]
+        published = published + self.get_scheduled()
         lower_titles = [str(title.lower()) for title in ls_titles]
 
         ls_unpublished = []
@@ -138,6 +139,16 @@ class DlgHtml(DlgScrollBase):
             self.data.titulo = self.quisiste_decir.exact_key(self.data.titulo)
 
         return self.data.titulo
+
+    def get_scheduled(self):
+
+        # Pido la lista de posts por publicar
+        scheduled = POSTER.get_scheduled()
+        # Obtengo sus títulos
+        titles = [post['title'].lower() for post in scheduled]
+
+        # Devuelvo una lista con todos los títulos que están programados
+        return titles
 
 
 def all_indices_in_list(ls, el):
