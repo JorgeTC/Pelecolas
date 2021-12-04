@@ -1,10 +1,12 @@
-from url_FA import URL_FILM_ID
+from blog_csv_mgr import BlogCsvMgr
+from blog_csv_mgr import CSV_COLUMN
 from dlg_config import CONFIG
+from dlg_scroll_base import DlgScrollBase
 from list_title_mgr import TitleMgr
 from Pelicula import Pelicula
+from poster import POSTER
 from searcher import Searcher
-from dlg_scroll_base import DlgScrollBase
-from blog_csv_mgr import BlogCsvMgr
+from url_FA import URL_FILM_ID
 
 
 class DlgHtml(DlgScrollBase):
@@ -89,10 +91,8 @@ class DlgHtml(DlgScrollBase):
 
     def __unpublished(self, ls_titles):
         # Objeto capaz de leer el csv con todos los títulos publicados
-        csv = BlogCsvMgr()
-        csv = csv.open_to_read()
-        # Elimino la linea de encabezados
-        csv.pop(0)
+        csv = BlogCsvMgr().open_to_read()
+        csv = csv + self.get_scheduled_csv()
         # Obtengo la lista de títulos,
         # por si están entrecomillados, quito las comillas
         published = [title[0].strip("\"") for title in csv]
@@ -112,7 +112,7 @@ class DlgHtml(DlgScrollBase):
                 # Compruebo que esté el título en la lista de publicados
                 index = all_indices_in_list(published, title)
                 # Compruebo que el año sea correcto
-                if not any(candidato_año == csv[ocurr][3] for ocurr in index):
+                if not any(candidato_año == csv[ocurr][CSV_COLUMN.YEAR] for ocurr in index):
                     # Añado el título con las mayúsculas originales
                     ls_unpublished.append(ls_titles[i])
 
@@ -138,20 +138,41 @@ class DlgHtml(DlgScrollBase):
 
         return self.data.titulo
 
+    def get_scheduled_csv(self):
+        # Pido la lista de posts por publicar
+        return POSTER.get_scheduled_as_list()
+
+    def get_scheduled_titles(self):
+
+        # Pido la lista de posts por publicar
+        scheduled = POSTER.get_scheduled()
+        # Obtengo sus títulos
+        titles = [post['title'].lower() for post in scheduled]
+
+        # Devuelvo una lista con todos los títulos que están programados
+        return titles
+
 
 def all_indices_in_list(ls, el):
-    ans_indices = []
-    for i, l in enumerate(ls):
-        if el == l:
-            ans_indices.append(i)
-
-    return ans_indices
+    '''
+    Dado un elemento, lo busco en una lista.
+    Devuelvo las posiciones de la lista que contengan al elemento
+    '''
+    return [i for i, ltr in enumerate(ls) if ltr == el]
 
 def get_year(title:str):
+    '''
+    Dado un título de los escritos en el word,
+    quiero extraer el posible título que tenga entre paréntesis
+    '''
+    # Busco paréntesis en el título introducido
     año_primera_pos = title.rfind("(")
     año_ultima_por = title.rfind(')')
-    candidato_año = ""
-    if año_primera_pos > 0 and año_ultima_por > 0:
-        candidato_año = title[año_primera_pos + 1:año_ultima_por]
 
-    return candidato_año
+    # Compruebo si he encontrado paréntesis
+    if año_primera_pos > 0 and año_ultima_por > 0:
+        # Devuelvo lo que haya contenido entre paréntesis
+        return title[año_primera_pos + 1:año_ultima_por]
+    else:
+        # No se ha encontrado año, devuelvo una cadena vacía
+        return ""

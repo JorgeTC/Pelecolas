@@ -3,6 +3,8 @@ import pytz
 from googleapiclient import sample_tools
 from oauth2client import client
 from dlg_config import CONFIG
+from bs4 import BeautifulSoup
+from blog_scraper import get_director_year_from_content
 
 class Poster():
     SERVICE, _ = sample_tools.init(
@@ -88,22 +90,7 @@ class Poster():
 
     def __get_automatic_date(self):
 
-        # Hago una lista de todos los posts programados a partir de hoy
-        today = datetime.today().date()
-        start_date = datetime(today.year, today.month, today.day,
-                        tzinfo=pytz.UTC).isoformat()
-
-        ls = self.posts.list(blogId=self.BLOG_ID,
-                            maxResults = 50,
-                            status = 'SCHEDULED',
-                            startDate = start_date)
-        execute = ls.execute()
-
-        # Obtengo todos los posts que están programados
-        try:
-            scheduled = execute['items']
-        except:
-            scheduled = []
+        scheduled = self.get_scheduled()
 
         dates = []
         # Extraigo todas las fechas que ya tienen asignado un blog
@@ -119,6 +106,7 @@ class Poster():
 
         # Busco los viernes disponibles
         # Voy al próximo viernes
+        today = datetime.today().date()
         week_day = today.weekday()
         days_till_next_friday = (4 - week_day) % 7
         next_friday = today + timedelta(days=days_till_next_friday)
@@ -140,3 +128,46 @@ class Poster():
         day = int(found[8:10])
 
         return (day, month, year)
+
+    def get_scheduled(self):
+        # Hago una lista de todos los posts programados a partir de hoy
+        today = datetime.today().date()
+        start_date = datetime(today.year, today.month, today.day,
+                        tzinfo=pytz.UTC).isoformat()
+
+        ls = self.posts.list(blogId=self.BLOG_ID,
+                            maxResults = 55,
+                            status = 'SCHEDULED',
+                            startDate = start_date)
+        execute = ls.execute()
+
+        # Obtengo todos los posts que están programados
+        try:
+            scheduled = execute['items']
+        except:
+            scheduled = []
+
+        return scheduled
+
+    def get_scheduled_as_list(self):
+        # Quiero una lista de listas.
+        ans = []
+        # Cada sublista deberá tener 4 elementos:
+        # título, link(vacío), director y año
+        scheduled = self.get_scheduled()
+
+        for post in scheduled:
+            title = post['title']
+            # Parseo el contenido
+            body = BeautifulSoup(post['content'], 'html.parser')
+
+            # Extraigo los datos que quiero
+            director, year = get_director_year_from_content(body)
+
+            ans.append([title, "", director, year])
+
+        return ans
+
+
+# Creo un objeto global
+POSTER = Poster()

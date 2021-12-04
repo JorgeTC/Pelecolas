@@ -4,13 +4,12 @@ def main(argv):
 
     manage_config()
 
-    from poster import Poster
+    from poster import POSTER
     from content_mgr import ContentMgr
 
     mgr = ContentMgr(argv)
     post_data = mgr.get_content()
-    post = Poster()
-    post.add_post(title=post_data['title'],
+    POSTER.add_post(title=post_data['title'],
                   content=post_data['content'],
                   labels=post_data['labels'])
 
