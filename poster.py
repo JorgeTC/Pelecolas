@@ -4,6 +4,7 @@ from googleapiclient import sample_tools
 from oauth2client import client
 from dlg_config import CONFIG
 from bs4 import BeautifulSoup
+from blog_scraper import get_director_year_from_content
 
 class Poster():
     SERVICE, _ = sample_tools.init(
@@ -161,11 +162,7 @@ class Poster():
             body = BeautifulSoup(post['content'], 'html.parser')
 
             # Extraigo los datos que quiero
-            divs = body.find_all('div')
-            director = divs[0].contents[1].contents[0]
-            director = director[director.find(':') + 1:].strip()
-            # Quiero año
-            year = divs[1].contents[1].contents[0]
+            director, year = get_director_year_from_content(body)
 
             ans.append([title, "", director, year])
 

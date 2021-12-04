@@ -52,13 +52,10 @@ class BlogScraper(BlogCsvMgr):
             header = reseña.find('h3', itemprop='name')
             name = header.contents[1].contents[0]
             link = header.contents[1].attrs['href']
-            # Trabajo el cuerpo, quiero director
+            # Trabajo el cuerpo, quiero director y año
             body = reseña.find('div', itemprop='description articleBody')
-            divs = body.find_all('div')
-            director = divs[0].contents[1].contents[0]
-            director = director[director.find(':') + 1:].strip()
-            # Quiero año
-            año = divs[1].contents[1].contents[0]
+            # Le paso el cuerpo parseado
+            director, año = get_director_year_from_content(body)
 
             datos = [name, link, director, año]
             ans_data.append(datos)
@@ -86,6 +83,15 @@ class BlogScraper(BlogCsvMgr):
         self.__csv_writer.writerows(to_write)
 
         self.exists_csv = True
+
+def get_director_year_from_content(content):
+    divs = content.find_all('div')
+    director = divs[0].contents[1].contents[0]
+    director = director[director.find(':') + 1:].strip()
+    # Quiero año
+    año = divs[1].contents[1].contents[0]
+
+    return director, año
 
 
 
