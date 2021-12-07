@@ -4,9 +4,9 @@ from datetime import date
 from bs4 import BeautifulSoup
 from pandas import DateOffset
 
-from safe_url import safe_get_url
+import aux_html
 from blog_csv_mgr import BlogCsvMgr
-
+from safe_url import safe_get_url
 
 BLOG_MONTH = 'https://pelecolas.blogspot.com/{}/{:02d}/'.format
 
@@ -55,7 +55,7 @@ class BlogScraper(BlogCsvMgr):
             # Trabajo el cuerpo, quiero director y año
             body = reseña.find('div', itemprop='description articleBody')
             # Le paso el cuerpo parseado
-            director, año = get_director_year_from_content(body)
+            director, año = aux_html.get_director_year_from_content(body)
 
             datos = [name, link, director, año]
             ans_data.append(datos)
@@ -77,22 +77,13 @@ class BlogScraper(BlogCsvMgr):
 
         # Creo un objeto para hacer la gestión de paralelización
         executor = futures.ThreadPoolExecutor(max_workers=20)
-        extracted_data = list(executor.map(self.get_data_from_month, months_url))
+        extracted_data = list(executor.map(
+            self.get_data_from_month, months_url))
         to_write = [i for month in extracted_data for i in month]
         # Escribo lo leído en el csv
         self.__csv_writer.writerows(to_write)
 
         self.exists_csv = True
-
-def get_director_year_from_content(content):
-    divs = content.find_all('div')
-    director = divs[0].contents[1].contents[0]
-    director = director[director.find(':') + 1:].strip()
-    # Quiero año
-    año = divs[1].contents[1].contents[0]
-
-    return director, año
-
 
 
 def main():

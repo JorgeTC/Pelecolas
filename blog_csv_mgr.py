@@ -4,6 +4,7 @@ from pathlib import Path
 from datetime import datetime
 
 from dlg_config import CONFIG
+from poster import POSTER
 
 class CSV_COLUMN:
     TITLE = 0
@@ -45,12 +46,12 @@ class BlogCsvMgr():
         # el momento actual ha pasado un viernes, recalculo el csv
         secs = os.path.getmtime(self.sz_csv_file)
         date_last_modification = datetime.fromtimestamp(secs)
-        week_day = date_last_modification.weekday()
-        days_till_next_friday = (4 - week_day) % 7
-        today = datetime.today()
-        passed = today - date_last_modification
 
-        return (passed.days > days_till_next_friday)
+        # Compruebo si se ha publicado algo en el blog
+        # desde la última vez que se hizo el csv
+        new_posts = POSTER.get_published_from_date(date_last_modification)
+
+        return len(new_posts) > 0
 
     def open_to_read(self):
         self.csv_file = open(self.sz_csv_file, encoding=self.ENCODING)

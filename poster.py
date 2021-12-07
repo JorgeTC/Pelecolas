@@ -1,10 +1,13 @@
 from datetime import datetime, timedelta
+
 import pytz
+from bs4 import BeautifulSoup
 from googleapiclient import sample_tools
 from oauth2client import client
+
+from aux_html import get_director_year_from_content
 from dlg_config import CONFIG
-from bs4 import BeautifulSoup
-from blog_scraper import get_director_year_from_content
+
 
 class Poster():
     SERVICE, _ = sample_tools.init(
@@ -84,9 +87,8 @@ class Poster():
         sz_hour = int(sz_time.split(":")[0])
         sz_minute = int(sz_time.split(":")[1])
 
-        return datetime(year, month, day,
-                        sz_hour,sz_minute,
-                        tzinfo=pytz.UTC).isoformat()
+        return date_to_str(datetime(year, month, day,
+                                    sz_hour,sz_minute))
 
     def __get_automatic_date(self):
 
@@ -129,11 +131,31 @@ class Poster():
 
         return (day, month, year)
 
+    def get_published_from_date(self, min_date):
+
+        # Las fechas deben estar introducidas en formato date
+        # Las convierto a cadena
+        sz_min_date = date_to_str(min_date)
+
+        # Pido los blogs desde entonces
+        ls = self.posts.list(blogId=self.BLOG_ID,
+                            status = 'LIVE',
+                            startDate = sz_min_date)
+        execute = ls.execute()
+
+        # Obtengo todos los posts que están programados
+        try:
+            scheduled = execute['items']
+        except:
+            scheduled = []
+
+        return scheduled
+
+
     def get_scheduled(self):
         # Hago una lista de todos los posts programados a partir de hoy
-        today = datetime.today().date()
-        start_date = datetime(today.year, today.month, today.day,
-                        tzinfo=pytz.UTC).isoformat()
+        today = datetime.today()
+        start_date = date_to_str(today)
 
         ls = self.posts.list(blogId=self.BLOG_ID,
                             maxResults = 55,
@@ -169,5 +191,24 @@ class Poster():
         return ans
 
 
-# Creo un objeto global
+##### Creo un objeto global #####
 POSTER = Poster()
+#################################
+
+############ aux ################
+def date_to_str(date):
+    '''
+    Dada una fecha, devuelvo una cadena
+    para poder publicar el post en esa fecha
+    '''
+    try:
+        # Caso en el que esté especificada la hora
+        return datetime(date.year, date.month, date.day,
+                        date.hour, date.minute,
+                        tzinfo=pytz.UTC).isoformat()
+    except AttributeError:
+        # Caso en el que no esté especificada la hora
+        return datetime(date.year, date.month, date.day,
+                        tzinfo=pytz.UTC).isoformat()
+    except:
+        return ""
