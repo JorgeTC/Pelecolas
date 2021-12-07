@@ -1,6 +1,6 @@
 
 class ReadBlog():
-    def get_director_year_from_content(content: str):
+    def get_director_year_from_content(self, content: str):
         '''
         Dado el contenido de un post de mi blog,
         extraigo el año de la película y el director
