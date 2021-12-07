@@ -5,11 +5,11 @@ from bs4 import BeautifulSoup
 from googleapiclient import sample_tools
 from oauth2client import client
 
-from aux_html import get_director_year_from_content
+from aux_html import ReadBlog
 from dlg_config import CONFIG
 
 
-class Poster():
+class Poster(ReadBlog):
     SERVICE, _ = sample_tools.init(
         [__file__], 'blogger', 'v3', __doc__, __file__,
         scope='https://www.googleapis.com/auth/blogger')
@@ -184,7 +184,7 @@ class Poster():
             body = BeautifulSoup(post['content'], 'html.parser')
 
             # Extraigo los datos que quiero
-            director, year = get_director_year_from_content(body)
+            director, year = self.get_director_year_from_content(body)
 
             ans.append([title, "", director, year])
 

@@ -4,14 +4,14 @@ from datetime import date
 from bs4 import BeautifulSoup
 from pandas import DateOffset
 
-import aux_html
+from aux_html import ReadBlog
 from blog_csv_mgr import BlogCsvMgr
 from safe_url import safe_get_url
 
 BLOG_MONTH = 'https://pelecolas.blogspot.com/{}/{:02d}/'.format
 
 
-class BlogScraper(BlogCsvMgr):
+class BlogScraper(BlogCsvMgr, ReadBlog):
 
     HEADER_CSV = ['Titulo', 'Link', 'Director', 'Año']
 
@@ -55,7 +55,7 @@ class BlogScraper(BlogCsvMgr):
             # Trabajo el cuerpo, quiero director y año
             body = reseña.find('div', itemprop='description articleBody')
             # Le paso el cuerpo parseado
-            director, año = aux_html.get_director_year_from_content(body)
+            director, año = self.get_director_year_from_content(body)
 
             datos = [name, link, director, año]
             ans_data.append(datos)
