@@ -4,7 +4,7 @@ from datetime import date
 from bs4 import BeautifulSoup
 from pandas import DateOffset
 
-from aux_html import ReadBlog
+from read_blog import ReadBlog
 from blog_csv_mgr import BlogCsvMgr
 from safe_url import safe_get_url
 

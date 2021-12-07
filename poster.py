@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 from googleapiclient import sample_tools
 from oauth2client import client
 
-from aux_html import ReadBlog
+from read_blog import ReadBlog
 from dlg_config import CONFIG
 
 
