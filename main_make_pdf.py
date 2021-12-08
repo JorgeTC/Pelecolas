@@ -1,5 +1,5 @@
 from dlg_config import CONFIG
-from docx2pdf import convert
+import docx2pdf
 from pathlib import Path
 from PyPDF2 import PdfFileMerger
 import os
@@ -13,9 +13,12 @@ class PDFWriter():
 
     def get_files(self):
 
-        # Me espero un único archivo docx
+        # Obtengo todos los archivos de la carpeta
         all_files = [x for x in self.word_folder.iterdir()]
+        # Descarto todo lo que no sea un word
         all_files = [x for x in all_files if x.suffix.lower() == ".docx"]
+        # Descarto los archivos temporales
+        all_files = [x for x in all_files if x.stem[:2] != "~$"]
 
         return all_files
 
@@ -30,8 +33,20 @@ class PDFWriter():
         return sz_pdf
 
     def convert_all_word(self):
-        convert(str(self.word_folder))
+        # Elimino los archivos temprales
+        # Obtengo todos los archivos de la carpeta
+        temp_files = [x for x in self.word_folder.iterdir()]
+        # Descarto todo lo que no sea un word
+        temp_files = [x for x in temp_files if x.suffix.lower() == ".docx"]
+        # Descarto los archivos temporales
+        temp_files = [x for x in temp_files if x.stem[:2] == "~$"]
 
+        # Elimino los archivos temporales, no se pueden convertir a pdf
+        for temp_file in temp_files:
+            os.remove(temp_file)
+
+        # Convierto todo a pdf
+        docx2pdf.convert(str(self.word_folder))
 
     def join_pdf(self):
 

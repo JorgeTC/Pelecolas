@@ -86,9 +86,12 @@ class WordReader():
         if word_folder:
             folder = folder / word_folder
 
-        # Me espero un único archivo docx
+        # Obtengo todos los archivos de la carpeta
         all_files = [x for x in folder.iterdir()]
+        # Descarto todo lo que no sea un word
         all_files = [x for x in all_files if x.suffix.lower() == ".docx"]
+        # Descarto los archivos temporales
+        all_files = [x for x in all_files if x.stem[:2] != "~$"]
 
         return all_files
 
