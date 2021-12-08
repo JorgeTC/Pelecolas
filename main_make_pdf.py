@@ -10,7 +10,8 @@ from dlg_config import CONFIG
 class PDFWriter():
     def __init__(self, sz_folder):
         self.sz_folder = sz_folder
-        self.word_folder = self.sz_folder / CONFIG.get_value(CONFIG.S_COUNT_FILMS, CONFIG.P_WORD_FOLDER)
+        self.word_folder = self.sz_folder / \
+            CONFIG.get_value(CONFIG.S_COUNT_FILMS, CONFIG.P_WORD_FOLDER)
         self.sz_all_docx = self.get_files()
         self.sz_all_pdf = self.get_pdf_files()
 
@@ -30,7 +31,7 @@ class PDFWriter():
         sz_pdf = []
 
         for file in self.sz_all_docx:
-            sz_pdf_name = self.word_folder / ( file.stem + ".pdf" )
+            sz_pdf_name = self.word_folder / (file.stem + ".pdf")
             sz_pdf.append(sz_pdf_name)
 
         return sz_pdf
@@ -57,7 +58,7 @@ class PDFWriter():
         for pdf in self.sz_all_pdf:
             merger.append(str(pdf))
 
-        merger.write(str(self.sz_folder / "Reseñas.pdf") )
+        merger.write(str(self.sz_folder / "Reseñas.pdf"))
         merger.close()
 
     def clear_pdf(self):
@@ -72,7 +73,9 @@ def main(sz_folder):
     writer.join_pdf()
     writer.clear_pdf()
 
-if __name__ == '__main__':
-    sz_peliculas_folder = Path("c:/Users/usuario/Desktop/Jorges things/Reseñas/Películas")
 
-    main( sz_peliculas_folder )
+if __name__ == '__main__':
+    sz_peliculas_folder = Path(
+        "c:/Users/usuario/Desktop/Jorges things/Reseñas/Películas")
+
+    main(sz_peliculas_folder)

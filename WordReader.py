@@ -4,6 +4,7 @@ from dlg_config import CONFIG
 
 SEPARATOR_YEAR = " - "
 
+
 class WordReader():
     def __init__(self, folder):
         # Abro el documento para leerlo
@@ -27,10 +28,10 @@ class WordReader():
             # Añado los párrafos del docx actual
             # Evito añadir el primero, donde está el título del documento
             try:
-                self.paragraphs = self.paragraphs + docx.Document(word).paragraphs[1:]
+                self.paragraphs = self.paragraphs + \
+                    docx.Document(word).paragraphs[1:]
             except:
                 pass
-
 
         # Lista con todos los títulos que encuentre.
         self.titulos = {}
@@ -82,7 +83,8 @@ class WordReader():
 
     def __get_word_file_name(self, folder):
         # Carpeta donde están guardados los archivos word
-        word_folder = CONFIG.get_value(CONFIG.S_COUNT_FILMS, CONFIG.P_WORD_FOLDER)
+        word_folder = CONFIG.get_value(
+            CONFIG.S_COUNT_FILMS, CONFIG.P_WORD_FOLDER)
         # Si en el archivo de configuración se especifica una carpeta, busco en ella
         if word_folder:
             folder = folder / word_folder
