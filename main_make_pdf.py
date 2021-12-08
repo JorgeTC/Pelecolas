@@ -1,8 +1,11 @@
-from dlg_config import CONFIG
-import docx2pdf
-from pathlib import Path
-from PyPDF2 import PdfFileMerger
 import os
+from pathlib import Path
+
+import docx2pdf
+from PyPDF2 import PdfFileMerger
+
+from dlg_config import CONFIG
+
 
 class PDFWriter():
     def __init__(self, sz_folder):

@@ -1,4 +1,5 @@
 import docx
+
 from dlg_config import CONFIG
 
 SEPARATOR_YEAR = " - "
