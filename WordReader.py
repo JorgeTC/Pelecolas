@@ -1,7 +1,9 @@
 import docx
+
 from dlg_config import CONFIG
 
 SEPARATOR_YEAR = " - "
+
 
 class WordReader():
     def __init__(self, folder):
@@ -26,10 +28,10 @@ class WordReader():
             # Añado los párrafos del docx actual
             # Evito añadir el primero, donde está el título del documento
             try:
-                self.paragraphs = self.paragraphs + docx.Document(word).paragraphs[1:]
+                self.paragraphs = self.paragraphs + \
+                    docx.Document(word).paragraphs[1:]
             except:
                 pass
-
 
         # Lista con todos los títulos que encuentre.
         self.titulos = {}
@@ -81,14 +83,18 @@ class WordReader():
 
     def __get_word_file_name(self, folder):
         # Carpeta donde están guardados los archivos word
-        word_folder = CONFIG.get_value(CONFIG.S_COUNT_FILMS, CONFIG.P_WORD_FOLDER)
+        word_folder = CONFIG.get_value(
+            CONFIG.S_COUNT_FILMS, CONFIG.P_WORD_FOLDER)
         # Si en el archivo de configuración se especifica una carpeta, busco en ella
         if word_folder:
             folder = folder / word_folder
 
-        # Me espero un único archivo docx
+        # Obtengo todos los archivos de la carpeta
         all_files = [x for x in folder.iterdir()]
+        # Descarto todo lo que no sea un word
         all_files = [x for x in all_files if x.suffix.lower() == ".docx"]
+        # Descarto los archivos temporales
+        all_files = [x for x in all_files if x.stem[:2] != "~$"]
 
         return all_files
 
