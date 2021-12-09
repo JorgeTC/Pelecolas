@@ -1,7 +1,7 @@
 import docx
 
-from dlg_config import CONFIG
-from word_folder_mgr import WordFolderMgr
+from src.dlg_config import CONFIG
+from src.word_folder_mgr import WordFolderMgr
 
 SEPARATOR_YEAR = " - "
 

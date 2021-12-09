@@ -6,10 +6,10 @@ from bs4 import BeautifulSoup
 from openpyxl.styles import Alignment, Font
 from pandas.core.frame import DataFrame
 
-import url_FA
-from Pelicula import Pelicula
-from ProgressBar import ProgressBar
-from safe_url import safe_get_url
+import src.url_FA as url_FA
+from src.Pelicula import Pelicula
+from src.ProgressBar import ProgressBar
+from src.safe_url import safe_get_url
 
 
 class Writer(object):

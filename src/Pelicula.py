@@ -1,8 +1,8 @@
 from bs4 import BeautifulSoup
 
-from url_FA import URL_FILM_ID
-from dlg_config import CONFIG
-from safe_url import safe_get_url
+from src.url_FA import URL_FILM_ID
+from src.dlg_config import CONFIG
+from src.safe_url import safe_get_url
 
 
 

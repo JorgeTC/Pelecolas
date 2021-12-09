@@ -5,8 +5,8 @@ from bs4 import BeautifulSoup
 from googleapiclient import sample_tools
 from oauth2client import client
 
-from read_blog import ReadBlog
-from dlg_config import CONFIG
+from src.dlg_config import CONFIG
+from src.read_blog import ReadBlog
 
 
 class Poster(ReadBlog):

@@ -2,7 +2,7 @@ import configparser
 from pathlib import Path
 
 
-from dlg_scroll_base import DlgScrollBase
+from src.dlg_scroll_base import DlgScrollBase
 
 SZ_FILE = "General.ini"
 
