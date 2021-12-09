@@ -1,10 +1,11 @@
-import os
 import csv
-from pathlib import Path
+import os
 from datetime import datetime
 
+from src.aux_res_directory import get_res_folder
 from src.dlg_config import CONFIG
 from src.poster import POSTER
+
 
 class CSV_COLUMN:
     TITLE = 0
@@ -15,9 +16,7 @@ class CSV_COLUMN:
 class BlogCsvMgr():
     # Creo el csv donde guardo los datos de las entradas
     # Obtengo la dirección del csv
-    sz_csv_file = Path(__file__).resolve().parent
-    sz_csv_file = sz_csv_file / "Make_html"
-    sz_csv_file = sz_csv_file / "bog_data.csv"
+    sz_csv_file = get_res_folder("Make_html", "bog_data.csv")
 
     # Booleano que me dice si el archivo existe
     exists_csv = os.path.isfile(sz_csv_file)

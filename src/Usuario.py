@@ -1,6 +1,6 @@
 import ast
-from pathlib import Path
 
+from src.aux_res_directory import get_res_folder
 from src.dlg_config import CONFIG
 from src.dlg_scroll_base import DlgScrollBase
 
@@ -18,9 +18,7 @@ class Usuario(object):
 
     def read_dict(self):
 
-        sz_curr_folder = Path(__file__).resolve().parent
-        sz_curr_folder = sz_curr_folder / "Readdata"
-        sz_json = sz_curr_folder / "usuarios.json"
+        sz_json = get_res_folder("Readdata", "usuarios.json")
 
         file = open(sz_json, "r")
         contents = file.read()
