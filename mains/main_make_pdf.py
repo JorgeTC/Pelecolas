@@ -1,12 +1,12 @@
 from pathlib import Path
 
-from dlg_config import manage_config
+from src.dlg_config import manage_config
 
 def main(sz_folder):
 
     manage_config()
 
-    from pdf_writer import PDFWriter
+    from src.pdf_writer import PDFWriter
 
     writer = PDFWriter(sz_folder)
     writer.convert_all_word()
