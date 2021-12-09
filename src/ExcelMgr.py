@@ -9,7 +9,7 @@ class ExcelMgr(object):
 
     def __init__(self, usuario):
         # Abro la carpeta donde está la plantilla
-        sz_curr_folder = Path(__file__).resolve().parent
+        sz_curr_folder = Path("res")
         sz_curr_folder = sz_curr_folder / "Readdata"
         # Construyo el path completo del archivo
         Plantilla = sz_curr_folder / self.SZ_TEMPLATE_NAME

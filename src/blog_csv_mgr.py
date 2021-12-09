@@ -15,7 +15,7 @@ class CSV_COLUMN:
 class BlogCsvMgr():
     # Creo el csv donde guardo los datos de las entradas
     # Obtengo la dirección del csv
-    sz_csv_file = Path(__file__).resolve().parent
+    sz_csv_file = Path("res")
     sz_csv_file = sz_csv_file / "Make_html"
     sz_csv_file = sz_csv_file / "bog_data.csv"
 

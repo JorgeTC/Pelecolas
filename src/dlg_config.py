@@ -39,7 +39,7 @@ class DlgConfig(DlgScrollBase):
         # Abro el lector del archivo
         self.config = configparser.ConfigParser()
         # Abro el archivo
-        self.sz_path = Path(__file__).resolve().parent / SZ_FILE
+        self.sz_path = Path("res") / SZ_FILE
         self.config.read(self.sz_path)
 
         # Qué estoy configurando actualmente
