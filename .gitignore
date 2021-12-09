@@ -8,8 +8,8 @@ General.ini
 
 # Archivos que genera el código
 # Resultado de haber leído el blog
-Make_html/bog_data.csv
+*/Make_html/bog_data.csv
 # Resultado de medición de tiempo de ejecución
-Debug_time/time_log.csv
+*/Debug_time/time_log.csv
 client_secrets.json
 blogger.dat
