@@ -25,11 +25,12 @@ class WordFolderMgr():
         return all_files
 
     def delete_temp_files(self):
+
         # Obtengo todos los archivos de la carpeta
         temp_files = [x for x in self.word_folder.iterdir()]
         # Descarto todo lo que no sea un word
         temp_files = [x for x in temp_files if x.suffix.lower() == ".docx"]
-        # Descarto los archivos temporales
+        # Me quedo con los archivos temporales
         temp_files = [x for x in temp_files if x.stem[:2] == "~$"]
 
         # Elimino los archivos temporales, no se pueden convertir a pdf
