@@ -1,5 +1,7 @@
-from dlg_config import CONFIG
 import os
+
+from dlg_config import CONFIG
+
 
 class WordFolderMgr():
     def __init__(self, sz_folder):
