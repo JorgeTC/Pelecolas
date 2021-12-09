@@ -33,7 +33,9 @@ La estructura debe ser:
 ```tree
 Parent
     ├── Code
-    |   └──...
+    |   ├── mains
+    |   ├── res
+    |   └── src
     └── Películas
         ├── Word
         |   ├── Películas - 2017.docx
@@ -88,7 +90,7 @@ CODE_DIR = SCRIPT_DIR.parent / 'Code'
 sys.path.append(str(CODE_DIR))
 
 # Modificar el archivo que se quiere importar
-from main_read_data import main
+from mains.main_read_data import main
 
 
 if __name__ == "__main__":
@@ -112,6 +114,7 @@ Si no se escribe nada, se exportará al usuario por defecto.
 La elección del usuario quedará registrada para la próxima vez que se ejecute.
 
 El archivo Excel generado se llamará `Sintaxis - usuario.xlsx`.
+Se usa como plantilla el archivo excel `Code\res\Readdata\Plantilla.xlsx`.
 
 Del perfil de FilmAffinity se quieren extraer sólo las películas.
 Por eso se hace un filtrado dado el título.
@@ -153,13 +156,15 @@ Si se introduce un título vacío (si se pulsa enter antes de escribir nada), el
 Una vez que esté emitida esta lista el usuario podrá escribir otro título o bien con las flechas de arriba y abajo, recorrer las sugerencias.
 
 Es posible configurar un filtrado para que no aparezcan entre los títulos sugeridos aquellos que ya hayan sido publicados en el blog.
+Si esta opción está activa, tampoco se mostrarán los títulos que estén programados.
 
 #### Quoter
 
 Cuando detecta que en la reseña está citada otra película, busca si está publicada su reseña en el blog.
 En caso de ser así, automáticamente se generará un link a esa reseña.
-Para que esto se lleve a cabo, el prgrama ha tenido que leer el blog donde se quiere publicar.
-El resultado de esta lectura se encuentra en un `.csv` en `Code\Make_html\bog_data.csv`.
+Para que esto se lleve a cabo, el programa ha tenido que leer el blog donde se quiere publicar.
+El resultado de esta lectura se encuentra en un `.csv` en `Code\res\Make_html\bog_data.csv`.
+El archivo csv se actualiza si se ha publicado alguna entrada entre la última fecha de creación del archivo y la fecha actual.
 
 Se utiliza un procesador de lenguaje natural para tratar de buscar referencias a otros directores.
 Si en la reseña se menciona a un director con alguna de sus películas reseñada y publicada en nuestro blog, se generará un enlace a todas las reseñas de este director.
@@ -178,6 +183,8 @@ Los html deben tener como nombre `Reseña _titulo_.html`.
 
 Para que sea posible la publicación la carpeta _Películas_ debe tener los permisos pertinentes para acceder al blog.
 Son un archivo `blogger.dat` y `client_secrets.json`.
+El archivo `client_secrets.json` se guarda en la carpeta `res\blog_credentials`.
+El otro archivo lo generará el código automáticamente.
 El blog elegido será el que tiene el id especificado en el ini.
 
 En el archivo de configuración se puede elegir fecha, hora y si la publicación se hará en borrador o no.
@@ -197,7 +204,7 @@ Tras publicar el html, elimina el archivo.
 ## Config
 
 La configuración de todo el proyecto se incluye en un archivo ini que se generará la primera vez que se ejecute cualquier main.
-Para modificar la configuración acúdase al archivo `Code\General.ini`.
+Para modificar la configuración acúdase al archivo `Code\res\General.ini`.
 
 Al inicial cualquier main se da la posibilidad de entrar al menú de configuración.
 Se exige para ello que el sistema operativo sea Windows.
@@ -217,7 +224,7 @@ Por enseñarme qué es un csv, un dataframe y por enseñarme a leer un html.
 Por enseñarme markdown y permitir que estas mismas líneas existan.
 Por enseñarme a componer rutas.
 Por hacerme evitar los espaghettis.
-Por ser la únca responsable de que este proyecto sea más de un único archivo.
+Por ser la única responsable de que este proyecto sea más de un único archivo.
 Por soportar los nombres de archivos con espacios, mi enorme dependencia del ratón,
 mi alergia a la consola y mis dobles clicks.
 Por responder incondicionalmente a mis llamadas de Skype.
@@ -228,7 +235,7 @@ Por sacarme de paseo incluso cuando me he portado mal.
 Por ser el más fuerte motivo que me separa del código.
 
 También por ver a mi lado las películas que bien merecidamente nadie ha visto.
-Por convertir por primera vez aquel docx a pdf y leerselo aquella primera vez.
+Por convertir por primera vez aquel docx a pdf y leérselo aquella primera vez.
 Por aquella captura de pantalla de la segunda crítica que escribí en mi vida.
 
 Por seguir entrando al blog y por ser mi única editora.
