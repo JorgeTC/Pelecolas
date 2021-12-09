@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from pathlib import Path
 
 import pytz
 from bs4 import BeautifulSoup
@@ -10,8 +11,20 @@ from src.read_blog import ReadBlog
 
 
 class Poster(ReadBlog):
+
+    # Salgo a la carpeta src
+    sz_credentials = Path(__file__).parent
+    # Salgo a la carpeta del proyecto
+    sz_credentials = sz_credentials.parent
+    # Voy a la carpeta de recursos
+    sz_credentials = sz_credentials / "res"
+    # Voy a la carpeta de la credenciales
+    sz_credentials = sz_credentials / "blog_credentials"
+    # Añado el nombre del archivo
+    sz_credentials = sz_credentials / "client_secrets.json"
+
     SERVICE, _ = sample_tools.init(
-        [__file__], 'blogger', 'v3', __doc__, __file__,
+        [__file__], 'blogger', 'v3', __doc__, sz_credentials,
         scope='https://www.googleapis.com/auth/blogger')
 
     BLOG_ID = CONFIG.get_value(CONFIG.S_POST, CONFIG.P_BLOG_ID)

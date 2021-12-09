@@ -38,8 +38,14 @@ class DlgConfig(DlgScrollBase):
         super().__init__(question="", options=[], empty_option=True, empty_ans=True)
         # Abro el lector del archivo
         self.config = configparser.ConfigParser()
+        # Carpeta src
+        sz_directory = Path(__file__).parent
+        # Carpeta del proyecto
+        sz_directory = sz_directory.parent
+        # Carpeta de resources
+        sz_directory = sz_directory / "res"
         # Abro el archivo
-        self.sz_path = Path("res") / SZ_FILE
+        self.sz_path = sz_directory / SZ_FILE
         self.config.read(self.sz_path)
 
         # Qué estoy configurando actualmente

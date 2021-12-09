@@ -15,8 +15,15 @@ class CSV_COLUMN:
 class BlogCsvMgr():
     # Creo el csv donde guardo los datos de las entradas
     # Obtengo la dirección del csv
-    sz_csv_file = Path("res")
+    # Carpeta src
+    sz_csv_file = Path(__file__).parent
+    # Carpeta del proyecto
+    sz_csv_file = sz_csv_file.parent
+    # Carpeta res
+    sz_csv_file = sz_csv_file / "res"
+    # Carpeta make_html
     sz_csv_file = sz_csv_file / "Make_html"
+    # Accedo al archivo csv
     sz_csv_file = sz_csv_file / "bog_data.csv"
 
     # Booleano que me dice si el archivo existe

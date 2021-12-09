@@ -18,8 +18,15 @@ class Usuario(object):
 
     def read_dict(self):
 
-        sz_curr_folder = Path("res")
+        # Salgo a la carpeta src
+        sz_curr_folder = Path(__file__).parent
+        # Salgo a la carpeta del proyecto
+        sz_curr_folder = sz_curr_folder.parent
+        # Entro a la carpeta de recursos
+        sz_curr_folder = sz_curr_folder / "res"
+        # Accedo a Readdata
         sz_curr_folder = sz_curr_folder / "Readdata"
+        # Accedo al archivo json
         sz_json = sz_curr_folder / "usuarios.json"
 
         file = open(sz_json, "r")
