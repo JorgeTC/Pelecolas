@@ -15,7 +15,7 @@ def main(path):
     # Inicializo un bucle para poder crear tantas reseñas como se quiera
     # sin necesidad de cerrar la aplicación
     b_otra = True
-    dlg_otra = YesNo(question="¿Otra reseña?", empty_ans=True)
+    dlg_otra = YesNo(question="¿Otra reseña? ", empty_ans=True)
     while b_otra:
         # Genero el html
         Documento.write_html()
