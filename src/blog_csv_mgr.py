@@ -3,8 +3,8 @@ import csv
 from pathlib import Path
 from datetime import datetime
 
-from dlg_config import CONFIG
-from poster import POSTER
+from src.dlg_config import CONFIG
+from src.poster import POSTER
 
 class CSV_COLUMN:
     TITLE = 0

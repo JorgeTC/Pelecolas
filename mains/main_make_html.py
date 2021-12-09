@@ -1,11 +1,11 @@
-from dlg_config import manage_config
+from src.dlg_config import manage_config
 
 def main(path):
 
     manage_config()
 
-    from Make_html import html
-    from dlg_bool import YesNo
+    from src.Make_html import html
+    from src.dlg_bool import YesNo
 
     # Objeto que escribe el html
     Documento = html(path)

@@ -1,13 +1,13 @@
-from dlg_config import manage_config
+from src.dlg_config import manage_config
 
 def main(path):
 
     manage_config()
 
-    from Make_html import html
-    from dlg_bool import YesNo
-    from poster import POSTER
-    from content_mgr import ContentMgr
+    from src.Make_html import html
+    from src.dlg_bool import YesNo
+    from src.poster import POSTER
+    from src.content_mgr import ContentMgr
 
 
     # Objeto que escribe el html

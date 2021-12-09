@@ -1,6 +1,6 @@
 import os
 
-from dlg_config import CONFIG
+from src.dlg_config import CONFIG
 
 
 class WordFolderMgr():

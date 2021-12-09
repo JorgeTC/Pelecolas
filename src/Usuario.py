@@ -1,7 +1,9 @@
-from pathlib import Path
-from dlg_scroll_base import DlgScrollBase
-from dlg_config import CONFIG
 import ast
+from pathlib import Path
+
+from src.dlg_config import CONFIG
+from src.dlg_scroll_base import DlgScrollBase
+
 
 class Usuario(object):
 

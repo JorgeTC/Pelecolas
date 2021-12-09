@@ -2,8 +2,8 @@ import urllib.parse
 
 from bs4 import BeautifulSoup
 
-import url_FA
-from safe_url import safe_get_url
+import src.url_FA as url_FA
+from src.safe_url import safe_get_url
 
 
 # Clase para guardar los datos que se lean

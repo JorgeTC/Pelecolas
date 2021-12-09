@@ -1,4 +1,4 @@
-from dlg_config import manage_config
+from src.dlg_config import manage_config
 
 
 def main(path):
@@ -6,9 +6,9 @@ def main(path):
     manage_config()
 
     # Importo los módulos del programa cuando la configuración ya está settada
-    from Usuario import Usuario
-    from ExcelMgr import ExcelMgr
-    from Writer import Writer
+    from src.Usuario import Usuario
+    from src.ExcelMgr import ExcelMgr
+    from src.Writer import Writer
     usuario = Usuario()
 
     ex_doc = ExcelMgr(usuario.nombre)

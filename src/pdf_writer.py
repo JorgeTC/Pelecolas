@@ -3,7 +3,7 @@ import os
 import docx2pdf
 from PyPDF2 import PdfFileMerger
 
-from word_folder_mgr import WordFolderMgr
+from src.word_folder_mgr import WordFolderMgr
 
 
 class PDFWriter(WordFolderMgr):
