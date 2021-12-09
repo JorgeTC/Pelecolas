@@ -1,23 +1,22 @@
 import docx
 
 from dlg_config import CONFIG
+from word_folder_mgr import WordFolderMgr
 
 SEPARATOR_YEAR = " - "
 
 
-class WordReader():
+class WordReader(WordFolderMgr):
     def __init__(self, folder):
-        # Abro el documento para leerlo
-        sz_doc_path = self.__get_word_file_name(folder)
+        super().__init__(folder)
         # Me quedo con el nombre del archivo sin la extensión.
-        self.header = str(sz_doc_path[0].stem).split(SEPARATOR_YEAR)[0]
-        self.folder = folder
+        self.header = str(self.sz_all_docx[0].stem).split(SEPARATOR_YEAR)[0]
         # Me guardo sólo los párrafos, es lo que voy a iterar más adelante
         self.paragraphs = []
         # Guardo a qué párrafo corresponde cada año
         self.years_parr = {}
         # Itero todos los docx que he encontrado
-        for word in sz_doc_path:
+        for word in self.sz_all_docx:
             # Obtengo el año actual
             try:
                 year = word.stem.split(SEPARATOR_YEAR)[1]
@@ -81,23 +80,6 @@ class WordReader():
         # No sé qué encabezado me voy a encontrar en mi documento.
         return text == self.header
 
-    def __get_word_file_name(self, folder):
-        # Carpeta donde están guardados los archivos word
-        word_folder = CONFIG.get_value(
-            CONFIG.S_COUNT_FILMS, CONFIG.P_WORD_FOLDER)
-        # Si en el archivo de configuración se especifica una carpeta, busco en ella
-        if word_folder:
-            folder = folder / word_folder
-
-        # Obtengo todos los archivos de la carpeta
-        all_files = [x for x in folder.iterdir()]
-        # Descarto todo lo que no sea un word
-        all_files = [x for x in all_files if x.suffix.lower() == ".docx"]
-        # Descarto los archivos temporales
-        all_files = [x for x in all_files if x.stem[:2] != "~$"]
-
-        return all_files
-
     def __append_title(self, paragraph, index):
         # Leo el posible título de este párrafo.
         titulo = self.__get_title(paragraph)
@@ -145,7 +127,7 @@ class WordReader():
 
     def write_list(self):
         # Abro el documento txt para escribirlo
-        titulos_doc = open(self.folder / "Titulos de reseñas.txt", "w")
+        titulos_doc = open(self.sz_folder / "Titulos de reseñas.txt", "w")
 
         # Miro si hay que escribir el índice
         b_index = CONFIG.get_bool(CONFIG.S_COUNT_FILMS, CONFIG.P_ADD_INDEX)
