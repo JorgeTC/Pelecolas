@@ -1,27 +1,18 @@
 from datetime import datetime, timedelta
-from pathlib import Path
 
 import pytz
 from bs4 import BeautifulSoup
 from googleapiclient import sample_tools
 from oauth2client import client
 
+from src.aux_res_directory import get_res_folder
 from src.dlg_config import CONFIG
 from src.read_blog import ReadBlog
 
 
 class Poster(ReadBlog):
-
-    # Salgo a la carpeta src
-    sz_credentials = Path(__file__).parent
-    # Salgo a la carpeta del proyecto
-    sz_credentials = sz_credentials.parent
-    # Voy a la carpeta de recursos
-    sz_credentials = sz_credentials / "res"
-    # Voy a la carpeta de la credenciales
-    sz_credentials = sz_credentials / "blog_credentials"
-    # Añado el nombre del archivo
-    sz_credentials = sz_credentials / "client_secrets.json"
+    # Dirección del archivo con las credenciales del blog
+    sz_credentials = get_res_folder("blog_credentials", "client_secrets.json")
 
     SERVICE, _ = sample_tools.init(
         [__file__], 'blogger', 'v3', __doc__, sz_credentials,

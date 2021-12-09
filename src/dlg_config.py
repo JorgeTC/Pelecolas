@@ -1,7 +1,7 @@
 import configparser
 from pathlib import Path
 
-
+from src.aux_res_directory import get_res_folder
 from src.dlg_scroll_base import DlgScrollBase
 
 SZ_FILE = "General.ini"
@@ -38,14 +38,8 @@ class DlgConfig(DlgScrollBase):
         super().__init__(question="", options=[], empty_option=True, empty_ans=True)
         # Abro el lector del archivo
         self.config = configparser.ConfigParser()
-        # Carpeta src
-        sz_directory = Path(__file__).parent
-        # Carpeta del proyecto
-        sz_directory = sz_directory.parent
-        # Carpeta de resources
-        sz_directory = sz_directory / "res"
-        # Abro el archivo
-        self.sz_path = sz_directory / SZ_FILE
+        # Dirección del ini
+        self.sz_path = get_res_folder(SZ_FILE)
         self.config.read(self.sz_path)
 
         # Qué estoy configurando actualmente

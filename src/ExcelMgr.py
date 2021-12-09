@@ -1,6 +1,7 @@
-
-from pathlib import Path
 from openpyxl import load_workbook
+
+from src.aux_res_directory import get_res_folder
+
 
 class ExcelMgr(object):
 
@@ -9,16 +10,7 @@ class ExcelMgr(object):
 
     def __init__(self, usuario):
         # Abro la carpeta donde está la plantilla
-        # Carpeta source
-        sz_curr_folder = Path(__file__).parent
-        # Carpeta del proyecto
-        sz_curr_folder = sz_curr_folder.parent
-        # Carpeta de recursos
-        sz_curr_folder = sz_curr_folder / "res"
-        # Readdata
-        sz_curr_folder = sz_curr_folder / "Readdata"
-        # Construyo el path completo del archivo
-        Plantilla = sz_curr_folder / self.SZ_TEMPLATE_NAME
+        Plantilla = get_res_folder("Readdata", self.SZ_TEMPLATE_NAME)
 
         # Abro el archivo excel
         self.wb = load_workbook(Plantilla)
