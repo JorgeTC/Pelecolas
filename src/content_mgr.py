@@ -1,6 +1,7 @@
-from src.pathlib import Path
-from src.Make_html import SZ_HTML_FILE
+from pathlib import Path
+
 from src.dlg_scroll_base import DlgScrollBase
+from src.Make_html import SZ_HTML_FILE
 
 
 class ContentMgr():
