@@ -43,8 +43,10 @@ class BlogScraper(BlogCsvMgr, ReadBlog):
         # Lista de reseñas desde que empezó el blog
         posted = POSTER.get_published_from_date(self.__first_month)
 
-        executor = futures.ThreadPoolExecutor()
-        extracted_data = list(executor.map(self.get_data_from_post, posted))
+        # Quiero extraer datos de cada reseña para escribir el csv
+        # Creo un objeto para paralelizar el proceso
+        with futures.ThreadPoolExecutor() as executor:
+            extracted_data = list(executor.map(self.get_data_from_post, posted))
 
         self.__csv_writer.writerows(extracted_data)
 
