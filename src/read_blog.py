@@ -1,5 +1,8 @@
 
 class ReadBlog():
+
+    BLOG_MONTH = 'https://pelecolas.blogspot.com/{}/{:02d}/'.format
+
     def get_director_year_from_content(self, content: str):
         '''
         Dado el contenido de un post de mi blog,
