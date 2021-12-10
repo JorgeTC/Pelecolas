@@ -144,7 +144,8 @@ class Poster(ReadBlog):
         # Pido los blogs desde entonces
         ls = self.posts.list(blogId=self.BLOG_ID,
                             status = 'LIVE',
-                            startDate = sz_min_date)
+                            startDate = sz_min_date,
+                            maxResults = 500)
         execute = ls.execute()
 
         # Obtengo todos los posts que están programados
