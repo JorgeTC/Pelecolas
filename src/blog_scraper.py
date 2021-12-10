@@ -2,11 +2,10 @@ from concurrent import futures
 from datetime import date
 
 from bs4 import BeautifulSoup
-from pandas import DateOffset
 
 from src.read_blog import ReadBlog
 from src.blog_csv_mgr import BlogCsvMgr
-from src.safe_url import safe_get_url
+from src.poster import POSTER
 
 
 class BlogScraper(BlogCsvMgr, ReadBlog):
@@ -28,60 +27,26 @@ class BlogScraper(BlogCsvMgr, ReadBlog):
         if self.csv_file:
             self.csv_file.close()
 
-    def get_month_dir(self, month: date):
-        # Dirección del blog, año y mes
-        return BLOG_MONTH(month.year, month.month)
+    def get_data_from_post(self, post):
+        name = post['title']
+        link = post['url']
+        body = BeautifulSoup(post['content'], 'html.parser')
+        director, año = self.get_director_year_from_content(body)
 
-    def get_data_from_month(self, sz_dir: str):
-        # Descargo la página
-        text = safe_get_url(sz_dir)
-        # Parseo la página
-        parsed_page = BeautifulSoup(text.text, 'html.parser')
-        # Obtengo una lista de todas las reseñas
-        reseñas = parsed_page.find_all("div", {"class": "date-outer"})
-        reseñas = [i.find('div', itemprop='blogPost') for i in reseñas]
-
-        ans_data = []
-
-        # Itero las reseñas para sacarles los datos
-        for reseña in reseñas:
-
-            # Trabajo el encabezado, quiero su nombre y su dirección
-            header = reseña.find('h3', itemprop='name')
-            name = header.contents[1].contents[0]
-            link = header.contents[1].attrs['href']
-            # Trabajo el cuerpo, quiero director y año
-            body = reseña.find('div', itemprop='description articleBody')
-            # Le paso el cuerpo parseado
-            director, año = self.get_director_year_from_content(body)
-
-            datos = [name, link, director, año]
-            ans_data.append(datos)
-
-        return ans_data
+        return [name, link, director, año]
 
     def write_csv(self):
         # Escribo el header del csv
         self.__csv_writer = self.open_to_write()
         self.__csv_writer.writerow(self.HEADER_CSV)
 
-        # Hago la lista de los meses en los que quiero leer
-        months = []
-        curr_month = self.__first_month
-        while curr_month <= self.__last_month:
-            months.append(curr_month)
-            curr_month = curr_month + DateOffset(months=1)
-        months_url = [self.get_month_dir(month) for month in months]
+        # Lista de reseñas desde que empezó el blog
+        posted = POSTER.get_published_from_date(self.__first_month)
 
-        # Creo un objeto para hacer la gestión de paralelización
-        executor = futures.ThreadPoolExecutor(max_workers=20)
-        extracted_data = list(executor.map(
-            self.get_data_from_month, months_url))
-        to_write = [i for month in extracted_data for i in month]
-        # Escribo lo leído en el csv
-        self.__csv_writer.writerows(to_write)
+        executor = futures.ThreadPoolExecutor()
+        extracted_data = list(executor.map(self.get_data_from_post, posted))
 
-        self.exists_csv = True
+        self.__csv_writer.writerows(extracted_data)
 
 
 def main():
