@@ -71,8 +71,6 @@ Se espera que cuando se cite literalmente una frase de la película, se haga en 
 
 Cuando se mencione el título de otra película (reseñada o no) se haga entre comillas: “Otro título”.
 
-La idea es que todas las reseñas estén contenidas en un mismo archivo Word.
-
 Para comprobar qué consigue leer el código en nuestro documento de Word, se recomienda la ejecución de [`main_contar_criticas.py`](#Contar_criticas).
 
 #### Archivos python
@@ -185,6 +183,11 @@ Para que sea posible la publicación la carpeta _Películas_ debe tener los perm
 Son un archivo `blogger.dat` y `client_secrets.json`.
 El archivo `client_secrets.json` se guarda en la carpeta `res\blog_credentials`.
 El otro archivo lo generará el código automáticamente.
+Para que el archivo `.dat` se genere en la carpeta `blog_credentials` hemos modificado la [línea de apertura del `.dat`](https://github.com/googleapis/google-api-python-client/blob/main/googleapiclient/sample_tools.py#L95).
+En su lugar hemos escrito:
+```python
+storage = file.Storage(os.path.join(os.path.dirname(filename), name + ".dat"))
+```
 El blog elegido será el que tiene el id especificado en el ini.
 
 En el archivo de configuración se puede elegir fecha, hora y si la publicación se hará en borrador o no.
