@@ -8,8 +8,6 @@ from src.read_blog import ReadBlog
 from src.blog_csv_mgr import BlogCsvMgr
 from src.safe_url import safe_get_url
 
-BLOG_MONTH = 'https://pelecolas.blogspot.com/{}/{:02d}/'.format
-
 
 class BlogScraper(BlogCsvMgr, ReadBlog):
 
