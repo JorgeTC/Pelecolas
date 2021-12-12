@@ -49,6 +49,14 @@
             "request": "launch",
             "program": "${workspaceFolder}/../Películas/make_and_publish.py",
             "console": "integratedTerminal"
-        }
+        },
+        {
+            "name": "Write pdf",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/../Películas/Make_pdf.py",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
     ]
 }
