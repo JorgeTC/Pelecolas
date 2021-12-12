@@ -1,5 +1,7 @@
-from src.aux_res_directory import get_res_folder
 from googleapiclient import sample_tools
+
+from src.aux_res_directory import get_res_folder
+
 
 class GoogleApiMgr():
     # Dirección del archivo con las credenciales del blog

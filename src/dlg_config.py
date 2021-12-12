@@ -152,7 +152,9 @@ class DlgConfig(DlgScrollBase):
         for param in self.config[section]:
             print(SZ_PRINT_VALUE.format(param, self.config[section][param]))
 
+
 CONFIG = DlgConfig()
+
 
 def manage_config():
     # Importo los módulos de windows para comprobar el teclado
@@ -164,4 +166,3 @@ def manage_config():
         # Abro el diálogo
         CONFIG.run()
         CONFIG.save_config()
-

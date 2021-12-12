@@ -5,8 +5,8 @@ from bs4 import BeautifulSoup
 from oauth2client import client
 
 from src.dlg_config import CONFIG
-from src.read_blog import ReadBlog
 from src.google_api_mgr import GoogleApiMgr
+from src.read_blog import ReadBlog
 
 
 class Poster(ReadBlog, GoogleApiMgr):
@@ -30,8 +30,8 @@ class Poster(ReadBlog, GoogleApiMgr):
                     self.blog = blog
 
         except client.AccessTokenRefreshError:
-            print ('The credentials have been revoked or expired, please re-run'
-                'the application to re-authorize')
+            print('The credentials have been revoked or expired, please re-run'
+                  'the application to re-authorize')
 
     def add_post(self, content, title, labels):
 
@@ -56,15 +56,16 @@ class Poster(ReadBlog, GoogleApiMgr):
         try:
             # Miro si la configuración me pide que lo publique como borrador
             bDraft = CONFIG.get_bool(CONFIG.S_POST, CONFIG.P_AS_DRAFT)
-            f = self.posts.insert(blogId=self.BLOG_ID, body=body, isDraft=bDraft)
+            f = self.posts.insert(blogId=self.BLOG_ID,
+                                  body=body, isDraft=bDraft)
             f.execute()
             # Si no está programada como borrador, aviso al usuario de cuándo se va a publicar la reseña
             if not bDraft:
                 print("La reseña de {} se publicará el {}".format(title, str_date[:10]))
 
         except client.AccessTokenRefreshError:
-            print ('The credentials have been revoked or expired, please re-run'
-                'the application to re-authorize')
+            print('The credentials have been revoked or expired, please re-run'
+                  'the application to re-authorize')
 
     def __get_publish_datatime(self):
         # Obtengo qué día tengo que publicar la reseña
@@ -82,7 +83,7 @@ class Poster(ReadBlog, GoogleApiMgr):
         sz_minute = int(sz_time.split(":")[1])
 
         return date_to_str(datetime(year, month, day,
-                                    sz_hour,sz_minute))
+                                    sz_hour, sz_minute))
 
     def __get_automatic_date(self):
 
@@ -96,7 +97,7 @@ class Poster(ReadBlog, GoogleApiMgr):
             year = int(publish_date[0:4])
             month = int(publish_date[5:7])
             day = int(publish_date[8:10])
-            publish_date = str(datetime(year,month,day).date())
+            publish_date = str(datetime(year, month, day).date())
             # La añado a mi lista
             dates.append(publish_date)
 
@@ -133,9 +134,9 @@ class Poster(ReadBlog, GoogleApiMgr):
 
         # Pido los blogs desde entonces
         ls = self.posts.list(blogId=self.BLOG_ID,
-                            status = 'LIVE',
-                            startDate = sz_min_date,
-                            maxResults = 500)
+                             status='LIVE',
+                             startDate=sz_min_date,
+                             maxResults=500)
         execute = ls.execute()
 
         # Obtengo todos los posts que están programados
@@ -146,16 +147,15 @@ class Poster(ReadBlog, GoogleApiMgr):
 
         return scheduled
 
-
     def get_scheduled(self):
         # Hago una lista de todos los posts programados a partir de hoy
         today = datetime.today()
         start_date = date_to_str(today)
 
         ls = self.posts.list(blogId=self.BLOG_ID,
-                            maxResults = 55,
-                            status = 'SCHEDULED',
-                            startDate = start_date)
+                             maxResults=55,
+                             status='SCHEDULED',
+                             startDate=start_date)
         execute = ls.execute()
 
         # Obtengo todos los posts que están programados
