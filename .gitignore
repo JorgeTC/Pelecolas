@@ -12,4 +12,4 @@ General.ini
 # Resultado de medición de tiempo de ejecución
 */Debug_time/time_log.csv
 client_secrets.json
-blogger.dat
+*.dat

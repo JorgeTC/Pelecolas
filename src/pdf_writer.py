@@ -44,7 +44,7 @@ class PDFWriter(WordFolderMgr):
         merger.write(str(self.sz_folder / "Reseñas.pdf"))
         merger.close()
 
-    def clear_pdf(self):
+    def clear_temp_pdf(self):
         # Elimino los archivos pdf temporales que había escrito
         for file in self.sz_all_pdf:
             os.remove(file)
