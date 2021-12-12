@@ -17,7 +17,11 @@ class Drive():
     def __init__(self) -> None:
 
         # Obtengo la carpeta
-        self.folder = self.get_item_by_id(CONFIG.get_value(CONFIG.S_DRIVE, CONFIG.P_FOLDER_ID))
+        self.folder_id = CONFIG.get_value(CONFIG.S_DRIVE, CONFIG.P_FOLDER_ID)
+        self.folder = self.get_item_by_id(self.folder_id)
+        self.get_files_in_folder(self.folder_id)
+
+        # Obtengo los archivos dentro de la carpeta
 
     def upload_files(self):
         """
@@ -49,6 +53,38 @@ class Drive():
             return self.SERVICE.files().get(fileId=sz_id).execute()
         except:
             return None
+
+    def get_files_in_folder(self, sz_folder_id):
+
+        answer = []
+        try:
+            # Índice para iterar las peticiones a la api
+            page_token = None
+            while True:
+                # Pido los archivos que tengan como carpeta parent la que he introducido
+                response = self.SERVICE.files().list(q="'{}' in parents".format(sz_folder_id),
+                                                    spaces='drive',
+                                                    fields='nextPageToken, files(id, name, trashed)',
+                                                    pageToken=page_token).execute()
+
+                # Itero lo que me ha dado la api en esta petición
+                for file in response.get('files', []):
+                    # Compruebo que sean archivos no eliminados
+                    if not file['trashed']:
+                        answer.append(file)
+
+                # Avanzo a la siguiente petición
+                page_token = response.get('nextPageToken', None)
+
+                # Si no puedo hacer más peticiones, salgo del bucle
+                if page_token is None:
+                    break
+
+            # Devuelo la lista
+            return answer
+        except:
+            # Si algo ha ido mal, devuelvo una lista vacía
+            return []
 
     def search(self, query):
         # search for the file
