@@ -11,7 +11,7 @@ def main(sz_folder):
     writer = PDFWriter(sz_folder)
     writer.convert_all_word()
     writer.join_pdf()
-    writer.clear_pdf()
+    writer.clear_temp_pdf()
 
 
 if __name__ == '__main__':
