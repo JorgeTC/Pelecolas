@@ -1,62 +1,56 @@
-from src.aux_res_directory import get_res_folder
-from googleapiclient import sample_tools
 from googleapiclient.http import MediaFileUpload
-from src.dlg_config import CONFIG
 
+from src.dlg_config import CONFIG
+from src.google_api_mgr import GoogleApiMgr
 
 TYPE_FOLDER = 'application/vnd.google-apps.folder'
 
 
-class Drive():
-    # Dirección del archivo con las credenciales del blog
-    sz_credentials = get_res_folder("blog_credentials", "client_secrets.json")
+class Drive(GoogleApiMgr):
 
-    SERVICE, _ = sample_tools.init(
-        [__file__], 'drive', 'v3', __doc__, sz_credentials,
-        scope='https://www.googleapis.com/auth/drive')
+    def __init__(self, sz_folder) -> None:
+        GoogleApiMgr.__init__(self, 'drive')
 
-    def __init__(self) -> None:
+        # Gestor de archivos en el drive
+        self.files = self.get_service().files()
 
-        self.files = self.SERVICE.files()
-
-        # Obtengo la carpeta
+        # Obtengo la carpeta dentro del drive
         self.folder_id = CONFIG.get_value(CONFIG.S_DRIVE, CONFIG.P_FOLDER_ID)
         self.folder = self.get_item_by_id(self.folder_id)
 
+        # Obtengo la carpeta donde vive el pdf
+        self.pdf_folder = sz_folder
+        # Obtengo la carpeta donde viven los docx
+        self.docx_folder = sz_folder / \
+            CONFIG.get_value(CONFIG.S_COUNT_FILMS, CONFIG.P_WORD_FOLDER)
+
+    def update_folder(self):
         # Obtengo los archivos dentro de la carpeta
         files_in_folder = self.get_files_in_folder(self.folder_id)
+        # Le paso todos los archivos para actualizar
         self.update_files(files_in_folder)
 
     def update_files(self, files_to_update):
         # Itero los archivos de la lista
         for file in files_to_update:
 
-            # Obtengo el archivo como un objeto
-            file_obj = self.files.get(fileId=file['id']).execute()
-            # Elimino el id actual
-            del file_obj['id']
-
             # Contenido del nuevo archivo
-            if file['name'] != 'Reseñas.pdf':
+            if file['name'].find('.docx') >= 0:
                 # Caso en el que sea un word
-                media_body = MediaFileUpload(
-                    'C:/Users/usuario/Desktop/Jorges things/Reseñas/Películas/Word/{}'.format(
-                        file['name']),
-                    resumable=True)
-                update_operation = self.files.update(
-                    fileId=file['id'],
-                    media_body=media_body)
-                updated_file = update_operation.execute()
+                sz_file = self.docx_folder / file['name']
             else:
                 # Caso en el que sea el pdf
-                media_body = MediaFileUpload(
-                    'C:/Users/usuario/Desktop/Jorges things/Reseñas/Películas/{}'.format(
-                        file['name']),
-                    resumable=True)
-                update_operation = self.files.update(
-                    fileId=file['id'],
-                    media_body=media_body)
-                updated_file = update_operation.execute()
+                sz_file = self.pdf_folder / file['name']
+
+            # Realizo la actualización
+            # Obtengo el archivo como un objeto
+            media_body = MediaFileUpload(sz_file, resumable=True)
+            # Defino la acción de actualización
+            update_operation = self.files.update(
+                fileId=file['id'],
+                media_body=media_body)
+            # Ejecuto la actualización
+            update_operation.execute()
 
     def upload_files(self):
         """
@@ -139,6 +133,3 @@ class Drive():
                 # no more files
                 break
         return result
-
-
-DRIVE = Drive()

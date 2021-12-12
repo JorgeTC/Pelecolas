@@ -2,15 +2,11 @@ from datetime import datetime, timedelta
 
 import pytz
 from bs4 import BeautifulSoup
-from googleapiclient import sample_tools
 from oauth2client import client
 
-from src.aux_res_directory import get_res_folder
 from src.dlg_config import CONFIG
 from src.read_blog import ReadBlog
 from src.google_api_mgr import GoogleApiMgr
-
-from src.google_drive import DRIVE
 
 
 class Poster(ReadBlog, GoogleApiMgr):
@@ -19,15 +15,15 @@ class Poster(ReadBlog, GoogleApiMgr):
 
     def __init__(self):
         # Inicializo la clase madre
-        GoogleApiMgr.__init__('blogger')
+        GoogleApiMgr.__init__(self, 'blogger')
 
         try:
-            blogs = self.SERVICE.blogs()
+            blogs = self.get_service().blogs()
 
             # Retrieve the list of Blogs this user has write privileges on
             thisusersblogs = blogs.listByUser(userId='self').execute()
 
-            self.posts = self.SERVICE.posts()
+            self.posts = self.get_service().posts()
 
             for blog in thisusersblogs['items']:
                 if blog['id'] == self.BLOG_ID:
