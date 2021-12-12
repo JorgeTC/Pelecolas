@@ -8,21 +8,19 @@ from oauth2client import client
 from src.aux_res_directory import get_res_folder
 from src.dlg_config import CONFIG
 from src.read_blog import ReadBlog
+from src.google_api_mgr import GoogleApiMgr
 
 from src.google_drive import DRIVE
 
 
-class Poster(ReadBlog):
-    # Dirección del archivo con las credenciales del blog
-    sz_credentials = get_res_folder("blog_credentials", "client_secrets.json")
-
-    SERVICE, _ = sample_tools.init(
-        [__file__], 'blogger', 'v3', __doc__, sz_credentials,
-        scope='https://www.googleapis.com/auth/blogger')
+class Poster(ReadBlog, GoogleApiMgr):
 
     BLOG_ID = CONFIG.get_value(CONFIG.S_POST, CONFIG.P_BLOG_ID)
 
     def __init__(self):
+        # Inicializo la clase madre
+        GoogleApiMgr.__init__('blogger')
+
         try:
             blogs = self.SERVICE.blogs()
 
