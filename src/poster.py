@@ -9,6 +9,8 @@ from src.aux_res_directory import get_res_folder
 from src.dlg_config import CONFIG
 from src.read_blog import ReadBlog
 
+from src.google_drive import DRIVE
+
 
 class Poster(ReadBlog):
     # Dirección del archivo con las credenciales del blog
@@ -22,11 +24,6 @@ class Poster(ReadBlog):
 
     def __init__(self):
         try:
-            users = self.SERVICE.users()
-
-            # Retrieve this user's profile information
-            self.thisuser = users.get(userId='self').execute()
-
             blogs = self.SERVICE.blogs()
 
             # Retrieve the list of Blogs this user has write privileges on
@@ -34,7 +31,6 @@ class Poster(ReadBlog):
 
             self.posts = self.SERVICE.posts()
 
-            self.blog = thisusersblogs['items'][0]
             for blog in thisusersblogs['items']:
                 if blog['id'] == self.BLOG_ID:
                     self.blog = blog
