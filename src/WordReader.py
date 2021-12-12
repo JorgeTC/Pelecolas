@@ -65,7 +65,12 @@ class WordReader(WordFolderMgr):
 
         return False
 
-    def __is_break_line(self, text):
+    def __is_break_line(self, text: str) -> bool:
+
+        # Limpio de espacios el texto
+        text = text.strip()
+
+        # Compruebo que contenga un salto de linea
         if text == '':
             return True
         if text == "\t":
@@ -73,6 +78,7 @@ class WordReader(WordFolderMgr):
         if text == "\n":
             return True
 
+        # Es un párrafo y no un salto de línea
         return False
 
     def __is_header(self, text):
