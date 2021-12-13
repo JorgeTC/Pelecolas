@@ -3,7 +3,7 @@ from src.blog_csv_mgr import CSV_COLUMN
 from src.dlg_config import CONFIG
 from src.dlg_scroll_base import DlgScrollBase
 from src.list_title_mgr import TitleMgr
-from src.Pelicula import Pelicula
+from src.pelicula import Pelicula
 from src.poster import POSTER
 from src.searcher import Searcher
 from src.url_FA import URL_FILM_ID

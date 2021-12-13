@@ -4,7 +4,7 @@ def main(path):
 
     manage_config()
 
-    from src.Make_html import html
+    from src.make_html import html
     from src.dlg_bool import YesNo
 
     # Objeto que escribe el html

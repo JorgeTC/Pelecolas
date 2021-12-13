@@ -6,9 +6,9 @@ def main(path):
     manage_config()
 
     # Importo los módulos del programa cuando la configuración ya está settada
-    from src.Usuario import Usuario
-    from src.ExcelMgr import ExcelMgr
-    from src.Writer import Writer
+    from src.usuario import Usuario
+    from src.excel_mgr import ExcelMgr
+    from src.writer import Writer
     usuario = Usuario()
 
     ex_doc = ExcelMgr(usuario.nombre)

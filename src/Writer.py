@@ -7,8 +7,8 @@ from openpyxl.styles import Alignment, Font
 from pandas.core.frame import DataFrame
 
 import src.url_FA as url_FA
-from src.Pelicula import Pelicula
-from src.ProgressBar import ProgressBar
+from src.pelicula import Pelicula
+from src.progress_bar import ProgressBar
 from src.safe_url import safe_get_url
 
 

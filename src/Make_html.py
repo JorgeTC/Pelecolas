@@ -2,8 +2,8 @@ import re
 import os
 
 from src.dlg_make_html import DlgHtml
-from src.Pelicula import Pelicula
-from src.WordReader import WordReader
+from src.pelicula import Pelicula
+from src.word_reader import WordReader
 from src.quoter import Quoter
 
 SZ_INVALID_CHAR = "\/:*?<>|"
