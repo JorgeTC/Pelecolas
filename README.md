@@ -23,6 +23,7 @@ El perfil de FilmAffinity y un Word con reseñas y su posible publicación en un
         4. [Etiquetas](#Etiquetas)
     4. [Publish_post](#Publish-post)
     5. [Make_and_publish](#Make-and-publish)
+    6. [Make_PDF](#Make-PDF)
 4. [Config](#Config)
 5. [Agradecimientos](#Agradecimientos)
 
@@ -67,7 +68,7 @@ Si existen dos películas (reseñadas o no) con el mismo nombre, se escribirá e
 
 Las reseñas deberán estar separadas entre sí por un doble salto de línea.
 
-Se espera que cuando se cite literalmente una frase de la película, se haga en cursvia.
+Se espera que cuando se cite literalmente una frase de la película, se haga en cursiva.
 
 Cuando se mencione el título de otra película (reseñada o no) se haga entre comillas: “Otro título”.
 
@@ -112,11 +113,11 @@ Si no se escribe nada, se exportará al usuario por defecto.
 La elección del usuario quedará registrada para la próxima vez que se ejecute.
 
 El archivo Excel generado se llamará `Sintaxis - usuario.xlsx`.
-Se usa como plantilla el archivo excel `Code\res\Readdata\Plantilla.xlsx`.
+Se usa como plantilla el archivo Excel `Code\res\Readdata\Plantilla.xlsx`.
 
 Del perfil de FilmAffinity se quieren extraer sólo las películas.
 Por eso se hace un filtrado dado el título.
-Si se encuentra un sufijo (_(TV)_, _(C)_,...), no se añade al excel.
+Si se encuentra un sufijo (_(TV)_, _(C)_,...), no se añade al Excel.
 Este criterio de filtrado se puede configurar.
 
 ### Contar_criticas
@@ -130,7 +131,7 @@ Los años son los que lee del nombre del Word cuyos títulos está listando.
 
 ### Make_html
 
-Dado el título de una reseña incluída en el archivo Word, generará un documento html listo para ser publicado en un blog.
+Dado el título de una reseña incluida en el archivo Word, generará un documento html listo para ser publicado en un blog.
 
 Las publicaciones siempre inician con un encabezado con el director, año de la película y duración.
 El programa los pedirá al usuario.
@@ -138,7 +139,7 @@ Se deben introducir según los vaya pidiendo.
 
 #### Información automática
 
-Antes de empezar a pedir la información, el prgrama hará una búsqueda del título de la película en FilmAffinity.
+Antes de empezar a pedir la información, el programa hará una búsqueda del título de la película en FilmAffinity.
 Si encuentra la película lo avisará por pantalla.
 Inmediatamente pedirá el nombre del director.
 Basta con dejar este campo vacío.
@@ -176,7 +177,7 @@ Dado que esta información se conoce, tras efectuar el html, se añade como come
 
 ### Publish post
 
-Se publicará en el blog un html que se enceuntren en la carpeta _Películas_.
+Se publicará en el blog un html que se encuentren en la carpeta _Películas_.
 Los html deben tener como nombre `Reseña _titulo_.html`.
 
 Para que sea posible la publicación la carpeta _Películas_ debe tener los permisos pertinentes para acceder al blog.
@@ -185,9 +186,11 @@ El archivo `client_secrets.json` se guarda en la carpeta `res\blog_credentials`.
 El otro archivo lo generará el código automáticamente.
 Para que el archivo `.dat` se genere en la carpeta `blog_credentials` hemos modificado la [línea de apertura del `.dat`](https://github.com/googleapis/google-api-python-client/blob/main/googleapiclient/sample_tools.py#L95).
 En su lugar hemos escrito:
+
 ```python
 storage = file.Storage(os.path.join(os.path.dirname(filename), name + ".dat"))
 ```
+
 El blog elegido será el que tiene el id especificado en el ini.
 
 En el archivo de configuración se puede elegir fecha, hora y si la publicación se hará en borrador o no.
@@ -203,6 +206,20 @@ Como las [etiquetas](#Etiquetas) de la reseña están escritas en la última lí
 Crea y publica un html.
 Tiene todas las prestaciones de las secciones [Make_html](#Make-html) y [Publish_post](#Publish-post).
 Tras publicar el html, elimina el archivo.
+
+### Make PDF
+
+Como las reseñas están separadas en varios documentos puede ser complicado hacer un único documento PDF.
+Se generará un PDF que una todos los documentos Word.
+Igualmente se actualizará la carpeta de Drive donde uno guarde sus copias de seguridad.
+Esta carpeta se especificará por su ID en Drive.
+Para ello se escribirá en el menú de configuración.
+El ID de una carpeta de Drive es la parte final de su dirección en Drive.
+
+En esa carpeta se actualiza lo que haya.
+Si hay un documento en la carpeta que no esté subido al Drive, no se subirá.
+Sólo se actualizan los documentos que ya estén en Drive.
+Se espera actualizar varios documentos `.docx` y un único documento `.pdf`.
 
 ## Config
 
@@ -226,7 +243,7 @@ por ser la primera en oír cómo la idea fracasaba...
 Por enseñarme qué es un csv, un dataframe y por enseñarme a leer un html.
 Por enseñarme markdown y permitir que estas mismas líneas existan.
 Por enseñarme a componer rutas.
-Por hacerme evitar los espaghettis.
+Por hacerme evitar los espaguetis.
 Por ser la única responsable de que este proyecto sea más de un único archivo.
 Por soportar los nombres de archivos con espacios, mi enorme dependencia del ratón,
 mi alergia a la consola y mis dobles clicks.
