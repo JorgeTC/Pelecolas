@@ -1,16 +1,34 @@
-import re
 import os
+import re
 
+from src.aux_res_directory import get_res_folder
 from src.dlg_make_html import DlgHtml
 from src.pelicula import Pelicula
-from src.word_reader import WordReader
 from src.quoter import Quoter
+from src.word_reader import WordReader
 
 SZ_INVALID_CHAR = "\/:*?<>|"
 SZ_HTML_COMMENT = "\n<!-- {} -->\n".format
 SZ_HTML_TITLE = "<!-- \n{}\n -->\n".format
 SZ_HTML_FILE = "Reseña {}.html".format
 
+# Función para leer los formatos del html
+def get_res_html_format(sz_file):
+    # Abro el archivo html que haya pasado por parámetro
+    html_file = open(get_res_folder("Make_html", sz_file))
+    # Obtengo la string entera
+    sz_file_content = html_file.read()
+    # Cierro el archivo que he leído
+    html_file.close()
+    # Creo un puntero a la función para rellenar la string apropiadamente
+    formater = sz_file_content.format
+
+    # Devuelvo la función
+    return formater
+
+SZ_HTML_HEADER = get_res_html_format("header.html")
+SZ_HTML_PARAGRAPH = get_res_html_format("paragraph.html")
+SZ_HTML_QUOTE_PARAGRAPH = get_res_html_format("quote_paragraph.html")
 
 class html():
 
@@ -125,7 +143,8 @@ class html():
         # Compongo el nombre completo del archivo
         self.sz_file_name = SZ_HTML_FILE(self.sz_file_name)
         # Abro el archivo en modo escritura
-        reseña = open(self.folder / self.sz_file_name, mode="w", encoding="utf-8")
+        reseña = open(self.folder / self.sz_file_name,
+                      mode="w", encoding="utf-8")
 
         # Escribo el título de la película en mayúsculas.
         # Quiero poder copiar del html el nombre del post
@@ -133,59 +152,31 @@ class html():
 
         # Escribo el encabezado
         reseña.write(SZ_HTML_COMMENT('Encabezado'))
-        self.__write_header_data(reseña, "Dir.: " + str(self.data.director))
-        self.__write_header_data(reseña, str(self.data.año))
-        self.__write_header_data(reseña, str(self.data.duracion) + " min.")
+        reseña.write(SZ_HTML_HEADER("Dir.: " + str(self.data.director)))
+        reseña.write(SZ_HTML_HEADER(str(self.data.año)))
+        reseña.write(SZ_HTML_HEADER(str(self.data.duracion) + " min."))
 
         # Iteramos los párrafos
         reseña.write(SZ_HTML_COMMENT('Párrafos'))
         for parrafo in self.parrafos_critica:
-            self.__write_paragraph(reseña, parrafo)
+            if not self.__is_all_italic(parrafo):
+                reseña.write(SZ_HTML_PARAGRAPH(parrafo))
+            else:
+                reseña.write(SZ_HTML_QUOTE_PARAGRAPH(parrafo))
 
         # Escribo los botones de Twitter
         reseña.write("\n<p>")
         reseña.write(SZ_HTML_COMMENT('Botón follow'))
-        reseña.write("<a href=\"https://twitter.com/pelecolas?ref_src=twsrc%5Etfw\" " +
-                     "class=\"twitter-follow-button\" data-show-count=\"false\">\n")
-        reseña.write("Follow @pelecolas</a>\n" +
-                     "<script async src=\"https://platform.twitter.com/widgets.js\"" +
-                     "charset=\"utf-8\"></script>\n")
+        html_follow = open(get_res_folder("Make_html", "follow.html")).read()
+        reseña.write(html_follow)
         reseña.write(SZ_HTML_COMMENT('Botón compartir'))
-        reseña.write("<a href=\"https://twitter.com/share?ref_src=twsrc%5Etfw\" " +
-                     "class=\"twitter-share-button\" data-show-count=\"false\">Tweet</a>\n" +
-                     "<script async src=\"https://platform.twitter.com/widgets.js\"\n" +
-                     "charset=\"utf-8\"></script>\n")
+        html_share = open(get_res_folder("Make_html", "share.html")).read()
+        reseña.write(html_share)
 
         # Etiquetas para publicar la reseña
         reseña.write(SZ_HTML_COMMENT(self.get_labels()))
 
         reseña.close()
-
-    def __write_header_data(self, file, text):
-        file.write("<div style=\"text-align: right;\">\n")
-        file.write("<span style=\"font-family: 'courier new', 'courier', monospace;\">" +
-                   str(text) + "</span></div>\n")
-
-    def __write_paragraph(self, file, parrafo):
-
-        # Si todo el párrafo entero es una cita, lo alineo todo a la derecha
-        # Compruebo si todo el párrafo son cursivas
-        all_italic = self.__is_all_italic(parrafo)
-
-        if not all_italic:
-            # Formato para un párrafo normal
-            file.write(
-                "<div style=\"margin: 16px 0px; text-align: justify; text-indent: 21.25pt;\">\n")
-            file.write(
-                "<span style=\"font-family: 'times new roman', serif; margin: 0px;\">\n")
-        else:
-            # Formato para un párrafo que es íntegro una cita
-            file.write(
-                "<div class=\"MsoNormalCxSpMiddle\" style=\"text-align: right;\">\n")
-            file.write(
-                "<span style=\"font-family: 'times new roman', serif;\">\n")
-        file.write(str(parrafo))
-        file.write("\n</span></div>\n")
 
     def __is_all_italic(self, text: str):
         # Hago listas con todas las listas de itálicas
