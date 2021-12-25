@@ -12,8 +12,9 @@ SZ_HTML_COMMENT = "\n<!-- {} -->\n".format
 SZ_HTML_TITLE = "<!-- \n{}\n -->\n".format
 SZ_HTML_FILE = "Reseña {}.html".format
 
-# Función para leer los formatos del html
 def get_res_html_format(sz_file):
+    # Función para leer los formatos del html
+
     # Abro el archivo html que haya pasado por parámetro
     html_file = open(get_res_folder("Make_html", sz_file))
     # Obtengo la string entera
@@ -26,9 +27,11 @@ def get_res_html_format(sz_file):
     # Devuelvo la función
     return formater
 
+
 SZ_HTML_HEADER = get_res_html_format("header.html")
 SZ_HTML_PARAGRAPH = get_res_html_format("paragraph.html")
 SZ_HTML_QUOTE_PARAGRAPH = get_res_html_format("quote_paragraph.html")
+
 
 class html():
 
@@ -68,7 +71,8 @@ class html():
         self.__citas.director = self.data.director
 
     @staticmethod
-    def __fin_de_parrafo(text):
+    def __fin_de_parrafo(text: str):
+        text = text.strip()
         return text == "" or text == "\t"
 
     def __get_text(self):
