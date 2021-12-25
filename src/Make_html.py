@@ -11,9 +11,24 @@ SZ_INVALID_CHAR = "\/:*?<>|"
 SZ_HTML_COMMENT = "\n<!-- {} -->\n".format
 SZ_HTML_TITLE = "<!-- \n{}\n -->\n".format
 SZ_HTML_FILE = "Reseña {}.html".format
-SZ_HTML_HEADER = open(get_res_folder("Make_html", "header.html")).read().format
-SZ_HTML_PARAGRAPH = open(get_res_folder("Make_html", "paragraph.html")).read().format
-SZ_HTML_QUOTE_PARAGRAPH = open(get_res_folder("Make_html", "quote_paragraph.html")).read().format
+
+# Función para leer los formatos del html
+def get_res_html_format(sz_file):
+    # Abro el archivo html que haya pasado por parámetro
+    html_file = open(get_res_folder("Make_html", sz_file))
+    # Obtengo la string entera
+    sz_file_content = html_file.read()
+    # Cierro el archivo que he leído
+    html_file.close()
+    # Creo un puntero a la función para rellenar la string apropiadamente
+    formater = sz_file_content.format
+
+    # Devuelvo la función
+    return formater
+
+SZ_HTML_HEADER = get_res_html_format("header.html")
+SZ_HTML_PARAGRAPH = get_res_html_format("paragraph.html")
+SZ_HTML_QUOTE_PARAGRAPH = get_res_html_format("quote_paragraph.html")
 
 class html():
 
