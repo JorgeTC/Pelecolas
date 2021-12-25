@@ -1,11 +1,11 @@
-import re
 import os
+import re
 
+from src.aux_res_directory import get_res_folder
 from src.dlg_make_html import DlgHtml
 from src.pelicula import Pelicula
-from src.word_reader import WordReader
 from src.quoter import Quoter
-from src.aux_res_directory import get_res_folder
+from src.word_reader import WordReader
 
 SZ_INVALID_CHAR = "\/:*?<>|"
 SZ_HTML_COMMENT = "\n<!-- {} -->\n".format
