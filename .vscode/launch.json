@@ -6,49 +6,56 @@
             "type": "python",
             "request": "launch",
             "program": "${file}",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "justMyCode": true
         },
         {
             "name": "Read data",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/../Películas/Readdata.py",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "justMyCode": true
         },
         {
             "name": "Contar libros",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/../Literatura/Contar criticas.py",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "justMyCode": true
         },
         {
             "name": "Contar peliculas",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/../Películas/Contar criticas.py",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "justMyCode": true
         },
         {
             "name": "Write html",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/../Películas/Make html.py",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "justMyCode": true
         },
         {
             "name": "Post html",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/../Películas/publish_html.py",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "justMyCode": true
         },
         {
             "name": "Make and post",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/../Películas/make_and_publish.py",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "justMyCode": true
         },
         {
             "name": "Write pdf",
