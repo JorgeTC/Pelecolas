@@ -12,7 +12,7 @@ class Drive(GoogleApiMgr):
         GoogleApiMgr.__init__(self, 'drive')
 
         # Gestor de archivos en el drive
-        self.files = self.get_service().files()
+        self.files = self.SERVICE.files()
 
         # Obtengo la carpeta dentro del drive
         self.folder_id = CONFIG.get_value(CONFIG.S_DRIVE, CONFIG.P_FOLDER_ID)

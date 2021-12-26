@@ -18,12 +18,12 @@ class Poster(ReadBlog, GoogleApiMgr):
         GoogleApiMgr.__init__(self, 'blogger')
 
         try:
-            blogs = self.get_service().blogs()
+            blogs = self.SERVICE.blogs()
 
             # Retrieve the list of Blogs this user has write privileges on
             thisusersblogs = blogs.listByUser(userId='self').execute()
 
-            self.posts = self.get_service().posts()
+            self.posts = self.SERVICE.posts()
 
             for blog in thisusersblogs['items']:
                 if blog['id'] == self.BLOG_ID:

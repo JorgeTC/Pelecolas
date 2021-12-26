@@ -11,6 +11,3 @@ class GoogleApiMgr():
         self.SERVICE, _ = sample_tools.init(
             [__file__], sz_type, 'v3', __doc__, self.sz_credentials,
             scope='https://www.googleapis.com/auth/{}'.format(sz_type))
-
-    def get_service(self):
-        return self.SERVICE
