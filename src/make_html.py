@@ -33,11 +33,11 @@ SZ_HTML_PARAGRAPH = get_res_html_format("paragraph.html")
 SZ_HTML_QUOTE_PARAGRAPH = get_res_html_format("quote_paragraph.html")
 
 
-class html():
+class html(WordReader):
 
     def __init__(self, folder):
-        # Guardo la capreta donde crearé el html
-        self.folder = folder
+        WordReader.__init__(self, folder)
+
         # Variable para el nombre del archivo
         self.sz_file_name = ""
         # Creo una lista para guardar el texto de la crítica con el formato html
@@ -48,13 +48,7 @@ class html():
         self.data = Pelicula()
 
         # Hago un diccionario con todos los títulos que tienen una crítica escrita
-        reader = WordReader(folder)
-        reader.list_titles()
-        # Guardo una lista de párrafos del word
-        self.doc_paragraphs = reader.paragraphs
-        # Hago un diccionario donde, dado un título,
-        # obtengo el índice de la lista donde empieza la crítica
-        self.titulos = reader.titulos
+        self.list_titles()
 
         # Objeto para hacer las citas de forma automática
         self.__citas = Quoter()
@@ -70,19 +64,14 @@ class html():
         self.__citas.titulo = self.data.titulo
         self.__citas.director = self.data.director
 
-    @staticmethod
-    def __fin_de_parrafo(text: str):
-        text = text.strip()
-        return text == "" or text == "\t"
-
     def __get_text(self):
         # Si no tengo los datos de la película, los pido
         if not self.data.titulo:
             self.ask_for_data()
         # Empiezo a recorrer los párrafos desde el que sé que inicia la crítica que busco
-        for paragraph in self.doc_paragraphs[self.titulos[self.data.titulo]:]:
+        for paragraph in self.paragraphs[self.titulos[self.data.titulo]:]:
 
-            if self.__fin_de_parrafo(paragraph.text):
+            if self.is_break_line(paragraph.text):
                 # He llegado al final de la crítica. Dejo de leer el documento
                 return self.parrafos_critica
 
@@ -147,7 +136,7 @@ class html():
         # Compongo el nombre completo del archivo
         self.sz_file_name = SZ_HTML_FILE(self.sz_file_name)
         # Abro el archivo en modo escritura
-        reseña = open(self.folder / self.sz_file_name,
+        reseña = open(self.sz_folder / self.sz_file_name,
                       mode="w", encoding="utf-8")
 
         # Escribo el título de la película en mayúsculas.
@@ -236,7 +225,7 @@ class html():
 
     def delete_file(self):
         # Elimino el último html que he escrito
-        os.remove(self.folder / self.sz_file_name)
+        os.remove(self.sz_folder / self.sz_file_name)
 
 
 if __name__ == "__main__":

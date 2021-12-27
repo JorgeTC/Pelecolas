@@ -8,7 +8,8 @@ SEPARATOR_YEAR = " - "
 
 class WordReader(WordFolderMgr):
     def __init__(self, folder):
-        super().__init__(folder)
+        WordFolderMgr.__init__(folder)
+
         # Me quedo con el nombre del archivo sin la extensión.
         self.header = str(self.sz_all_docx[0].stem).split(SEPARATOR_YEAR)[0]
         # Me guardo sólo los párrafos, es lo que voy a iterar más adelante
@@ -58,14 +59,15 @@ class WordReader(WordFolderMgr):
         if self.__is_header(text):
             # No cuento el encabezado del documento
             return False
-        if self.__is_break_line(text):
+        if self.is_break_line(text):
             # Si hay un doble salto de párrafo, quizás ha terminado una crítica
             # El inicio del siguiente párrafo será el título de la película
             return True
 
         return False
 
-    def __is_break_line(self, text: str) -> bool:
+    @staticmethod
+    def is_break_line(text: str) -> bool:
 
         # Limpio de espacios el texto
         text = text.strip()

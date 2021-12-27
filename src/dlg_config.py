@@ -1,5 +1,4 @@
 import configparser
-from pathlib import Path
 
 from src.aux_res_directory import get_res_folder
 from src.dlg_scroll_base import DlgScrollBase
