@@ -8,7 +8,7 @@ SEPARATOR_YEAR = " - "
 
 class WordReader(WordFolderMgr):
     def __init__(self, folder):
-        WordFolderMgr.__init__(folder)
+        WordFolderMgr.__init__(self, folder)
 
         # Me quedo con el nombre del archivo sin la extensión.
         self.header = str(self.sz_all_docx[0].stem).split(SEPARATOR_YEAR)[0]
