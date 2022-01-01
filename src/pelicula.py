@@ -1,9 +1,11 @@
+import math
+import re
+
 from bs4 import BeautifulSoup
 
-from src.url_FA import URL_FILM_ID
 from src.dlg_config import CONFIG
 from src.safe_url import safe_get_url
-
+from src.url_FA import URL_FILM_ID
 
 
 def get_id_from_url(url):
@@ -39,6 +41,8 @@ def es_valida(titulo):
     # No se ha encontrado sufijo, luego es una película
     return SET_VALID_FILM & (1 << 0)
 
+# Cómo debo buscar la información de las barras
+RATING_BARS_PATTERN = re.compile(r'RatingBars.*?\[.*?\]', re.MULTILINE | re.DOTALL)
 
 class Pelicula(object):
     def __init__(self, movie_box=None, id=None, urlFA=None):
@@ -63,6 +67,7 @@ class Pelicula(object):
         self.parsed_page = None
         self.nota_FA = 0
         self.votantes_FA = 0
+        self.desvest_FA = 0
         self.duracion = 0
         self.director = ""
         self.año = None
@@ -148,6 +153,7 @@ class Pelicula(object):
         self.get_nota_FA()
         self.get_votantes_FA()
         self.get_duracion()
+        self.get_desvest()
 
     def get_director(self):
 
@@ -164,6 +170,37 @@ class Pelicula(object):
 
         l = self.parsed_page.find(itemprop="datePublished")
         self.año = l.contents[0]
+
+    def get_desvest(self):
+        # Me espero que antes de llamar a esta función ya se haya llamado
+        # a la función para buscar la nota de FA
+        if self.nota_FA == 0:
+            self.desvest_FA = 0
+            return
+
+        # Recopilo los datos específicos de la varianza:
+        script = self.parsed_page.find("script", text=RATING_BARS_PATTERN)
+        if script:
+            bars = script.string
+        else:
+            return
+
+        # Extraigo cuánto vale cada barra
+        values = bars[bars.find("[") + 1:bars.find("]")]
+        values = [int(s) for s in values.split(',')]
+        # Las ordeno poniendo primero las notas más bajas
+        values.reverse()
+
+        # Calculo la varianza
+        varianza = 0
+        # Itero las frecuencias.
+        # Cada frecuencia representa a la puntuación igual a su posición en la lista más 1
+        for note, votes in enumerate(values):
+            varianza += votes * (note + 1 - self.nota_FA) * (note + 1 - self.nota_FA)
+        varianza /= sum(values)
+
+        # Doy el valor a la variable miembro, lo convierto a desviación típica
+        self.desvest_FA = math.sqrt(varianza)
 
     def exists(self):
         return self.__exists
