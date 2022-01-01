@@ -178,20 +178,28 @@ class Pelicula(object):
         all_scripts = self.parsed_page.find_all("script")
         for script in all_scripts:
             try:
+                # Compruebo que sea el script de las barras
                 if script.contents[0].find('RatingBars') > 0:
                     bars = script.contents[0]
                     break
             except:
                 pass
 
+        # Extraigo cuánto vale cada barra
         values = bars[bars.find("[") + 1:bars.find("]")]
         values = [int(s) for s in values.split(',')]
+        # Las ordeno poniendo primero las notas más bajas
         values.reverse()
+
+        # Calculo la varianza
         varianza = 0
+        # Itero las frecuencias.
+        # Cada frecuencia representa a la puntuación igual a su posición en la lista más 1
         for note, votes in enumerate(values):
             varianza += votes * (note + 1 - self.nota_FA) * (note + 1 - self.nota_FA)
         varianza /= sum(values)
 
+        # Doy el valor a la variable miembro
         self.varianza_FA = varianza
 
     def exists(self):
