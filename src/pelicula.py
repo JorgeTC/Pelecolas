@@ -168,15 +168,10 @@ class Pelicula(object):
         self.año = l.contents[0]
 
     def get_varianza(self):
-        # Obtengo las otras variables necesarias para calcular la varianza
-        if not self.parsed_page:
-            self.get_parsed_page()
-
-        if not self.nota_FA:
-            self.get_nota_FA()
-
-        if not self.votantes_FA:
-            self.get_votantes_FA()
+        # Me espero que antes de llamar a esta función ya se haya llamado
+        # a la función para buscar la nota de FA
+        if self.nota_FA == 0:
+            self.varianza_FA = 0
 
         # Recopilo los datos específicos de la varianza:
         all_scripts = self.parsed_page.find_all("script")
@@ -194,10 +189,9 @@ class Pelicula(object):
         varianza = 0
         for note, votes in enumerate(values):
             varianza += votes * (note + 1 - self.nota_FA) * (note + 1 - self.nota_FA)
-        print(bars)
-        pass
+        varianza /= sum(values)
 
-
+        self.varianza_FA = varianza
 
     def exists(self):
         return self.__exists
