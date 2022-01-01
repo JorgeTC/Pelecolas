@@ -15,9 +15,9 @@ from src.safe_url import safe_get_url
 class Writer(object):
 
     columns = ["Id", "Mia", "FA", "Duracion", "Visionados", "Varianza FA",
-            "FA redondeo", "Diferencia", "Diferencia abs", "Me ha gustado",
-            "Mia + ruido", "FA + ruido", "Mia rees", "FA rees"]
-    columns = dict(zip(columns, range(1,len(columns)+1)))
+               "FA redondeo", "Diferencia", "Diferencia abs", "Me ha gustado",
+               "Mia + ruido", "FA + ruido", "Mia rees", "FA rees"]
+    columns = dict(zip(columns, range(1, len(columns)+1)))
 
     def __init__(self, id, worksheet):
         # numero de usuario en string
@@ -47,13 +47,13 @@ class Writer(object):
         url = self.get_list_url(self.page_index)
         resp = safe_get_url(url)
         # Guardo la página ya parseada
-        self.soup_page = BeautifulSoup(resp.text,'html.parser')
+        self.soup_page = BeautifulSoup(resp.text, 'html.parser')
 
         # me espero que haya un único "value-box active-tab"
         mydivs = self.soup_page.find("a", {"class": "value-box active-tab"})
         stringNumber = mydivs.contents[3].contents[1]
         # Elimino el punto de los millares
-        stringNumber = stringNumber.replace('.','')
+        stringNumber = stringNumber.replace('.', '')
         return int(stringNumber)
 
     def __get_all_boxes(self):
@@ -63,11 +63,10 @@ class Writer(object):
         executor = concurrent.futures.ThreadPoolExecutor()
         self.film_list = list(executor.map(self.__list_boxes, url_pages))
 
-
     def __list_boxes(self, url):
         resp = safe_get_url(url)
         # Guardo la página ya parseada
-        soup_page = BeautifulSoup(resp.text,'html.parser')
+        soup_page = BeautifulSoup(resp.text, 'html.parser')
         # Leo todas las películas que haya en ella
         return list(soup_page.findAll("div", {"class": "user-ratings-movie"}))
 
@@ -76,7 +75,6 @@ class Writer(object):
         return url_FA.URL_USER_PAGE(self.id_user, str(page_index))
 
     def __next_page(self):
-
 
         self.film_index += len(self.film_list[self.page_index-1])
         if self.film_index:
@@ -89,7 +87,7 @@ class Writer(object):
         # Creo un objeto para hacer la gestión de paralelización
         executor = concurrent.futures.ThreadPoolExecutor(max_workers=20)
         # Creo una lista de listas donde se guardarán los datos de las películas
-        rows_data=[]
+        rows_data = []
 
         # Creo una barra de progreso
         self.bar.reset_timer()
@@ -108,12 +106,12 @@ class Writer(object):
             self.__next_page()
 
         df = DataFrame(rows_data,
-                        columns=['Id', 'User Note', 'Duration', 'Voters', 'Note FA', 'Title', 'Variance FA'])
+                       columns=['Id', 'User Note', 'Duration', 'Voters', 'Note FA', 'Title', 'Variance FA'])
 
         for index, row in df.iterrows():
             self.__write_in_excel(index, row)
 
-    def __read_film(self, film : Pelicula):
+    def __read_film(self, film: Pelicula):
         # Hacemos la parte más lenta, que necesita parsear la página.
         film.get_time_and_FA()
 
@@ -127,7 +125,6 @@ class Writer(object):
                 film.titulo,
                 film.desvest_FA]
 
-
     def __write_in_excel(self, line, film):
 
         # La enumeración empezará en 0,
@@ -138,46 +135,45 @@ class Writer(object):
         # no puedo leer la nota del usuario dentro de la ficha
         UserNote = film['User Note']
         self.__set_cell_value(line, self.columns["Mia"],
-                                int(UserNote))
+                              int(UserNote))
         self.__set_cell_value(line, self.columns["Mia + ruido"],
-                                "=Tabla1[Mia]+RAND()-0.5")
+                              "=Tabla1[Mia]+RAND()-0.5")
         self.__set_cell_value(line, self.columns["Mia rees"],
-                                "=(Tabla1[Mia]-1)*10/9")
+                              "=(Tabla1[Mia]-1)*10/9")
         # En la primera columna guardo la id para poder reconocerla
         self.__set_cell_value(line, self.columns["Id"],
-                                film['Title'], int(film['Id']))
+                              film['Title'], int(film['Id']))
 
         if (film['Duration'] != 0):
             # dejo la casilla en blanco si no logra leer ninguna duración de FA
             self.__set_cell_value(line, self.columns["Duracion"],
-                                    film['Duration'])
+                                  film['Duration'])
         if (film['Note FA'] != 0):
             # dejo la casilla en blanco si no logra leer ninguna nota de FA
             self.__set_cell_value(line, self.columns["FA"],
-                                    film['Note FA'])
+                                  film['Note FA'])
             self.__set_cell_value(line, self.columns["FA redondeo"],
-                                    "=ROUND(Tabla1[FA]*2, 0)/2")
+                                  "=ROUND(Tabla1[FA]*2, 0)/2")
             self.__set_cell_value(line, self.columns["Diferencia"],
-                                    "=Tabla1[Mia]-Tabla1[FA]")
+                                  "=Tabla1[Mia]-Tabla1[FA]")
             self.__set_cell_value(line, self.columns["Diferencia abs"],
-                                    "=ABS(Tabla1[Diferencia])")
+                                  "=ABS(Tabla1[Diferencia])")
             self.__set_cell_value(line, self.columns["Me ha gustado"],
-                                    "=IF(Tabla1[Diferencia]>0,1,0.1)")
+                                  "=IF(Tabla1[Diferencia]>0,1,0.1)")
             self.__set_cell_value(line, self.columns["FA rees"],
-                                    "=(Tabla1[FA]-1)*10/9")
+                                  "=(Tabla1[FA]-1)*10/9")
             self.__set_cell_value(line, self.columns["FA + ruido"],
-                                    "=Tabla1[FA]+(RAND()-0.5)/10")
+                                  "=Tabla1[FA]+(RAND()-0.5)/10")
         if (film['Voters'] != 0):
             # dejo la casilla en blanco si no logra leer ninguna votantes
             self.__set_cell_value(line, self.columns["Visionados"],
-                                    film['Voters'])
+                                  film['Voters'])
         if (film['Variance FA'] != 0):
             self.__set_cell_value(line, self.columns["Varianza FA"],
-                                    film['Variance FA'])
-
+                                  film['Variance FA'])
 
     def __set_cell_value(self, line, col, value, id=0):
-        cell = self.ws.cell(row = line, column=col)
+        cell = self.ws.cell(row=line, column=col)
         cell.value = value
         # Configuramos el estilo de la celda atendiendo a su columna
         # visionados. Ponemos punto de millar
@@ -186,18 +182,19 @@ class Writer(object):
         # booleano mayor que
         elif (col == self.columns["Me ha gustado"]):
             cell.number_format = '0'
-            cell.font = Font(name = 'SimSun', bold = True)
-            cell.alignment=Alignment(horizontal='center', vertical='center')
+            cell.font = Font(name='SimSun', bold=True)
+            cell.alignment = Alignment(horizontal='center', vertical='center')
         # Nota del usuario más el ruido
         elif (col == self.columns["Mia + ruido"]):
             cell.number_format = '0.0'
         # Nota de FA más el ruido
-        elif (col == self.columns["FA + ruido"]):
+        elif (col == self.columns["FA"] or
+              col == self.columns["FA + ruido"]):
             cell.number_format = '0.00'
         # Varianza de los votos en FA
         elif (col == self.columns["Varianza FA"]):
             cell.number_format = '0.00'
-        #reescala
+        # reescala
         elif (col == self.columns["Mia rees"] or
               col == self.columns["FA rees"]):
             cell.number_format = '0.00'
@@ -208,4 +205,3 @@ class Writer(object):
             cell.hyperlink = url_FA.URL_FILM_ID(id)
             # Fuerzo el formato como texto
             cell.number_format = '@'
-
