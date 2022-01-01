@@ -68,6 +68,7 @@ class Pelicula(object):
         self.nota_FA = 0
         self.votantes_FA = 0
         self.desvest_FA = 0
+        self.values = []
         self.duracion = 0
         self.director = ""
         self.año = None
@@ -84,13 +85,16 @@ class Pelicula(object):
         return film_box.contents[1].contents[1].attrs['data-movie-id']
 
     def get_nota_FA(self):
-        # Me espero que la página ya haya sido parseada
-        l = self.parsed_page.find(id="movie-rat-avg")
-        try:
-            # guardo la nota de FA en una ficha normal
-            self.nota_FA = float(l.attrs['content'])
-        except:
-            # caso en el que no hay nota de FA
+        # Obtengo la lista
+        self.get_values()
+
+        if self.values:
+            # Multiplico la nota por la cantidad de gente que la ha dado
+            for vote, quantity in enumerate(self.values):
+                self.nota_FA += (vote + 1) * quantity
+            # Divido entre el número total
+            self.nota_FA /= sum(self.values)
+        else:
             self.nota_FA = 0
 
     def get_votantes_FA(self):
@@ -171,13 +175,7 @@ class Pelicula(object):
         l = self.parsed_page.find(itemprop="datePublished")
         self.año = l.contents[0]
 
-    def get_desvest(self):
-        # Me espero que antes de llamar a esta función ya se haya llamado
-        # a la función para buscar la nota de FA
-        if self.nota_FA == 0:
-            self.desvest_FA = 0
-            return
-
+    def get_values(self):
         # Recopilo los datos específicos de la varianza:
         script = self.parsed_page.find("script", text=RATING_BARS_PATTERN)
         if script:
@@ -187,17 +185,28 @@ class Pelicula(object):
 
         # Extraigo cuánto vale cada barra
         values = bars[bars.find("[") + 1:bars.find("]")]
-        values = [int(s) for s in values.split(',')]
+        self.values = [int(s) for s in values.split(',')]
         # Las ordeno poniendo primero las notas más bajas
-        values.reverse()
+        self.values.reverse()
+
+    def get_desvest(self):
+
+        if not self.values:
+            self.get_values()
+
+        # Me espero que antes de llamar a esta función ya se haya llamado
+        # a la función para buscar la nota de FA
+        if self.nota_FA == 0:
+            self.desvest_FA = 0
+            return
 
         # Calculo la varianza
         varianza = 0
         # Itero las frecuencias.
         # Cada frecuencia representa a la puntuación igual a su posición en la lista más 1
-        for note, votes in enumerate(values):
+        for note, votes in enumerate(self.values):
             varianza += votes * (note + 1 - self.nota_FA) * (note + 1 - self.nota_FA)
-        varianza /= sum(values)
+        varianza /= sum(self.values)
 
         # Doy el valor a la variable miembro, lo convierto a desviación típica
         self.desvest_FA = math.sqrt(varianza)
