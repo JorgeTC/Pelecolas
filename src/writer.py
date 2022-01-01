@@ -196,7 +196,9 @@ class Writer(object):
             cell.number_format = '0.00'
         # reescala
         elif (col == self.columns["Mia rees"] or
-              col == self.columns["FA rees"]):
+              col == self.columns["FA rees"] or
+              col == self.columns["Diferencia"] or
+              col == self.columns["Diferencia abs"]):
             cell.number_format = '0.00'
         # Nombre de la película con un hipervínculo
         elif (col == self.columns["Id"]):
