@@ -1,3 +1,4 @@
+import math
 import re
 
 from bs4 import BeautifulSoup
@@ -41,7 +42,7 @@ def es_valida(titulo):
     return SET_VALID_FILM & (1 << 0)
 
 # Cómo debo buscar la información de las barras
-RATING_BARS_PATTERN = re.compile(r'RatingBars', re.MULTILINE | re.DOTALL)
+RATING_BARS_PATTERN = re.compile(r'RatingBars.*?\[.*?\]', re.MULTILINE | re.DOTALL)
 
 class Pelicula(object):
     def __init__(self, movie_box=None, id=None, urlFA=None):
@@ -66,7 +67,7 @@ class Pelicula(object):
         self.parsed_page = None
         self.nota_FA = 0
         self.votantes_FA = 0
-        self.varianza_FA = 0
+        self.desvest_FA = 0
         self.duracion = 0
         self.director = ""
         self.año = None
@@ -152,7 +153,7 @@ class Pelicula(object):
         self.get_nota_FA()
         self.get_votantes_FA()
         self.get_duracion()
-        self.get_varianza()
+        self.get_desvest()
 
     def get_director(self):
 
@@ -170,11 +171,11 @@ class Pelicula(object):
         l = self.parsed_page.find(itemprop="datePublished")
         self.año = l.contents[0]
 
-    def get_varianza(self):
+    def get_desvest(self):
         # Me espero que antes de llamar a esta función ya se haya llamado
         # a la función para buscar la nota de FA
         if self.nota_FA == 0:
-            self.varianza_FA = 0
+            self.desvest_FA = 0
             return
 
         # Recopilo los datos específicos de la varianza:
@@ -198,8 +199,8 @@ class Pelicula(object):
             varianza += votes * (note + 1 - self.nota_FA) * (note + 1 - self.nota_FA)
         varianza /= sum(values)
 
-        # Doy el valor a la variable miembro
-        self.varianza_FA = varianza
+        # Doy el valor a la variable miembro, lo convierto a desviación típica
+        self.desvest_FA = math.sqrt(varianza)
 
     def exists(self):
         return self.__exists

@@ -125,7 +125,7 @@ class Writer(object):
                 film.votantes_FA,
                 film.nota_FA,
                 film.titulo,
-                film.varianza_FA]
+                film.desvest_FA]
 
 
     def __write_in_excel(self, line, film):
