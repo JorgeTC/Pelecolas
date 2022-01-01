@@ -1,9 +1,10 @@
+import re
+
 from bs4 import BeautifulSoup
 
-from src.url_FA import URL_FILM_ID
 from src.dlg_config import CONFIG
 from src.safe_url import safe_get_url
-
+from src.url_FA import URL_FILM_ID
 
 
 def get_id_from_url(url):
@@ -39,6 +40,8 @@ def es_valida(titulo):
     # No se ha encontrado sufijo, luego es una película
     return SET_VALID_FILM & (1 << 0)
 
+# Cómo debo buscar la información de las barras
+RATING_BARS_PATTERN = re.compile(r'RatingBars', re.MULTILINE | re.DOTALL)
 
 class Pelicula(object):
     def __init__(self, movie_box=None, id=None, urlFA=None):
@@ -175,15 +178,11 @@ class Pelicula(object):
             return
 
         # Recopilo los datos específicos de la varianza:
-        all_scripts = self.parsed_page.find_all("script")
-        for script in all_scripts:
-            try:
-                # Compruebo que sea el script de las barras
-                if script.contents[0].find('RatingBars') > 0:
-                    bars = script.contents[0]
-                    break
-            except:
-                pass
+        script = self.parsed_page.find("script", text=RATING_BARS_PATTERN)
+        if script:
+            bars = script.string
+        else:
+            return
 
         # Extraigo cuánto vale cada barra
         values = bars[bars.find("[") + 1:bars.find("]")]
