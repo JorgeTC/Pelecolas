@@ -14,7 +14,7 @@ from src.safe_url import safe_get_url
 
 class Writer(object):
 
-    columns = ["Id", "Mia", "FA", "Duracion", "Visionados",
+    columns = ["Id", "Mia", "FA", "Duracion", "Visionados", "Varianza FA",
             "FA redondeo", "Diferencia", "Diferencia abs", "Me ha gustado",
             "Mia + ruido", "FA + ruido", "Mia rees", "FA rees"]
     columns = dict(zip(columns, range(1,len(columns)+1)))
@@ -108,7 +108,7 @@ class Writer(object):
             self.__next_page()
 
         df = DataFrame(rows_data,
-                        columns=['Id', 'User Note', 'Duration', 'Voters', 'Note FA', 'Title'])
+                        columns=['Id', 'User Note', 'Duration', 'Voters', 'Note FA', 'Title', 'Variance FA'])
 
         for index, row in df.iterrows():
             self.__write_in_excel(index, row)
@@ -124,7 +124,8 @@ class Writer(object):
                 film.duracion,
                 film.votantes_FA,
                 film.nota_FA,
-                film.titulo]
+                film.titulo,
+                film.varianza_FA]
 
 
     def __write_in_excel(self, line, film):
@@ -139,9 +140,9 @@ class Writer(object):
         self.__set_cell_value(line, self.columns["Mia"],
                                 int(UserNote))
         self.__set_cell_value(line, self.columns["Mia + ruido"],
-                                "=B{}+RAND()-0.5".format(line))
+                                "=Tabla1[Mia]+RAND()-0.5")
         self.__set_cell_value(line, self.columns["Mia rees"],
-                                "=(B{}-1)*10/9".format(line))
+                                "=(Tabla1[Mia]-1)*10/9")
         # En la primera columna guardo la id para poder reconocerla
         self.__set_cell_value(line, self.columns["Id"],
                                 film['Title'], int(film['Id']))
@@ -155,21 +156,24 @@ class Writer(object):
             self.__set_cell_value(line, self.columns["FA"],
                                     film['Note FA'])
             self.__set_cell_value(line, self.columns["FA redondeo"],
-                                    "=ROUND(C{}*2, 0)/2".format(line))
+                                    "=ROUND(Tabla1[FA]*2, 0)/2")
             self.__set_cell_value(line, self.columns["Diferencia"],
-                                    "=B{0}-C{0}".format(line))
+                                    "=Tabla1[Mia]-Tabla1[FA]")
             self.__set_cell_value(line, self.columns["Diferencia abs"],
-                                    "=ABS(G{})".format(line))
+                                    "=ABS(Tabla1[Diferencia])")
             self.__set_cell_value(line, self.columns["Me ha gustado"],
-                                    "=IF($G{}>0,1,0.1)".format(line))
+                                    "=IF(Tabla1[Diferencia]>0,1,0.1)")
             self.__set_cell_value(line, self.columns["FA rees"],
-                                    "=(C{}-1)*10/9".format(line))
+                                    "=(Tabla1[FA]-1)*10/9")
             self.__set_cell_value(line, self.columns["FA + ruido"],
-                                    "=C{}+(RAND()-0.5)/10".format(line))
+                                    "=Tabla1[FA]+(RAND()-0.5)/10")
         if (film['Voters'] != 0):
             # dejo la casilla en blanco si no logra leer ninguna votantes
             self.__set_cell_value(line, self.columns["Visionados"],
                                     film['Voters'])
+        if (film['Variance FA'] != 0):
+            self.__set_cell_value(line, self.columns["Varianza FA"],
+                                    film['Variance FA'])
 
 
     def __set_cell_value(self, line, col, value, id=0):
@@ -189,6 +193,9 @@ class Writer(object):
             cell.number_format = '0.0'
         # Nota de FA más el ruido
         elif (col == self.columns["FA + ruido"]):
+            cell.number_format = '0.00'
+        # Varianza de los votos en FA
+        elif (col == self.columns["Varianza FA"]):
             cell.number_format = '0.00'
         #reescala
         elif (col == self.columns["Mia rees"] or
