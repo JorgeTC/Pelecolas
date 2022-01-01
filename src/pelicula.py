@@ -172,6 +172,7 @@ class Pelicula(object):
         # a la función para buscar la nota de FA
         if self.nota_FA == 0:
             self.varianza_FA = 0
+            return
 
         # Recopilo los datos específicos de la varianza:
         all_scripts = self.parsed_page.find_all("script")
