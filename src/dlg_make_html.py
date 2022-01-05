@@ -103,8 +103,8 @@ class DlgHtml(DlgScrollBase):
         for i, title in enumerate(lower_titles):
             # Compruebo que no tenga escrito el año
             candidato_año = get_year(title)
-            # Tiene escrito el año
-            if candidato_año.isnumeric():
+
+            if candidato_año:
                 # Quito el año del título
                 title = title[:title.rfind('(')]
                 # Quito los espacios que hayan podido quedar
@@ -163,16 +163,20 @@ def all_indices_in_list(ls, el):
 def get_year(title:str):
     '''
     Dado un título de los escritos en el word,
-    quiero extraer el posible título que tenga entre paréntesis
+    quiero extraer el posible año que tenga entre paréntesis
     '''
     # Busco paréntesis en el título introducido
     año_primera_pos = title.rfind("(")
-    año_ultima_por = title.rfind(')')
+    año_ultima_pos = title.rfind(')')
 
     # Compruebo si he encontrado paréntesis
-    if año_primera_pos > 0 and año_ultima_por > 0:
-        # Devuelvo lo que haya contenido entre paréntesis
-        return title[año_primera_pos + 1:año_ultima_por]
-    else:
-        # No se ha encontrado año, devuelvo una cadena vacía
+    if año_primera_pos < 0 or año_ultima_pos < 0:
         return ""
+
+    # Extraigo el posible año
+    año = title[año_primera_pos + 1:año_ultima_pos]
+    # Compruebo que sean 4 dígitos
+    if not año.isnumeric() or len(año) != 4:
+        return ""
+
+    return año
