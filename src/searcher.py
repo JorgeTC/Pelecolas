@@ -1,4 +1,6 @@
 import urllib.parse
+from dataclasses import dataclass
+from typing import List
 
 from bs4 import BeautifulSoup
 
@@ -6,12 +8,12 @@ import src.url_FA as url_FA
 from src.safe_url import safe_get_url
 
 
-# Clase para guardar los datos que se lean
+@dataclass
 class TituloYAño():
-    def __init__(self, title, year, url):
-        self.titulo = title
-        self.año = year
-        self.url = url
+    '''Clase para guardar los datos que se lea'''
+    titulo: str
+    año: int
+    url: str
 
 
 ################ MACROS CLASIFICAR LA PÁGINA ################
@@ -157,7 +159,7 @@ class Searcher():
         # No he sido capaz de encontrar nada
         return ""
 
-    def __elegir_url(self, lista):
+    def __elegir_url(self, lista: List[TituloYAño]):
         # Tengo una lista de películas con sus años.
         # Miro cuál de ellas me sirve más.
 
