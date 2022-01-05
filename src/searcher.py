@@ -24,6 +24,7 @@ class SearchResult():
     ERROR = 4
 
 
+# Mensajes para emitir por consola
 SZ_ONLY_ONE_FILM = "Se ha encontrado una única película llamada {}.".format
 SZ_ONLY_ONE_FILM_YEAR = "Se ha encontrado una única película llamada {} del año {}".format
 
@@ -88,14 +89,7 @@ class Searcher():
             return
 
         # Caja donde están todos los resultados
-        peliculas_encontradas = self.parsed_page.find_all(
-            'div', {'class': "z-search"})
-        # Se han hecho tres búsquedas: título, director, reparto
-        # la única que me interesa es la primera: título.
-        peliculas_encontradas = peliculas_encontradas[0]
-        peliculas_encontradas = peliculas_encontradas.find_all('div')
-        peliculas_encontradas = [div for div in peliculas_encontradas if div.get('class')[
-            0] == 'se-it']
+        peliculas_encontradas = self.parsed_page.find_all('div', {'class': 'se-it'})
 
         lista_peliculas = []
         curr_year = 0
