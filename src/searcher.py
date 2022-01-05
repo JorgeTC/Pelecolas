@@ -16,12 +16,14 @@ class TituloYAño():
     url: str
 
 
-################ MACROS CLASIFICAR LA PÁGINA ################
-ENCONTRADA = 1
-VARIOS_RESULTADOS = 2
-NO_ENCONTRADA = 3
-ERROR = 4
-#############################################################
+class SearchResult():
+    # Determinar qué se ha encontrado al buscar la película en FA
+    ENCONTRADA = 1
+    VARIOS_RESULTADOS = 2
+    NO_ENCONTRADA = 3
+    ERROR = 4
+
+
 SZ_ONLY_ONE_FILM = "Se ha encontrado una única película llamada {}.".format
 SZ_ONLY_ONE_FILM_YEAR = "Se ha encontrado una única película llamada {} del año {}".format
 
@@ -82,7 +84,7 @@ class Searcher():
     def __search_boxes(self):
 
         # Sólo tengo un listado de películas encontradas cuando tenga muchos resultados.
-        if self.__estado != VARIOS_RESULTADOS:
+        if self.__estado != SearchResult.VARIOS_RESULTADOS:
             return
 
         # Caja donde están todos los resultados
@@ -126,32 +128,32 @@ class Searcher():
 
         # El mejor de los casos, he encontrado la película
         if stage.find('film') >= 0:
-            return ENCONTRADA
+            return SearchResult.ENCONTRADA
         if stage.find('advsearch') >= 0:
-            return NO_ENCONTRADA
+            return SearchResult.NO_ENCONTRADA
         if stage.find('search') >= 0:
-            return VARIOS_RESULTADOS
+            return SearchResult.VARIOS_RESULTADOS
 
-        return ERROR
+        return SearchResult.ERROR
 
     def __get_redirected_url(self):
         self.film_url = self.parsed_page.find(
             'meta', property='og:url')['content']
 
     def encontrada(self):
-        return self.__estado == ENCONTRADA
+        return self.__estado == SearchResult.ENCONTRADA
 
     def resultados(self):
         # Comprobar si hay esperanza de encontrar la ficha
-        return self.__estado == ENCONTRADA or self.__estado == VARIOS_RESULTADOS
+        return self.__estado == SearchResult.ENCONTRADA or self.__estado == SearchResult.VARIOS_RESULTADOS
 
     def get_url(self):
         # Una vez hechas todas las consideraciones,
         # me devuelve la ficha de la película que ha encontrado.
-        if self.__estado == ENCONTRADA:
+        if self.__estado == SearchResult.ENCONTRADA:
             return self.film_url
 
-        if self.__estado == VARIOS_RESULTADOS:
+        if self.__estado == SearchResult.VARIOS_RESULTADOS:
             lista_peliculas = self.__search_boxes()
             self.film_url = self.__elegir_url(lista_peliculas)
             return self.film_url
@@ -193,7 +195,7 @@ class Searcher():
             return
 
         # He encontrado la película
-        if self.__estado == ENCONTRADA:
+        if self.__estado == SearchResult.ENCONTRADA:
             print(SZ_ONLY_ONE_FILM(self.title))
             return
 
