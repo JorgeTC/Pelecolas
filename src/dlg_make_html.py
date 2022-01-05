@@ -1,5 +1,5 @@
-from src.blog_csv_mgr import BlogCsvMgr
-from src.blog_csv_mgr import CSV_COLUMN
+from src.aux_title_str import split_title_year
+from src.blog_csv_mgr import CSV_COLUMN, BlogCsvMgr
 from src.dlg_config import CONFIG
 from src.dlg_scroll_base import DlgScrollBase
 from src.list_title_mgr import TitleMgr
@@ -102,13 +102,9 @@ class DlgHtml(DlgScrollBase):
         ls_unpublished = []
         for i, title in enumerate(lower_titles):
             # Compruebo que no tenga escrito el año
-            candidato_año = get_year(title)
+            candidato_año, title = split_title_year(title)
 
             if candidato_año:
-                # Quito el año del título
-                title = title[:title.rfind('(')]
-                # Quito los espacios que hayan podido quedar
-                title = title.strip()
                 # Compruebo que esté el título en la lista de publicados
                 index = all_indices_in_list(published, title)
                 # Compruebo que el año sea correcto
@@ -159,24 +155,3 @@ def all_indices_in_list(ls, el):
     Devuelvo las posiciones de la lista que contengan al elemento
     '''
     return [i for i, ltr in enumerate(ls) if ltr == el]
-
-def get_year(title:str):
-    '''
-    Dado un título de los escritos en el word,
-    quiero extraer el posible año que tenga entre paréntesis
-    '''
-    # Busco paréntesis en el título introducido
-    año_primera_pos = title.rfind("(")
-    año_ultima_pos = title.rfind(')')
-
-    # Compruebo si he encontrado paréntesis
-    if año_primera_pos < 0 or año_ultima_pos < 0:
-        return ""
-
-    # Extraigo el posible año
-    año = title[año_primera_pos + 1:año_ultima_pos]
-    # Compruebo que sean 4 dígitos
-    if not año.isnumeric() or len(año) != 4:
-        return ""
-
-    return año

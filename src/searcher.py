@@ -5,6 +5,7 @@ from typing import List
 from bs4 import BeautifulSoup
 
 import src.url_FA as url_FA
+from src.aux_title_str import split_title_year
 from src.safe_url import safe_get_url
 
 
@@ -32,26 +33,14 @@ SZ_ONLY_ONE_FILM_YEAR = "Se ha encontrado una única película llamada {} del a�
 class Searcher():
 
     def __init__(self, to_search):
-        self.title = to_search
+        # Separo en la cadena introducida el título y el año
+        self.año, self.title = split_title_year(to_search)
 
-        # Busco si lo introducido contiene un año.
-        año_primera_pos = self.title.rfind("(")
-        año_ultima_por = self.title.rfind(')')
-        candidato_año = self.title[año_primera_pos + 1:año_ultima_por]
-        # Es posible que hay acosas entre paréntesis qeu no sea un año.
-        # Por eso, compruebo que aquello que está entre paréntesis sean números.
-        if año_primera_pos > 0 and año_ultima_por > 0 and str(candidato_año).isnumeric():
-            self.año = int(candidato_año)
-        else:
+        # Si ha encontrado un año, lo convierto a entero
+        try:
+            self.año = int(self.año)
+        except ValueError:
             self.año = 0
-            # Sé que no he encontrado un año.
-            # Guardo el código de no encontrado, -1.
-            año_primera_pos = -1
-
-        # Modifico el título para guardar el título sin el año.
-        if año_primera_pos != -1:
-            self.title = self.title[:año_primera_pos]
-        self.title = self.title.strip()
 
         # Creo la url para buscar ese título
         self.search_url = self.__get_search_url()
