@@ -1,3 +1,4 @@
+import enum
 import urllib.parse
 from dataclasses import dataclass
 from typing import List
@@ -17,12 +18,12 @@ class TituloYAño():
     url: str
 
 
-class SearchResult():
-    # Determinar qué se ha encontrado al buscar la película en FA
-    ENCONTRADA = 1
-    VARIOS_RESULTADOS = 2
-    NO_ENCONTRADA = 3
-    ERROR = 4
+class SearchResult(enum.Enum):
+    '''Determinar qué se ha encontrado al buscar la película en FA'''
+    ENCONTRADA = enum.auto()
+    VARIOS_RESULTADOS = enum.auto()
+    NO_ENCONTRADA = enum.auto()
+    ERROR = enum.auto()
 
 
 # Mensajes para emitir por consola
