@@ -135,7 +135,8 @@ class WordReader(WordFolderMgr):
 
     def write_list(self):
         # Abro el documento txt para escribirlo
-        titulos_doc = open(self.sz_folder / "Titulos de reseñas.txt", "w")
+        titulos_doc = open(self.sz_folder / "Titulos de reseñas.txt", "w",
+                           encoding='utf-8')
 
         # Miro si hay que escribir el índice
         b_index = CONFIG.get_bool(CONFIG.S_COUNT_FILMS, CONFIG.P_ADD_INDEX)
