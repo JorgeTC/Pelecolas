@@ -42,7 +42,7 @@ def es_valida(titulo):
     return SET_VALID_FILM & (1 << 0)
 
 # Cómo debo buscar la información de las barras
-RATING_BARS_PATTERN = re.compile(r'RatingBars.*?\[.*?\]', re.MULTILINE | re.DOTALL)
+RATING_BARS_PATTERN = re.compile(r'RatingBars.*?\[(.*?)\]')
 
 class Pelicula(object):
     def __init__(self, movie_box=None, id=None, urlFA=None):
@@ -184,8 +184,8 @@ class Pelicula(object):
             return
 
         # Extraigo cuánto vale cada barra
-        values = bars[bars.find("[") + 1:bars.find("]")]
-        self.values = [int(s) for s in values.split(',')]
+        bars = RATING_BARS_PATTERN.search(bars).group(1)
+        self.values = [int(s) for s in bars.split(',')]
         # Las ordeno poniendo primero las notas más bajas
         self.values.reverse()
 
