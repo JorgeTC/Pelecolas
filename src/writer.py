@@ -1,10 +1,9 @@
-
 import concurrent.futures
+import enum
 from math import ceil
 
 from bs4 import BeautifulSoup
 from openpyxl.styles import Alignment, Font
-from pandas.core.frame import DataFrame
 
 import src.url_FA as url_FA
 from src.pelicula import Pelicula
@@ -12,12 +11,27 @@ from src.progress_bar import ProgressBar
 from src.safe_url import safe_get_url
 
 
-class Writer(object):
+class ExcelColumns(enum.Enum):
+    Id = enum.auto()
+    Mia = enum.auto()
+    FA = enum.auto()
+    Duracion = enum.auto()
+    Visionados = enum.auto()
+    Varianza_FA = enum.auto()
+    FA_redondeo = enum.auto()
+    Diferencia = enum.auto()
+    Diferencia_abs = enum.auto()
+    Me_ha_gustado = enum.auto()
+    Mia_ruido = enum.auto()
+    FA_ruido = enum.auto()
+    Mia_rees = enum.auto()
+    FA_rees = enum.auto()
 
-    columns = ["Id", "Mia", "FA", "Duracion", "Visionados", "Varianza FA",
-               "FA redondeo", "Diferencia", "Diferencia abs", "Me ha gustado",
-               "Mia + ruido", "FA + ruido", "Mia rees", "FA rees"]
-    columns = dict(zip(columns, range(1, len(columns)+1)))
+    def __str__(self) -> str:
+        return "Tabla1[{}]".format(self.name)
+
+
+class Writer(object):
 
     def __init__(self, id, worksheet):
         # numero de usuario en string
@@ -87,7 +101,7 @@ class Writer(object):
         # Creo un objeto para hacer la gestión de paralelización
         executor = concurrent.futures.ThreadPoolExecutor(max_workers=20)
         # Creo una lista de listas donde se guardarán los datos de las películas
-        rows_data = []
+        films_data = []
 
         # Creo una barra de progreso
         self.bar.reset_timer()
@@ -100,32 +114,21 @@ class Writer(object):
             valid_film_list = [film for film in valid_film_list if film.valid()]
 
             # Itero las películas en mi página actual
-            rows_data += list(executor.map(self.__read_film, valid_film_list))
+            films_data += list(executor.map(self.__read_film, valid_film_list))
 
             # Avanzo a la siguiente página de películas vistas por el usuario
             self.__next_page()
 
-        df = DataFrame(rows_data,
-                       columns=['Id', 'User Note', 'Duration', 'Voters', 'Note FA', 'Title', 'Variance FA'])
-
-        for index, row in df.iterrows():
-            self.__write_in_excel(index, row)
+        for index, film in enumerate(films_data):
+            self.__write_in_excel(index, film)
 
     def __read_film(self, film: Pelicula):
         # Hacemos la parte más lenta, que necesita parsear la página.
         film.get_time_and_FA()
 
-        # Es importante este orden porque debe coincidir
-        # con los encabezados del DataFrame que generaremos
-        return [film.id,
-                film.user_note,
-                film.duracion,
-                film.votantes_FA,
-                film.nota_FA,
-                film.titulo,
-                film.desvest_FA]
+        return film
 
-    def __write_in_excel(self, line, film):
+    def __write_in_excel(self, line: int, film: Pelicula):
 
         # La enumeración empezará en 0,
         # pero sólo esribimos datos a partir de la segunda linea.
@@ -133,75 +136,81 @@ class Writer(object):
 
         # La votacion del usuario la leo desde fuera
         # no puedo leer la nota del usuario dentro de la ficha
-        UserNote = film['User Note']
-        self.__set_cell_value(line, self.columns["Mia"],
-                              int(UserNote))
-        self.__set_cell_value(line, self.columns["Mia + ruido"],
-                              "=Tabla1[Mia]+RAND()-0.5")
-        self.__set_cell_value(line, self.columns["Mia rees"],
-                              "=(Tabla1[Mia]-1)*10/9")
+        self.__set_cell_value(line, ExcelColumns.Mia,
+                              int(film.user_note))
+        self.__set_cell_value(line, ExcelColumns.Mia_ruido,
+                              f"={ExcelColumns.Mia}+RAND()-0.5")
+        self.__set_cell_value(line, ExcelColumns.Mia_rees,
+                              f"=({ExcelColumns.Mia}-1)*10/9")
         # En la primera columna guardo la id para poder reconocerla
-        self.__set_cell_value(line, self.columns["Id"],
-                              film['Title'], int(film['Id']))
+        self.__set_cell_value(line, ExcelColumns.Id,
+                              film.titulo, int(film.id))
 
-        if (film['Duration'] != 0):
+        if (film.duracion != 0):
             # dejo la casilla en blanco si no logra leer ninguna duración de FA
-            self.__set_cell_value(line, self.columns["Duracion"],
-                                  film['Duration'])
-        if (film['Note FA'] != 0):
-            # dejo la casilla en blanco si no logra leer ninguna nota de FA
-            self.__set_cell_value(line, self.columns["FA"],
-                                  film['Note FA'])
-            self.__set_cell_value(line, self.columns["FA redondeo"],
-                                  "=ROUND(Tabla1[FA]*2, 0)/2")
-            self.__set_cell_value(line, self.columns["Diferencia"],
-                                  "=Tabla1[Mia]-Tabla1[FA]")
-            self.__set_cell_value(line, self.columns["Diferencia abs"],
-                                  "=ABS(Tabla1[Diferencia])")
-            self.__set_cell_value(line, self.columns["Me ha gustado"],
-                                  "=IF(Tabla1[Diferencia]>0,1,0.1)")
-            self.__set_cell_value(line, self.columns["FA rees"],
-                                  "=(Tabla1[FA]-1)*10/9")
-            self.__set_cell_value(line, self.columns["FA + ruido"],
-                                  "=Tabla1[FA]+(RAND()-0.5)/10")
-        if (film['Voters'] != 0):
-            # dejo la casilla en blanco si no logra leer ninguna votantes
-            self.__set_cell_value(line, self.columns["Visionados"],
-                                  film['Voters'])
-        if (film['Variance FA'] != 0):
-            self.__set_cell_value(line, self.columns["Varianza FA"],
-                                  film['Variance FA'])
+            self.__set_cell_value(line, ExcelColumns.Duracion,
+                                  film.duracion)
 
-    def __set_cell_value(self, line, col, value, id=0):
-        cell = self.ws.cell(row=line, column=col)
+        if (film.nota_FA != 0):
+            # dejo la casilla en blanco si no logra leer ninguna nota de FA
+            self.__set_cell_value(line, ExcelColumns.FA,
+                                  film.nota_FA)
+            self.__set_cell_value(line, ExcelColumns.FA_redondeo,
+                                  f"=ROUND({ExcelColumns.FA}*2, 0)/2")
+            self.__set_cell_value(line, ExcelColumns.Diferencia,
+                                  f"={ExcelColumns.Mia}-{ExcelColumns.FA}")
+            self.__set_cell_value(line, ExcelColumns.Diferencia_abs,
+                                  f"=ABS({ExcelColumns.Diferencia})")
+            self.__set_cell_value(line, ExcelColumns.Me_ha_gustado,
+                                  f"=IF({ExcelColumns.Diferencia}>0,1,0.1)")
+            self.__set_cell_value(line, ExcelColumns.FA_rees,
+                                  f"=({ExcelColumns.FA}-1)*10/9")
+            self.__set_cell_value(line, ExcelColumns.FA_ruido,
+                                  f"={ExcelColumns.FA}+(RAND()-0.5)/10")
+
+        if (film.votantes_FA != 0):
+            # dejo la casilla en blanco si no logra leer ninguna votantes
+            self.__set_cell_value(line, ExcelColumns.Visionados,
+                                  film.votantes_FA)
+
+        if (film.desvest_FA != 0):
+            self.__set_cell_value(line, ExcelColumns.Varianza_FA,
+                                  film.desvest_FA)
+
+    def __set_cell_value(self, line: int, col: ExcelColumns, value, id=0):
+
+        # Obtengo un objeto celda
+        cell = self.ws.cell(row=line, column=col.value)
+        # Le asigno el valor
         cell.value = value
+
         # Configuramos el estilo de la celda atendiendo a su columna
         # visionados. Ponemos punto de millar
-        if (col == self.columns["Visionados"]):
+        if (col == ExcelColumns.Visionados):
             cell.number_format = '#,##0'
         # booleano mayor que
-        elif (col == self.columns["Me ha gustado"]):
+        elif (col == ExcelColumns.Me_ha_gustado):
             cell.number_format = '0'
             cell.font = Font(name='SimSun', bold=True)
             cell.alignment = Alignment(horizontal='center', vertical='center')
         # Nota del usuario más el ruido
-        elif (col == self.columns["Mia + ruido"]):
+        elif (col == ExcelColumns.Mia_ruido):
             cell.number_format = '0.0'
         # Nota de FA más el ruido
-        elif (col == self.columns["FA"] or
-              col == self.columns["FA + ruido"]):
+        elif (col == ExcelColumns.FA or
+              col == ExcelColumns.FA_ruido):
             cell.number_format = '0.00'
         # Varianza de los votos en FA
-        elif (col == self.columns["Varianza FA"]):
+        elif (col == ExcelColumns.Varianza_FA):
             cell.number_format = '0.00'
         # reescala
-        elif (col == self.columns["Mia rees"] or
-              col == self.columns["FA rees"] or
-              col == self.columns["Diferencia"] or
-              col == self.columns["Diferencia abs"]):
+        elif (col == ExcelColumns.Mia_rees or
+              col == ExcelColumns.FA_rees or
+              col == ExcelColumns.Diferencia or
+              col == ExcelColumns.Diferencia_abs):
             cell.number_format = '0.00'
         # Nombre de la película con un hipervínculo
-        elif (col == self.columns["Id"]):
+        elif (col == ExcelColumns.Id):
             # Añado un hipervínculo a su página
             cell.style = 'Hyperlink'
             cell.hyperlink = url_FA.URL_FILM_ID(id)
