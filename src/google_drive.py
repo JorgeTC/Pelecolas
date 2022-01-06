@@ -52,32 +52,6 @@ class Drive(GoogleApiMgr):
             # Ejecuto la actualización
             update_operation.execute()
 
-    def upload_files(self):
-        """
-        Creates a folder and upload a file to it
-        """
-        # folder details we want to make
-        folder_metadata = {
-            "name": "TestFolder",
-            "mimeType": "application/vnd.google-apps.folder"
-        }
-        # create the folder
-        file = self.files.create(body=folder_metadata, fields="id").execute()
-        # get the folder id
-        folder_id = file.get("id")
-        print("Folder ID:", folder_id)
-        # upload a file text file
-        # first, define file metadata, such as the name and the parent folder ID
-        file_metadata = {
-            "name": "test.txt",
-            "parents": [folder_id]
-        }
-        # upload
-        media = MediaFileUpload("test.txt", resumable=True)
-        file = self.files.create(
-            body=file_metadata, media_body=media, fields='id').execute()
-        print("File created, id:", file.get("id"))
-
     def get_item_by_id(self, sz_id):
         try:
             return self.files.get(fileId=sz_id).execute()
@@ -115,21 +89,3 @@ class Drive(GoogleApiMgr):
         except:
             # Si algo ha ido mal, devuelvo una lista vacía
             return []
-
-    def search(self, query):
-        # search for the file
-        result = []
-        page_token = None
-        while True:
-            response = self.files.list(q=query,
-                                       spaces="drive",
-                                       fields="nextPageToken, files(id, name, mimeType)",
-                                       pageToken=page_token).execute()
-            # iterate over filtered files
-            for file in response.get("files", []):
-                result.append((file["id"], file["name"], file["mimeType"]))
-            page_token = response.get('nextPageToken', None)
-            if not page_token:
-                # no more files
-                break
-        return result

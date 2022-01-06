@@ -1,4 +1,5 @@
 from pathlib import Path
+import re
 
 from src.dlg_scroll_base import DlgScrollBase
 from src.make_html import SZ_HTML_FILE
@@ -17,16 +18,15 @@ class ContentMgr():
         return html_path.name[len('Reseña '):-len('.html')]
 
     def __get_labels(self, parr):
-        # Compruebo que sea un comentario
-        # de lo contrario no tengo las etiquetas escritas en el documento
-        if parr.find("<!--") < 0:
+        # Buscador de comentarios
+        # El resultado no tendrá trailing spaces,
+        # el grupo que hemos definido termina en una coma.
+        search_comment = re.compile(r'<!-- *(.*,) *-->')
+        try:
+            return search_comment.match(parr).group(1)
+        except AttributeError:
+            # Excepción que salta si no hay ninguna coincidencia con la re
             return ""
-
-        # Efectivamente la última linea es un comentario
-        # limpio el comentario
-        parr = parr[len("<!--"):-len("-->")]
-
-        return parr
 
     def extract_html(self, title):
         # Obtengo el nombre del archivo html

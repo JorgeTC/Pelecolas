@@ -1,25 +1,32 @@
+import enum
 import urllib.parse
+from dataclasses import dataclass
+from typing import List
 
 from bs4 import BeautifulSoup
 
 import src.url_FA as url_FA
+from src.aux_title_str import split_title_year
 from src.safe_url import safe_get_url
 
 
-# Clase para guardar los datos que se lean
+@dataclass
 class TituloYAño():
-    def __init__(self, title, year, url):
-        self.titulo = title
-        self.año = year
-        self.url = url
+    '''Clase para guardar los datos que se lea'''
+    titulo: str
+    año: int
+    url: str
 
 
-################ MACROS CLASIFICAR LA PÁGINA ################
-ENCONTRADA = 1
-VARIOS_RESULTADOS = 2
-NO_ENCONTRADA = 3
-ERROR = 4
-#############################################################
+class SearchResult(enum.Enum):
+    '''Determinar qué se ha encontrado al buscar la película en FA'''
+    ENCONTRADA = enum.auto()
+    VARIOS_RESULTADOS = enum.auto()
+    NO_ENCONTRADA = enum.auto()
+    ERROR = enum.auto()
+
+
+# Mensajes para emitir por consola
 SZ_ONLY_ONE_FILM = "Se ha encontrado una única película llamada {}.".format
 SZ_ONLY_ONE_FILM_YEAR = "Se ha encontrado una única película llamada {} del año {}".format
 
@@ -27,26 +34,14 @@ SZ_ONLY_ONE_FILM_YEAR = "Se ha encontrado una única película llamada {} del a�
 class Searcher():
 
     def __init__(self, to_search):
-        self.title = to_search
+        # Separo en la cadena introducida el título y el año
+        self.año, self.title = split_title_year(to_search)
 
-        # Busco si lo introducido contiene un año.
-        año_primera_pos = self.title.rfind("(")
-        año_ultima_por = self.title.rfind(')')
-        candidato_año = self.title[año_primera_pos + 1:año_ultima_por]
-        # Es posible que hay acosas entre paréntesis qeu no sea un año.
-        # Por eso, compruebo que aquello que está entre paréntesis sean números.
-        if año_primera_pos > 0 and año_ultima_por > 0 and str(candidato_año).isnumeric():
-            self.año = int(candidato_año)
-        else:
+        # Si ha encontrado un año, lo convierto a entero
+        try:
+            self.año = int(self.año)
+        except ValueError:
             self.año = 0
-            # Sé que no he encontrado un año.
-            # Guardo el código de no encontrado, -1.
-            año_primera_pos = -1
-
-        # Modifico el título para guardar el título sin el año.
-        if año_primera_pos != -1:
-            self.title = self.title[:año_primera_pos]
-        self.title = self.title.strip()
 
         # Creo la url para buscar ese título
         self.search_url = self.__get_search_url()
@@ -80,18 +75,11 @@ class Searcher():
     def __search_boxes(self):
 
         # Sólo tengo un listado de películas encontradas cuando tenga muchos resultados.
-        if self.__estado != VARIOS_RESULTADOS:
+        if self.__estado != SearchResult.VARIOS_RESULTADOS:
             return
 
         # Caja donde están todos los resultados
-        peliculas_encontradas = self.parsed_page.find_all(
-            'div', {'class': "z-search"})
-        # Se han hecho tres búsquedas: título, director, reparto
-        # la única que me interesa es la primera: título.
-        peliculas_encontradas = peliculas_encontradas[0]
-        peliculas_encontradas = peliculas_encontradas.find_all('div')
-        peliculas_encontradas = [div for div in peliculas_encontradas if div.get('class')[
-            0] == 'se-it']
+        peliculas_encontradas = self.parsed_page.find_all('div', {'class': 'se-it'})
 
         lista_peliculas = []
         curr_year = 0
@@ -124,32 +112,32 @@ class Searcher():
 
         # El mejor de los casos, he encontrado la película
         if stage.find('film') >= 0:
-            return ENCONTRADA
+            return SearchResult.ENCONTRADA
         if stage.find('advsearch') >= 0:
-            return NO_ENCONTRADA
+            return SearchResult.NO_ENCONTRADA
         if stage.find('search') >= 0:
-            return VARIOS_RESULTADOS
+            return SearchResult.VARIOS_RESULTADOS
 
-        return ERROR
+        return SearchResult.ERROR
 
     def __get_redirected_url(self):
         self.film_url = self.parsed_page.find(
             'meta', property='og:url')['content']
 
     def encontrada(self):
-        return self.__estado == ENCONTRADA
+        return self.__estado == SearchResult.ENCONTRADA
 
     def resultados(self):
         # Comprobar si hay esperanza de encontrar la ficha
-        return self.__estado == ENCONTRADA or self.__estado == VARIOS_RESULTADOS
+        return self.__estado == SearchResult.ENCONTRADA or self.__estado == SearchResult.VARIOS_RESULTADOS
 
     def get_url(self):
         # Una vez hechas todas las consideraciones,
         # me devuelve la ficha de la película que ha encontrado.
-        if self.__estado == ENCONTRADA:
+        if self.__estado == SearchResult.ENCONTRADA:
             return self.film_url
 
-        if self.__estado == VARIOS_RESULTADOS:
+        if self.__estado == SearchResult.VARIOS_RESULTADOS:
             lista_peliculas = self.__search_boxes()
             self.film_url = self.__elegir_url(lista_peliculas)
             return self.film_url
@@ -157,7 +145,7 @@ class Searcher():
         # No he sido capaz de encontrar nada
         return ""
 
-    def __elegir_url(self, lista):
+    def __elegir_url(self, lista: List[TituloYAño]):
         # Tengo una lista de películas con sus años.
         # Miro cuál de ellas me sirve más.
 
@@ -191,7 +179,7 @@ class Searcher():
             return
 
         # He encontrado la película
-        if self.__estado == ENCONTRADA:
+        if self.__estado == SearchResult.ENCONTRADA:
             print(SZ_ONLY_ONE_FILM(self.title))
             return
 

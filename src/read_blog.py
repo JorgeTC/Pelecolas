@@ -1,3 +1,4 @@
+import re
 
 class ReadBlog():
 
@@ -10,8 +11,8 @@ class ReadBlog():
         '''
         divs = content.find_all('div')
         # Quiero director
-        director = divs[0].contents[1].contents[0]
-        director = director[director.find(':') + 1:].strip()
+        director = re.search('Dir.: (.*)', divs[0].contents[1].contents[0]).group(1)
+        director = director.strip()
         # Quiero año
         año = divs[1].contents[1].contents[0]
 
