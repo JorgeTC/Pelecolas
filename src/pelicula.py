@@ -113,12 +113,12 @@ class Pelicula(object):
         # Me espero que la página ya haya sido parseada
         l = self.parsed_page.find(id="left-column")
         try:
-            self.duracion = l.find(itemprop="duration").contents[0]
+            str_duracion = l.find(itemprop="duration").contents[0]
+            str_duracion = re.search(r'(\d+) +min.', str_duracion).group(1)
+            self.duracion = int(str_duracion)
         except:
             # caso en el que no está escrita la duración
-            self.duracion = "0"
-        # quito el sufijo min.
-        self.duracion = int(self.duracion.split(' ', 1)[0])
+            self.duracion = 0
 
     def get_country(self):
 
@@ -204,7 +204,7 @@ class Pelicula(object):
         # Itero las frecuencias.
         # Cada frecuencia representa a la puntuación igual a su posición en la lista más 1
         for note, votes in enumerate(self.values):
-            varianza += votes * (note + 1 - self.nota_FA) * (note + 1 - self.nota_FA)
+            varianza += votes * ((note + 1 - self.nota_FA) ** 2)
         varianza /= sum(self.values)
 
         # Doy el valor a la variable miembro, lo convierto a desviación típica
