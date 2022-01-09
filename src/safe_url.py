@@ -35,27 +35,7 @@ def PassCaptcha(url):
         stopped = True
 
         # Intento pasar el Captcha de forma automática
-        try:
-            # Abro una instancia de Chrome
-            # Lo creo con un conjunto de opciones para no emitir errores por consola
-            driver = webdriver.Chrome(DRIVER_PATH,
-                                      options=DRIVER_OPTION)
-            # Entro a la dirección que ha dado error
-            driver.get(url)
-            # Espero a que se haya cargado el botón que quiero clicar
-            time.sleep(1)
-
-            # Accedo al botón que permite pasar el captcha
-            button = driver.find_element_by_xpath(XPATH_PASS_BUTTON)
-            # Clico sobre él
-            button.click()
-            # Espero a que me redirija a la página a la que quería acceder
-            time.sleep(1)
-
-            # Cierro la instancia de Chrome
-            driver.close()
-        except:
-            pass
+        automatically_pass_captcha(url)
 
         if requests.get(url).status_code != 200:
             # No he conseguido pasar el Captcha, necesito ayuda del usuario
@@ -70,3 +50,27 @@ def PassCaptcha(url):
         resp = requests.get(url)
     stopped = False
     return resp
+
+
+def automatically_pass_captcha(url):
+    try:
+        # Abro una instancia de Chrome
+        # Lo creo con un conjunto de opciones para no emitir errores por consola
+        driver = webdriver.Chrome(DRIVER_PATH,
+                                  options=DRIVER_OPTION)
+        # Entro a la dirección que ha dado error
+        driver.get(url)
+        # Espero a que se haya cargado el botón que quiero clicar
+        time.sleep(1)
+
+        # Accedo al botón que permite pasar el captcha
+        button = driver.find_element_by_xpath(XPATH_PASS_BUTTON)
+        # Clico sobre él
+        button.click()
+        # Espero a que me redirija a la página a la que quería acceder
+        time.sleep(1)
+
+        # Cierro la instancia de Chrome
+        driver.close()
+    except:
+        pass
