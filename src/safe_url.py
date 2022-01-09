@@ -4,6 +4,8 @@ import webbrowser
 import requests
 from selenium import webdriver
 
+from src.aux_res_directory import get_res_folder
+
 stopped = False
 
 def safe_get_url(url):
@@ -21,7 +23,7 @@ def PassCaptcha(url):
         stopped = True
 
         try:
-            driver = webdriver.Chrome(r"./driver/chromedriver")
+            driver = webdriver.Chrome(get_res_folder("Readdata", "driver", "chromedriver"))
             driver.get(url)
             driver.maximize_window()
             time.sleep(0.1)
