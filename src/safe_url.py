@@ -32,7 +32,7 @@ def PassCaptcha(url):
         except:
             pass
 
-        if requests.get(url) != 200:
+        if requests.get(url).status_code != 200:
             # abro un navegador para poder pasar el Captcha
             webbrowser.open(url)
             print("\nPor favor, entra en FilmAffinity y pasa el captcha por mí.")
