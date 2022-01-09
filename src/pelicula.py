@@ -113,12 +113,12 @@ class Pelicula(object):
         # Me espero que la página ya haya sido parseada
         l = self.parsed_page.find(id="left-column")
         try:
-            self.duracion = l.find(itemprop="duration").contents[0]
+            str_duracion = l.find(itemprop="duration").contents[0]
+            str_duracion = re.search(r'(\d+) +min.', str_duracion).group(1)
+            self.duracion = int(str_duracion)
         except:
             # caso en el que no está escrita la duración
-            self.duracion = "0"
-        # quito el sufijo min.
-        self.duracion = int(self.duracion.split(' ', 1)[0])
+            self.duracion = 0
 
     def get_country(self):
 
