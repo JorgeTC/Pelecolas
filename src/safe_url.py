@@ -29,6 +29,7 @@ def PassCaptcha(url):
             time.sleep(0.1)
             button = driver.find_element_by_xpath("/html/body/div[1]/div[2]/form/div[2]/input")
             button.click()
+            driver.close()
         except:
             pass
 
