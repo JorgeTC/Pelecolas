@@ -204,7 +204,7 @@ class Pelicula(object):
         # Itero las frecuencias.
         # Cada frecuencia representa a la puntuación igual a su posición en la lista más 1
         for note, votes in enumerate(self.values):
-            varianza += votes * (note + 1 - self.nota_FA) * (note + 1 - self.nota_FA)
+            varianza += votes * ((note + 1 - self.nota_FA) ** 2)
         varianza /= sum(self.values)
 
         # Doy el valor a la variable miembro, lo convierto a desviación típica
