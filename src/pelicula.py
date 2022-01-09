@@ -9,12 +9,11 @@ from src.url_FA import URL_FILM_ID
 
 
 def get_id_from_url(url):
-    # Elimino el .html
-    url = url.split(".")[-2]
-    # Tomo los úlyimos 6 caracteres
-    id = url[:-6]
+    # Cojo los 6 dígitos que están después de la palabra film
+    str_id = re.search(r"film(\d{6}).html", url).group(1)
 
-    return id
+    return str_id
+
 
 SET_VALID_FILM = CONFIG.get_int(CONFIG.S_READDATA, CONFIG.P_FILTER_FA)
 def es_valida(titulo):
