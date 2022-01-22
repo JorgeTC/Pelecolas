@@ -14,6 +14,6 @@ class ReadBlog():
         director = re.search('Dir.: (.*)', divs[0].contents[1].contents[0]).group(1)
         director = director.strip()
         # Quiero año
-        año = divs[1].contents[1].contents[0]
+        año = re.search('(\d{4})', divs[1].contents[1].contents[0]).group(1)
 
         return director, año
