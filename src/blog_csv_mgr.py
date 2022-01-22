@@ -9,7 +9,7 @@ from src.poster import POSTER
 
 
 class CSV_COLUMN(enum.Enum):
-    TITLE = enum.auto()
+    TITLE = 0
     LINK = enum.auto()
     DIRECTOR = enum.auto()
     YEAR = enum.auto()
