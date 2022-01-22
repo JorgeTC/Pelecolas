@@ -1,5 +1,4 @@
 from concurrent import futures
-from datetime import date
 
 from bs4 import BeautifulSoup
 
@@ -13,11 +12,6 @@ class BlogScraper(BlogCsvMgr, ReadBlog):
     HEADER_CSV = ['Titulo', 'Link', 'Director', 'Año']
 
     def __init__(self) -> None:
-        # Guardo el mes actual
-        self.__last_month = date.today()
-        # Guardo el primer mes que tiene reseña
-        self.__first_month = date(2019, 5, 1)
-
         # Abro el archivo y se lo doy al objeto que escribe el csv
         self.csv_file = None
         self.__csv_writer = None
@@ -41,7 +35,7 @@ class BlogScraper(BlogCsvMgr, ReadBlog):
         self.__csv_writer.writerow(self.HEADER_CSV)
 
         # Lista de reseñas desde que empezó el blog
-        posted = POSTER.get_published_from_date(self.__first_month)
+        posted = POSTER.get_all_active_posts()
 
         # Quiero extraer datos de cada reseña para escribir el csv
         # Creo un objeto para paralelizar el proceso
