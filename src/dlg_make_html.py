@@ -7,9 +7,16 @@ from src.pelicula import Pelicula
 from src.poster import POSTER
 from src.searcher import Searcher
 from src.url_FA import URL_FILM_ID
+import threading
 
 
 class DlgHtml(DlgScrollBase):
+
+    # Eventos para cada pregunta
+    event_ask_title = threading.Event()
+    event_ask_director = threading.Event()
+    event_ask_year = threading.Event()
+    event_ask_duration = threading.Event()
 
     # Mensajes para pedir información
     ASK_TITLE = "Introduzca título de la película: "
