@@ -180,7 +180,8 @@ class html(WordReader):
                                          country=self.data.pais,
                                          link_fa=self.data.url_FA,
                                          film_title=self.data.titulo,
-                                         labels=self.get_labels()))
+                                         labels=self.get_labels(),
+                                         duration=self.data.duracion))
         reseña.write("\n</footer>")
 
         reseña.close()

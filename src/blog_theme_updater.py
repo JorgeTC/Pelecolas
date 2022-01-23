@@ -1,12 +1,13 @@
 from src.progress_bar import ProgressBar
 from src.content_mgr import ContentMgr
 from src.poster import POSTER
-from src.read_blog import ReadBlog
+from src.read_blog import BlogHiddenData, ReadBlog
 from src.list_title_mgr import TitleMgr
 from src.make_html import html
 from src.searcher import Searcher
 from src.pelicula import Pelicula
 from bs4 import BeautifulSoup
+
 
 class BlogThemeUpdater():
 
@@ -15,6 +16,7 @@ class BlogThemeUpdater():
         self.title_manager = TitleMgr(self.Documento.titulos.keys())
         self.content_mgr = ContentMgr(path)
         self.all_posts = POSTER.get_all_posts()
+        self.parsed = None
 
     def get_word_name_from_blog_post(self, post):
         name = post['title']
@@ -23,16 +25,24 @@ class BlogThemeUpdater():
             return self.title_manager.exact_key_without_dlg(name)
 
         # Parseo el contenido
-        body = BeautifulSoup(post['content'], 'html.parser')
+        self.parsed = BeautifulSoup(post['content'], 'html.parser')
 
-        reader = ReadBlog()
-        _, year = reader.get_director_year_from_content(body)
+        year = self.get_secret_data(BlogHiddenData.YEAR)
         name = f'{name} ({year})'
 
         if self.title_manager.is_title_in_list(name):
             return self.title_manager.exact_key_without_dlg(name)
 
         return ""
+
+    def get_secret_data(self, data_id):
+
+        if not self.parsed:
+            return None
+
+        return ReadBlog.get_secret_data_from_content(
+            self.parsed, data_id)
+
 
     def update_post(self, post):
 
@@ -42,12 +52,12 @@ class BlogThemeUpdater():
         if not title:
             return False
 
+        if not self.parsed:
+            # Parseo el contenido
+            self.parsed = BeautifulSoup(post['content'], 'html.parser')
+
         # En base al nombre busco su ficha en FA
-        FA = Searcher(title)
-        url_fa = FA.get_url()
-        # Si no encuentro la url, la pido al usuario
-        if not url_fa:
-            url_fa = input(f"Necesito url de FA de {post['title']}")
+        url_fa = self.get_secret_data(BlogHiddenData.URL_FA)
 
         # Cargo los datos de la película de FA
         self.Documento.data = Pelicula(urlFA=url_fa)
@@ -57,11 +67,11 @@ class BlogThemeUpdater():
             return False
         # Reestituyo el nombre que tenía en Word
         self.Documento.data.titulo = title
-        # Leo en FA el resto de datos
-        self.Documento.data.get_director()
-        self.Documento.data.get_año()
-        self.Documento.data.get_duracion()
-        self.Documento.data.get_country()
+        # Leo en las notas ocultas del html los datos
+        self.Documento.data.director = self.get_secret_data(BlogHiddenData.DIRECTOR)
+        self.Documento.data.año = self.get_secret_data(BlogHiddenData.YEAR)
+        self.Documento.data.duracion = self.get_secret_data(BlogHiddenData.DURATION)
+        self.Documento.data.pais = self.get_secret_data(BlogHiddenData.COUNTRY)
 
         # Escribo el archivo html
         self.Documento.write_html()
@@ -76,6 +86,7 @@ class BlogThemeUpdater():
         self.Documento.delete_file()
         # Limpio el objeto para poder escribir otro html
         self.Documento.reset()
+        self.parsed = None
 
         return True
 
@@ -87,6 +98,6 @@ class BlogThemeUpdater():
         for index, post in enumerate(self.all_posts):
 
             if not self.update_post(post):
-                assert(f"Error con la película {post['title']}")
+                print(f"Error con la película {post['title']}")
 
             bar.update((index + 1)/total_elements)
