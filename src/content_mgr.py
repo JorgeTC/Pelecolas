@@ -19,7 +19,7 @@ class ContentMgr():
         return self.__get_title_from_html_name(html_path.name)
 
     def __get_title_from_html_name(self, html_name):
-        regular_expresion = re.search('Reseña (.+).html', html_path.name)
+        regular_expresion = re.search('Reseña (.+).html', html_name)
         return regular_expresion.group(1)
 
     def __get_labels(self, parr):
