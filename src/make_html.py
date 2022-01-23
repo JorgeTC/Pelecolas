@@ -60,14 +60,16 @@ class html(WordReader):
         # Llamo al diálogo para que pida por la consola los datos que necesito
         dlg.ask_for_data()
         self.data = dlg.data
-        # Le digo al citador sobre qué película trabaja
-        self.__citas.titulo = self.data.titulo
-        self.__citas.director = self.data.director
 
     def __get_text(self):
         # Si no tengo los datos de la película, los pido
         if not self.data.titulo:
             self.ask_for_data()
+
+        # Preparo el citador con los datos de la película actual
+        self.__citas.titulo = self.data.titulo
+        self.__citas.director = self.data.director
+
         # Empiezo a recorrer los párrafos desde el que sé que inicia la crítica que busco
         for paragraph in self.paragraphs[self.titulos[self.data.titulo]:]:
 
