@@ -15,7 +15,10 @@ class ContentMgr():
 
     def __get_title_from_html(self, html_path):
         # Quito la palabra reseña y la extensión
-        return html_path.name[len('Reseña '):-len('.html')]
+        return self.__get_title_from_html_name(html_path.name)
+
+    def __get_title_from_html_name(self, html_name):
+        return html_name[len('Reseña '):-len('.html')]
 
     def __get_labels(self, parr):
         # Buscador de comentarios
@@ -38,7 +41,7 @@ class ContentMgr():
 
         # Devuelvo la información en un diccionario
         post_info = {
-            'title' : title.upper(),
+            'title' : self.__get_title_from_html_name(file_name).upper(),
             'content' : content,
             'labels' : labels
         }

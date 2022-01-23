@@ -67,7 +67,7 @@ class BlogThemeUpdater():
         self.Documento.write_html()
         # Extraigo el texto del documento html
         # El resto de datos del post deben quedar intactos
-        post_info = self.content_mgr.extract_html(self.Documento.data.titulo)
+        post_info = self.content_mgr.extract_html(self.Documento.sz_file_name)
         post['content'] = post_info['content']
         # Subo el nuevo post
         POSTER.update_post(post)
@@ -89,4 +89,4 @@ class BlogThemeUpdater():
             if not self.update_post(post):
                 assert(f"Error con la película {post['title']}")
 
-            bar.update(index/total_elements)
+            bar.update((index + 1)/total_elements)
