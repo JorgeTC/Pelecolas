@@ -1,0 +1,25 @@
+/* Regular paragraph */
+section.review-body p {
+	text-align: justify;
+    margin: 16px 0px;
+    text-indent: 21.25pt;
+    font-family: 'times new roman', serif;
+}
+
+/* Quoted paragraph */
+section.review-body p.quoted-parr {
+    text-align: right;
+    font-family: 'times new roman', serif;
+    margin: 0px;
+}
+
+/* Último formulario escondido*/
+footer form.hidden-data {
+	display:None;
+}
+
+/* Encabezado */
+dl.general-data{
+    text-align: right;
+    font-family: 'courier new', 'courier', monospace;
+}
