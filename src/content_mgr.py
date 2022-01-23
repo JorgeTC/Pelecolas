@@ -28,9 +28,7 @@ class ContentMgr():
             # Excepción que salta si no hay ninguna coincidencia con la re
             return ""
 
-    def extract_html(self, title):
-        # Obtengo el nombre del archivo html
-        file_name = SZ_HTML_FILE(title)
+    def extract_html(self, file_name):
         with open(self.dir / file_name, 'r', encoding="utf-8") as res:
             # Obtengo en una única string todo lo que voy a publicar
             content = res.read()
@@ -53,4 +51,4 @@ class ContentMgr():
                             options=self.titles)
         choice = dlg.get_ans()
         # Teniendo el título, extraigo los datos del html
-        return self.extract_html(choice)
+        return self.extract_html(SZ_HTML_FILE(choice))
