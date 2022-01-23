@@ -78,7 +78,7 @@ class Quoter(BlogCsvMgr):
 
     def __add_post_link(self, row):
         # Construyo el html para el enlace
-        ini_link = self.OPEN_LINK.format(self.__csv_reader[row][CSV_COLUMN.LINK])
+        ini_link = self.OPEN_LINK.format(self.__csv_reader[row][CSV_COLUMN.LINK.value])
         # La posición dentro de mi texto me la indica
         # el primer elemento de las listas de índices
         position = self.__ini_comillas_pos[0] + 1

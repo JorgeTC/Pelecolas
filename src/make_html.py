@@ -10,7 +10,9 @@ from src.word_reader import WordReader
 SZ_INVALID_CHAR = "\/:*?<>|"
 SZ_HTML_COMMENT = "\n<!-- {} -->\n".format
 SZ_HTML_TITLE = "<!-- \n{}\n -->\n".format
+SZ_HTML_BREAK_LINE = "\n<br>"
 SZ_HTML_FILE = "Reseña {}.html".format
+
 
 def get_res_html_format(sz_file):
     # Función para leer los formatos del html
@@ -31,6 +33,7 @@ def get_res_html_format(sz_file):
 SZ_HTML_HEADER = get_res_html_format("header.html")
 SZ_HTML_PARAGRAPH = get_res_html_format("paragraph.html")
 SZ_HTML_QUOTE_PARAGRAPH = get_res_html_format("quote_paragraph.html")
+SZ_HTML_HIDDEN_DATA = get_res_html_format("hidden_data.html")
 
 
 class html(WordReader):
@@ -133,8 +136,8 @@ class html(WordReader):
         self.__get_text()
 
         # Limpio el titulo de la película por si tiene caracteres no válidos para un archivo de Windows
-        self.sz_file_name = "".join(i for i in str(
-            self.data.titulo) if i not in SZ_INVALID_CHAR)
+        self.sz_file_name = "".join(i for i in str(self.data.titulo)
+                                    if i not in SZ_INVALID_CHAR)
         # Compongo el nombre completo del archivo
         self.sz_file_name = SZ_HTML_FILE(self.sz_file_name)
         # Abro el archivo en modo escritura
@@ -147,20 +150,23 @@ class html(WordReader):
 
         # Escribo el encabezado
         reseña.write(SZ_HTML_COMMENT('Encabezado'))
-        reseña.write(SZ_HTML_HEADER("Dir.: " + str(self.data.director)))
-        reseña.write(SZ_HTML_HEADER(str(self.data.año)))
-        reseña.write(SZ_HTML_HEADER(str(self.data.duracion) + " min."))
+        reseña.write(SZ_HTML_HEADER(director=self.data.director,
+                                    year=self.data.año,
+                                    duration=self.data.duracion))
 
         # Iteramos los párrafos
         reseña.write(SZ_HTML_COMMENT('Párrafos'))
+        reseña.write('<section class="review-body">\n')
         for parrafo in self.parrafos_critica:
             if not self.__is_all_italic(parrafo):
                 reseña.write(SZ_HTML_PARAGRAPH(parrafo))
             else:
                 reseña.write(SZ_HTML_QUOTE_PARAGRAPH(parrafo))
+        reseña.write('</section>\n')
 
         # Escribo los botones de Twitter
-        reseña.write("\n<p>")
+        reseña.write(SZ_HTML_BREAK_LINE)
+        reseña.write("\n<footer>")
         reseña.write(SZ_HTML_COMMENT('Botón follow'))
         html_follow = open(get_res_folder("Make_html", "follow.html")).read()
         reseña.write(html_follow)
@@ -168,8 +174,14 @@ class html(WordReader):
         html_share = open(get_res_folder("Make_html", "share.html")).read()
         reseña.write(html_share)
 
-        # Etiquetas para publicar la reseña
-        reseña.write(SZ_HTML_COMMENT(self.get_labels()))
+        # Escribo los datos ocultos
+        reseña.write(SZ_HTML_HIDDEN_DATA(year=self.data.año,
+                                         director=self.data.director,
+                                         country=self.data.pais,
+                                         link_fa=self.data.url_FA,
+                                         film_title=self.data.titulo,
+                                         labels=self.get_labels()))
+        reseña.write("\n</footer>")
 
         reseña.close()
 

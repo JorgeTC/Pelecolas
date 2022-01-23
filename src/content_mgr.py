@@ -1,6 +1,8 @@
 from pathlib import Path
 import re
 
+from bs4 import BeautifulSoup
+
 from src.dlg_scroll_base import DlgScrollBase
 from src.make_html import SZ_HTML_FILE
 from src.aux_title_str import split_title_year
@@ -27,28 +29,18 @@ class ContentMgr():
 
         return title
 
-    def __get_labels(self, parr):
-        # Buscador de comentarios
-        # El resultado no tendrá trailing spaces,
-        # el grupo que hemos definido termina en una coma.
-        search_comment = re.compile(r'<!-- *(.*,) *-->')
-        try:
-            return search_comment.match(parr).group(1)
-        except AttributeError:
-            # Excepción que salta si no hay ninguna coincidencia con la re
-            return ""
-
     def extract_html(self, file_name):
         with open(self.dir / file_name, 'r', encoding="utf-8") as res:
             # Obtengo en una única string todo lo que voy a publicar
             content = res.read()
-            # Leo en la última línea las etiquetas que acompañan a la reseña
-            lines = content.splitlines()
-            labels = self.__get_labels(lines[-1])
+            # Extraigo de las notas del post el nombre de la película y las etiquetas
+            parsed = BeautifulSoup(content, 'html.parser')
+            title = parsed.find(id='film-title')['value']
+            labels = parsed.find(id='post-labels')['value']
 
         # Devuelvo la información en un diccionario
         post_info = {
-            'title' : self.__get_title_from_html_name(file_name).upper(),
+            'title' : title.upper(),
             'content' : content,
             'labels' : labels
         }
