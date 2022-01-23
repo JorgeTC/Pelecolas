@@ -9,7 +9,7 @@ class TitleMgr():
         # Copio todos los títulos disponibles.
         # La clase html los tiene en forma de diccionario.
         # Yo sólo necesito las llaves de ese diccionario.
-        self.ls_title = title_list
+        self.ls_title = list(title_list)
 
         # defino los caracteres para los que no quiero que sea sensitivo
         # necesario para la operación de normalización.
@@ -39,7 +39,7 @@ class TitleMgr():
 
         return chars_dict
 
-    def exists(self, titulo):
+    def is_title_in_list(self, titulo):
 
         # Inicio las variables de búsqueda
         self.__exists = False
@@ -58,9 +58,16 @@ class TitleMgr():
                 self.__position = i
                 return True
 
-        # Si es posible, siguiero los títulos más cercanos al introducido
-        self.__closest_title(titulo)
+        return False
 
+    def exists(self, titulo):
+
+        # Si el título está en la lista, puedo salir de aquí
+        if self.is_title_in_list(titulo):
+            return True
+
+        # De lo contrario y si es posible, siguiero los títulos más cercanos al introducido
+        self.__closest_title(titulo)
         return False
 
     def __closest_title(self, titulo):
@@ -99,6 +106,18 @@ class TitleMgr():
         else:
             # Ya sé que no está en la lista de llaves.
             return ""
+
+    def exact_key_without_dlg(self, title):
+
+        self.is_title_in_list(title)
+
+        # Variables exists y position ya calculadas.
+        if self.__exists:
+            return self.ls_title[self.__position]
+        else:
+            # Ya sé que no está en la lista de llaves.
+            return ""
+
 
     def print(self):
 

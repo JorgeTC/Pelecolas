@@ -1,0 +1,92 @@
+from src.progress_bar import ProgressBar
+from src.content_mgr import ContentMgr
+from src.poster import POSTER
+from src.read_blog import ReadBlog
+from src.list_title_mgr import TitleMgr
+from src.make_html import html
+from src.searcher import Searcher
+from src.pelicula import Pelicula
+from bs4 import BeautifulSoup
+
+class BlogThemeUpdater():
+
+    def __init__(self, path):
+        self.Documento = html(path)
+        self.title_manager = TitleMgr(self.Documento.titulos.keys())
+        self.content_mgr = ContentMgr(path)
+        self.all_posts = POSTER.get_all_posts()
+
+    def get_word_name_from_blog_post(self, post):
+        name = post['title']
+        # Si el nombre que tiene en el word no es el normal, es que tiene un año
+        if self.title_manager.is_title_in_list(name):
+            return self.title_manager.exact_key_without_dlg(name)
+
+        # Parseo el contenido
+        body = BeautifulSoup(post['content'], 'html.parser')
+
+        reader = ReadBlog()
+        _, year = reader.get_director_year_from_content(body)
+        name = f'{name} ({year})'
+
+        if self.title_manager.is_title_in_list(name):
+            return self.title_manager.exact_key_without_dlg(name)
+
+        return ""
+
+    def update_post(self, post):
+
+        # A partir del post busco cuál es su nombre en el Word
+        title = self.get_word_name_from_blog_post(post)
+        # Si no encuentro su nombre en el Word, salgo
+        if not title:
+            return False
+
+        # En base al nombre busco su ficha en FA
+        FA = Searcher(title)
+        url_fa = FA.get_url()
+        # Si no encuentro la url, la pido al usuario
+        if not url_fa:
+            url_fa = input(f"Necesito url de FA de {post['title']}")
+
+        # Cargo los datos de la película de FA
+        self.Documento.data = Pelicula(urlFA=url_fa)
+        self.Documento.data.get_parsed_page()
+        # Si no he conseguido leer nada de FA, salgo de la función
+        if not self.Documento.data.exists():
+            return False
+        # Reestituyo el nombre que tenía en Word
+        self.Documento.data.titulo = title
+        # Leo en FA el resto de datos
+        self.Documento.data.get_director()
+        self.Documento.data.get_año()
+        self.Documento.data.get_duracion()
+        self.Documento.data.get_country()
+
+        # Escribo el archivo html
+        self.Documento.write_html()
+        # Extraigo el texto del documento html
+        # El resto de datos del post deben quedar intactos
+        post_info = self.content_mgr.extract_html(self.Documento.data.titulo)
+        post['content'] = post_info['content']
+        # Subo el nuevo post
+        POSTER.update_post(post)
+
+        # Elimino el archivo html que acabo de generar
+        self.Documento.delete_file()
+        # Limpio el objeto para poder escribir otro html
+        self.Documento.reset()
+
+        return True
+
+    def update_blog(self):
+
+        bar = ProgressBar()
+        total_elements = len(self.all_posts)
+
+        for index, post in enumerate(self.all_posts):
+
+            if not self.update_post(post):
+                assert(f"Error con la película {post['title']}")
+
+            bar.update(index/total_elements)

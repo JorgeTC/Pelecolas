@@ -1,5 +1,6 @@
 import textacy
 import urllib.parse
+import re
 
 from src.blog_csv_mgr import BlogCsvMgr
 from src.blog_csv_mgr import CSV_COLUMN
@@ -113,7 +114,7 @@ class Quoter(BlogCsvMgr):
                 if director == self.director:
                     continue
                 # Puede que sólo esté escrito el apellido del director
-                if not nombre.lower() in director.lower():
+                if not self.__is_name_in_director(nombre, director):
                     continue
                 # Pido confirmación al usuario de la cita
                 if not self.__ask_confirmation(nombre, director):
@@ -131,6 +132,10 @@ class Quoter(BlogCsvMgr):
             self.__add_director_link(cit)
 
         pass
+
+    def __is_name_in_director(self, name, director):
+        patron = r'\b({0})\b'.format(name)
+        return bool(re.search(patron, director))
 
     def __ask_confirmation(self, nombre, director):
         # Si son idénticos, evidentemente es una cita
@@ -189,7 +194,7 @@ class Quoter(BlogCsvMgr):
             return True
 
         # Elimino los pronombres
-        if (ent.lemma_ == 'yo'):
+        if (ent.lemma_ == 'yo' or ent.lemma_ == 'él'):
             return False
 
         # Caso general en el que me fio del modelo
