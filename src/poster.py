@@ -145,6 +145,11 @@ class Poster(ReadBlog, GoogleApiMgr):
 
         return all_posts
 
+    def update_post(self, new_post):
+
+        self.posts.update(blogId=self.BLOG_ID,
+                        postId=new_post['id'],
+                        body=new_post).execute()
 
     def get_published_from_date(self, min_date):
 
