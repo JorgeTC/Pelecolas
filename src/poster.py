@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 
 import pytz
 from bs4 import BeautifulSoup
@@ -12,6 +12,9 @@ from src.read_blog import ReadBlog
 class Poster(ReadBlog, GoogleApiMgr):
 
     BLOG_ID = CONFIG.get_value(CONFIG.S_POST, CONFIG.P_BLOG_ID)
+
+    # Guardo el primer mes que tiene reseña
+    __first_month = date(2019, 5, 1)
 
     def __init__(self):
         # Inicializo la clase madre
@@ -125,6 +128,28 @@ class Poster(ReadBlog, GoogleApiMgr):
         day = int(found[8:10])
 
         return (day, month, year)
+
+    def get_all_active_posts(self):
+        return self.get_published_from_date(self.__first_month)
+
+    def get_all_posts(self):
+
+        # Obtengo todos los posts publicados
+        posted = self.get_all_active_posts()
+
+        # Obtengo todos los programados
+        scheduled = self.get_scheduled()
+
+        # Concateno ambas listas
+        all_posts = posted + scheduled
+
+        return all_posts
+
+    def update_post(self, new_post):
+
+        self.posts.update(blogId=self.BLOG_ID,
+                        postId=new_post['id'],
+                        body=new_post).execute()
 
     def get_published_from_date(self, min_date):
 

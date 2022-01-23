@@ -22,9 +22,9 @@ def main(path):
 
         # Leo el html escrito y extraigo los datos necesarios para hacer la publicación
         mgr = ContentMgr(path)
-        post_data = mgr.extract_html(Documento.data.titulo)
+        post_data = mgr.extract_html(Documento.sz_file_name)
         # Le doy al objeto que añade el post al blog todos los datos
-        POSTER.add_post(title=post_data['title'],
+        POSTER.add_post(title=Documento.data.titulo.upper(),
                   content=post_data['content'],
                   labels=post_data['labels'])
 
