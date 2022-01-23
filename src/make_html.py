@@ -31,6 +31,7 @@ def get_res_html_format(sz_file):
 SZ_HTML_HEADER = get_res_html_format("header.html")
 SZ_HTML_PARAGRAPH = get_res_html_format("paragraph.html")
 SZ_HTML_QUOTE_PARAGRAPH = get_res_html_format("quote_paragraph.html")
+SZ_HTML_HIDDEN_DATA = get_res_html_format("hidden_data.html")
 
 
 class html(WordReader):
@@ -160,13 +161,19 @@ class html(WordReader):
                 reseña.write(SZ_HTML_QUOTE_PARAGRAPH(parrafo))
 
         # Escribo los botones de Twitter
-        reseña.write("\n<p>")
+        reseña.write("\n<br>")
         reseña.write(SZ_HTML_COMMENT('Botón follow'))
         html_follow = open(get_res_folder("Make_html", "follow.html")).read()
         reseña.write(html_follow)
         reseña.write(SZ_HTML_COMMENT('Botón compartir'))
         html_share = open(get_res_folder("Make_html", "share.html")).read()
         reseña.write(html_share)
+
+        # Escribo los datos ocultos
+        reseña.write(SZ_HTML_HIDDEN_DATA(year=self.data.año,
+                                         director=self.data.director,
+                                         country=self.data.pais,
+                                         link_fa=self.data.url_FA))
 
         # Etiquetas para publicar la reseña
         reseña.write(SZ_HTML_COMMENT(self.get_labels()))
