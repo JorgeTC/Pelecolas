@@ -20,7 +20,12 @@ class ContentMgr():
 
     def __get_title_from_html_name(self, html_name):
         regular_expresion = re.search('Reseña (.+).html', html_name)
-        return regular_expresion.group(1)
+        # Obtengo lo que haya después de la palabra reseña y antes de la extensión
+        name = regular_expresion.group(1)
+        # Quito el posible año
+        _, title = split_title_year(name)
+
+        return title
 
     def __get_labels(self, parr):
         # Buscador de comentarios
@@ -40,9 +45,6 @@ class ContentMgr():
             # Leo en la última línea las etiquetas que acompañan a la reseña
             lines = content.splitlines()
             labels = self.__get_labels(lines[-1])
-
-        # Quito el posible año
-        _, title = split_title_year(title)
 
         # Devuelvo la información en un diccionario
         post_info = {
