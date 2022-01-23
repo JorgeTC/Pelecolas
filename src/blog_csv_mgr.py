@@ -1,4 +1,5 @@
 import csv
+import enum
 import os
 from datetime import datetime
 
@@ -7,11 +8,11 @@ from src.dlg_config import CONFIG
 from src.poster import POSTER
 
 
-class CSV_COLUMN:
+class CSV_COLUMN(enum.Enum):
     TITLE = 0
-    LINK = 1
-    DIRECTOR = 2
-    YEAR = 3
+    LINK = enum.auto()
+    DIRECTOR = enum.auto()
+    YEAR = enum.auto()
 
 class BlogCsvMgr():
     # Creo el csv donde guardo los datos de las entradas
