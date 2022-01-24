@@ -9,6 +9,7 @@ class BlogHiddenData():
     URL_FA = "link-FA"
     LABELS = "post-labels"
     DURATION = "duration"
+    IMAGE = "link-image"
 
 
 class ReadBlog():

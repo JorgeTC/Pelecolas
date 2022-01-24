@@ -1,3 +1,4 @@
+/***** CSS PERSONALIZADO *****/
 /* Regular paragraph */
 section.review-body p {
 	text-align: justify;
@@ -22,4 +23,32 @@ footer form.hidden-data {
 dl.general-data{
     text-align: right;
     font-family: 'courier new', 'courier', monospace;
+    position: relative;
 }
+
+/* Poster desplegable */
+.general-data .tooltiptext {
+    visibility: hidden;
+    width: 50%;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 5px;
+    opacity: 0;
+
+    /* Position the tooltip */
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    z-index: 1;
+
+    /* fade in*/
+    transition: opacity 0.5s;
+}
+
+.general-data:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+/***************************************************/

@@ -50,6 +50,7 @@ class Pelicula(object):
         self.user_note = ""
         self.id = ""
         self.url_FA = ""
+        self.url_image = ""
 
         if movie_box:
             self.titulo = self.__get_title(movie_box)
@@ -187,6 +188,13 @@ class Pelicula(object):
         self.values = [int(s) for s in bars.split(',')]
         # Las ordeno poniendo primero las notas más bajas
         self.values.reverse()
+
+    def get_image_url(self):
+
+        if not self.parsed_page:
+            self.get_parsed_page()
+
+        self.url_image = self.parsed_page.find("meta", property="og:image")
 
     def get_desvest(self):
 
