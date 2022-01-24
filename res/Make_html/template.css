@@ -27,7 +27,7 @@ dl.general-data{
     position: relative;
 }
 
-/* Poster desplegable */
+/* Desplegable con el poster */
 .general-data .tooltiptext {
     visibility: hidden;
     width: 50%;
@@ -51,5 +51,12 @@ dl.general-data{
 .general-data:hover .tooltiptext {
     visibility: visible;
     opacity: 1;
+}
+
+/* Imagen que contiene el desplegable */
+.general-data .tooltiptext img {
+    width: 100%;
+    padding: 0pt;
+    vertical-align: middle;
 }
 /* ----------------------------------------------- */
