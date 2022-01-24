@@ -1,11 +1,12 @@
-from pathlib import Path
 import re
+from pathlib import Path
 
 from bs4 import BeautifulSoup
 
+from src.aux_title_str import split_title_year
 from src.dlg_scroll_base import DlgScrollBase
 from src.make_html import SZ_HTML_FILE
-from src.aux_title_str import split_title_year
+from src.read_blog import BlogHiddenData
 
 
 class ContentMgr():
@@ -35,8 +36,9 @@ class ContentMgr():
             content = res.read()
             # Extraigo de las notas del post el nombre de la película y las etiquetas
             parsed = BeautifulSoup(content, 'html.parser')
-            title = parsed.find(id='film-title')['value']
-            labels = parsed.find(id='post-labels')['value']
+            title = parsed.find(id=BlogHiddenData.TITLE)['value']
+            _, title = split_title_year(title)
+            labels = parsed.find(id=BlogHiddenData.LABELS)['value']
 
         # Devuelvo la información en un diccionario
         post_info = {
