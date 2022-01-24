@@ -24,7 +24,7 @@ def main(path):
         mgr = ContentMgr(path)
         post_data = mgr.extract_html(Documento.sz_file_name)
         # Le doy al objeto que añade el post al blog todos los datos
-        POSTER.add_post(title=Documento.data.titulo.upper(),
+        POSTER.add_post(title=post_data['title'],
                   content=post_data['content'],
                   labels=post_data['labels'])
 

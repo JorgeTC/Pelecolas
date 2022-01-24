@@ -152,7 +152,8 @@ class html(WordReader):
         reseña.write(SZ_HTML_COMMENT('Encabezado'))
         reseña.write(SZ_HTML_HEADER(director=self.data.director,
                                     year=self.data.año,
-                                    duration=self.data.duracion))
+                                    duration=self.data.duracion,
+                                    image_url=self.data.url_image))
 
         # Iteramos los párrafos
         reseña.write(SZ_HTML_COMMENT('Párrafos'))
@@ -181,7 +182,8 @@ class html(WordReader):
                                          link_fa=self.data.url_FA,
                                          film_title=self.data.titulo,
                                          labels=self.get_labels(),
-                                         duration=self.data.duracion))
+                                         duration=self.data.duracion,
+                                         link_image=self.data.url_image))
         reseña.write("\n</footer>")
 
         reseña.close()

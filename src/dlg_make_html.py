@@ -87,6 +87,7 @@ class DlgHtml(DlgScrollBase):
         self.data.get_año()
         self.data.get_duracion()
         self.data.get_country()
+        self.data.get_image_url()
         return True
 
     def __unpublished(self, ls_titles):
