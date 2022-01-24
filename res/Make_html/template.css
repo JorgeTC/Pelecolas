@@ -1,4 +1,5 @@
-/***** CSS PERSONALIZADO *****/
+/* CSS personalizado
+----------------------------------------------- */
 /* Regular paragraph */
 section.review-body p {
 	text-align: justify;
@@ -51,4 +52,4 @@ dl.general-data{
     visibility: visible;
     opacity: 1;
 }
-/***************************************************/
+/* ----------------------------------------------- */

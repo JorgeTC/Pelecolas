@@ -14,7 +14,7 @@ class Poster(ReadBlog, GoogleApiMgr):
     BLOG_ID = CONFIG.get_value(CONFIG.S_POST, CONFIG.P_BLOG_ID)
 
     # Guardo el primer mes que tiene reseña
-    __first_month = date(2009, 5, 1)
+    __first_month = date(2019, 5, 1)
 
     def __init__(self):
         # Inicializo la clase madre
