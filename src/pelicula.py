@@ -194,7 +194,7 @@ class Pelicula(object):
         if not self.parsed_page:
             self.get_parsed_page()
 
-        self.url_image = self.parsed_page.find("meta", property="og:image")
+        self.url_image = self.parsed_page.find("meta", property="og:image")['content']
 
     def get_desvest(self):
 
