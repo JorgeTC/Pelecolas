@@ -92,7 +92,7 @@ class html(WordReader):
             parr_text = self.__citas.quote_parr(parr_text)
 
             # Añado saltos de línea para un html más legible
-            parr_text = parr_text.replace(". ", ".\n")
+            parr_text = re.sub(r"([.!?…>:]) ", r"\1\n", parr_text)
             # Añado el texto a la lista de párrafos
             self.parrafos_critica.append(parr_text)
 
