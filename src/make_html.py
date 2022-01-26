@@ -2,6 +2,7 @@ import os
 import re
 
 from src.aux_res_directory import get_res_folder
+from src.dlg_config import CONFIG
 from src.dlg_make_html import DlgHtml
 from src.pelicula import Pelicula
 from src.quoter import Quoter
@@ -145,8 +146,13 @@ class html(WordReader):
                       mode="w", encoding="utf-8")
 
         # Escribo el título de la película en mayúsculas.
-        # Quiero poder copiar del html el nombre del post
         reseña.write(SZ_HTML_TITLE(self.data.titulo.upper()))
+
+        # Escribo el estilo css si así me lo indica el ini
+        if CONFIG.get_bool(CONFIG.S_HTML, CONFIG.P_ADD_STYLE):
+            reseña.write("<style>\n")
+            reseña.write(open(get_res_folder("Make_html", "template.css")).read())
+            reseña.write("</style>\n")
 
         # Escribo el encabezado
         reseña.write(SZ_HTML_COMMENT('Encabezado'))
