@@ -188,6 +188,8 @@ class Pelicula(object):
         self.values = [int(s) for s in bars.split(',')]
         # Las ordeno poniendo primero las notas más bajas
         self.values.reverse()
+        # Me aseguro que todos los datos sean positivos
+        self.values = [max(value, 0) for value in self.values]
 
     def get_image_url(self):
 
