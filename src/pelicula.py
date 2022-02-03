@@ -100,14 +100,17 @@ class Pelicula(object):
         # Devuelvo la instancia
         return instance
 
-    def __get_title(self, film_box):
-        return film_box.contents[1].contents[1].contents[3].contents[1].contents[0].contents[0]
+    def __get_title(self, film_box: BeautifulSoup):
+        # Busco el único link que contiene y extraigo de él el título
+        return film_box.find("a")['title']
 
-    def __get_user_note(self, film_box):
-        return film_box.contents[3].contents[1].contents[1].contents[0]
+    def __get_user_note(self, film_box: BeautifulSoup):
+        # Busco el campo que contiene la nota y devuelvo su único contenido
+        return film_box.find("div", class_='ur-mr-rat').contents[0]
 
-    def __get_id(self, film_box):
-        return film_box.contents[1].contents[1].attrs['data-movie-id']
+    def __get_id(self, film_box: BeautifulSoup):
+        # Busco el div que contiene el atributo que busco
+        return film_box.find("div", {'data-movie-id': True})['data-movie-id']
 
     def get_nota_FA(self):
         # Obtengo la lista
