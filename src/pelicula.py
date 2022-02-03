@@ -44,26 +44,13 @@ def es_valida(titulo):
 RATING_BARS_PATTERN = re.compile(r'RatingBars.*?\[(.*?)\]')
 
 class Pelicula(object):
-    def __init__(self, movie_box=None, id=None, urlFA=None):
+    def __init__(self):
 
         self.titulo = ""
         self.user_note = ""
         self.id = ""
         self.url_FA = ""
         self.url_image = ""
-
-        if movie_box:
-            self.titulo = self.__get_title(movie_box)
-            self.user_note = self.__get_user_note(movie_box)
-            self.id = self.__get_id(movie_box)
-            self.url_FA = URL_FILM_ID(self.id)
-        elif id:
-            self.id = str(id)
-            self.url_FA = URL_FILM_ID(self.id)
-        elif urlFA:
-            self.url_FA = str(urlFA)
-            self.id = get_id_from_url(self.url_FA)
-
         self.parsed_page = None
         self.nota_FA = 0
         self.votantes_FA = 0
@@ -74,6 +61,44 @@ class Pelicula(object):
         self.año = None
         self.pais = ""
         self.__exists = bool()
+
+    @classmethod
+    def from_id(cls, id):
+        # Creo el objeto
+        instance = cls()
+
+        # Guardo los valores que conozco por la información introducida
+        instance.id = str(id)
+        instance.url_FA = URL_FILM_ID(instance.id)
+
+        # Devuelvo la instancia
+        return instance
+
+    @classmethod
+    def from_fa_url(cls, urlFA):
+        # Creo el objeto
+        instance = cls()
+
+        # Guardo los valores que conozco por la información introducida
+        instance.url_FA = str(urlFA)
+        instance.id = get_id_from_url(instance.url_FA)
+
+        # Devuelvo la instancia
+        return instance
+
+    @classmethod
+    def from_movie_box(cls, movie_box: BeautifulSoup):
+        # Creo el objeto
+        instance = cls()
+
+        # Guardo los valores que conozco por la información introducida
+        instance.titulo = instance.__get_title(movie_box)
+        instance.user_note = instance.__get_user_note(movie_box)
+        instance.id = instance.__get_id(movie_box)
+        instance.url_FA = URL_FILM_ID(instance.id)
+
+        # Devuelvo la instancia
+        return instance
 
     def __get_title(self, film_box):
         return film_box.contents[1].contents[1].contents[3].contents[1].contents[0].contents[0]

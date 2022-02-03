@@ -60,7 +60,7 @@ class BlogThemeUpdater():
         url_fa = self.get_secret_data(BlogHiddenData.URL_FA)
 
         # Cargo los datos de la película de FA
-        self.Documento.data = Pelicula(urlFA=url_fa)
+        self.Documento.data = Pelicula.from_fa_url(url_fa)
         self.Documento.data.get_parsed_page()
         # Si no he conseguido leer nada de FA, salgo de la función
         if not self.Documento.data.exists():
