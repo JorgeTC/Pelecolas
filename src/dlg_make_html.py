@@ -76,7 +76,7 @@ class DlgHtml(DlgScrollBase):
         # Pelicula me puede dar un título de FA que no sea idéntico al que hay en el word
         ori_title = self.data.titulo
 
-        self.data = Pelicula(urlFA=url)
+        self.data = Pelicula.from_fa_url(url)
         self.data.get_parsed_page()
 
         if not self.data.exists():

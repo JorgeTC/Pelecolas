@@ -110,7 +110,7 @@ class Writer(object):
         while (self.film_index < self.total_films):
             # Lsita de las películas válidas en la página actual.
             # No puedo modificar self.film_list
-            valid_film_list = [Pelicula(box) for box in self.film_list[self.page_index-1]]
+            valid_film_list = [Pelicula.from_movie_box(box) for box in self.film_list[self.page_index-1]]
             valid_film_list = [film for film in valid_film_list if film.valid()]
 
             # Itero las películas en mi página actual
