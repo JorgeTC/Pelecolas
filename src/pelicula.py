@@ -100,13 +100,13 @@ class Pelicula(object):
         # Devuelvo la instancia
         return instance
 
-    def __get_title(self, film_box):
+    def __get_title(self, film_box: BeautifulSoup):
         return film_box.contents[1].contents[1].contents[3].contents[1].contents[0].contents[0]
 
-    def __get_user_note(self, film_box):
+    def __get_user_note(self, film_box: BeautifulSoup):
         return film_box.contents[3].contents[1].contents[1].contents[0]
 
-    def __get_id(self, film_box):
+    def __get_id(self, film_box: BeautifulSoup):
         return film_box.contents[1].contents[1].attrs['data-movie-id']
 
     def get_nota_FA(self):
