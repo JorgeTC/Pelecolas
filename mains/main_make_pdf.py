@@ -1,16 +1,12 @@
 from pathlib import Path
+import threading
 
 from src.dlg_config import manage_config
 
-def main(sz_folder):
-
-    manage_config()
+def create_PDF(sz_folder):
 
     from src.pdf_writer import PDFWriter
-    from src.google_drive import Drive
 
-    # Uno todos los word en un único pdf
-    # Creo el objeto
     writer = PDFWriter(sz_folder)
     # Convierto cada word a un pdf
     writer.convert_all_word()
@@ -19,8 +15,19 @@ def main(sz_folder):
     # Elimino los pdf individuales
     writer.clear_temp_pdf()
 
+
+def main(sz_folder):
+
+    manage_config()
+
+    from src.google_drive import Drive
+
+    create_pdf = threading.Thread(name="Create_PDF", target=create_PDF, args=[sz_folder])
+    create_pdf.start()
+
     # Actualizo el contenido de google drive
     drive_updater = Drive(sz_folder)
+    create_pdf.join()
     drive_updater.update_folder()
 
 
