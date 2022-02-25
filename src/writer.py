@@ -4,6 +4,7 @@ from math import ceil
 
 from bs4 import BeautifulSoup
 from openpyxl.styles import Alignment, Font
+from openpyxl.worksheet import worksheet
 
 import src.url_FA as url_FA
 from src.pelicula import Pelicula
@@ -28,12 +29,12 @@ class ExcelColumns(enum.Enum):
     FA_rees = enum.auto()
 
     def __str__(self) -> str:
-        return "Tabla1[{}]".format(self.name)
+        return f"Tabla1[{self.name}]"
 
 
 class Writer(object):
 
-    def __init__(self, id, worksheet):
+    def __init__(self, id, worksheet: worksheet.Worksheet):
         # numero de usuario en string
         self.id_user = str(id)
         # Contador de peliculas
