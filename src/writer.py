@@ -146,14 +146,14 @@ class Writer(object):
         # La votación del usuario la leo desde fuera
         # no puedo leer la nota del usuario dentro de la ficha
         self.__set_cell_value(line, ExcelColumns.Mia,
-                              int(film.user_note))
+                              film.user_note)
         self.__set_cell_value(line, ExcelColumns.Mia_ruido,
                               f"={ExcelColumns.Mia}+RAND()-0.5")
         self.__set_cell_value(line, ExcelColumns.Mia_rees,
                               f"=({ExcelColumns.Mia}-1)*10/9")
         # En la primera columna guardo la id para poder reconocerla
         self.__set_cell_value(line, ExcelColumns.Id,
-                              film.titulo, int(film.id))
+                              film.titulo, film.id)
 
         if (film.duracion != 0):
             # dejo la casilla en blanco si no logra leer ninguna duración de FA

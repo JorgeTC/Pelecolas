@@ -8,11 +8,11 @@ from src.safe_url import safe_get_url
 from src.url_FA import URL_FILM_ID
 
 
-def get_id_from_url(url):
+def get_id_from_url(url: str) -> int:
     # Cojo los 6 dígitos que están después de la palabra film
     str_id = re.search(r"film(\d{6}).html", url).group(1)
 
-    return str_id
+    return int(str_id)
 
 
 SET_VALID_FILM = CONFIG.get_int(CONFIG.S_READDATA, CONFIG.P_FILTER_FA)
@@ -47,8 +47,8 @@ class Pelicula(object):
     def __init__(self):
 
         self.titulo = ""
-        self.user_note = ""
-        self.id = ""
+        self.user_note = 0
+        self.id = 0
         self.url_FA = ""
         self.url_image = ""
         self.parsed_page = None
@@ -68,7 +68,7 @@ class Pelicula(object):
         instance = cls()
 
         # Guardo los valores que conozco por la información introducida
-        instance.id = str(id)
+        instance.id = int(id)
         instance.url_FA = URL_FILM_ID(instance.id)
 
         # Devuelvo la instancia
@@ -104,10 +104,10 @@ class Pelicula(object):
         return film_box.contents[1].contents[1].contents[3].contents[1].contents[0].contents[0]
 
     def __get_user_note(self, film_box: BeautifulSoup):
-        return film_box.contents[3].contents[1].contents[1].contents[0]
+        return int(film_box.contents[3].contents[1].contents[1].contents[0])
 
     def __get_id(self, film_box: BeautifulSoup):
-        return film_box.contents[1].contents[1].attrs['data-movie-id']
+        return int(film_box.contents[1].contents[1].attrs['data-movie-id'])
 
     def get_nota_FA(self):
         # Obtengo la lista
