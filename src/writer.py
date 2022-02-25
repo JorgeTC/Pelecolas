@@ -90,7 +90,8 @@ class Writer(object):
 
     def __next_page(self):
 
-        self.film_index += len(self.film_list[self.page_index-1])
+        self.film_index += 20
+        self.film_index = min(self.film_index, self.total_films)
         if self.film_index:
             self.bar.update(self.film_index/self.total_films)
 
@@ -107,10 +108,10 @@ class Writer(object):
         self.bar.reset_timer()
 
         # Itero hasta que haya leído todas las películas
-        while (self.film_index < self.total_films):
+        while self.film_list:
             # Lsita de las películas válidas en la página actual.
             # No puedo modificar self.film_list
-            valid_film_list = [Pelicula.from_movie_box(box) for box in self.film_list[self.page_index-1]]
+            valid_film_list = [Pelicula.from_movie_box(box) for box in self.film_list.pop()]
             valid_film_list = [film for film in valid_film_list if film.valid()]
 
             # Itero las películas en mi página actual
@@ -119,8 +120,11 @@ class Writer(object):
             # Avanzo a la siguiente página de películas vistas por el usuario
             self.__next_page()
 
+        # Escribo en el Excel
+        self.bar.reset_timer()
         for index, film in enumerate(films_data):
             self.__write_in_excel(index, film)
+            self.bar.update(index / len(films_data))
 
     def __read_film(self, film: Pelicula):
         # Hacemos la parte más lenta, que necesita parsear la página.
