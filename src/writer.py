@@ -96,7 +96,7 @@ class Writer(object):
         if self.film_index:
             self.bar.update(self.film_index/self.total_films)
 
-        # Anavanzo a la siguiente página
+        # Avanzo a la siguiente página
         self.page_index += 1
 
     def read_watched(self):
@@ -110,8 +110,7 @@ class Writer(object):
 
         # Itero hasta que haya leído todas las películas
         while self.film_list:
-            # Lsita de las películas válidas en la página actual.
-            # No puedo modificar self.film_list
+            # Lista de las películas válidas en la página actual.
             valid_film_list = [Pelicula.from_movie_box(box) for box in self.film_list.pop()]
             valid_film_list = [film for film in valid_film_list if film.valid()]
 
@@ -125,7 +124,7 @@ class Writer(object):
         self.bar.reset_timer()
         for index, film in enumerate(films_data):
             self.__write_in_excel(index, film)
-            self.bar.update(index / len(films_data))
+            self.bar.update((index + 1) / len(films_data))
 
     def __read_film(self, film: Pelicula):
         # Hacemos la parte más lenta, que necesita parsear la página.
@@ -136,10 +135,10 @@ class Writer(object):
     def __write_in_excel(self, line: int, film: Pelicula):
 
         # La enumeración empezará en 0,
-        # pero sólo esribimos datos a partir de la segunda linea.
+        # pero sólo escribimos datos a partir de la segunda linea.
         line = line + 2
 
-        # La votacion del usuario la leo desde fuera
+        # La votación del usuario la leo desde fuera
         # no puedo leer la nota del usuario dentro de la ficha
         self.__set_cell_value(line, ExcelColumns.Mia,
                               int(film.user_note))
