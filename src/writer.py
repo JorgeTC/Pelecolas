@@ -66,7 +66,7 @@ class Writer(object):
 
         # me espero que haya un único "value-box active-tab"
         mydivs = self.soup_page.find("a", {"class": "value-box active-tab"})
-        stringNumber = mydivs.contents[3].contents[1]
+        stringNumber = str(mydivs.contents[3].contents[1])
         # Elimino el punto de los millares
         stringNumber = stringNumber.replace('.', '')
         return int(stringNumber)
