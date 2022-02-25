@@ -111,26 +111,31 @@ class Writer(object):
         # Itero hasta que haya leído todas las películas
         while self.film_list:
             # Lista de las películas válidas en la página actual.
-            valid_film_list = [Pelicula.from_movie_box(box) for box in self.film_list.pop()]
-            valid_film_list = [film for film in valid_film_list if film.valid()]
+            valid_film_list = (Pelicula.from_movie_box(box) for box in self.film_list.pop())
+            valid_film_list = (film for film in valid_film_list if film.valid())
 
             # Itero las películas en mi página actual
-            films_data += list(executor.map(self.__read_film, valid_film_list))
+            futures = {executor.submit(film.get_time_and_FA): film for film in valid_film_list}
+            for future in concurrent.futures.as_completed(futures):
+                # Limpio algo del objeto
+                futures[future].parsed_page = None
+                futures[future].values.clear()
+                films_data.append(futures[future])
 
             # Avanzo a la siguiente página de películas vistas por el usuario
             self.__next_page()
 
         # Escribo en el Excel
         self.bar.reset_timer()
-        for index, film in enumerate(films_data):
-            self.__write_in_excel(index, film)
-            self.bar.update((index + 1) / len(films_data))
-
-    def __read_film(self, film: Pelicula):
-        # Hacemos la parte más lenta, que necesita parsear la página.
-        film.get_time_and_FA()
-
-        return film
+        index = 0
+        total_films = len(films_data)
+        while index < total_films:
+            # Escribo en Excel
+            self.__write_in_excel(index, films_data.pop())
+            # Avanzo el índice
+            index += 1
+            # Actualizo la barra de progreso
+            self.bar.update(index / total_films)
 
     def __write_in_excel(self, line: int, film: Pelicula):
 
