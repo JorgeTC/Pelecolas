@@ -37,7 +37,7 @@ class Writer(object):
     def __init__(self, id, worksheet: worksheet.Worksheet):
         # numero de usuario en string
         self.id_user = str(id)
-        # Contador de peliculas
+        # Contador de películas
         self.film_index = 0
         # Numero de pagina actual
         self.page_index = 1
@@ -47,7 +47,7 @@ class Writer(object):
 
         # Descargo la propia página actual. Es una página "de fuera".
         self.soup_page = None
-        # Lista de peliculas que hay en la página actual
+        # Lista de películas que hay en la página actual
         self.film_list = []
 
         # Votaciones en total

@@ -17,7 +17,7 @@ class ExcelMgr(object):
         # Abro la primera de las hojas, es la única en la que escribo
         self.ws = self.wb[self.wb.sheetnames[0]]
 
-        # Contruyo el nombre con el que voy a guardar el excel
+        # Construyo el nombre con el que voy a guardar el excel
         self.ExcelName = self.SZ_FILE_NAME.format(usuario)
 
     def get_worksheet(self):
