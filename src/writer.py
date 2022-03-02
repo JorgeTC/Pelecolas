@@ -1,3 +1,4 @@
+from collections import namedtuple
 import concurrent.futures
 import enum
 from math import ceil
@@ -30,6 +31,10 @@ class ExcelColumns(enum.Enum):
 
     def __str__(self) -> str:
         return f"Tabla1[{self.name}]"
+
+
+FilmData = namedtuple(
+    "FilmData", "user_note titulo id duracion nota_FA votantes_FA desvest_FA")
 
 
 class Writer(object):
@@ -126,13 +131,20 @@ class Writer(object):
             self.__write_in_excel(index, film)
             self.bar.update((index + 1) / len(films_data))
 
-    def __read_film(self, film: Pelicula):
+    def __read_film(self, film: Pelicula) -> FilmData:
         # Hacemos la parte más lenta, que necesita parsear la página.
         film.get_time_and_FA()
 
-        return film
+        # Extraemos los datos que usaremos para que el objeto sea más pequeño
+        return FilmData(film.user_note,
+                        film.titulo,
+                        film.id,
+                        film.duracion,
+                        film.nota_FA,
+                        film.votantes_FA,
+                        film.desvest_FA)
 
-    def __write_in_excel(self, line: int, film: Pelicula):
+    def __write_in_excel(self, line: int, film: FilmData):
 
         # La enumeración empezará en 0,
         # pero sólo escribimos datos a partir de la segunda linea.
