@@ -127,9 +127,12 @@ class Writer(object):
 
         # Escribo en el Excel
         self.bar.reset_timer()
-        for index, film in enumerate(films_data):
-            self.__write_in_excel(index, film)
-            self.bar.update((index + 1) / len(films_data))
+        total_rows = len(films_data)
+        index = 0
+        while films_data:
+            self.__write_in_excel(index, films_data.pop())
+            index += 1
+            self.bar.update(index / total_rows)
 
     def __read_film(self, film: Pelicula) -> FilmData:
         # Hacemos la parte más lenta, que necesita parsear la página.
