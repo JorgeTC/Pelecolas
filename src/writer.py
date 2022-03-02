@@ -1,9 +1,11 @@
+from collections import namedtuple
 import concurrent.futures
 import enum
 from math import ceil
 
 from bs4 import BeautifulSoup
 from openpyxl.styles import Alignment, Font
+from openpyxl.worksheet import worksheet
 
 import src.url_FA as url_FA
 from src.pelicula import Pelicula
@@ -28,15 +30,19 @@ class ExcelColumns(enum.Enum):
     FA_rees = enum.auto()
 
     def __str__(self) -> str:
-        return "Tabla1[{}]".format(self.name)
+        return f"Tabla1[{self.name}]"
+
+
+FilmData = namedtuple(
+    "FilmData", "user_note titulo id duracion nota_FA votantes_FA desvest_FA")
 
 
 class Writer(object):
 
-    def __init__(self, id, worksheet):
+    def __init__(self, id, worksheet: worksheet.Worksheet):
         # numero de usuario en string
         self.id_user = str(id)
-        # Contador de peliculas
+        # Contador de películas
         self.film_index = 0
         # Numero de pagina actual
         self.page_index = 1
@@ -46,7 +52,7 @@ class Writer(object):
 
         # Descargo la propia página actual. Es una página "de fuera".
         self.soup_page = None
-        # Lista de peliculas que hay en la página actual
+        # Lista de películas que hay en la página actual
         self.film_list = []
 
         # Votaciones en total
@@ -65,7 +71,7 @@ class Writer(object):
 
         # me espero que haya un único "value-box active-tab"
         mydivs = self.soup_page.find("a", {"class": "value-box active-tab"})
-        stringNumber = mydivs.contents[3].contents[1]
+        stringNumber = str(mydivs.contents[3].contents[1])
         # Elimino el punto de los millares
         stringNumber = stringNumber.replace('.', '')
         return int(stringNumber)
@@ -90,11 +96,12 @@ class Writer(object):
 
     def __next_page(self):
 
-        self.film_index += len(self.film_list[self.page_index-1])
+        self.film_index += 20
+        self.film_index = min(self.film_index, self.total_films)
         if self.film_index:
             self.bar.update(self.film_index/self.total_films)
 
-        # Anavanzo a la siguiente página
+        # Avanzo a la siguiente página
         self.page_index += 1
 
     def read_watched(self):
@@ -107,10 +114,9 @@ class Writer(object):
         self.bar.reset_timer()
 
         # Itero hasta que haya leído todas las películas
-        while (self.film_index < self.total_films):
-            # Lsita de las películas válidas en la página actual.
-            # No puedo modificar self.film_list
-            valid_film_list = [Pelicula.from_movie_box(box) for box in self.film_list[self.page_index-1]]
+        while self.film_list:
+            # Lista de las películas válidas en la página actual.
+            valid_film_list = [Pelicula.from_movie_box(box) for box in self.film_list.pop()]
             valid_film_list = [film for film in valid_film_list if film.valid()]
 
             # Itero las películas en mi página actual
@@ -119,32 +125,45 @@ class Writer(object):
             # Avanzo a la siguiente página de películas vistas por el usuario
             self.__next_page()
 
-        for index, film in enumerate(films_data):
-            self.__write_in_excel(index, film)
+        # Escribo en el Excel
+        self.bar.reset_timer()
+        total_rows = len(films_data)
+        index = 0
+        while films_data:
+            self.__write_in_excel(index, films_data.pop())
+            index += 1
+            self.bar.update(index / total_rows)
 
-    def __read_film(self, film: Pelicula):
+    def __read_film(self, film: Pelicula) -> FilmData:
         # Hacemos la parte más lenta, que necesita parsear la página.
         film.get_time_and_FA()
 
-        return film
+        # Extraemos los datos que usaremos para que el objeto sea más pequeño
+        return FilmData(film.user_note,
+                        film.titulo,
+                        film.id,
+                        film.duracion,
+                        film.nota_FA,
+                        film.votantes_FA,
+                        film.desvest_FA)
 
-    def __write_in_excel(self, line: int, film: Pelicula):
+    def __write_in_excel(self, line: int, film: FilmData):
 
         # La enumeración empezará en 0,
-        # pero sólo esribimos datos a partir de la segunda linea.
+        # pero sólo escribimos datos a partir de la segunda linea.
         line = line + 2
 
-        # La votacion del usuario la leo desde fuera
+        # La votación del usuario la leo desde fuera
         # no puedo leer la nota del usuario dentro de la ficha
         self.__set_cell_value(line, ExcelColumns.Mia,
-                              int(film.user_note))
+                              film.user_note)
         self.__set_cell_value(line, ExcelColumns.Mia_ruido,
                               f"={ExcelColumns.Mia}+RAND()-0.5")
         self.__set_cell_value(line, ExcelColumns.Mia_rees,
                               f"=({ExcelColumns.Mia}-1)*10/9")
         # En la primera columna guardo la id para poder reconocerla
         self.__set_cell_value(line, ExcelColumns.Id,
-                              film.titulo, int(film.id))
+                              film.titulo, film.id)
 
         if (film.duracion != 0):
             # dejo la casilla en blanco si no logra leer ninguna duración de FA

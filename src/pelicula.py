@@ -8,11 +8,11 @@ from src.safe_url import safe_get_url
 from src.url_FA import URL_FILM_ID
 
 
-def get_id_from_url(url):
+def get_id_from_url(url: str) -> int:
     # Cojo los 6 dígitos que están después de la palabra film
     str_id = re.search(r"film(\d{6}).html", url).group(1)
 
-    return str_id
+    return int(str_id)
 
 
 SET_VALID_FILM = CONFIG.get_int(CONFIG.S_READDATA, CONFIG.P_FILTER_FA)
@@ -40,15 +40,29 @@ def es_valida(titulo):
     # No se ha encontrado sufijo, luego es una película
     return SET_VALID_FILM & (1 << 0)
 
+
 # Cómo debo buscar la información de las barras
 RATING_BARS_PATTERN = re.compile(r'RatingBars.*?\[(.*?)\]')
+
+# Funciones para extraer datos de la caja de la película
+def get_title_from_film_box(film_box: BeautifulSoup) -> str:
+    return film_box.contents[1].contents[1].contents[3].contents[1].contents[0].contents[0]
+
+
+def get_user_note_from_film_box(film_box: BeautifulSoup) -> int:
+    return int(film_box.contents[3].contents[1].contents[1].contents[0])
+
+
+def get_id_from_film_box(film_box: BeautifulSoup) -> int:
+    return int(film_box.contents[1].contents[1].attrs['data-movie-id'])
+
 
 class Pelicula(object):
     def __init__(self):
 
         self.titulo = ""
-        self.user_note = ""
-        self.id = ""
+        self.user_note = 0
+        self.id = 0
         self.url_FA = ""
         self.url_image = ""
         self.parsed_page = None
@@ -68,7 +82,7 @@ class Pelicula(object):
         instance = cls()
 
         # Guardo los valores que conozco por la información introducida
-        instance.id = str(id)
+        instance.id = int(id)
         instance.url_FA = URL_FILM_ID(instance.id)
 
         # Devuelvo la instancia
@@ -92,22 +106,13 @@ class Pelicula(object):
         instance = cls()
 
         # Guardo los valores que conozco por la información introducida
-        instance.titulo = instance.__get_title(movie_box)
-        instance.user_note = instance.__get_user_note(movie_box)
-        instance.id = instance.__get_id(movie_box)
+        instance.titulo = get_title_from_film_box(movie_box)
+        instance.user_note = get_user_note_from_film_box(movie_box)
+        instance.id = get_id_from_film_box(movie_box)
         instance.url_FA = URL_FILM_ID(instance.id)
 
         # Devuelvo la instancia
         return instance
-
-    def __get_title(self, film_box: BeautifulSoup):
-        return film_box.contents[1].contents[1].contents[3].contents[1].contents[0].contents[0]
-
-    def __get_user_note(self, film_box: BeautifulSoup):
-        return film_box.contents[3].contents[1].contents[1].contents[0]
-
-    def __get_id(self, film_box: BeautifulSoup):
-        return film_box.contents[1].contents[1].attrs['data-movie-id']
 
     def get_nota_FA(self):
         # Obtengo la lista
@@ -221,7 +226,8 @@ class Pelicula(object):
         if not self.parsed_page:
             self.get_parsed_page()
 
-        self.url_image = self.parsed_page.find("meta", property="og:image")['content']
+        self.url_image = self.parsed_page.find(
+            "meta", property="og:image")['content']
 
     def get_desvest(self):
 
