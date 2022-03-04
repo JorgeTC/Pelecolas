@@ -1,5 +1,10 @@
-import keyboard
 import sys
+
+import keyboard
+import win32gui as wg
+
+CURRENT_CONSOLE = wg.GetForegroundWindow()
+
 
 class DlgScrollBase():
     sz_question = ""
@@ -38,7 +43,7 @@ class DlgScrollBase():
         return ans
 
     def get_ans_body(self):
-        self.sz_ans=""
+        self.sz_ans = ""
         # Función para sobreescribir.
         # Es la que hace la petición efectiva de un elemento de la lista
         while not self.sz_ans:
@@ -54,6 +59,9 @@ class DlgScrollBase():
         return self.sz_ans
 
     def __scroll_up(self):
+
+        if wg.GetForegroundWindow() != CURRENT_CONSOLE:
+            return
 
         if not self.__keyboard_listen:
             return
@@ -84,6 +92,9 @@ class DlgScrollBase():
         return self.sz_options[self.curr_index]
 
     def __scroll_down(self):
+
+        if wg.GetForegroundWindow() != CURRENT_CONSOLE:
+            return
 
         if not self.__keyboard_listen:
             return
@@ -125,4 +136,3 @@ class DlgScrollBase():
             return ans
         else:
             return ""
-
