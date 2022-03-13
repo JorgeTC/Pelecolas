@@ -72,9 +72,7 @@ class BlogThemeUpdater():
         self.Documento.data.año = self.get_secret_data(BlogHiddenData.YEAR)
         self.Documento.data.duracion = self.get_secret_data(BlogHiddenData.DURATION)
         self.Documento.data.pais = self.get_secret_data(BlogHiddenData.COUNTRY)
-        # self.Documento.data.url_image = self.get_secret_data(BlogHiddenData.IMAGE)
-
-        self.Documento.data.get_image_url()
+        self.Documento.data.url_image = self.get_secret_data(BlogHiddenData.IMAGE)
 
         # Escribo el archivo html
         self.Documento.write_html()
