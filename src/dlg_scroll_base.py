@@ -1,5 +1,10 @@
-import keyboard
 import sys
+
+import keyboard
+import win32gui as wg
+
+CURRENT_CONSOLE = wg.GetForegroundWindow()
+
 
 class DlgScrollBase():
     sz_question = ""
@@ -8,7 +13,7 @@ class DlgScrollBase():
     min_index = -1
     b_empty_option = True
     b_empty_ans = False
-    __keyboard_listen = True
+    b_keyboard_listen = True
     sz_ans = ""
 
     def __init__(self, question="", options=[], empty_option=True, empty_ans=False):
@@ -38,7 +43,7 @@ class DlgScrollBase():
         return ans
 
     def get_ans_body(self):
-        self.sz_ans=""
+        self.sz_ans = ""
         # Función para sobreescribir.
         # Es la que hace la petición efectiva de un elemento de la lista
         while not self.sz_ans:
@@ -53,15 +58,29 @@ class DlgScrollBase():
 
         return self.sz_ans
 
-    def __scroll_up(self):
+    def hotkey_method(fn):
+        def wrap(self: 'DlgScrollBase'):
+            # Compruebo que la consola tenga el foco
+            if wg.GetForegroundWindow() != CURRENT_CONSOLE:
+                return
 
-        if not self.__keyboard_listen:
-            return
-        self.__keyboard_listen = False
+            # Compruebo que no se esté ejecutando otra hotkey
+            if not self.b_keyboard_listen:
+                return
+
+            # Inicio la ejecución de esta hotkey, evito que se ejecuten otras
+            self.b_keyboard_listen = False
+            fn(self)
+            # Ya he terminado la función, vuelvo a escuchar al teclado
+            self.b_keyboard_listen = True
+
+        return wrap
+
+    @hotkey_method
+    def __scroll_up(self) -> None:
 
         # si no tengo ninguna sugerencia, no puedo recorrer nada
         if not self.n_options:
-            self.__keyboard_listen = True
             return
 
         self.__clear_written()
@@ -78,20 +97,11 @@ class DlgScrollBase():
             curr_suggested = self.__get_option_by_index()
             keyboard.write(curr_suggested)
 
-        self.__keyboard_listen = True
-
-    def __get_option_by_index(self):
-        return self.sz_options[self.curr_index]
-
-    def __scroll_down(self):
-
-        if not self.__keyboard_listen:
-            return
-        self.__keyboard_listen = False
+    @hotkey_method
+    def __scroll_down(self) -> None:
 
         # si no tengo ninguna sugerencia, no puedo recorrer nada
         if not self.n_options:
-            self.__keyboard_listen = True
             return
 
         # Limpio la consola
@@ -110,7 +120,8 @@ class DlgScrollBase():
             curr_suggested = self.__get_option_by_index()
             keyboard.write(curr_suggested)
 
-        self.__keyboard_listen = True
+    def __get_option_by_index(self):
+        return self.sz_options[self.curr_index]
 
     def __clear_written(self):
         # Al pulsar las teclas, también se está navegando entre los últimos inputs de teclado
@@ -125,4 +136,3 @@ class DlgScrollBase():
             return ans
         else:
             return ""
-
