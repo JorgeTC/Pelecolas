@@ -4,7 +4,7 @@ import pytz
 from bs4 import BeautifulSoup
 from oauth2client import client
 
-from src.aux_title_str import REGULAR_EXPRESSION_DATE, REGULAR_EXPRESSION_DATE_BLOG
+from src.aux_title_str import REGULAR_EXPRESSION_DATE, REGULAR_EXPRESSION_DATE_BLOG, REGULAR_EXPRESSION_TIME
 from src.dlg_config import CONFIG
 from src.google_api_mgr import GoogleApiMgr
 from src.read_blog import ReadBlog
@@ -83,8 +83,9 @@ class Poster(ReadBlog, GoogleApiMgr):
             day, month, year = self.__get_automatic_date()
         # Obtengo a qué hora tengo que publicar la reseña
         sz_time = CONFIG.get_value(CONFIG.S_POST, CONFIG.P_TIME)
-        sz_hour = int(sz_time.split(":")[0])
-        sz_minute = int(sz_time.split(":")[1])
+        match = REGULAR_EXPRESSION_TIME.match(sz_time)
+        sz_hour = int(match.group(1))
+        sz_minute = int(match.group(2))
 
         return date_to_str(datetime(year, month, day,
                                     sz_hour, sz_minute))
