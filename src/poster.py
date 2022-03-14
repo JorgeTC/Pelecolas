@@ -4,6 +4,7 @@ import pytz
 from bs4 import BeautifulSoup
 from oauth2client import client
 
+from src.aux_title_str import REGULAR_EXPRESSION_DATE
 from src.dlg_config import CONFIG
 from src.google_api_mgr import GoogleApiMgr
 from src.read_blog import ReadBlog
@@ -70,16 +71,16 @@ class Poster(ReadBlog, GoogleApiMgr):
             print('The credentials have been revoked or expired, please re-run'
                   'the application to re-authorize')
 
-    def __get_publish_datatime(self):
+    def __get_publish_datatime(self) -> str:
         # Obtengo qué día tengo que publicar la reseña
         sz_date = CONFIG.get_value(CONFIG.S_POST, CONFIG.P_DATE)
-        if sz_date.lower() == 'auto':
-            day, month, year = self.__get_automatic_date()
+        if (match := REGULAR_EXPRESSION_DATE.match(sz_date)):
+            day = int(match.group(1))
+            month = int(match.group(3))
+            year = int(match.group(5))
         else:
-            sz_date = sz_date.split("/")
-            day = int(sz_date[0])
-            month = int(sz_date[1])
-            year = int(sz_date[2])
+            # Si no consigo interpretarlo como fecha, le doy la fecha automática
+            day, month, year = self.__get_automatic_date()
         # Obtengo a qué hora tengo que publicar la reseña
         sz_time = CONFIG.get_value(CONFIG.S_POST, CONFIG.P_TIME)
         sz_hour = int(sz_time.split(":")[0])
@@ -88,7 +89,7 @@ class Poster(ReadBlog, GoogleApiMgr):
         return date_to_str(datetime(year, month, day,
                                     sz_hour, sz_minute))
 
-    def __get_automatic_date(self):
+    def __get_automatic_date(self) -> tuple[int, int, int]:
 
         scheduled = self.get_scheduled()
 
