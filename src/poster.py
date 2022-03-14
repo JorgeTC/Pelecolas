@@ -76,8 +76,8 @@ class Poster(ReadBlog, GoogleApiMgr):
         sz_date = CONFIG.get_value(CONFIG.S_POST, CONFIG.P_DATE)
         if (match := REGULAR_EXPRESSION_DATE.match(sz_date)):
             day = int(match.group(1))
-            month = int(match.group(3))
-            year = int(match.group(5))
+            month = int(match.group(2))
+            year = int(match.group(3))
         else:
             # Si no consigo interpretarlo como fecha, le doy la fecha automática
             day, month, year = self.__get_automatic_date()
@@ -99,8 +99,8 @@ class Poster(ReadBlog, GoogleApiMgr):
             # Leo la fecha
             publish_date = REGULAR_EXPRESSION_DATE_BLOG.match(post['published'])
             year = int(publish_date.group(1))
-            month = int(publish_date.group(3))
-            day = int(publish_date.group(5))
+            month = int(publish_date.group(2))
+            day = int(publish_date.group(3))
             publish_date = str(datetime(year, month, day).date())
             # La añado a mi lista
             dates.append(publish_date)
@@ -126,8 +126,8 @@ class Poster(ReadBlog, GoogleApiMgr):
         # Devuelvo la fecha encontrada como números
         found = REGULAR_EXPRESSION_DATE_BLOG.match(found)
         year = int(found.group(1))
-        month = int(found.group(3))
-        day = int(found.group(5))
+        month = int(found.group(2))
+        day = int(found.group(3))
 
         return (day, month, year)
 
