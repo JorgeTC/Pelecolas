@@ -1,5 +1,6 @@
 import re
 
+
 def split_title_year(title: str):
     '''
     Dado un título de los escritos en el word,
@@ -12,3 +13,13 @@ def split_title_year(title: str):
         return has_year.group(2), has_year.group(1)
     except AttributeError:
         return "", title
+
+
+RE_DATE_DMY = re.compile(r"^(0?[1-9]|1[0-9]|2[0-9]|3[0-1])(?:\.|-|/)"
+                         r"(0?[1-9]|1[0-2])(?:\.|-|/)"
+                         r"([0-9][0-9]|19[0-9][0-9]|20[0-9][0-9])$")
+RE_DATE_YMD = re.compile(r"^([0-9][0-9]|19[0-9][0-9]|20[0-9][0-9])(?:\.|-|/)"
+                         r"(0?[1-9]|1[0-2])(?:\.|-|/)"
+                         r"(0?[1-9]|1[0-9]|2[0-9]|3[0-1])")
+RE_TIME = re.compile(r"([0-1]?[0-9]|2[0-3])(?:\.|-|/|:)"
+                     r"([0-5][0-9])")

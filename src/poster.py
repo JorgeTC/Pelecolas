@@ -4,6 +4,7 @@ import pytz
 from bs4 import BeautifulSoup
 from oauth2client import client
 
+from src.aux_title_str import RE_DATE_DMY, RE_DATE_YMD, RE_TIME
 from src.dlg_config import CONFIG
 from src.google_api_mgr import GoogleApiMgr
 from src.read_blog import ReadBlog
@@ -70,25 +71,26 @@ class Poster(ReadBlog, GoogleApiMgr):
             print('The credentials have been revoked or expired, please re-run'
                   'the application to re-authorize')
 
-    def __get_publish_datatime(self):
+    def __get_publish_datatime(self) -> str:
         # Obtengo qué día tengo que publicar la reseña
         sz_date = CONFIG.get_value(CONFIG.S_POST, CONFIG.P_DATE)
-        if sz_date.lower() == 'auto':
-            day, month, year = self.__get_automatic_date()
+        if (match := RE_DATE_DMY.match(sz_date)):
+            day = int(match.group(1))
+            month = int(match.group(2))
+            year = int(match.group(3))
         else:
-            sz_date = sz_date.split("/")
-            day = int(sz_date[0])
-            month = int(sz_date[1])
-            year = int(sz_date[2])
+            # Si no consigo interpretarlo como fecha, le doy la fecha automática
+            day, month, year = self.__get_automatic_date()
         # Obtengo a qué hora tengo que publicar la reseña
         sz_time = CONFIG.get_value(CONFIG.S_POST, CONFIG.P_TIME)
-        sz_hour = int(sz_time.split(":")[0])
-        sz_minute = int(sz_time.split(":")[1])
+        match = RE_TIME.match(sz_time)
+        sz_hour = int(match.group(1))
+        sz_minute = int(match.group(2))
 
         return date_to_str(datetime(year, month, day,
                                     sz_hour, sz_minute))
 
-    def __get_automatic_date(self):
+    def __get_automatic_date(self) -> tuple[int, int, int]:
 
         scheduled = self.get_scheduled()
 
@@ -96,10 +98,10 @@ class Poster(ReadBlog, GoogleApiMgr):
         # Extraigo todas las fechas que ya tienen asignado un blog
         for post in scheduled:
             # Leo la fecha
-            publish_date = post['published']
-            year = int(publish_date[0:4])
-            month = int(publish_date[5:7])
-            day = int(publish_date[8:10])
+            publish_date = RE_DATE_YMD.match(post['published'])
+            year = int(publish_date.group(1))
+            month = int(publish_date.group(2))
+            day = int(publish_date.group(3))
             publish_date = str(datetime(year, month, day).date())
             # La añado a mi lista
             dates.append(publish_date)
@@ -123,9 +125,10 @@ class Poster(ReadBlog, GoogleApiMgr):
             next_friday = next_friday + timedelta(days=7)
 
         # Devuelvo la fecha encontrada como números
-        year = int(found[0:4])
-        month = int(found[5:7])
-        day = int(found[8:10])
+        found = RE_DATE_YMD.match(found)
+        year = int(found.group(1))
+        month = int(found.group(2))
+        day = int(found.group(3))
 
         return (day, month, year)
 
