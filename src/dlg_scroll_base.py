@@ -1,9 +1,8 @@
 import sys
 
 import keyboard
-import win32gui as wg
 
-CURRENT_CONSOLE = wg.GetForegroundWindow()
+from src.aux_console import is_console_on_focus
 
 
 class DlgScrollBase():
@@ -61,7 +60,7 @@ class DlgScrollBase():
     def hotkey_method(fn):
         def wrap(self: 'DlgScrollBase'):
             # Compruebo que la consola tenga el foco
-            if wg.GetForegroundWindow() != CURRENT_CONSOLE:
+            if not is_console_on_focus():
                 return
 
             # Compruebo que no se esté ejecutando otra hotkey
