@@ -4,7 +4,7 @@ import pytz
 from bs4 import BeautifulSoup
 from oauth2client import client
 
-from src.aux_title_str import REGULAR_EXPRESSION_DATE, REGULAR_EXPRESSION_DATE_BLOG, REGULAR_EXPRESSION_TIME
+from src.aux_title_str import RE_DATE_DMY, RE_DATE_YMD, RE_TIME
 from src.dlg_config import CONFIG
 from src.google_api_mgr import GoogleApiMgr
 from src.read_blog import ReadBlog
@@ -74,7 +74,7 @@ class Poster(ReadBlog, GoogleApiMgr):
     def __get_publish_datatime(self) -> str:
         # Obtengo qué día tengo que publicar la reseña
         sz_date = CONFIG.get_value(CONFIG.S_POST, CONFIG.P_DATE)
-        if (match := REGULAR_EXPRESSION_DATE.match(sz_date)):
+        if (match := RE_DATE_DMY.match(sz_date)):
             day = int(match.group(1))
             month = int(match.group(2))
             year = int(match.group(3))
@@ -83,7 +83,7 @@ class Poster(ReadBlog, GoogleApiMgr):
             day, month, year = self.__get_automatic_date()
         # Obtengo a qué hora tengo que publicar la reseña
         sz_time = CONFIG.get_value(CONFIG.S_POST, CONFIG.P_TIME)
-        match = REGULAR_EXPRESSION_TIME.match(sz_time)
+        match = RE_TIME.match(sz_time)
         sz_hour = int(match.group(1))
         sz_minute = int(match.group(2))
 
@@ -98,7 +98,7 @@ class Poster(ReadBlog, GoogleApiMgr):
         # Extraigo todas las fechas que ya tienen asignado un blog
         for post in scheduled:
             # Leo la fecha
-            publish_date = REGULAR_EXPRESSION_DATE_BLOG.match(post['published'])
+            publish_date = RE_DATE_YMD.match(post['published'])
             year = int(publish_date.group(1))
             month = int(publish_date.group(2))
             day = int(publish_date.group(3))
@@ -125,7 +125,7 @@ class Poster(ReadBlog, GoogleApiMgr):
             next_friday = next_friday + timedelta(days=7)
 
         # Devuelvo la fecha encontrada como números
-        found = REGULAR_EXPRESSION_DATE_BLOG.match(found)
+        found = RE_DATE_YMD.match(found)
         year = int(found.group(1))
         month = int(found.group(2))
         day = int(found.group(3))
