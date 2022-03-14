@@ -4,7 +4,7 @@ import pytz
 from bs4 import BeautifulSoup
 from oauth2client import client
 
-from src.aux_title_str import REGULAR_EXPRESSION_DATE
+from src.aux_title_str import REGULAR_EXPRESSION_DATE, REGULAR_EXPRESSION_DATE_BLOG
 from src.dlg_config import CONFIG
 from src.google_api_mgr import GoogleApiMgr
 from src.read_blog import ReadBlog
@@ -97,10 +97,10 @@ class Poster(ReadBlog, GoogleApiMgr):
         # Extraigo todas las fechas que ya tienen asignado un blog
         for post in scheduled:
             # Leo la fecha
-            publish_date = post['published']
-            year = int(publish_date[0:4])
-            month = int(publish_date[5:7])
-            day = int(publish_date[8:10])
+            publish_date = REGULAR_EXPRESSION_DATE_BLOG.match(post['published'])
+            year = int(publish_date.group(1))
+            month = int(publish_date.group(3))
+            day = int(publish_date.group(5))
             publish_date = str(datetime(year, month, day).date())
             # La añado a mi lista
             dates.append(publish_date)
@@ -124,9 +124,10 @@ class Poster(ReadBlog, GoogleApiMgr):
             next_friday = next_friday + timedelta(days=7)
 
         # Devuelvo la fecha encontrada como números
-        year = int(found[0:4])
-        month = int(found[5:7])
-        day = int(found[8:10])
+        found = REGULAR_EXPRESSION_DATE_BLOG.match(found)
+        year = int(found.group(1))
+        month = int(found.group(3))
+        day = int(found.group(5))
 
         return (day, month, year)
 
