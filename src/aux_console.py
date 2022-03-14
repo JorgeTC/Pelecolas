@@ -14,7 +14,8 @@ def is_console_on_focus() -> bool:
 def clear_current_line() -> None:
     # Borro todo el contenido de la linea actual y
     # me llevo el cursor al inicio de la linea
-    sys.stdout.write('\033[2K\r')
+    sys.stdout.write('\r\033[2K\r')
+    sys.stdout.flush()
 
 
 def go_to_upper_row() -> None:
