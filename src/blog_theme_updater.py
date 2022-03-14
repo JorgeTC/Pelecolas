@@ -1,12 +1,14 @@
-from src.progress_bar import ProgressBar
+from bs4 import BeautifulSoup
+
+from src.aux_console import go_to_upper_row, clear_current_line
 from src.content_mgr import ContentMgr
-from src.poster import POSTER
-from src.read_blog import BlogHiddenData, ReadBlog
 from src.list_title_mgr import TitleMgr
 from src.make_html import html
-from src.searcher import Searcher
 from src.pelicula import Pelicula
-from bs4 import BeautifulSoup
+from src.poster import POSTER
+from src.progress_bar import ProgressBar
+from src.read_blog import BlogHiddenData, ReadBlog
+from src.searcher import Searcher
 
 
 class BlogThemeUpdater():
@@ -43,7 +45,6 @@ class BlogThemeUpdater():
         return ReadBlog.get_secret_data_from_content(
             self.parsed, data_id)
 
-
     def update_post(self, post):
 
         # A partir del post busco cuál es su nombre en el Word
@@ -65,7 +66,7 @@ class BlogThemeUpdater():
         # Si no he conseguido leer nada de FA, salgo de la función
         if not self.Documento.data.exists():
             return False
-        # Reestituyo el nombre que tenía en Word
+        # Restituyo el nombre que tenía en Word
         self.Documento.data.titulo = title
         # Leo en las notas ocultas del html los datos
         self.Documento.data.director = self.get_secret_data(BlogHiddenData.DIRECTOR)
@@ -98,7 +99,14 @@ class BlogThemeUpdater():
 
         for index, post in enumerate(self.all_posts):
 
+            # Imprimo el nombre de la película actual
+            clear_current_line()
+            print(f"Actualizando {post['title']}")
+
             if not self.update_post(post):
                 print(f"Error con la película {post['title']}")
 
+            # Imprimo el progreso de la barra
             bar.update((index + 1)/total_elements)
+            # Subo a la linea anterior a la barra de progreso
+            go_to_upper_row()

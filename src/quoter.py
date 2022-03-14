@@ -1,11 +1,13 @@
-import textacy
-import urllib.parse
 import re
+import urllib.parse
 
-from src.blog_csv_mgr import BlogCsvMgr
-from src.blog_csv_mgr import CSV_COLUMN
+import textacy
+from spacy.tokens.span import Span
+
+from src.blog_csv_mgr import CSV_COLUMN, BlogCsvMgr
 from src.blog_scraper import BlogScraper
 from src.dlg_bool import YesNo
+from src.aux_console import clear_current_line, delete_line, go_to_upper_row
 
 
 class Quoter(BlogCsvMgr):
@@ -22,7 +24,7 @@ class Quoter(BlogCsvMgr):
         if self.is_needed():
             scraper.write_csv()
 
-        # Guardo las citaciones que vaya sugeriendo
+        # Guardo las citaciones que vaya sugiriendo
         self.__directors = []
         self.__titles = []
         self.__personajes = []
@@ -38,12 +40,15 @@ class Quoter(BlogCsvMgr):
         # Lector de csv
         self.__csv_reader = self.open_to_read()
 
+        # Cuántas preguntas he hecho para la película actual
+        self.questions_counter = 0
+
         # Procesador de lenguaje para obtener nombres propios
         # Cargando el modelo en español de spacy
         self.__nlp = textacy.load_spacy_lang('es_core_news_sm')
         self.__get_directors_indexed()
 
-    def quote_parr(self, text):
+    def quote_parr(self, text: str) -> str:
         # Guardo el párrafo recién introducido
         self.__ori_text = text
 
@@ -51,7 +56,7 @@ class Quoter(BlogCsvMgr):
         self.__quote_directors()
         return self.__ori_text
 
-    def __quote_titles(self):
+    def __quote_titles(self) -> None:
         # Cuento cuántas comillas hay
         self.__ini_comillas_pos = find(self.__ori_text, self.INI_QUOTE_CHAR)
         self.__fin_comillas_pos = find(self.__ori_text, self.FIN_QUOTE_CHAR)
@@ -76,9 +81,10 @@ class Quoter(BlogCsvMgr):
             self.__ini_comillas_pos.pop(0)
             self.__fin_comillas_pos.pop(0)
 
-    def __add_post_link(self, row):
+    def __add_post_link(self, row: int) -> None:
         # Construyo el html para el enlace
-        ini_link = self.OPEN_LINK.format(self.__csv_reader[row][CSV_COLUMN.LINK.value])
+        ini_link = self.OPEN_LINK.format(
+            self.__csv_reader[row][CSV_COLUMN.LINK.value])
         # La posición dentro de mi texto me la indica
         # el primer elemento de las listas de índices
         position = self.__ini_comillas_pos[0] + 1
@@ -94,7 +100,7 @@ class Quoter(BlogCsvMgr):
         self.__ini_comillas_pos = [i + delta for i in self.__ini_comillas_pos]
         self.__fin_comillas_pos = [i + delta for i in self.__fin_comillas_pos]
 
-    def __quote_directors(self):
+    def __quote_directors(self) -> None:
         # Con procesamiento extraigo lo que puede ser un nombre
         nombres = self.extract_names(self.__ori_text)
         # Inicio una lista para buscar apariciones de los directores en el texto
@@ -131,23 +137,23 @@ class Quoter(BlogCsvMgr):
         for cit in self.__ini_director_pos:
             self.__add_director_link(cit)
 
-        pass
-
-    def __is_name_in_director(self, name, director):
+    def __is_name_in_director(self, name: str, director: str) -> bool:
         patron = r'\b({0})\b'.format(name)
         return bool(re.search(patron, director))
 
-    def __ask_confirmation(self, nombre, director):
+    def __ask_confirmation(self, nombre: str, director: str) -> None:
         # Si son idénticos, evidentemente es una cita
         if nombre == director:
             return True
         # En caso contrario, pregunto
+        self.questions_counter += 1
+        clear_current_line()
         pregunta = "¿Es {} una cita de {}? ".format(nombre, director)
         question = YesNo(pregunta)
         ans = question.get_ans()
         return bool(ans)
 
-    def __add_director_link(self, cit):
+    def __add_director_link(self, cit: dict) -> None:
         # Construyo el link
         dir = urllib.parse.quote(cit['director'])
         link = self.LINK_LABEL.format(dir)
@@ -166,8 +172,7 @@ class Quoter(BlogCsvMgr):
         for cit in self.__ini_director_pos:
             cit['pos'] = cit['pos'] + delta
 
-
-    def __row_in_csv(self, title: str):
+    def __row_in_csv(self, title: str) -> int:
         for index, row in enumerate(self.__csv_reader):
             if title.lower() == row[0].lower().strip("\""):
                 return index
@@ -175,7 +180,7 @@ class Quoter(BlogCsvMgr):
         # No lo hemos encontrado
         return -1
 
-    def extract_names(self, text):
+    def extract_names(self, text: str) -> list[str]:
         # Usando un procesador de lenguaje natural extraigo los nombres del párrafo
         texto_procesado = self.__nlp(text)
 
@@ -188,9 +193,9 @@ class Quoter(BlogCsvMgr):
 
         return personajes
 
-    def __is_person(self, ent):
+    def __is_person(self, ent: Span) -> bool:
         # Aplico un correctivo a los Coen
-        if ( ent.lemma_ == 'Coen' ):
+        if (ent.lemma_ == 'Coen'):
             return True
 
         # Elimino los pronombres
@@ -200,24 +205,34 @@ class Quoter(BlogCsvMgr):
         # Caso general en el que me fio del modelo
         return ent.label_ == 'PER'
 
-    def __get_directors_indexed(self):
+    def __get_directors_indexed(self) -> None:
         # Listamos los directores que hay en el csv asegurando una única ocurrencia de ellos
         self.__all_director = list(set([row[2] for row in self.__csv_reader]))
 
-    def reset(self):
+    def clear_questions(self) -> None:
+        # Elimino todas las preguntas por directores
+        for _ in range(self.questions_counter):
+            go_to_upper_row()
+            delete_line()
+            print("")
+
+    def reset(self) -> None:
         # Dejo el objeto listo para usar de nuevo
         # Elimino todos los datos relativos a la última reseña
         self.titulo = ""
         self.director = ""
+        # Borro las preguntas del director
+        self.clear_questions()
+        self.questions_counter = 0
         # Limpio las listas de las citaciones ya realizadas
         self.__directors.clear()
         self.__titles.clear()
         self.__personajes.clear()
 
 
-def find(s, ch):
+def find(s: str, ch: str) -> list[int]:
     return [i for i, ltr in enumerate(s) if ltr == ch]
 
 
-def insert_string_in_position(sr, sub, pos):
+def insert_string_in_position(sr: str, sub: str, pos: int) -> str:
     return sr[:pos] + sub + sr[pos:]
