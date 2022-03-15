@@ -242,7 +242,10 @@ def load_trust_directors() -> set[str]:
     # Leo si el ini me pide nuevos directores
     new_directors = CONFIG.get_value(CONFIG.S_HTML, CONFIG.P_YES_ALWAYS_DIR)
     new_directors = new_directors.split(",")
+    # Elimino espacios innecesarios
     new_directors = [director.strip() for director in new_directors]
+    # Evito guardar cadenas vacías
+    new_directors = [director for director in new_directors if director]
 
     # Creo el conjunto de directores
     directors = set(new_directors)
@@ -250,7 +253,7 @@ def load_trust_directors() -> set[str]:
     # Cargo los directores del archivo
     path = get_res_folder("Make_html", "Trust_directors.txt")
     if path.is_file():
-        directors.update(open(path).readlines())
+        directors.update(open(path, encoding="utf-8").read().splitlines())
 
     # Guardo de nuevo el archivo
     with open(path, 'w', encoding="utf-8") as f:
