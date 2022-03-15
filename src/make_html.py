@@ -165,10 +165,10 @@ class html(WordReader):
         reseña.write(SZ_HTML_COMMENT('Párrafos'))
         reseña.write('<section class="review-body">\n')
         for parrafo in self.parrafos_critica:
-            if not self.__is_all_italic(parrafo):
-                reseña.write(SZ_HTML_PARAGRAPH(parrafo))
-            else:
+            if is_quote_parr(parrafo):
                 reseña.write(SZ_HTML_QUOTE_PARAGRAPH(parrafo))
+            else:
+                reseña.write(SZ_HTML_PARAGRAPH(parrafo))
         reseña.write('</section>\n')
 
         # Escribo los botones de Twitter
@@ -193,25 +193,6 @@ class html(WordReader):
         reseña.write("\n</footer>")
 
         reseña.close()
-
-    def __is_all_italic(self, text: str):
-        # Hago listas con todas las listas de itálicas
-        apertura_italica = [m.start() for m in re.finditer("<i>", text)]
-        cierre_italica = [m.start() for m in re.finditer("</i>", text)]
-
-        # Me espero que ambas listas tengan la misma longitud
-        # Si hay más de una itálica, hay algún trozo de párrafo que no está en cursiva
-        if len(apertura_italica) != 1 or len(cierre_italica) != 1:
-            return False
-
-        # Compruebo que la itálica empiece con el párrafo
-        if apertura_italica[0] != 0:
-            return False
-        # Compruebo que la itálica termine con el párrafo
-        if cierre_italica[0] != len(text) - len("</i>"):
-            return False
-
-        return True
 
     def get_labels(self):
         # Calcula una string con todas las etiquetas estándar que lleva una reseña
@@ -249,6 +230,35 @@ class html(WordReader):
     def delete_file(self):
         # Elimino el último html que he escrito
         os.remove(self.sz_folder / self.sz_file_name)
+
+
+def is_quote_parr(text: str) -> bool:
+    return is_all_italic(text) or is_dialogue(text)
+
+
+def is_dialogue(text: str) -> bool:
+    # Será diálogo si empieza con guión largo
+    return bool(re.match(r"^(<i>)?—", text))
+
+
+def is_all_italic(text: str) -> bool:
+    # Hago listas con todas las listas de itálicas
+    apertura_italica = [m.start() for m in re.finditer(r"<i>", text)]
+    cierre_italica = [m.start() for m in re.finditer(r"</i>", text)]
+
+    # Me espero que ambas listas tengan la misma longitud
+    # Si hay más de una itálica, hay algún trozo de párrafo que no está en cursiva
+    if len(apertura_italica) != 1 or len(cierre_italica) != 1:
+        return False
+
+    # Compruebo que la itálica empiece con el párrafo
+    if apertura_italica[0] != 0:
+        return False
+    # Compruebo que la itálica termine con el párrafo
+    if cierre_italica[0] != len(text) - len("</i>"):
+        return False
+
+    return True
 
 
 if __name__ == "__main__":
