@@ -1,4 +1,4 @@
-import configparser
+from configparser import ConfigParser
 
 from src.aux_res_directory import get_res_folder
 from src.dlg_scroll_base import DlgScrollBase
@@ -26,6 +26,7 @@ class DlgConfig(DlgScrollBase):
     P_FILTER_PUBLISHED = "Filter_published"
     P_SCRAP_BLOG = "Force_bog_scraping"
     P_ADD_STYLE = "Write_style"
+    P_YES_ALWAYS_DIR = "New_confidence_director"
     # Readdata
     P_FILTER_FA = "Filter_FilmAffinity"
     P_DEFAULT_USER = "Mem_user_FA"
@@ -44,10 +45,10 @@ class DlgConfig(DlgScrollBase):
     def __init__(self):
         super().__init__(question="", options=[], empty_option=True, empty_ans=True)
         # Abro el lector del archivo
-        self.config = configparser.ConfigParser()
+        self.config = ConfigParser()
         # Dirección del ini
         self.sz_path = get_res_folder(SZ_FILE)
-        self.config.read(self.sz_path)
+        self.config.read(self.sz_path, encoding="utf-8")
 
         # Qué estoy configurando actualmente
         self.__curr_section = ""
@@ -56,7 +57,7 @@ class DlgConfig(DlgScrollBase):
         self.fill_default_values()
 
     def save_config(self):
-        with open(self.sz_path, 'w') as configfile:
+        with open(self.sz_path, 'w', encoding="utf-8") as configfile:
             self.config.write(configfile)
 
     def fill_default_values(self):
@@ -64,6 +65,7 @@ class DlgConfig(DlgScrollBase):
         self.add_default_value(self.S_HTML, self.P_FILTER_PUBLISHED, False)
         self.add_default_value(self.S_HTML, self.P_SCRAP_BLOG, False)
         self.add_default_value(self.S_HTML, self.P_ADD_STYLE, False)
+        self.add_default_value(self.S_HTML, self.P_YES_ALWAYS_DIR, "")
         # Configuraciones para readdata
         self.add_default_value(self.S_READDATA, self.P_FILTER_FA, 1)
         self.add_default_value(self.S_READDATA, self.P_DEFAULT_USER, 'Jorge')
