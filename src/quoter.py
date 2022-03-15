@@ -4,10 +4,12 @@ import urllib.parse
 import textacy
 from spacy.tokens.span import Span
 
+from src.aux_console import clear_current_line, delete_line, go_to_upper_row
+from src.aux_res_directory import get_res_folder
 from src.blog_csv_mgr import CSV_COLUMN, BlogCsvMgr
 from src.blog_scraper import BlogScraper
 from src.dlg_bool import YesNo
-from src.aux_console import clear_current_line, delete_line, go_to_upper_row
+from src.dlg_config import CONFIG
 
 
 class Quoter(BlogCsvMgr):
@@ -47,6 +49,9 @@ class Quoter(BlogCsvMgr):
         # Cargando el modelo en español de spacy
         self.__nlp = textacy.load_spacy_lang('es_core_news_sm')
         self.__get_directors_indexed()
+
+        # Lista de apellidos que siempre que aparezcan se referirán al director
+        self.__trust_directors = load_trust_directors()
 
     def quote_parr(self, text: str) -> str:
         # Guardo el párrafo recién introducido
@@ -141,9 +146,12 @@ class Quoter(BlogCsvMgr):
         patron = r'\b({0})\b'.format(name)
         return bool(re.search(patron, director))
 
-    def __ask_confirmation(self, nombre: str, director: str) -> None:
+    def __ask_confirmation(self, nombre: str, director: str) -> bool:
         # Si son idénticos, evidentemente es una cita
         if nombre == director:
+            return True
+        # Si es una referencia que siempre se ejecuta igual, es una cita
+        if nombre in self.__trust_directors:
             return True
         # En caso contrario, pregunto
         self.questions_counter += 1
@@ -228,6 +236,31 @@ class Quoter(BlogCsvMgr):
         self.__directors.clear()
         self.__titles.clear()
         self.__personajes.clear()
+
+
+def load_trust_directors() -> set[str]:
+    # Leo si el ini me pide nuevos directores
+    new_directors = CONFIG.get_value(CONFIG.S_HTML, CONFIG.P_YES_ALWAYS_DIR)
+    new_directors = new_directors.split(",")
+    new_directors = [director.strip() for director in new_directors]
+
+    # Creo el conjunto de directores
+    directors = set(new_directors)
+
+    # Cargo los directores del archivo
+    path = get_res_folder("Make_html", "Trust_directors.txt")
+    if path.is_file():
+        directors.update(open(path).readlines())
+
+    # Guardo de nuevo el archivo
+    with open(path, 'w', encoding="utf-8") as f:
+        f.write("\n".join(directors))
+
+    # Ya los he añadido, los puedo borrar del ini
+    CONFIG.set_value(CONFIG.S_HTML, CONFIG.P_YES_ALWAYS_DIR, "")
+
+    # Devuelvo el conjunto
+    return directors
 
 
 def find(s: str, ch: str) -> list[int]:
