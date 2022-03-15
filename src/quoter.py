@@ -1,5 +1,6 @@
 import re
 import urllib.parse
+from dataclasses import dataclass
 
 import textacy
 from spacy.tokens.span import Span
@@ -8,6 +9,13 @@ from src.blog_csv_mgr import CSV_COLUMN, BlogCsvMgr
 from src.blog_scraper import BlogScraper
 from src.dlg_bool import YesNo
 from src.aux_console import clear_current_line, delete_line, go_to_upper_row
+
+
+@dataclass
+class Citation():
+    position: int
+    director: str
+    length: int
 
 
 class Quoter(BlogCsvMgr):
@@ -125,9 +133,9 @@ class Quoter(BlogCsvMgr):
                 # Pido confirmación al usuario de la cita
                 if not self.__ask_confirmation(nombre, director):
                     continue
-                citation = {'pos': self.__ori_text.find(nombre),
-                            'director': director,
-                            'len': len(nombre)}
+                citation = Citation(position=self.__ori_text.find(nombre),
+                                    director=director,
+                                    length=len(nombre))
                 self.__ini_director_pos.append(citation)
                 # Lo guardo como director ya citado
                 self.__directors.append(director)
@@ -153,24 +161,24 @@ class Quoter(BlogCsvMgr):
         ans = question.get_ans()
         return bool(ans)
 
-    def __add_director_link(self, cit: dict) -> None:
+    def __add_director_link(self, cit: Citation) -> None:
         # Construyo el link
-        dir = urllib.parse.quote(cit['director'])
+        dir = urllib.parse.quote(cit.director)
         link = self.LINK_LABEL.format(dir)
         # Construyo el html para el enlace
         ini_link = self.OPEN_LINK.format(link)
         # Miro la posición dentro del texto
-        position = cit['pos']
+        position = cit.position
         self.__ori_text = insert_string_in_position(
             self.__ori_text, ini_link, position)
         # Actualizo la posición del cierre del hipervínculo
-        position = position + cit['len'] + len(ini_link)
+        position = position + cit.length + len(ini_link)
         self.__ori_text = insert_string_in_position(
             self.__ori_text, self.CLOSE_LINK, position)
         # Actualizo todo el resto de índices
         delta = len(ini_link) + len(self.CLOSE_LINK)
         for cit in self.__ini_director_pos:
-            cit['pos'] = cit['pos'] + delta
+            cit.position += delta
 
     def __row_in_csv(self, title: str) -> int:
         for index, row in enumerate(self.__csv_reader):
