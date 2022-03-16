@@ -14,10 +14,17 @@ from src.dlg_config import CONFIG
 
 
 @dataclass
-class Citation():
+class DirectorCitation():
     position: int
     director: str
     length: int
+
+
+@dataclass
+class FilmCitation():
+    begin: int
+    end: int
+    title: str
 
 
 class Quoter(BlogCsvMgr):
@@ -35,9 +42,9 @@ class Quoter(BlogCsvMgr):
             scraper.write_csv()
 
         # Guardo las citaciones que vaya sugiriendo
-        self.__directors = []
-        self.__titles = []
-        self.__personajes = []
+        self.__directors: list[str] = []
+        self.__titles: set[str] = {}
+        self.__personajes: list[str] = []
 
         # Texto que estoy estudiando actualmente
         self.__ori_text = ""
@@ -71,47 +78,48 @@ class Quoter(BlogCsvMgr):
 
     def __quote_titles(self) -> None:
         # Cuento cuántas comillas hay
-        self.__ini_comillas_pos = find(self.__ori_text, self.INI_QUOTE_CHAR)
-        self.__fin_comillas_pos = find(self.__ori_text, self.FIN_QUOTE_CHAR)
-        if len(self.__ini_comillas_pos) != len(self.__fin_comillas_pos):
+        ini_comillas_pos = find(self.__ori_text, self.INI_QUOTE_CHAR)
+        fin_comillas_pos = find(self.__ori_text, self.FIN_QUOTE_CHAR)
+        if len(ini_comillas_pos) != len(fin_comillas_pos):
             assert("Comillas impares, no se citará este párrafo")
             return
 
         # Construyo una lista con todas las posibles citas
-        posible_titles = []
-        for i, j in zip(self.__ini_comillas_pos, self.__fin_comillas_pos):
-            posible_titles.append(self.__ori_text[i + 1:j])
+        posible_titles = [FilmCitation(begin=i,
+                                       end=j,
+                                       title=self.__ori_text[i + 1:j])
+                          for i, j in zip(ini_comillas_pos, fin_comillas_pos)]
 
-        for title in posible_titles:
+        while posible_titles:
+            title = posible_titles.pop()
             row = self.__row_in_csv(title)
             # La película no está indexada
-            if row > 0:
-                # Si la película ya está citada, no la cito otra vez
-                if title not in self.__titles and title != self.titulo:
-                    self.__titles.append(title)
-                    self.__add_post_link(row)
-            # Elimino los índices que ya he usado
-            self.__ini_comillas_pos.pop(0)
-            self.__fin_comillas_pos.pop(0)
+            if row < 0:
+                continue
+            # Si la película ya está citada, no la cito otra vez
+            if title in self.__titles:
+                continue
+            # Si la cita es la película actual, no añado link
+            if title == self.titulo:
+                continue
+            # Guardo este título como ya citado
+            self.__titles.add(title.title)
+            self.__add_post_link(title, row)
 
-    def __add_post_link(self, row: int) -> None:
+    def __add_post_link(self, citation: FilmCitation, row: int) -> None:
         # Construyo el html para el enlace
         ini_link = self.OPEN_LINK.format(
             self.__csv_reader[row][CSV_COLUMN.LINK.value])
-        # La posición dentro de mi texto me la indica
-        # el primer elemento de las listas de índices
-        position = self.__ini_comillas_pos[0] + 1
-        self.__ori_text = insert_string_in_position(
-            self.__ori_text, ini_link, position)
-        # Actualizo la posición del cierre de las comillas
-        position = self.__fin_comillas_pos[0] + len(ini_link)
+
+        # Escribo el cierre del link
+        position = citation.end + 1
         self.__ori_text = insert_string_in_position(
             self.__ori_text, self.CLOSE_LINK, position)
 
-        # Actualizo todo el resto de índices
-        delta = len(ini_link) + len(self.CLOSE_LINK)
-        self.__ini_comillas_pos = [i + delta for i in self.__ini_comillas_pos]
-        self.__fin_comillas_pos = [i + delta for i in self.__fin_comillas_pos]
+        # Escribo el inicio del link
+        position = citation.begin + 1
+        self.__ori_text = insert_string_in_position(
+            self.__ori_text, ini_link, position)
 
     def __quote_directors(self) -> None:
         # Con procesamiento extraigo lo que puede ser un nombre
@@ -138,9 +146,9 @@ class Quoter(BlogCsvMgr):
                 # Pido confirmación al usuario de la cita
                 if not self.__ask_confirmation(nombre, director):
                     continue
-                citation = Citation(position=self.__ori_text.find(nombre),
-                                    director=director,
-                                    length=len(nombre))
+                citation = DirectorCitation(position=self.__ori_text.find(nombre),
+                                            director=director,
+                                            length=len(nombre))
                 self.__ini_director_pos.append(citation)
                 # Lo guardo como director ya citado
                 self.__directors.append(director)
@@ -169,7 +177,7 @@ class Quoter(BlogCsvMgr):
         ans = question.get_ans()
         return bool(ans)
 
-    def __add_director_link(self, cit: Citation) -> None:
+    def __add_director_link(self, cit: DirectorCitation) -> None:
         # Construyo el link
         dir = urllib.parse.quote(cit.director)
         link = self.LINK_LABEL.format(dir)
