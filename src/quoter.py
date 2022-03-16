@@ -42,7 +42,7 @@ class Quoter(BlogCsvMgr):
             scraper.write_csv()
 
         # Guardo las citaciones que vaya sugiriendo
-        self.__directors: list[str] = []
+        self.__quoted_directors: set[str] = set()
         self.__titles: set[str] = set()
         self.__personajes: set[str] = set()
 
@@ -63,7 +63,7 @@ class Quoter(BlogCsvMgr):
         # Procesador de lenguaje para obtener nombres propios
         # Cargando el modelo en español de spacy
         self.__nlp = textacy.load_spacy_lang('es_core_news_sm')
-        self.__get_directors_indexed()
+        self.__all_director = self.__get_directors_indexed()
 
         # Lista de apellidos que siempre que aparezcan se referirán al director
         self.__trust_directors = load_trust_directors()
@@ -122,20 +122,20 @@ class Quoter(BlogCsvMgr):
             self.__ori_text, ini_link, position)
 
     def __quote_directors(self) -> None:
-        # Con procesamiento extraigo lo que puede ser un nombre
+        # Con procesamiento de lenguaje extraigo lo que puede ser un nombre
         nombres = self.extract_names(self.__ori_text)
         # Inicio una lista para buscar apariciones de los directores en el texto
-        self.__ini_director_pos = []
+        ini_director_pos: list[DirectorCitation] = []
         # Compruebo que el nombre corresponda con un director indexado
         for nombre in nombres:
             # Si ya he preguntado por este nombre paso al siguiente
             if nombre in self.__personajes:
                 continue
             # Lo guardo como nombre ya preguntado
-            self.__personajes.append(nombre)
+            self.__personajes.add(nombre)
             for director in self.__all_director:
                 # No quiero citar dos veces el mismo director
-                if director in self.__directors:
+                if director in self.__quoted_directors:
                     continue
                 # No quiero citar al director actual
                 if director == self.director:
@@ -149,14 +149,14 @@ class Quoter(BlogCsvMgr):
                 citation = DirectorCitation(position=self.__ori_text.find(nombre),
                                             director=director,
                                             length=len(nombre))
-                self.__ini_director_pos.append(citation)
+                ini_director_pos.append(citation)
                 # Lo guardo como director ya citado
-                self.__directors.append(director)
+                self.__quoted_directors.add(director)
                 break
 
         # Ahora ya tengo los índices que quería
-        for cit in self.__ini_director_pos:
-            self.__add_director_link(cit)
+        while ini_director_pos:
+            self.__add_director_link(ini_director_pos.pop())
 
     def __is_name_in_director(self, name: str, director: str) -> bool:
         patron = r'\b({0})\b'.format(name)
@@ -178,23 +178,18 @@ class Quoter(BlogCsvMgr):
         return bool(ans)
 
     def __add_director_link(self, cit: DirectorCitation) -> None:
+        # Escribo el cierre del hipervínculo
+        self.__ori_text = insert_string_in_position(
+            self.__ori_text, self.CLOSE_LINK, cit.position + cit.length)
+
         # Construyo el link
         dir = urllib.parse.quote(cit.director)
         link = self.LINK_LABEL.format(dir)
         # Construyo el html para el enlace
         ini_link = self.OPEN_LINK.format(link)
-        # Miro la posición dentro del texto
-        position = cit.position
+        # Escribo el inicio del hipervínculo
         self.__ori_text = insert_string_in_position(
-            self.__ori_text, ini_link, position)
-        # Actualizo la posición del cierre del hipervínculo
-        position = position + cit.length + len(ini_link)
-        self.__ori_text = insert_string_in_position(
-            self.__ori_text, self.CLOSE_LINK, position)
-        # Actualizo todo el resto de índices
-        delta = len(ini_link) + len(self.CLOSE_LINK)
-        for cit in self.__ini_director_pos:
-            cit.position += delta
+            self.__ori_text, ini_link, cit.position)
 
     def __row_in_csv(self, title: str) -> int:
         for index, row in enumerate(self.__csv_reader):
@@ -229,9 +224,9 @@ class Quoter(BlogCsvMgr):
         # Caso general en el que me fio del modelo
         return ent.label_ == 'PER'
 
-    def __get_directors_indexed(self) -> None:
+    def __get_directors_indexed(self) -> set[str]:
         # Listamos los directores que hay en el csv asegurando una única ocurrencia de ellos
-        self.__all_director = list(set([row[2] for row in self.__csv_reader]))
+        return {row[2] for row in self.__csv_reader}
 
     def clear_questions(self) -> None:
         # Elimino todas las preguntas por directores
@@ -249,7 +244,7 @@ class Quoter(BlogCsvMgr):
         self.clear_questions()
         self.questions_counter = 0
         # Limpio las listas de las citaciones ya realizadas
-        self.__directors.clear()
+        self.__quoted_directors.clear()
         self.__titles.clear()
         self.__personajes.clear()
 
