@@ -43,8 +43,8 @@ class Quoter(BlogCsvMgr):
 
         # Guardo las citaciones que vaya sugiriendo
         self.__directors: list[str] = []
-        self.__titles: set[str] = {}
-        self.__personajes: list[str] = []
+        self.__titles: set[str] = set()
+        self.__personajes: set[str] = set()
 
         # Texto que estoy estudiando actualmente
         self.__ori_text = ""
@@ -92,15 +92,15 @@ class Quoter(BlogCsvMgr):
 
         while posible_titles:
             title = posible_titles.pop()
-            row = self.__row_in_csv(title)
+            row = self.__row_in_csv(title.title)
             # La película no está indexada
             if row < 0:
                 continue
             # Si la película ya está citada, no la cito otra vez
-            if title in self.__titles:
+            if title.title in self.__titles:
                 continue
             # Si la cita es la película actual, no añado link
-            if title == self.titulo:
+            if title.title == self.titulo:
                 continue
             # Guardo este título como ya citado
             self.__titles.add(title.title)
@@ -112,7 +112,7 @@ class Quoter(BlogCsvMgr):
             self.__csv_reader[row][CSV_COLUMN.LINK.value])
 
         # Escribo el cierre del link
-        position = citation.end + 1
+        position = citation.end
         self.__ori_text = insert_string_in_position(
             self.__ori_text, self.CLOSE_LINK, position)
 
