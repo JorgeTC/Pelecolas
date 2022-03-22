@@ -13,10 +13,10 @@ from src.searcher import Searcher
 
 class BlogThemeUpdater():
 
-    def __init__(self, path):
-        self.Documento = html(path)
+    def __init__(self):
+        self.Documento = html()
         self.title_manager = TitleMgr(self.Documento.titulos.keys())
-        self.content_mgr = ContentMgr(path)
+        self.content_mgr = ContentMgr()
         self.all_posts = POSTER.get_all_posts()
         self.parsed = None
 

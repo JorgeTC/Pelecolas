@@ -39,8 +39,10 @@ SZ_HTML_HIDDEN_DATA = get_res_html_format("hidden_data.html")
 
 class html(WordReader):
 
-    def __init__(self, folder):
-        WordReader.__init__(self, folder)
+    html_output_folder = CONFIG.get_folder_path(CONFIG.S_HTML, CONFIG.P_OUTPUT_PATH_HTML)
+
+    def __init__(self):
+        WordReader.__init__(self)
 
         # Variable para el nombre del archivo
         self.sz_file_name = ""
@@ -142,7 +144,7 @@ class html(WordReader):
         # Compongo el nombre completo del archivo
         self.sz_file_name = SZ_HTML_FILE(self.sz_file_name)
         # Abro el archivo en modo escritura
-        reseña = open(self.sz_folder / self.sz_file_name,
+        reseña = open(self.html_output_folder / self.sz_file_name,
                       mode="w", encoding="utf-8")
 
         # Escribo el título de la película en mayúsculas.
@@ -229,7 +231,7 @@ class html(WordReader):
 
     def delete_file(self):
         # Elimino el último html que he escrito
-        os.remove(self.sz_folder / self.sz_file_name)
+        os.remove(self.html_output_folder / self.sz_file_name)
 
 
 def is_quote_parr(text: str) -> bool:

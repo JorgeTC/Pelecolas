@@ -16,7 +16,7 @@ def main(path):
     writer = Writer(usuario.id, ex_doc.get_worksheet())
     writer.read_watched()
 
-    ex_doc.save_wb(path)
+    ex_doc.save_wb()
 
 if __name__ == "__main__":
     main()

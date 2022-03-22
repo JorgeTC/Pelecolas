@@ -7,8 +7,8 @@ SEPARATOR_YEAR = " - "
 
 
 class WordReader(WordFolderMgr):
-    def __init__(self, folder):
-        WordFolderMgr.__init__(self, folder)
+    def __init__(self):
+        WordFolderMgr.__init__(self)
 
         # Me quedo con el nombre del archivo sin la extensión.
         self.header = str(self.sz_all_docx[0].stem).split(SEPARATOR_YEAR)[0]
@@ -134,8 +134,10 @@ class WordReader(WordFolderMgr):
         return self.titulos.keys()
 
     def write_list(self):
+        output_path = CONFIG.get_folder_path(
+            CONFIG.S_COUNT_FILMS, CONFIG.P_TITLE_LIST_PATH)
         # Abro el documento txt para escribirlo
-        titulos_doc = open(self.sz_folder / "Titulos de reseñas.txt", "w",
+        titulos_doc = open(output_path / "Titulos de reseñas.txt", "w",
                            encoding='utf-8')
 
         # Miro si hay que escribir el índice

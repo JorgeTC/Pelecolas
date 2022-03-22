@@ -33,10 +33,12 @@ class DlgConfig(DlgScrollBase):
     # Readdata
     P_FILTER_FA = "Filter_FilmAffinity"
     P_DEFAULT_USER = "Mem_user_FA"
+    P_OUTPUT_EXCEL = "Path_output_excel"
     # Count films
     P_ADD_YEAR = "Add_year"
     P_ADD_INDEX = "Add_index"
     P_WORD_FOLDER = "Folder_with_words"
+    P_TITLE_LIST_PATH = "Output_folder_count"
     # Post
     P_BLOG_ID = "Blog_id"
     P_DATE = "Posting_date"
@@ -44,6 +46,7 @@ class DlgConfig(DlgScrollBase):
     P_AS_DRAFT = "As_draft"
     # Drive
     P_FOLDER_ID = "Drive_folder_to_update_id"
+    P_PDF_PATH = "Pdf_folder"
 
     def __init__(self):
         super().__init__(question="", options=[], empty_option=True, empty_ans=True)
@@ -73,10 +76,12 @@ class DlgConfig(DlgScrollBase):
         # Configuraciones para readdata
         self.add_default_value(self.S_READDATA, self.P_FILTER_FA, 1)
         self.add_default_value(self.S_READDATA, self.P_DEFAULT_USER, 'Jorge')
+        self.add_default_value(self.S_READDATA, self.P_OUTPUT_EXCEL, 'auto')
         # Configuraciones para escribir el txt
         self.add_default_value(self.S_COUNT_FILMS, self.P_ADD_YEAR, False)
         self.add_default_value(self.S_COUNT_FILMS, self.P_ADD_INDEX, False)
-        self.add_default_value(self.S_COUNT_FILMS, self.P_WORD_FOLDER, "Word")
+        self.add_default_value(self.S_COUNT_FILMS, self.P_WORD_FOLDER, 'auto')
+        self.add_default_value(self.S_COUNT_FILMS, self.P_TITLE_LIST_PATH, 'auto')
         # Configuraciones para post
         self.add_default_value(self.S_POST, self.P_BLOG_ID, '4259058779347983900')
         self.add_default_value(self.S_POST, self.P_DATE, 'auto')
@@ -84,6 +89,7 @@ class DlgConfig(DlgScrollBase):
         self.add_default_value(self.S_POST, self.P_AS_DRAFT, False)
         # Configuraciones para actualizar drive
         self.add_default_value(self.S_DRIVE, self.P_FOLDER_ID, '13UbwzbjVFQ8e_UaNalqm_iMihjBDBvtm')
+        self.add_default_value(self.S_DRIVE, self.P_PDF_PATH, 'auto')
 
     def add_default_value(self, section, param, value):
         # Si no existe la sección, la añado
@@ -150,39 +156,35 @@ class DlgConfig(DlgScrollBase):
     def get_bool(self, section: str, param: str) -> bool:
         return self.config.getboolean(section, param)
 
-    def get_folder_path(self, section: str, param: str) -> str:
+    def get_folder_path(self, section: str, param: str) -> Path:
         # Leo lo que hya escrito en el ini
         ini_data = self.config[section][param]
 
         # Compruebo que sea una carpeta
-        if Path(ini_data).is_dir():
-            return ini_data
+        if not Path(ini_data).is_dir():
+            # Si no es una carpeta válida, abro una ventana para elegirla
+            Tk().withdraw()
 
-        # Si no es una carpeta válida, abro una ventana para elegirla
-        Tk().withdraw()
+            ini_data = filedialog.askdirectory(title=f"{section} {param}")
+            # Guardo el dato elegido
+            self.config.set(section, param, ini_data)
 
-        ini_data = filedialog.askdirectory()
-        # Guardo el dato elegido
-        self.config.set(section, param, ini_data)
+        return Path(ini_data)
 
-        return ini_data
-
-    def get_file_path(self, section, param):
+    def get_file_path(self, section: str, param: str) -> Path:
         # Leo lo que hya escrito en el ini
         ini_data = self.config[section][param]
 
         # Compruebo que sea una carpeta
-        if Path(ini_data).is_file():
-            return ini_data
+        if not Path(ini_data).is_file():
+            # Si no es una carpeta válida, abro una ventana para elegirla
+            Tk().withdraw()
 
-        # Si no es una carpeta válida, abro una ventana para elegirla
-        Tk().withdraw()
+            ini_data = filedialog.askopenfile(title=f"{section} {param}")
+            # Guardo el dato elegido
+            self.config.set(section, param, ini_data)
 
-        ini_data = filedialog.askopenfile()
-        # Guardo el dato elegido
-        self.config.set(section, param, ini_data)
-
-        return ini_data
+        return Path(ini_data)
 
     def print(self):
         for section in self.config.sections():

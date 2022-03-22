@@ -7,7 +7,7 @@ def main(path):
 
     from src.blog_theme_updater import BlogThemeUpdater
 
-    BlogThemeUpdater(path).update_blog()
+    BlogThemeUpdater().update_blog()
 
 
 if __name__ == "__main__":

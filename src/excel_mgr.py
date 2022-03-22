@@ -1,6 +1,7 @@
 from openpyxl import load_workbook
 
 from src.aux_res_directory import get_res_folder
+from src.dlg_config import CONFIG
 
 
 class ExcelMgr(object):
@@ -20,11 +21,14 @@ class ExcelMgr(object):
         # Construyo el nombre con el que voy a guardar el excel
         self.ExcelName = self.SZ_FILE_NAME.format(usuario)
 
+        # Cargo la carpeta donde se guardará
+        self.output_path = CONFIG.get_folder_path(CONFIG.S_READDATA, CONFIG.P_OUTPUT_EXCEL)
+
     def get_worksheet(self):
         return self.ws
 
-    def save_wb(self, path):
+    def save_wb(self):
         # Me han pasado la carpeta de destino como argumento
-        self.wb.save(path / self.ExcelName)
+        self.wb.save(self.output_path / self.ExcelName)
         # Cierro el archivo excel
         self.wb.close()

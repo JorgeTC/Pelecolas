@@ -3,7 +3,7 @@ import threading
 
 from src.dlg_config import manage_config
 
-def create_PDF(sz_folder):
+def create_PDF():
 
     from src.pdf_writer import PDFWriter
     import pythoncom
@@ -11,7 +11,7 @@ def create_PDF(sz_folder):
     # Iniclaización necesaria para poder abrir Word con multithreading
     pythoncom.CoInitialize()
 
-    writer = PDFWriter(sz_folder)
+    writer = PDFWriter()
     # Convierto cada word a un pdf
     writer.convert_all_word()
     # Uno todos los pdf en uno solo
@@ -27,13 +27,15 @@ def main(sz_folder):
     from src.google_drive import Drive
 
     # Inicio la conversión a PDF en paralelo
-    create_pdf = threading.Thread(name="Create_PDF", target=create_PDF, args=[sz_folder])
-    create_pdf.start()
+    # create_pdf = threading.Thread(name="Create_PDF", target=create_PDF)
+    # create_pdf.setDaemon(True)
+    # create_pdf.start()
+    create_PDF()
 
     # Actualizo el contenido de google drive
-    drive_updater = Drive(sz_folder)
+    drive_updater = Drive()
     # Antes de subir los archivos necesito que el PDF esté terminado
-    create_pdf.join()
+    # create_pdf.join()
     drive_updater.update_folder()
 
 

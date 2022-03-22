@@ -7,7 +7,7 @@ def main(argv):
     from src.poster import POSTER
     from src.content_mgr import ContentMgr
 
-    mgr = ContentMgr(argv)
+    mgr = ContentMgr()
     post_data = mgr.get_content()
     POSTER.add_post(title=post_data['title'],
                   content=post_data['content'],

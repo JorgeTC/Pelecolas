@@ -11,7 +11,7 @@ def main(path):
 
 
     # Objeto que escribe el html
-    Documento = html(path)
+    Documento = html()
     # Inicializo un bucle para poder crear tantas reseñas como se quiera
     # sin necesidad de cerrar la aplicación
     b_otra = True

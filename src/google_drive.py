@@ -8,7 +8,7 @@ TYPE_FOLDER = 'application/vnd.google-apps.folder'
 
 class Drive(GoogleApiMgr):
 
-    def __init__(self, sz_folder) -> None:
+    def __init__(self) -> None:
         GoogleApiMgr.__init__(self, 'drive')
 
         # Gestor de archivos en el drive
@@ -19,10 +19,9 @@ class Drive(GoogleApiMgr):
         self.folder = self.get_item_by_id(self.folder_id)
 
         # Obtengo la carpeta donde vive el pdf
-        self.pdf_folder = sz_folder
+        self.pdf_folder = CONFIG.get_folder_path(CONFIG.S_DRIVE, CONFIG.P_PDF_PATH)
         # Obtengo la carpeta donde viven los docx
-        self.docx_folder = sz_folder / \
-            CONFIG.get_value(CONFIG.S_COUNT_FILMS, CONFIG.P_WORD_FOLDER)
+        self.docx_folder = CONFIG.get_folder_path(CONFIG.S_COUNT_FILMS, CONFIG.P_WORD_FOLDER)
 
     def update_folder(self):
         # Obtengo los archivos dentro de la carpeta
