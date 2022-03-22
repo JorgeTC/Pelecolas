@@ -1,4 +1,6 @@
 from configparser import ConfigParser
+from pathlib import Path
+from tkinter import Tk, filedialog
 
 from src.aux_res_directory import get_res_folder
 from src.dlg_scroll_base import DlgScrollBase
@@ -26,6 +28,7 @@ class DlgConfig(DlgScrollBase):
     P_FILTER_PUBLISHED = "Filter_published"
     P_SCRAP_BLOG = "Force_bog_scraping"
     P_ADD_STYLE = "Write_style"
+    P_OUTPUT_PATH_HTML = "Path_output_html"
     P_YES_ALWAYS_DIR = "New_confidence_director"
     # Readdata
     P_FILTER_FA = "Filter_FilmAffinity"
@@ -65,6 +68,7 @@ class DlgConfig(DlgScrollBase):
         self.add_default_value(self.S_HTML, self.P_FILTER_PUBLISHED, False)
         self.add_default_value(self.S_HTML, self.P_SCRAP_BLOG, False)
         self.add_default_value(self.S_HTML, self.P_ADD_STYLE, False)
+        self.add_default_value(self.S_HTML, self.P_OUTPUT_PATH_HTML, 'auto')
         self.add_default_value(self.S_HTML, self.P_YES_ALWAYS_DIR, "")
         # Configuraciones para readdata
         self.add_default_value(self.S_READDATA, self.P_FILTER_FA, 1)
@@ -126,10 +130,10 @@ class DlgConfig(DlgScrollBase):
         ans = input(SZ_NEW_VALUE.format(self.__curr_param))
         self.config.set(self.__curr_section, self.__curr_param, ans)
 
-    def get_value(self, section, param):
+    def get_value(self, section: str, param: str) -> str:
         return self.config[section][param]
 
-    def set_value(self, section, param, value):
+    def set_value(self, section: str, param: str, value) -> None:
         # Me espero que se introduzca un valor en una sección que existe
         if param not in self.config[section]:
             assert("{} no pertenece a la sección {}.".format(param, section))
@@ -140,11 +144,45 @@ class DlgConfig(DlgScrollBase):
         # Actualizo el archivo ini
         self.save_config()
 
-    def get_int(self, section, param):
+    def get_int(self, section: str, param: str) -> int:
         return self.config.getint(section, param)
 
-    def get_bool(self, section, param):
+    def get_bool(self, section: str, param: str) -> bool:
         return self.config.getboolean(section, param)
+
+    def get_folder_path(self, section: str, param: str) -> str:
+        # Leo lo que hya escrito en el ini
+        ini_data = self.config[section][param]
+
+        # Compruebo que sea una carpeta
+        if Path(ini_data).is_dir():
+            return ini_data
+
+        # Si no es una carpeta válida, abro una ventana para elegirla
+        Tk().withdraw()
+
+        ini_data = filedialog.askdirectory()
+        # Guardo el dato elegido
+        self.config.set(section, param, ini_data)
+
+        return ini_data
+
+    def get_file_path(self, section, param):
+        # Leo lo que hya escrito en el ini
+        ini_data = self.config[section][param]
+
+        # Compruebo que sea una carpeta
+        if Path(ini_data).is_file():
+            return ini_data
+
+        # Si no es una carpeta válida, abro una ventana para elegirla
+        Tk().withdraw()
+
+        ini_data = filedialog.askopenfile()
+        # Guardo el dato elegido
+        self.config.set(section, param, ini_data)
+
+        return ini_data
 
     def print(self):
         for section in self.config.sections():
