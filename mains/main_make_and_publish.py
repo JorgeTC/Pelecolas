@@ -21,7 +21,7 @@ def main(path):
         Documento.write_html()
 
         # Leo el html escrito y extraigo los datos necesarios para hacer la publicación
-        mgr = ContentMgr(path)
+        mgr = ContentMgr()
         post_data = mgr.extract_html(Documento.sz_file_name)
         # Le doy al objeto que añade el post al blog todos los datos
         POSTER.add_post(title=post_data['title'],

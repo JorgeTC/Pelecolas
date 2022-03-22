@@ -167,7 +167,7 @@ class DlgConfig(DlgScrollBase):
 
             ini_data = filedialog.askdirectory(title=f"{section} {param}")
             # Guardo el dato elegido
-            self.config.set(section, param, ini_data)
+            self.set_value(section, param, ini_data)
 
         return Path(ini_data)
 
@@ -182,7 +182,7 @@ class DlgConfig(DlgScrollBase):
 
             ini_data = filedialog.askopenfile(title=f"{section} {param}")
             # Guardo el dato elegido
-            self.config.set(section, param, ini_data)
+            self.set_value(section, param, ini_data)
 
         return Path(ini_data)
 
