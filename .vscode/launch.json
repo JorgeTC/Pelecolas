@@ -72,6 +72,14 @@
             "program": "${workspaceFolder}/../Películas/Update all posts.py",
             "console": "integratedTerminal",
             "justMyCode": true
+        },
+        {
+            "name": "Update post",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/../Películas/Update post.py",
+            "console": "integratedTerminal",
+            "justMyCode": true
         }
     ]
 }
