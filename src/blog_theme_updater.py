@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 
 from src.aux_console import go_to_upper_row, clear_current_line
 from src.content_mgr import ContentMgr
+from src.dlg_scroll_base import DlgScrollBase
 from src.list_title_mgr import TitleMgr
 from src.make_html import html
 from src.pelicula import Pelicula
@@ -47,6 +48,21 @@ class BlogThemeUpdater():
 
         return ReadBlog.get_secret_data_from_content(
             self.parsed, data_id)
+
+    def select_and_update_post(self):
+
+        word_names = {}
+
+        # Creo un diccionario que asocia cada post con su nombre en el word
+        for post in self.all_posts:
+            word_names[self.get_word_name_from_blog_post(post)] = post
+
+        # Pregunto al usuario cuál quiere actualizar
+        dlg = DlgScrollBase(question="Elija una reseña para actualizar: ",
+                            options=list(word_names.keys()))
+        to_update = dlg.get_ans()
+
+        self.update_post(word_names[to_update])
 
     def update_post(self, post):
 
