@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 
-from src.aux_console import go_to_upper_row, clear_current_line
+from src.aux_console import clear_current_line, go_to_upper_row
 from src.content_mgr import ContentMgr
 from src.dlg_scroll_base import DlgScrollBase
 from src.list_title_mgr import TitleMgr
@@ -164,7 +164,7 @@ class BlogThemeUpdater():
 
 class DlgUpdatePost(DlgScrollBase):
 
-    def __init__(self, title_list):
+    def __init__(self, title_list: list[str]):
         DlgScrollBase.__init__(self,
                                question="Elija una reseña para actualizar: ",
                                options=title_list)
