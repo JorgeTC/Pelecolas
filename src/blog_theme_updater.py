@@ -20,6 +20,9 @@ class BlogThemeUpdater():
         self.all_posts = POSTER.get_all_posts()
         self.parsed = None
 
+        # Compruebo que no haya posts repetidos
+        self.exist_repeated_posts(self.all_posts)
+
     def get_word_name_from_blog_post(self, post):
         name = post['title']
         # Si el nombre que tiene en el word no es el normal, es que tiene un año
@@ -91,6 +94,24 @@ class BlogThemeUpdater():
         self.parsed = None
 
         return True
+
+    def exist_repeated_posts(self, posts: list[dict]) -> bool:
+
+        # Genero un contenedor para guardar los títulos ya visitados
+        titles: set[str] = set()
+
+        # Itero todos los posts
+        for post in posts:
+            # A partir del post busco cuál es su nombre en el Word
+            title = self.get_word_name_from_blog_post(post)
+
+            # Compruebo si el título ya lo hemos encontrado antes
+            if title in titles:
+                print(f"La reseña de {title} está repetida")
+            titles.add(title)
+
+        # Devuelvo si hay más posts que títulos
+        return len(titles) < len(posts)
 
     def update_blog(self):
 
