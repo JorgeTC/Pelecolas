@@ -1,4 +1,5 @@
 import docx
+from docx.text.paragraph import Paragraph
 
 from src.dlg_config import CONFIG
 from src.word_folder_mgr import WordFolderMgr
@@ -13,9 +14,9 @@ class WordReader(WordFolderMgr):
         # Me quedo con el nombre del archivo sin la extensión.
         self.header = str(self.sz_all_docx[0].stem).split(SEPARATOR_YEAR)[0]
         # Me guardo sólo los párrafos, es lo que voy a iterar más adelante
-        self.paragraphs = []
+        self.paragraphs: list[Paragraph] = []
         # Guardo a qué párrafo corresponde cada año
-        self.years_parr = {}
+        self.years_parr: dict[str, int] = {}
         # Itero todos los docx que he encontrado
         for word in self.sz_all_docx:
             # Obtengo el año actual
@@ -34,9 +35,9 @@ class WordReader(WordFolderMgr):
                 pass
 
         # Lista con todos los títulos que encuentre.
-        self.titulos = {}
+        self.titulos: dict[str, int] = {}
 
-    def __get_title(self, paragraph):
+    def __get_title(self, paragraph: Paragraph) -> str:
 
         # Obtengo lo que esté en negrita
         title = self.__get_bold_title(paragraph)
@@ -55,7 +56,7 @@ class WordReader(WordFolderMgr):
 
         return title
 
-    def __has_next_parr_title(self, text):
+    def __has_next_parr_title(self, text: str) -> bool:
         if self.__is_header(text):
             # No cuento el encabezado del documento
             return False
@@ -83,12 +84,12 @@ class WordReader(WordFolderMgr):
         # Es un párrafo y no un salto de línea
         return False
 
-    def __is_header(self, text):
+    def __is_header(self, text: str) -> bool:
         # Quiero que el código valga para contar las películas y los libros.
         # No sé qué encabezado me voy a encontrar en mi documento.
         return text == self.header
 
-    def __append_title(self, paragraph, index):
+    def __append_title(self, paragraph: Paragraph, index: int) -> bool:
         # Leo el posible título de este párrafo.
         titulo = self.__get_title(paragraph)
         # Si no se ha encontrado título, no es el inicio de una crítica.
@@ -96,13 +97,17 @@ class WordReader(WordFolderMgr):
             # No he conseguido añadir nada.
             return False
 
-        # En este punto ya sabemos que tenemos un titulo
-        self.titulos[titulo] = index
+        if titulo not in self.titulos:
+            # En este punto ya sabemos que tenemos un título
+            self.titulos[titulo] = index
+        else:
+            # Si el título ya está recogido, aviso al usuario de que está mal escrito el Word
+            print(f"Repeated title {titulo}")
 
         # He añadido un título.
         return True
 
-    def __get_bold_title(self, paragraph):
+    def __get_bold_title(self, paragraph: Paragraph) -> str:
         # Obtengo el primer fragamento de texto que esté en negrita.
         titulo = ""
 
