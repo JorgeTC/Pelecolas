@@ -126,6 +126,9 @@ class BlogThemeUpdater():
                 print(f"La reseña de {title} está repetida")
             titles.add(title)
 
+        # Este proceso ha rellenado esta variable y la queremos limpia
+        self.parsed = None
+
         # Devuelvo si hay más posts que títulos
         return len(titles) < len(posts)
 
