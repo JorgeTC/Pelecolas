@@ -25,6 +25,7 @@ class BlogThemeUpdater():
         self.exist_repeated_posts(self.all_posts)
 
     def get_word_name_from_blog_post(self, post):
+
         name = post['title']
         # Si el nombre que tiene en el word no es el normal, es que tiene un año
         if self.title_manager.is_title_in_list(name):
@@ -33,6 +34,13 @@ class BlogThemeUpdater():
         # Parseo el contenido
         self.parsed = BeautifulSoup(post['content'], 'html.parser')
 
+        # Tomo el nombre que está escrito en los datos ocultos
+        name = self.get_secret_data(BlogHiddenData.TITLE)
+        if self.title_manager.is_title_in_list(name):
+            return self.title_manager.exact_key_without_dlg(name)
+
+        # El nombre que viene en el html no es correcto,
+        # pruebo a componer un nuevo nombre con el título y el año
         year = self.get_secret_data(BlogHiddenData.YEAR)
         name = f'{name} ({year})'
 
