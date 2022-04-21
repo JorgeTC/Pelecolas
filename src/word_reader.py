@@ -97,8 +97,12 @@ class WordReader(WordFolderMgr):
             # No he conseguido añadir nada.
             return False
 
-        # En este punto ya sabemos que tenemos un titulo
-        self.titulos[titulo] = index
+        if titulo not in self.titulos:
+            # En este punto ya sabemos que tenemos un título
+            self.titulos[titulo] = index
+        else:
+            # Si el título ya está recogido, aviso al usuario de que está mal escrito el Word
+            print(f"Repeated title {titulo}")
 
         # He añadido un título.
         return True
