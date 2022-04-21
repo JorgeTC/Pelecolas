@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 
-from src.aux_console import go_to_upper_row, clear_current_line
+from src.aux_console import clear_current_line, go_to_upper_row
 from src.content_mgr import ContentMgr
 from src.dlg_scroll_base import DlgScrollBase
 from src.list_title_mgr import TitleMgr
@@ -66,8 +66,7 @@ class BlogThemeUpdater():
             word_names[self.get_word_name_from_blog_post(post)] = post
 
         # Pregunto al usuario cuál quiere actualizar
-        dlg = DlgScrollBase(question="Elija una reseña para actualizar: ",
-                            options=list(word_names.keys()))
+        dlg = DlgUpdatePost(list(word_names.keys()))
         to_update = dlg.get_ans()
 
         self.update_post(word_names[to_update])
@@ -161,3 +160,28 @@ class BlogThemeUpdater():
             bar.update((index + 1)/total_elements)
             # Subo a la linea anterior a la barra de progreso
             go_to_upper_row()
+
+
+class DlgUpdatePost(DlgScrollBase):
+
+    def __init__(self, title_list: list[str]):
+        DlgScrollBase.__init__(self,
+                               question="Elija una reseña para actualizar: ",
+                               options=title_list)
+
+        self.quisiste_decir = TitleMgr(title_list)
+
+    def get_ans_body(self) -> str:
+        ans = ""
+        # Función sobreescrita de la clase base
+        while not ans:
+            # Inicializo las variables antes de llamar a input
+            self.curr_index = -1
+            self.sz_options = self.quisiste_decir.get_suggestions()
+            self.n_options = len(self.sz_options)
+            # Al llamar a input es cuando me espero que se utilicen las flechas
+            ans = input(self.sz_question)
+            # Se ha introducido un título, compruebo que sea correcto
+            ans = self.quisiste_decir.exact_key(ans)
+
+        return ans
