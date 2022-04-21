@@ -64,7 +64,7 @@ class BlogThemeUpdater():
 
         self.update_post(word_names[to_update])
 
-    def update_post(self, post):
+    def update_post(self, post, *, dowload_data=False):
 
         # A partir del post busco cuál es su nombre en el Word
         title = self.get_word_name_from_blog_post(post)
@@ -79,12 +79,15 @@ class BlogThemeUpdater():
         # En base al nombre busco su ficha en FA
         url_fa = self.get_secret_data(BlogHiddenData.URL_FA)
 
-        # Cargo los datos de la película de FA
+        # Creo un objeto a partir de la url de FA
         self.Documento.data = Pelicula.from_fa_url(url_fa)
-        self.Documento.data.get_parsed_page()
-        # Si no he conseguido leer nada de FA, salgo de la función
-        if not self.Documento.data.exists():
-            return False
+        # Normalmente tengo todos los datos necesarios dentro del html.
+        # Si me faltara alguno, indico que hay que descargar la página de FA
+        if dowload_data:
+            self.Documento.data.get_parsed_page()
+            # Si no he conseguido leer nada de FA, salgo de la función
+            if not self.Documento.data.exists():
+                return False
         # Restituyo el nombre que tenía en Word
         self.Documento.data.titulo = title
         # Leo en las notas ocultas del html los datos
