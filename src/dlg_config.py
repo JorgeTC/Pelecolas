@@ -1,6 +1,5 @@
 from configparser import ConfigParser
 from pathlib import Path
-from tkinter import Tk, filedialog
 
 from src.aux_res_directory import get_res_folder
 from src.dlg_scroll_base import DlgScrollBase
@@ -161,11 +160,9 @@ class DlgConfig(DlgScrollBase):
         ini_data = self.config[section][param]
 
         # Compruebo que sea una carpeta
-        if not Path(ini_data).is_dir():
-            # Si no es una carpeta válida, abro una ventana para elegirla
-            Tk().withdraw()
-
-            ini_data = filedialog.askdirectory(title=f"{section} {param}")
+        while not Path(ini_data).is_dir():
+            # Si no es una carpeta válida, la pido al usuario
+            ini_data = input(f"Introducir path de la carpeta {section} {param}: ")
             # Guardo el dato elegido
             self.set_value(section, param, ini_data)
 
@@ -176,11 +173,9 @@ class DlgConfig(DlgScrollBase):
         ini_data = self.config[section][param]
 
         # Compruebo que sea una carpeta
-        if not Path(ini_data).is_file():
-            # Si no es una carpeta válida, abro una ventana para elegirla
-            Tk().withdraw()
-
-            ini_data = filedialog.askopenfile(title=f"{section} {param}")
+        while not Path(ini_data).is_file():
+            # Si no es una carpeta válida, la pido al usuario
+            ini_data = input(f"Introducir path del archivo {section} {param}: ")
             # Guardo el dato elegido
             self.set_value(section, param, ini_data)
 
