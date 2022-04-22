@@ -1,6 +1,6 @@
 from src.dlg_config import manage_config
 
-def main(path):
+def main():
 
     manage_config()
 
@@ -11,7 +11,7 @@ def main(path):
 
 
     # Objeto que escribe el html
-    Documento = html(path)
+    Documento = html()
     # Inicializo un bucle para poder crear tantas reseñas como se quiera
     # sin necesidad de cerrar la aplicación
     b_otra = True
@@ -21,7 +21,7 @@ def main(path):
         Documento.write_html()
 
         # Leo el html escrito y extraigo los datos necesarios para hacer la publicación
-        mgr = ContentMgr(path)
+        mgr = ContentMgr()
         post_data = mgr.extract_html(Documento.sz_file_name)
         # Le doy al objeto que añade el post al blog todos los datos
         POSTER.add_post(title=post_data['title'],

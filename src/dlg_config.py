@@ -1,4 +1,5 @@
 from configparser import ConfigParser
+from pathlib import Path
 
 from src.aux_res_directory import get_res_folder
 from src.dlg_scroll_base import DlgScrollBase
@@ -26,14 +27,17 @@ class DlgConfig(DlgScrollBase):
     P_FILTER_PUBLISHED = "Filter_published"
     P_SCRAP_BLOG = "Force_bog_scraping"
     P_ADD_STYLE = "Write_style"
+    P_OUTPUT_PATH_HTML = "Path_output_html"
     P_YES_ALWAYS_DIR = "New_confidence_director"
     # Readdata
     P_FILTER_FA = "Filter_FilmAffinity"
     P_DEFAULT_USER = "Mem_user_FA"
+    P_OUTPUT_EXCEL = "Path_output_excel"
     # Count films
     P_ADD_YEAR = "Add_year"
     P_ADD_INDEX = "Add_index"
     P_WORD_FOLDER = "Folder_with_words"
+    P_TITLE_LIST_PATH = "Output_folder_count"
     # Post
     P_BLOG_ID = "Blog_id"
     P_DATE = "Posting_date"
@@ -41,6 +45,7 @@ class DlgConfig(DlgScrollBase):
     P_AS_DRAFT = "As_draft"
     # Drive
     P_FOLDER_ID = "Drive_folder_to_update_id"
+    P_PDF_PATH = "Pdf_folder"
 
     def __init__(self):
         super().__init__(question="", options=[], empty_option=True, empty_ans=True)
@@ -65,14 +70,17 @@ class DlgConfig(DlgScrollBase):
         self.add_default_value(self.S_HTML, self.P_FILTER_PUBLISHED, False)
         self.add_default_value(self.S_HTML, self.P_SCRAP_BLOG, False)
         self.add_default_value(self.S_HTML, self.P_ADD_STYLE, False)
+        self.add_default_value(self.S_HTML, self.P_OUTPUT_PATH_HTML, 'auto')
         self.add_default_value(self.S_HTML, self.P_YES_ALWAYS_DIR, "")
         # Configuraciones para readdata
         self.add_default_value(self.S_READDATA, self.P_FILTER_FA, 1)
         self.add_default_value(self.S_READDATA, self.P_DEFAULT_USER, 'Jorge')
+        self.add_default_value(self.S_READDATA, self.P_OUTPUT_EXCEL, 'auto')
         # Configuraciones para escribir el txt
         self.add_default_value(self.S_COUNT_FILMS, self.P_ADD_YEAR, False)
         self.add_default_value(self.S_COUNT_FILMS, self.P_ADD_INDEX, False)
-        self.add_default_value(self.S_COUNT_FILMS, self.P_WORD_FOLDER, "Word")
+        self.add_default_value(self.S_COUNT_FILMS, self.P_WORD_FOLDER, 'auto')
+        self.add_default_value(self.S_COUNT_FILMS, self.P_TITLE_LIST_PATH, 'auto')
         # Configuraciones para post
         self.add_default_value(self.S_POST, self.P_BLOG_ID, '4259058779347983900')
         self.add_default_value(self.S_POST, self.P_DATE, 'auto')
@@ -80,6 +88,7 @@ class DlgConfig(DlgScrollBase):
         self.add_default_value(self.S_POST, self.P_AS_DRAFT, False)
         # Configuraciones para actualizar drive
         self.add_default_value(self.S_DRIVE, self.P_FOLDER_ID, '13UbwzbjVFQ8e_UaNalqm_iMihjBDBvtm')
+        self.add_default_value(self.S_DRIVE, self.P_PDF_PATH, 'auto')
 
     def add_default_value(self, section, param, value):
         # Si no existe la sección, la añado
@@ -126,10 +135,10 @@ class DlgConfig(DlgScrollBase):
         ans = input(SZ_NEW_VALUE.format(self.__curr_param))
         self.config.set(self.__curr_section, self.__curr_param, ans)
 
-    def get_value(self, section, param):
+    def get_value(self, section: str, param: str) -> str:
         return self.config[section][param]
 
-    def set_value(self, section, param, value):
+    def set_value(self, section: str, param: str, value) -> None:
         # Me espero que se introduzca un valor en una sección que existe
         if param not in self.config[section]:
             assert("{} no pertenece a la sección {}.".format(param, section))
@@ -140,11 +149,37 @@ class DlgConfig(DlgScrollBase):
         # Actualizo el archivo ini
         self.save_config()
 
-    def get_int(self, section, param):
+    def get_int(self, section: str, param: str) -> int:
         return self.config.getint(section, param)
 
-    def get_bool(self, section, param):
+    def get_bool(self, section: str, param: str) -> bool:
         return self.config.getboolean(section, param)
+
+    def get_folder_path(self, section: str, param: str) -> Path:
+        # Leo lo que hya escrito en el ini
+        ini_data = self.config[section][param]
+
+        # Compruebo que sea una carpeta
+        while not Path(ini_data).is_dir():
+            # Si no es una carpeta válida, la pido al usuario
+            ini_data = input(f"Introducir path de la carpeta {section} {param}: ")
+            # Guardo el dato elegido
+            self.set_value(section, param, ini_data)
+
+        return Path(ini_data)
+
+    def get_file_path(self, section: str, param: str) -> Path:
+        # Leo lo que hya escrito en el ini
+        ini_data = self.config[section][param]
+
+        # Compruebo que sea una carpeta
+        while not Path(ini_data).is_file():
+            # Si no es una carpeta válida, la pido al usuario
+            ini_data = input(f"Introducir path del archivo {section} {param}: ")
+            # Guardo el dato elegido
+            self.set_value(section, param, ini_data)
+
+        return Path(ini_data)
 
     def print(self):
         for section in self.config.sections():

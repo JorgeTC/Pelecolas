@@ -1,6 +1,6 @@
 from src.dlg_config import manage_config
 
-def main(path):
+def main():
 
     manage_config()
 
@@ -8,7 +8,7 @@ def main(path):
     from src.dlg_bool import YesNo
 
     # Objeto que escribe el html
-    Documento = html(path)
+    Documento = html()
     # Inicializo un bucle para poder crear tantas reseñas como se quiera
     # sin necesidad de cerrar la aplicación
     b_otra = True
