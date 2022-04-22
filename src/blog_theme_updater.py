@@ -19,35 +19,42 @@ class BlogThemeUpdater():
         self.title_manager = TitleMgr(self.Documento.titulos.keys())
         self.content_mgr = ContentMgr()
         self.all_posts = POSTER.get_all_posts()
-        self.parsed = None
+        self.parsed: BeautifulSoup = None
 
         # Compruebo que no haya posts repetidos
         self.exist_repeated_posts(self.all_posts)
 
-    def get_word_name_from_blog_post(self, post):
+    def get_word_name_from_blog_post(self, post, *, keep_parsed: bool = False) -> str:
 
-        name = post['title']
-        # Si el nombre que tiene en el word no es el normal, es que tiene un año
-        if self.title_manager.is_title_in_list(name):
-            return self.title_manager.exact_key_without_dlg(name)
+        def body(self: 'BlogThemeUpdater', post) -> str:
+            name = post['title']
+            # Si el nombre que tiene en el word no es el normal, es que tiene un año
+            if self.title_manager.is_title_in_list(name):
+                return self.title_manager.exact_key_without_dlg(name)
 
-        # Parseo el contenido
-        self.parsed = BeautifulSoup(post['content'], 'html.parser')
+            # Parseo el contenido
+            self.parsed = BeautifulSoup(post['content'], 'html.parser')
 
-        # Tomo el nombre que está escrito en los datos ocultos
-        name = self.get_secret_data(BlogHiddenData.TITLE)
-        if self.title_manager.is_title_in_list(name):
-            return self.title_manager.exact_key_without_dlg(name)
+            # Tomo el nombre que está escrito en los datos ocultos
+            name = self.get_secret_data(BlogHiddenData.TITLE)
+            if self.title_manager.is_title_in_list(name):
+                return self.title_manager.exact_key_without_dlg(name)
 
-        # El nombre que viene en el html no es correcto,
-        # pruebo a componer un nuevo nombre con el título y el año
-        year = self.get_secret_data(BlogHiddenData.YEAR)
-        name = f'{name} ({year})'
+            # El nombre que viene en el html no es correcto,
+            # pruebo a componer un nuevo nombre con el título y el año
+            year = self.get_secret_data(BlogHiddenData.YEAR)
+            name = f'{name} ({year})'
 
-        if self.title_manager.is_title_in_list(name):
-            return self.title_manager.exact_key_without_dlg(name)
+            if self.title_manager.is_title_in_list(name):
+                return self.title_manager.exact_key_without_dlg(name)
 
-        return ""
+            return ""
+
+        try:
+            return body(self, post)
+        finally:
+            if not keep_parsed:
+                self.parsed = None
 
     def get_secret_data(self, data_id):
 
@@ -74,7 +81,7 @@ class BlogThemeUpdater():
     def update_post(self, post, *, dowload_data=False):
 
         # A partir del post busco cuál es su nombre en el Word
-        title = self.get_word_name_from_blog_post(post)
+        title = self.get_word_name_from_blog_post(post, keep_parsed=True)
         # Si no encuentro su nombre en el Word, salgo
         if not title:
             return False
@@ -135,9 +142,6 @@ class BlogThemeUpdater():
             if title in titles:
                 print(f"La reseña de {title} está repetida")
             titles.add(title)
-
-        # Este proceso ha rellenado esta variable y la queremos limpia
-        self.parsed = None
 
         # Devuelvo si hay más posts que títulos
         return len(titles) < len(posts)
