@@ -1,7 +1,8 @@
 from bs4 import BeautifulSoup
 
-from src.aux_console import go_to_upper_row, clear_current_line
+from src.aux_console import clear_current_line, go_to_upper_row
 from src.content_mgr import ContentMgr
+from src.dlg_scroll_base import DlgScrollBase
 from src.list_title_mgr import TitleMgr
 from src.make_html import html
 from src.pelicula import Pelicula
@@ -20,7 +21,11 @@ class BlogThemeUpdater():
         self.all_posts = POSTER.get_all_posts()
         self.parsed = None
 
+        # Compruebo que no haya posts repetidos
+        self.exist_repeated_posts(self.all_posts)
+
     def get_word_name_from_blog_post(self, post):
+
         name = post['title']
         # Si el nombre que tiene en el word no es el normal, es que tiene un año
         if self.title_manager.is_title_in_list(name):
@@ -29,6 +34,13 @@ class BlogThemeUpdater():
         # Parseo el contenido
         self.parsed = BeautifulSoup(post['content'], 'html.parser')
 
+        # Tomo el nombre que está escrito en los datos ocultos
+        name = self.get_secret_data(BlogHiddenData.TITLE)
+        if self.title_manager.is_title_in_list(name):
+            return self.title_manager.exact_key_without_dlg(name)
+
+        # El nombre que viene en el html no es correcto,
+        # pruebo a componer un nuevo nombre con el título y el año
         year = self.get_secret_data(BlogHiddenData.YEAR)
         name = f'{name} ({year})'
 
@@ -45,7 +57,21 @@ class BlogThemeUpdater():
         return ReadBlog.get_secret_data_from_content(
             self.parsed, data_id)
 
-    def update_post(self, post):
+    def select_and_update_post(self):
+
+        word_names = {}
+
+        # Creo un diccionario que asocia cada post con su nombre en el word
+        for post in self.all_posts:
+            word_names[self.get_word_name_from_blog_post(post)] = post
+
+        # Pregunto al usuario cuál quiere actualizar
+        dlg = DlgUpdatePost(list(word_names.keys()))
+        to_update = dlg.get_ans()
+
+        self.update_post(word_names[to_update])
+
+    def update_post(self, post, *, dowload_data=False):
 
         # A partir del post busco cuál es su nombre en el Word
         title = self.get_word_name_from_blog_post(post)
@@ -60,12 +86,15 @@ class BlogThemeUpdater():
         # En base al nombre busco su ficha en FA
         url_fa = self.get_secret_data(BlogHiddenData.URL_FA)
 
-        # Cargo los datos de la película de FA
+        # Creo un objeto a partir de la url de FA
         self.Documento.data = Pelicula.from_fa_url(url_fa)
-        self.Documento.data.get_parsed_page()
-        # Si no he conseguido leer nada de FA, salgo de la función
-        if not self.Documento.data.exists():
-            return False
+        # Normalmente tengo todos los datos necesarios dentro del html.
+        # Si me faltara alguno, indico que hay que descargar la página de FA
+        if dowload_data:
+            self.Documento.data.get_parsed_page()
+            # Si no he conseguido leer nada de FA, salgo de la función
+            if not self.Documento.data.exists():
+                return False
         # Restituyo el nombre que tenía en Word
         self.Documento.data.titulo = title
         # Leo en las notas ocultas del html los datos
@@ -92,6 +121,27 @@ class BlogThemeUpdater():
 
         return True
 
+    def exist_repeated_posts(self, posts: list[dict]) -> bool:
+
+        # Genero un contenedor para guardar los títulos ya visitados
+        titles: set[str] = set()
+
+        # Itero todos los posts
+        for post in posts:
+            # A partir del post busco cuál es su nombre en el Word
+            title = self.get_word_name_from_blog_post(post)
+
+            # Compruebo si el título ya lo hemos encontrado antes
+            if title in titles:
+                print(f"La reseña de {title} está repetida")
+            titles.add(title)
+
+        # Este proceso ha rellenado esta variable y la queremos limpia
+        self.parsed = None
+
+        # Devuelvo si hay más posts que títulos
+        return len(titles) < len(posts)
+
     def update_blog(self):
 
         bar = ProgressBar()
@@ -110,3 +160,28 @@ class BlogThemeUpdater():
             bar.update((index + 1)/total_elements)
             # Subo a la linea anterior a la barra de progreso
             go_to_upper_row()
+
+
+class DlgUpdatePost(DlgScrollBase):
+
+    def __init__(self, title_list: list[str]):
+        DlgScrollBase.__init__(self,
+                               question="Elija una reseña para actualizar: ",
+                               options=title_list)
+
+        self.quisiste_decir = TitleMgr(title_list)
+
+    def get_ans_body(self) -> str:
+        ans = ""
+        # Función sobreescrita de la clase base
+        while not ans:
+            # Inicializo las variables antes de llamar a input
+            self.curr_index = -1
+            self.sz_options = self.quisiste_decir.get_suggestions()
+            self.n_options = len(self.sz_options)
+            # Al llamar a input es cuando me espero que se utilicen las flechas
+            ans = input(self.sz_question)
+            # Se ha introducido un título, compruebo que sea correcto
+            ans = self.quisiste_decir.exact_key(ans)
+
+        return ans
