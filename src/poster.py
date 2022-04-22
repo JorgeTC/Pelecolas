@@ -65,7 +65,7 @@ class Poster(ReadBlog, GoogleApiMgr):
             f.execute()
             # Si no está programada como borrador, aviso al usuario de cuándo se va a publicar la reseña
             if not bDraft:
-                print("La reseña de {} se publicará el {}".format(title, str_date[:10]))
+                print(f"La reseña de {title} se publicará el {str_date[:10]}")
 
         except client.AccessTokenRefreshError:
             print('The credentials have been revoked or expired, please re-run'
@@ -151,10 +151,10 @@ class Poster(ReadBlog, GoogleApiMgr):
     def update_post(self, new_post):
 
         self.posts.update(blogId=self.BLOG_ID,
-                        postId=new_post['id'],
-                        body=new_post).execute()
+                          postId=new_post['id'],
+                          body=new_post).execute()
 
-    def get_published_from_date(self, min_date):
+    def get_published_from_date(self, min_date: date | datetime):
 
         # Las fechas deben estar introducidas en formato date
         # Las convierto a cadena
