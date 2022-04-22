@@ -1,7 +1,7 @@
 from src.dlg_config import manage_config
 
 
-def main(path):
+def main():
 
     manage_config()
 

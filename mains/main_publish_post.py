@@ -1,6 +1,6 @@
 from src.dlg_config import manage_config
 
-def main(argv):
+def main():
 
     manage_config()
 
@@ -14,4 +14,4 @@ def main(argv):
                   labels=post_data['labels'])
 
 if __name__ == '__main__':
-    main(__file__)
+    main()
