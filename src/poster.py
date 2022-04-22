@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta, date
 
-import pytz
+from dateutil import tz
 from bs4 import BeautifulSoup
 from oauth2client import client
 
@@ -219,7 +219,8 @@ POSTER = Poster()
 #################################
 
 ############ aux ################
-def date_to_str(date):
+TIME_ZONE = tz.gettz('Europe/Madrid')
+def date_to_str(date: date | datetime):
     '''
     Dada una fecha, devuelvo una cadena
     para poder publicar el post en esa fecha
@@ -228,10 +229,10 @@ def date_to_str(date):
         # Caso en el que esté especificada la hora
         return datetime(date.year, date.month, date.day,
                         date.hour, date.minute,
-                        tzinfo=pytz.UTC).isoformat()
+                        tzinfo=TIME_ZONE).isoformat()
     except AttributeError:
         # Caso en el que no esté especificada la hora
         return datetime(date.year, date.month, date.day,
-                        tzinfo=pytz.UTC).isoformat()
+                        tzinfo=TIME_ZONE).isoformat()
     except:
         return ""
