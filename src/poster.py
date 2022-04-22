@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta, date
 
-import pytz
+from dateutil import tz
 from bs4 import BeautifulSoup
 from oauth2client import client
 
@@ -65,7 +65,7 @@ class Poster(ReadBlog, GoogleApiMgr):
             f.execute()
             # Si no está programada como borrador, aviso al usuario de cuándo se va a publicar la reseña
             if not bDraft:
-                print("La reseña de {} se publicará el {}".format(title, str_date[:10]))
+                print(f"La reseña de {title} se publicará el {str_date[:10]}")
 
         except client.AccessTokenRefreshError:
             print('The credentials have been revoked or expired, please re-run'
@@ -151,10 +151,10 @@ class Poster(ReadBlog, GoogleApiMgr):
     def update_post(self, new_post):
 
         self.posts.update(blogId=self.BLOG_ID,
-                        postId=new_post['id'],
-                        body=new_post).execute()
+                          postId=new_post['id'],
+                          body=new_post).execute()
 
-    def get_published_from_date(self, min_date):
+    def get_published_from_date(self, min_date: date | datetime):
 
         # Las fechas deben estar introducidas en formato date
         # Las convierto a cadena
@@ -219,7 +219,8 @@ POSTER = Poster()
 #################################
 
 ############ aux ################
-def date_to_str(date):
+TIME_ZONE = tz.gettz('Europe/Madrid')
+def date_to_str(date: date | datetime):
     '''
     Dada una fecha, devuelvo una cadena
     para poder publicar el post en esa fecha
@@ -228,10 +229,10 @@ def date_to_str(date):
         # Caso en el que esté especificada la hora
         return datetime(date.year, date.month, date.day,
                         date.hour, date.minute,
-                        tzinfo=pytz.UTC).isoformat()
+                        tzinfo=TIME_ZONE).isoformat()
     except AttributeError:
         # Caso en el que no esté especificada la hora
         return datetime(date.year, date.month, date.day,
-                        tzinfo=pytz.UTC).isoformat()
+                        tzinfo=TIME_ZONE).isoformat()
     except:
         return ""
