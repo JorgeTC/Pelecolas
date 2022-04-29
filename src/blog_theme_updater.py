@@ -8,7 +8,7 @@ from src.make_html import html
 from src.pelicula import Pelicula
 from src.poster import Poster
 from src.progress_bar import ProgressBar
-from src.read_blog import BlogHiddenData, ReadBlog
+from src.read_blog import BlogHiddenData, get_secret_data_from_content
 from src.searcher import Searcher
 
 
@@ -61,8 +61,7 @@ class BlogThemeUpdater():
         if not self.parsed:
             return None
 
-        return ReadBlog.get_secret_data_from_content(
-            self.parsed, data_id)
+        return get_secret_data_from_content(self.parsed, data_id)
 
     def select_and_update_post(self):
 

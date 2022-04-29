@@ -2,12 +2,12 @@ from concurrent import futures
 
 from bs4 import BeautifulSoup
 
-from src.read_blog import BlogHiddenData, ReadBlog
+from src.read_blog import BlogHiddenData, get_secret_data_from_content
 from src.blog_csv_mgr import BlogCsvMgr
 from src.poster import Poster
 
 
-class BlogScraper(BlogCsvMgr, ReadBlog):
+class BlogScraper(BlogCsvMgr):
 
     HEADER_CSV = ['Titulo', 'Link', 'Director', 'Año']
 
@@ -25,8 +25,8 @@ class BlogScraper(BlogCsvMgr, ReadBlog):
         name = post['title']
         link = post['url']
         body = BeautifulSoup(post['content'], 'html.parser')
-        director = self.get_secret_data_from_content(body, BlogHiddenData.DIRECTOR)
-        año = self.get_secret_data_from_content(body, BlogHiddenData.YEAR)
+        director = get_secret_data_from_content(body, BlogHiddenData.DIRECTOR)
+        año = get_secret_data_from_content(body, BlogHiddenData.YEAR)
 
         return [name, link, director, año]
 
