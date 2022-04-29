@@ -1,26 +1,25 @@
-from datetime import datetime, timedelta, date
+from datetime import date, datetime, timedelta
 
-from dateutil import tz
 from bs4 import BeautifulSoup
+from dateutil import tz
+from googleapiclient.discovery import Resource
 from oauth2client import client
 
 from src.aux_title_str import RE_DATE_DMY, RE_DATE_YMD, RE_TIME
 from src.dlg_config import CONFIG
-from src.google_api_mgr import GoogleApiMgr
+from src.google_api_mgr import GetGoogleApiMgr
 from src.read_blog import ReadBlog
 
 
-class Poster(ReadBlog, GoogleApiMgr):
+class Poster(ReadBlog):
 
     BLOG_ID = CONFIG.get_value(CONFIG.S_POST, CONFIG.P_BLOG_ID)
+    SERVICE: Resource = GetGoogleApiMgr('blogger')
 
     # Guardo el primer mes que tiene reseña
     __first_month = date(2019, 5, 1)
 
     def __init__(self):
-        # Inicializo la clase madre
-        GoogleApiMgr.__init__(self, 'blogger')
-
         try:
             blogs = self.SERVICE.blogs()
 
