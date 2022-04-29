@@ -11,6 +11,7 @@ class BlogHiddenData():
     DURATION = "duration"
     IMAGE = "link-image"
 
+    @staticmethod
+    def get(content: BeautifulSoup, field):
+        return content.find(id=field)['value']
 
-def get_secret_data_from_content(content: BeautifulSoup, field):
-    return content.find(id=field)['value']

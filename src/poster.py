@@ -8,7 +8,7 @@ from oauth2client import client
 from src.aux_title_str import RE_DATE_DMY, RE_DATE_YMD, RE_TIME
 from src.dlg_config import CONFIG
 from src.google_api_mgr import GetGoogleApiMgr
-from src.read_blog import BlogHiddenData, get_secret_data_from_content
+from src.read_blog import BlogHiddenData
 
 
 def get_blog_and_api(service: Resource, blog_id: str):
@@ -214,8 +214,8 @@ class Poster():
             body = BeautifulSoup(post['content'], 'html.parser')
 
             # Extraigo los datos que quiero
-            director = get_secret_data_from_content(body, BlogHiddenData.DIRECTOR)
-            year = get_secret_data_from_content(body, BlogHiddenData.YEAR)
+            director = BlogHiddenData.get(body, BlogHiddenData.DIRECTOR)
+            year = BlogHiddenData.get(body, BlogHiddenData.YEAR)
 
             ans.append([title, "", director, year])
 
