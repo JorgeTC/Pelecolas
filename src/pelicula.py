@@ -57,7 +57,7 @@ def get_id_from_film_box(film_box: BeautifulSoup) -> int:
     return int(film_box.contents[1].contents[1].attrs['data-movie-id'])
 
 
-class Pelicula(object):
+class Pelicula():
     def __init__(self):
 
         self.titulo = ""

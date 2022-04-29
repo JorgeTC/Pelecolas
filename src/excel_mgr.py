@@ -4,7 +4,7 @@ from src.aux_res_directory import get_res_folder
 from src.dlg_config import CONFIG
 
 
-class ExcelMgr(object):
+class ExcelMgr():
 
     SZ_FILE_NAME = 'Sintaxis - {}.xlsx'
     SZ_TEMPLATE_NAME = 'Plantilla.xlsx'

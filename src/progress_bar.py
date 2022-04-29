@@ -4,7 +4,7 @@ import sys
 from src.aux_console import clear_current_line
 
 
-class Timer(object):
+class Timer():
     def __init__(self):
         self.start = datetime.datetime.now()
 
@@ -22,7 +22,7 @@ class Timer(object):
         self.start = datetime.datetime.now()
 
 
-class ProgressBar(object):
+class ProgressBar():
     def __init__(self):
         self.__timer = Timer()
         self.barLength = 20

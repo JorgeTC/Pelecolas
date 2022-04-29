@@ -37,7 +37,7 @@ FilmData = namedtuple(
     "FilmData", "user_note titulo id duracion nota_FA votantes_FA desvest_FA")
 
 
-class Writer(object):
+class Writer():
 
     def __init__(self, id, worksheet: worksheet.Worksheet):
         # numero de usuario en string

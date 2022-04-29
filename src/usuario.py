@@ -5,7 +5,7 @@ from src.dlg_config import CONFIG
 from src.dlg_scroll_base import DlgScrollBase
 
 
-class Usuario(object):
+class Usuario():
 
     SZ_QUESTION = "Se van a importar los datos de {}\nEspero enter..."
 
