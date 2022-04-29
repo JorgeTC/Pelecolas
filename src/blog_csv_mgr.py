@@ -5,7 +5,7 @@ from datetime import datetime
 
 from src.aux_res_directory import get_res_folder
 from src.dlg_config import CONFIG
-from src.poster import POSTER
+from src.poster import Poster
 
 
 class CSV_COLUMN(enum.Enum):
@@ -49,7 +49,7 @@ class BlogCsvMgr():
 
         # Compruebo si se ha publicado algo en el blog
         # desde la última vez que se hizo el csv
-        new_posts = POSTER.get_published_from_date(date_last_modification)
+        new_posts = Poster.get_published_from_date(date_last_modification)
 
         return len(new_posts) > 0
 

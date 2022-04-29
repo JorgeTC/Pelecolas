@@ -1,15 +1,17 @@
+from googleapiclient.discovery import Resource
 from googleapiclient.http import MediaFileUpload
 
 from src.dlg_config import CONFIG
-from src.google_api_mgr import GoogleApiMgr
+from src.google_api_mgr import GetGoogleApiMgr
 
 TYPE_FOLDER = 'application/vnd.google-apps.folder'
 
 
-class Drive(GoogleApiMgr):
+class Drive():
+
+    SERVICE: Resource = GetGoogleApiMgr('drive')
 
     def __init__(self) -> None:
-        GoogleApiMgr.__init__(self, 'drive')
 
         # Gestor de archivos en el drive
         self.files = self.SERVICE.files()

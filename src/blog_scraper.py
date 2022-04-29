@@ -2,12 +2,12 @@ from concurrent import futures
 
 from bs4 import BeautifulSoup
 
-from src.read_blog import BlogHiddenData, ReadBlog
+from src.read_blog import BlogHiddenData
 from src.blog_csv_mgr import BlogCsvMgr
-from src.poster import POSTER
+from src.poster import Poster
 
 
-class BlogScraper(BlogCsvMgr, ReadBlog):
+class BlogScraper(BlogCsvMgr):
 
     HEADER_CSV = ['Titulo', 'Link', 'Director', 'Año']
 
@@ -25,8 +25,8 @@ class BlogScraper(BlogCsvMgr, ReadBlog):
         name = post['title']
         link = post['url']
         body = BeautifulSoup(post['content'], 'html.parser')
-        director = self.get_secret_data_from_content(body, BlogHiddenData.DIRECTOR)
-        año = self.get_secret_data_from_content(body, BlogHiddenData.YEAR)
+        director = BlogHiddenData.get(body, BlogHiddenData.DIRECTOR)
+        año = BlogHiddenData.get(body, BlogHiddenData.YEAR)
 
         return [name, link, director, año]
 
@@ -36,7 +36,7 @@ class BlogScraper(BlogCsvMgr, ReadBlog):
         self.__csv_writer.writerow(self.HEADER_CSV)
 
         # Lista de reseñas desde que empezó el blog
-        posted = POSTER.get_all_active_posts()
+        posted = Poster.get_all_active_posts()
 
         # Quiero extraer datos de cada reseña para escribir el csv
         # Creo un objeto para paralelizar el proceso
