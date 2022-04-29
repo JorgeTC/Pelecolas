@@ -11,6 +11,24 @@ from src.google_api_mgr import GetGoogleApiMgr
 from src.read_blog import ReadBlog
 
 
+def get_blog_and_api(service: Resource, blog_id: str):
+    try:
+        # Obtengo la API
+        post_api = service.posts()
+
+        # Obtengo el blog que está indicado
+        blogs = service.blogs()
+        my_blogs = blogs.listByUser(userId='self').execute()
+        right_blog = next(
+            (blog for blog in my_blogs['items'] if blog['id'] == blog_id), None)
+
+        return right_blog, post_api
+
+    except client.AccessTokenRefreshError:
+        print('Error en las credenciales')
+        return None, None
+
+
 class Poster(ReadBlog):
 
     BLOG_ID = CONFIG.get_value(CONFIG.S_POST, CONFIG.P_BLOG_ID)
@@ -19,31 +37,13 @@ class Poster(ReadBlog):
     # Guardo el primer mes que tiene reseña
     __first_month = date(2019, 5, 1)
 
-    def __init__(self):
-        try:
-            blogs = self.SERVICE.blogs()
+    blog, posts = get_blog_and_api(SERVICE, BLOG_ID)
 
-            # Retrieve the list of Blogs this user has write privileges on
-            thisusersblogs = blogs.listByUser(userId='self').execute()
-
-            self.posts = self.SERVICE.posts()
-
-            for blog in thisusersblogs['items']:
-                if blog['id'] == self.BLOG_ID:
-                    self.blog = blog
-
-        except client.AccessTokenRefreshError:
-            print('The credentials have been revoked or expired, please re-run'
-                  'the application to re-authorize')
-
-    def add_post(self, content, title, labels):
-
-        # Compruebo que el blog que tengo guardado sea el correcto
-        if self.blog['id'] != self.BLOG_ID:
-            return False
+    @classmethod
+    def add_post(cls, content, title, labels):
 
         # Cuándo se va a publicar la reseña
-        str_date = self.__get_publish_datatime()
+        str_date = cls.__get_publish_datatime()
 
         # Creo el contenido que voy a publicar
         body = {
@@ -59,8 +59,8 @@ class Poster(ReadBlog):
         try:
             # Miro si la configuración me pide que lo publique como borrador
             bDraft = CONFIG.get_bool(CONFIG.S_POST, CONFIG.P_AS_DRAFT)
-            f = self.posts.insert(blogId=self.BLOG_ID,
-                                  body=body, isDraft=bDraft)
+            f = cls.posts.insert(blogId=cls.BLOG_ID,
+                                 body=body, isDraft=bDraft)
             f.execute()
             # Si no está programada como borrador, aviso al usuario de cuándo se va a publicar la reseña
             if not bDraft:
@@ -70,7 +70,8 @@ class Poster(ReadBlog):
             print('The credentials have been revoked or expired, please re-run'
                   'the application to re-authorize')
 
-    def __get_publish_datatime(self) -> str:
+    @classmethod
+    def __get_publish_datatime(cls) -> str:
         # Obtengo qué día tengo que publicar la reseña
         sz_date = CONFIG.get_value(CONFIG.S_POST, CONFIG.P_DATE)
         if (match := RE_DATE_DMY.match(sz_date)):
@@ -79,7 +80,7 @@ class Poster(ReadBlog):
             year = int(match.group(3))
         else:
             # Si no consigo interpretarlo como fecha, le doy la fecha automática
-            day, month, year = self.__get_automatic_date()
+            day, month, year = cls.__get_automatic_date()
         # Obtengo a qué hora tengo que publicar la reseña
         sz_time = CONFIG.get_value(CONFIG.S_POST, CONFIG.P_TIME)
         match = RE_TIME.match(sz_time)
@@ -89,9 +90,10 @@ class Poster(ReadBlog):
         return date_to_str(datetime(year, month, day,
                                     sz_hour, sz_minute))
 
-    def __get_automatic_date(self) -> tuple[int, int, int]:
+    @classmethod
+    def __get_automatic_date(cls) -> tuple[int, int, int]:
 
-        scheduled = self.get_scheduled()
+        scheduled = cls.get_scheduled()
 
         dates = []
         # Extraigo todas las fechas que ya tienen asignado un blog
@@ -131,39 +133,43 @@ class Poster(ReadBlog):
 
         return (day, month, year)
 
-    def get_all_active_posts(self):
-        return self.get_published_from_date(self.__first_month)
+    @classmethod
+    def get_all_active_posts(cls):
+        return cls.get_published_from_date(cls.__first_month)
 
-    def get_all_posts(self):
+    @classmethod
+    def get_all_posts(cls):
 
         # Obtengo todos los posts publicados
-        posted = self.get_all_active_posts()
+        posted = cls.get_all_active_posts()
 
         # Obtengo todos los programados
-        scheduled = self.get_scheduled()
+        scheduled = cls.get_scheduled()
 
         # Concateno ambas listas
         all_posts = posted + scheduled
 
         return all_posts
 
-    def update_post(self, new_post):
+    @classmethod
+    def update_post(cls, new_post):
 
-        self.posts.update(blogId=self.BLOG_ID,
-                          postId=new_post['id'],
-                          body=new_post).execute()
+        cls.posts.update(blogId=cls.BLOG_ID,
+                         postId=new_post['id'],
+                         body=new_post).execute()
 
-    def get_published_from_date(self, min_date: date | datetime):
+    @classmethod
+    def get_published_from_date(cls, min_date: date | datetime):
 
         # Las fechas deben estar introducidas en formato date
         # Las convierto a cadena
         sz_min_date = date_to_str(min_date)
 
         # Pido los blogs desde entonces
-        ls = self.posts.list(blogId=self.BLOG_ID,
-                             status='LIVE',
-                             startDate=sz_min_date,
-                             maxResults=500)
+        ls = cls.posts.list(blogId=cls.BLOG_ID,
+                            status='LIVE',
+                            startDate=sz_min_date,
+                            maxResults=500)
         execute = ls.execute()
 
         # Obtengo todos los posts que están programados
@@ -174,15 +180,16 @@ class Poster(ReadBlog):
 
         return scheduled
 
-    def get_scheduled(self):
+    @classmethod
+    def get_scheduled(cls):
         # Hago una lista de todos los posts programados a partir de hoy
         today = datetime.today()
         start_date = date_to_str(today)
 
-        ls = self.posts.list(blogId=self.BLOG_ID,
-                             maxResults=55,
-                             status='SCHEDULED',
-                             startDate=start_date)
+        ls = cls.posts.list(blogId=cls.BLOG_ID,
+                            maxResults=55,
+                            status='SCHEDULED',
+                            startDate=start_date)
         execute = ls.execute()
 
         # Obtengo todos los posts que están programados
@@ -193,12 +200,13 @@ class Poster(ReadBlog):
 
         return scheduled
 
-    def get_scheduled_as_list(self):
+    @classmethod
+    def get_scheduled_as_list(cls):
         # Quiero una lista de listas.
         ans = []
         # Cada sublista deberá tener 4 elementos:
         # título, link(vacío), director y año
-        scheduled = self.get_scheduled()
+        scheduled = cls.get_scheduled()
 
         for post in scheduled:
             title = post['title']
@@ -206,16 +214,12 @@ class Poster(ReadBlog):
             body = BeautifulSoup(post['content'], 'html.parser')
 
             # Extraigo los datos que quiero
-            director, year = self.get_director_year_from_content(body)
+            director, year = cls.get_director_year_from_content(body)
 
             ans.append([title, "", director, year])
 
         return ans
 
-
-##### Creo un objeto global #####
-POSTER = Poster()
-#################################
 
 ############ aux ################
 TIME_ZONE = tz.gettz('Europe/Madrid')

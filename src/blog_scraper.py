@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 
 from src.read_blog import BlogHiddenData, ReadBlog
 from src.blog_csv_mgr import BlogCsvMgr
-from src.poster import POSTER
+from src.poster import Poster
 
 
 class BlogScraper(BlogCsvMgr, ReadBlog):
@@ -36,7 +36,7 @@ class BlogScraper(BlogCsvMgr, ReadBlog):
         self.__csv_writer.writerow(self.HEADER_CSV)
 
         # Lista de reseñas desde que empezó el blog
-        posted = POSTER.get_all_active_posts()
+        posted = Poster.get_all_active_posts()
 
         # Quiero extraer datos de cada reseña para escribir el csv
         # Creo un objeto para paralelizar el proceso

@@ -6,7 +6,7 @@ from src.dlg_scroll_base import DlgScrollBase
 from src.list_title_mgr import TitleMgr
 from src.make_html import html
 from src.pelicula import Pelicula
-from src.poster import POSTER
+from src.poster import Poster
 from src.progress_bar import ProgressBar
 from src.read_blog import BlogHiddenData, ReadBlog
 from src.searcher import Searcher
@@ -18,7 +18,7 @@ class BlogThemeUpdater():
         self.Documento = html()
         self.title_manager = TitleMgr(self.Documento.titulos.keys())
         self.content_mgr = ContentMgr()
-        self.all_posts = POSTER.get_all_posts()
+        self.all_posts = Poster.get_all_posts()
         self.parsed: BeautifulSoup = None
 
         # Compruebo que no haya posts repetidos
@@ -118,7 +118,7 @@ class BlogThemeUpdater():
         post_info = self.content_mgr.extract_html(self.Documento.sz_file_name)
         post['content'] = post_info['content']
         # Subo el nuevo post
-        POSTER.update_post(post)
+        Poster.update_post(post)
 
         # Elimino el archivo html que acabo de generar
         self.Documento.delete_file()

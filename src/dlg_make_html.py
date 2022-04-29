@@ -4,7 +4,7 @@ from src.dlg_config import CONFIG
 from src.dlg_scroll_base import DlgScrollBase
 from src.list_title_mgr import TitleMgr
 from src.pelicula import Pelicula
-from src.poster import POSTER
+from src.poster import Poster
 from src.searcher import Searcher
 from src.url_FA import URL_FILM_ID
 
@@ -137,12 +137,12 @@ class DlgHtml(DlgScrollBase):
 
     def get_scheduled_csv(self):
         # Pido la lista de posts por publicar
-        return POSTER.get_scheduled_as_list()
+        return Poster.get_scheduled_as_list()
 
     def get_scheduled_titles(self):
 
         # Pido la lista de posts por publicar
-        scheduled = POSTER.get_scheduled()
+        scheduled = Poster.get_scheduled()
         # Obtengo sus títulos
         titles = [post['title'].lower() for post in scheduled]
 
