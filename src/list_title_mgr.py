@@ -19,7 +19,8 @@ class TitleMgr():
         # Uno en minísculas
         self.ls_lower = [title.lower() for title in self.ls_title]
         # Otro con los títulos normalizados
-        self.ls_norm = [self.__normalize_string(title) for title in self.ls_lower]
+        self.ls_norm = [self.__normalize_string(
+            title) for title in self.ls_lower]
 
         # Variables para guardar el resultado del cálculo.
         self.__exists = False
@@ -117,7 +118,6 @@ class TitleMgr():
         else:
             # Ya sé que no está en la lista de llaves.
             return ""
-
 
     def print(self):
 

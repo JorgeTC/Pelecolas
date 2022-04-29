@@ -41,7 +41,8 @@ class BlogScraper(BlogCsvMgr):
         # Quiero extraer datos de cada reseña para escribir el csv
         # Creo un objeto para paralelizar el proceso
         with futures.ThreadPoolExecutor() as executor:
-            extracted_data = list(executor.map(self.get_data_from_post, posted))
+            extracted_data = list(executor.map(
+                self.get_data_from_post, posted))
 
         self.__csv_writer.writerows(extracted_data)
 

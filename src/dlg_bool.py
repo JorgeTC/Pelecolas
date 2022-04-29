@@ -1,5 +1,6 @@
 from src.dlg_scroll_base import DlgScrollBase
 
+
 class YesNo(DlgScrollBase):
     def __init__(self, question, empty_ans=False) -> None:
         DlgScrollBase.__init__(self, question, empty_ans=empty_ans)
@@ -13,4 +14,3 @@ class YesNo(DlgScrollBase):
         ans = DlgScrollBase.get_ans(self)
 
         return ans == "Sí"
-

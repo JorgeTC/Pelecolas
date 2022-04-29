@@ -120,7 +120,6 @@ class DlgHtml(DlgScrollBase):
 
         return ls_unpublished
 
-
     def get_ans_body(self):
         # Función sobreescrita de la clase base
         while not self.data.titulo:

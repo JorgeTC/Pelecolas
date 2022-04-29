@@ -22,7 +22,8 @@ class ExcelMgr(object):
         self.ExcelName = self.SZ_FILE_NAME.format(usuario)
 
         # Cargo la carpeta donde se guardará
-        self.output_path = CONFIG.get_folder_path(CONFIG.S_READDATA, CONFIG.P_OUTPUT_EXCEL)
+        self.output_path = CONFIG.get_folder_path(
+            CONFIG.S_READDATA, CONFIG.P_OUTPUT_EXCEL)
 
     def get_worksheet(self):
         return self.ws

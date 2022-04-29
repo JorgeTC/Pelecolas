@@ -14,6 +14,7 @@ class CSV_COLUMN(enum.Enum):
     DIRECTOR = enum.auto()
     YEAR = enum.auto()
 
+
 class BlogCsvMgr():
     # Creo el csv donde guardo los datos de las entradas
     # Obtengo la dirección del csv
@@ -68,7 +69,7 @@ class BlogCsvMgr():
 
     def open_to_write(self):
         self.csv_file = open(self.sz_csv_file, 'w',
-                               encoding=self.ENCODING, newline='')
+                             encoding=self.ENCODING, newline='')
         csv_writer = csv.writer(self.csv_file)
 
         return csv_writer

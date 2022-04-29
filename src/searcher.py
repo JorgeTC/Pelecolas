@@ -79,7 +79,8 @@ class Searcher():
             return
 
         # Caja donde están todos los resultados
-        peliculas_encontradas = self.parsed_page.find_all('div', {'class': 'se-it'})
+        peliculas_encontradas = self.parsed_page.find_all(
+            'div', {'class': 'se-it'})
 
         lista_peliculas = []
         curr_year = 0

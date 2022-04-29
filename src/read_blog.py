@@ -14,4 +14,3 @@ class BlogHiddenData():
     @staticmethod
     def get(content: BeautifulSoup, field):
         return content.find(id=field)['value']
-

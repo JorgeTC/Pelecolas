@@ -11,7 +11,8 @@ class Usuario(object):
 
     def __init__(self):
         self.ids = self.read_dict()
-        self.nombre = CONFIG.get_value(CONFIG.S_READDATA, CONFIG.P_DEFAULT_USER)
+        self.nombre = CONFIG.get_value(
+            CONFIG.S_READDATA, CONFIG.P_DEFAULT_USER)
         self.id = 0
 
         self.ask_user()
@@ -30,8 +31,8 @@ class Usuario(object):
 
     def ask_user(self):
         asker = DlgScrollBase(question=self.SZ_QUESTION.format(self.nombre),
-                                options=list(self.ids.keys()),
-                                empty_ans=True)
+                              options=list(self.ids.keys()),
+                              empty_ans=True)
         # Pido el nombre del usuario cuyos datos se quieren importar
         nombre = asker.get_ans()
         # Si no se ha introducido nada por teclado, utilizo el nombre default.
