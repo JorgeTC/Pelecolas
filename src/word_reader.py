@@ -1,7 +1,7 @@
 import docx
 from docx.text.paragraph import Paragraph
 
-from src.dlg_config import CONFIG
+from src.dlg_config import Config, Section, Param
 from src.word_folder_mgr import WordFolderMgr
 
 SEPARATOR_YEAR = " - "
@@ -139,17 +139,17 @@ class WordReader(WordFolderMgr):
         return self.titulos.keys()
 
     def write_list(self):
-        output_path = CONFIG.get_folder_path(
+        output_path = Config.get_folder_path(
             Section.COUNT_FILMS, Param.TITLE_LIST_PATH)
         # Abro el documento txt para escribirlo
         titulos_doc = open(output_path / "Titulos de reseñas.txt", "w",
                            encoding='utf-8')
 
         # Miro si hay que escribir el índice
-        b_index = CONFIG.get_bool(Section.COUNT_FILMS, Param.ADD_INDEX)
+        b_index = Config.get_bool(Section.COUNT_FILMS, Param.ADD_INDEX)
 
         # Miro si hay que escribir el año
-        b_year = CONFIG.get_bool(Section.COUNT_FILMS, Param.ADD_YEAR)
+        b_year = Config.get_bool(Section.COUNT_FILMS, Param.ADD_YEAR)
         next_years = iter(self.years_parr.keys())
         # Cojo el primero de los años que hay que iterar
         next_year = next(next_years, None)

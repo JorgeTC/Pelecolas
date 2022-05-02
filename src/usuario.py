@@ -1,7 +1,7 @@
 import ast
 
 from src.aux_res_directory import get_res_folder
-from src.dlg_config import CONFIG
+from src.dlg_config import Config, Section, Param
 from src.dlg_scroll_base import DlgScrollBase
 
 
@@ -11,7 +11,7 @@ class Usuario():
 
     def __init__(self):
         self.ids = self.read_dict()
-        self.nombre = CONFIG.get_value(
+        self.nombre = Config.get_value(
             Section.READDATA, Param.DEFAULT_USER)
         self.id = 0
 
@@ -43,4 +43,4 @@ class Usuario():
         self.id = self.ids[self.nombre]
 
         # Guardo la última elección del usuario en el ini
-        CONFIG.set_value(Section.READDATA, Param.DEFAULT_USER, self.nombre)
+        Config.set_value(Section.READDATA, Param.DEFAULT_USER, self.nombre)

@@ -1,13 +1,13 @@
 import os
 from pathlib import Path
 
-from src.dlg_config import CONFIG
+from src.dlg_config import Config, Section, Param
 
 
 class WordFolderMgr():
     def __init__(self):
         # Carpeta donde guardo los word
-        self.word_folder = CONFIG.get_folder_path(
+        self.word_folder = Config.get_folder_path(
             Section.COUNT_FILMS, Param.WORD_FOLDER)
         # Lista de todos los archivos word
         self.sz_all_docx = self.get_files()

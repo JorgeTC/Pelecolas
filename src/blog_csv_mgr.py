@@ -4,7 +4,7 @@ import os
 from datetime import datetime
 
 from src.aux_res_directory import get_res_folder
-from src.dlg_config import CONFIG
+from src.dlg_config import Config, Section, Param
 from src.poster import Poster
 
 
@@ -32,9 +32,9 @@ class BlogCsvMgr():
             return True
 
         # Si la configuración fuerza la creación del CSV, hay que crearlo
-        if CONFIG.get_bool(Section.HTML, Param.SCRAP_BLOG):
+        if Config.get_bool(Section.HTML, Param.SCRAP_BLOG):
             # Devuelvo a False, la próxima vez se seguirá el algoritmo habitual
-            CONFIG.set_value(Section.HTML, Param.SCRAP_BLOG, False)
+            Config.set_value(Section.HTML, Param.SCRAP_BLOG, False)
             return True
 
         # Compruebo que el archivo no esté vacío

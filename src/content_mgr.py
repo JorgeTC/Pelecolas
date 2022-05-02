@@ -4,7 +4,7 @@ from pathlib import Path
 from bs4 import BeautifulSoup
 
 from src.aux_title_str import split_title_year
-from src.dlg_config import CONFIG
+from src.dlg_config import Config, Section, Param
 from src.dlg_scroll_base import DlgScrollBase
 from src.make_html import SZ_HTML_FILE
 from src.read_blog import BlogHiddenData
@@ -12,7 +12,7 @@ from src.read_blog import BlogHiddenData
 
 class ContentMgr():
     def __init__(self):
-        self.dir = CONFIG.get_folder_path(
+        self.dir = Config.get_folder_path(
             Section.HTML, Param.OUTPUT_PATH_HTML)
         self.htmls = list(self.dir.glob('*.html'))
 
