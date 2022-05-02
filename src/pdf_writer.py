@@ -3,7 +3,7 @@ import os
 import docx2pdf
 from PyPDF2 import PdfFileMerger
 
-from src.dlg_config import CONFIG
+from src.config import Config, Section, Param
 from src.word_folder_mgr import WordFolderMgr
 
 
@@ -42,8 +42,8 @@ class PDFWriter(WordFolderMgr):
             merger.append(str(pdf))
 
         # Le doy la carpeta y el nombre del pdf
-        merger.write(str(CONFIG.get_folder_path(
-            CONFIG.S_DRIVE, CONFIG.P_PDF_PATH) / "Reseñas.pdf"))
+        merger.write(str(Config.get_folder_path(
+            Section.DRIVE, Param.PDF_PATH) / "Reseñas.pdf"))
         merger.close()
 
     def clear_temp_pdf(self):

@@ -6,7 +6,7 @@ from googleapiclient.discovery import Resource
 from oauth2client import client
 
 from src.aux_title_str import RE_DATE_DMY, RE_DATE_YMD, RE_TIME
-from src.dlg_config import CONFIG
+from src.config import Config, Section, Param
 from src.google_api_mgr import GetGoogleApiMgr
 from src.read_blog import BlogHiddenData
 
@@ -31,7 +31,7 @@ def get_blog_and_api(service: Resource, blog_id: str):
 
 class Poster():
 
-    BLOG_ID = CONFIG.get_value(CONFIG.S_POST, CONFIG.P_BLOG_ID)
+    BLOG_ID = Config.get_value(Section.POST, Param.BLOG_ID)
     SERVICE: Resource = GetGoogleApiMgr('blogger')
 
     # Guardo el primer mes que tiene reseña
@@ -58,7 +58,7 @@ class Poster():
 
         try:
             # Miro si la configuración me pide que lo publique como borrador
-            bDraft = CONFIG.get_bool(CONFIG.S_POST, CONFIG.P_AS_DRAFT)
+            bDraft = Config.get_bool(Section.POST, Param.AS_DRAFT)
             f = cls.posts.insert(blogId=cls.BLOG_ID,
                                  body=body, isDraft=bDraft)
             f.execute()
@@ -73,7 +73,7 @@ class Poster():
     @classmethod
     def __get_publish_datatime(cls) -> str:
         # Obtengo qué día tengo que publicar la reseña
-        sz_date = CONFIG.get_value(CONFIG.S_POST, CONFIG.P_DATE)
+        sz_date = Config.get_value(Section.POST, Param.DATE)
         if (match := RE_DATE_DMY.match(sz_date)):
             day = int(match.group(1))
             month = int(match.group(2))
@@ -82,7 +82,7 @@ class Poster():
             # Si no consigo interpretarlo como fecha, le doy la fecha automática
             day, month, year = cls.__get_automatic_date()
         # Obtengo a qué hora tengo que publicar la reseña
-        sz_time = CONFIG.get_value(CONFIG.S_POST, CONFIG.P_TIME)
+        sz_time = Config.get_value(Section.POST, Param.TIME)
         match = RE_TIME.match(sz_time)
         sz_hour = int(match.group(1))
         sz_minute = int(match.group(2))

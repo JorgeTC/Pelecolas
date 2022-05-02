@@ -4,7 +4,7 @@ from pathlib import Path
 from bs4 import BeautifulSoup
 
 from src.aux_title_str import split_title_year
-from src.dlg_config import CONFIG
+from src.config import Config, Section, Param
 from src.dlg_scroll_base import DlgScrollBase
 from src.make_html import SZ_HTML_FILE
 from src.read_blog import BlogHiddenData
@@ -12,8 +12,8 @@ from src.read_blog import BlogHiddenData
 
 class ContentMgr():
     def __init__(self):
-        self.dir = CONFIG.get_folder_path(
-            CONFIG.S_HTML, CONFIG.P_OUTPUT_PATH_HTML)
+        self.dir = Config.get_folder_path(
+            Section.HTML, Param.OUTPUT_PATH_HTML)
         self.htmls = list(self.dir.glob('*.html'))
 
         # Me guardo los títulos para ofrecerlos en el diálogo

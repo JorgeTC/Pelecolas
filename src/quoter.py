@@ -9,8 +9,8 @@ from src.aux_console import clear_current_line, delete_line, go_to_upper_row
 from src.aux_res_directory import get_res_folder
 from src.blog_csv_mgr import CSV_COLUMN, BlogCsvMgr
 from src.blog_scraper import BlogScraper
+from src.config import Config, Param, Section
 from src.dlg_bool import YesNo
-from src.dlg_config import CONFIG
 
 
 @dataclass
@@ -251,7 +251,7 @@ class Quoter(BlogCsvMgr):
 
 def load_trust_directors() -> set[str]:
     # Leo si el ini me pide nuevos directores
-    new_directors = CONFIG.get_value(CONFIG.S_HTML, CONFIG.P_YES_ALWAYS_DIR)
+    new_directors = Config.get_value(Section.HTML, Param.YES_ALWAYS_DIR)
     new_directors = new_directors.split(",")
     # Elimino espacios innecesarios
     new_directors = [director.strip() for director in new_directors]
@@ -271,7 +271,7 @@ def load_trust_directors() -> set[str]:
         f.write("\n".join(directors))
 
     # Ya los he añadido, los puedo borrar del ini
-    CONFIG.set_value(CONFIG.S_HTML, CONFIG.P_YES_ALWAYS_DIR, "")
+    Config.set_value(Section.HTML, Param.YES_ALWAYS_DIR, "")
 
     # Devuelvo el conjunto
     return directors

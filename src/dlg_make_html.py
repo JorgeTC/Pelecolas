@@ -1,6 +1,6 @@
 from src.aux_title_str import split_title_year
 from src.blog_csv_mgr import CSV_COLUMN, BlogCsvMgr
-from src.dlg_config import CONFIG
+from src.config import Config, Section, Param
 from src.dlg_scroll_base import DlgScrollBase
 from src.list_title_mgr import TitleMgr
 from src.pelicula import Pelicula
@@ -18,7 +18,7 @@ class DlgHtml(DlgScrollBase):
     ASK_DURATION = "Introduzca duración de la película: "
 
     def __init__(self, title_list) -> None:
-        if CONFIG.get_bool(CONFIG.S_HTML, CONFIG.P_FILTER_PUBLISHED):
+        if Config.get_bool(Section.HTML, Param.FILTER_PUBLISHED):
             title_list = self.__unpublished(title_list)
         # Objeto para buscar si el título que ha pedido el usuario
         # está disponible en el archivo word.

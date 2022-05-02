@@ -1,7 +1,7 @@
 from googleapiclient.discovery import Resource
 from googleapiclient.http import MediaFileUpload
 
-from src.dlg_config import CONFIG
+from src.config import Config, Section, Param
 from src.google_api_mgr import GetGoogleApiMgr
 
 TYPE_FOLDER = 'application/vnd.google-apps.folder'
@@ -17,15 +17,15 @@ class Drive():
         self.files = self.SERVICE.files()
 
         # Obtengo la carpeta dentro del drive
-        self.folder_id = CONFIG.get_value(CONFIG.S_DRIVE, CONFIG.P_FOLDER_ID)
+        self.folder_id = Config.get_value(Section.DRIVE, Param.FOLDER_ID)
         self.folder = self.get_item_by_id(self.folder_id)
 
         # Obtengo la carpeta donde vive el pdf
-        self.pdf_folder = CONFIG.get_folder_path(
-            CONFIG.S_DRIVE, CONFIG.P_PDF_PATH)
+        self.pdf_folder = Config.get_folder_path(
+            Section.DRIVE, Param.PDF_PATH)
         # Obtengo la carpeta donde viven los docx
-        self.docx_folder = CONFIG.get_folder_path(
-            CONFIG.S_COUNT_FILMS, CONFIG.P_WORD_FOLDER)
+        self.docx_folder = Config.get_folder_path(
+            Section.COUNT_FILMS, Param.WORD_FOLDER)
 
     def update_folder(self):
         # Obtengo los archivos dentro de la carpeta

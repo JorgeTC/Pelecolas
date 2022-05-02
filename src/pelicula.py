@@ -3,7 +3,7 @@ import re
 
 from bs4 import BeautifulSoup
 
-from src.dlg_config import CONFIG
+from src.config import Config, Section, Param
 from src.safe_url import safe_get_url
 from src.url_FA import URL_FILM_ID
 
@@ -15,7 +15,7 @@ def get_id_from_url(url: str) -> int:
     return int(str_id)
 
 
-SET_VALID_FILM = CONFIG.get_int(CONFIG.S_READDATA, CONFIG.P_FILTER_FA)
+SET_VALID_FILM = Config.get_int(Section.READDATA, Param.FILTER_FA)
 def es_valida(titulo):
     """
     Busca en el título que sea una película realmente

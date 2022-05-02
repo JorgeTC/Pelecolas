@@ -2,7 +2,7 @@ import os
 import re
 
 from src.aux_res_directory import get_res_folder
-from src.dlg_config import CONFIG
+from src.config import Config, Section, Param
 from src.dlg_make_html import DlgHtml
 from src.pelicula import Pelicula
 from src.quoter import Quoter
@@ -39,7 +39,7 @@ SZ_HTML_HIDDEN_DATA = get_res_html_format("hidden_data.html")
 
 class html(WordReader):
 
-    html_output_folder = CONFIG.get_folder_path(CONFIG.S_HTML, CONFIG.P_OUTPUT_PATH_HTML)
+    html_output_folder = Config.get_folder_path(Section.HTML, Param.OUTPUT_PATH_HTML)
 
     def __init__(self):
         WordReader.__init__(self)
@@ -151,7 +151,7 @@ class html(WordReader):
         reseña.write(SZ_HTML_TITLE(self.data.titulo.upper()))
 
         # Escribo el estilo css si así me lo indica el ini
-        if CONFIG.get_bool(CONFIG.S_HTML, CONFIG.P_ADD_STYLE):
+        if Config.get_bool(Section.HTML, Param.ADD_STYLE):
             reseña.write("<style>\n")
             reseña.write(open(get_res_folder("Make_html", "template.css")).read())
             reseña.write("</style>\n")
