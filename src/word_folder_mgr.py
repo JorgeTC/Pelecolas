@@ -8,7 +8,7 @@ class WordFolderMgr():
     def __init__(self):
         # Carpeta donde guardo los word
         self.word_folder = CONFIG.get_folder_path(
-            CONFIG.S_COUNT_FILMS, CONFIG.P_WORD_FOLDER)
+            Section.COUNT_FILMS, Param.WORD_FOLDER)
         # Lista de todos los archivos word
         self.sz_all_docx = self.get_files()
 

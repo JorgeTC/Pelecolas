@@ -32,9 +32,9 @@ class BlogCsvMgr():
             return True
 
         # Si la configuración fuerza la creación del CSV, hay que crearlo
-        if CONFIG.get_bool(CONFIG.S_HTML, CONFIG.P_SCRAP_BLOG):
+        if CONFIG.get_bool(Section.HTML, Param.SCRAP_BLOG):
             # Devuelvo a False, la próxima vez se seguirá el algoritmo habitual
-            CONFIG.set_value(CONFIG.S_HTML, CONFIG.P_SCRAP_BLOG, False)
+            CONFIG.set_value(Section.HTML, Param.SCRAP_BLOG, False)
             return True
 
         # Compruebo que el archivo no esté vacío

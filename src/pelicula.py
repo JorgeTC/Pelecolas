@@ -15,7 +15,7 @@ def get_id_from_url(url: str) -> int:
     return int(str_id)
 
 
-SET_VALID_FILM = CONFIG.get_int(CONFIG.S_READDATA, CONFIG.P_FILTER_FA)
+SET_VALID_FILM = CONFIG.get_int(Section.READDATA, Param.FILTER_FA)
 def es_valida(titulo):
     """
     Busca en el título que sea una película realmente

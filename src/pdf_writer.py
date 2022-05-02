@@ -43,7 +43,7 @@ class PDFWriter(WordFolderMgr):
 
         # Le doy la carpeta y el nombre del pdf
         merger.write(str(CONFIG.get_folder_path(
-            CONFIG.S_DRIVE, CONFIG.P_PDF_PATH) / "Reseñas.pdf"))
+            Section.DRIVE, Param.PDF_PATH) / "Reseñas.pdf"))
         merger.close()
 
     def clear_temp_pdf(self):

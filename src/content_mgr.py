@@ -13,7 +13,7 @@ from src.read_blog import BlogHiddenData
 class ContentMgr():
     def __init__(self):
         self.dir = CONFIG.get_folder_path(
-            CONFIG.S_HTML, CONFIG.P_OUTPUT_PATH_HTML)
+            Section.HTML, Param.OUTPUT_PATH_HTML)
         self.htmls = list(self.dir.glob('*.html'))
 
         # Me guardo los títulos para ofrecerlos en el diálogo

@@ -12,7 +12,7 @@ class Usuario():
     def __init__(self):
         self.ids = self.read_dict()
         self.nombre = CONFIG.get_value(
-            CONFIG.S_READDATA, CONFIG.P_DEFAULT_USER)
+            Section.READDATA, Param.DEFAULT_USER)
         self.id = 0
 
         self.ask_user()
@@ -43,4 +43,4 @@ class Usuario():
         self.id = self.ids[self.nombre]
 
         # Guardo la última elección del usuario en el ini
-        CONFIG.set_value(CONFIG.S_READDATA, CONFIG.P_DEFAULT_USER, self.nombre)
+        CONFIG.set_value(Section.READDATA, Param.DEFAULT_USER, self.nombre)

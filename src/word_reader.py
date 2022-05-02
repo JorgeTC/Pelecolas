@@ -140,16 +140,16 @@ class WordReader(WordFolderMgr):
 
     def write_list(self):
         output_path = CONFIG.get_folder_path(
-            CONFIG.S_COUNT_FILMS, CONFIG.P_TITLE_LIST_PATH)
+            Section.COUNT_FILMS, Param.TITLE_LIST_PATH)
         # Abro el documento txt para escribirlo
         titulos_doc = open(output_path / "Titulos de reseñas.txt", "w",
                            encoding='utf-8')
 
         # Miro si hay que escribir el índice
-        b_index = CONFIG.get_bool(CONFIG.S_COUNT_FILMS, CONFIG.P_ADD_INDEX)
+        b_index = CONFIG.get_bool(Section.COUNT_FILMS, Param.ADD_INDEX)
 
         # Miro si hay que escribir el año
-        b_year = CONFIG.get_bool(CONFIG.S_COUNT_FILMS, CONFIG.P_ADD_YEAR)
+        b_year = CONFIG.get_bool(Section.COUNT_FILMS, Param.ADD_YEAR)
         next_years = iter(self.years_parr.keys())
         # Cojo el primero de los años que hay que iterar
         next_year = next(next_years, None)
