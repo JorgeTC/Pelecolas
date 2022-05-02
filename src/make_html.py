@@ -2,7 +2,7 @@ import os
 import re
 
 from src.aux_res_directory import get_res_folder
-from src.dlg_config import Config, Section, Param
+from src.config import Config, Section, Param
 from src.dlg_make_html import DlgHtml
 from src.pelicula import Pelicula
 from src.quoter import Quoter

@@ -1,6 +1,6 @@
 from src.aux_title_str import split_title_year
 from src.blog_csv_mgr import CSV_COLUMN, BlogCsvMgr
-from src.dlg_config import Config, Section, Param
+from src.config import Config, Section, Param
 from src.dlg_scroll_base import DlgScrollBase
 from src.list_title_mgr import TitleMgr
 from src.pelicula import Pelicula

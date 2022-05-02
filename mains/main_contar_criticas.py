@@ -1,4 +1,4 @@
-from src.dlg_config import manage_config
+from src.config import manage_config
 
 
 def main():

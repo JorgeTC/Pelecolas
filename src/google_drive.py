@@ -1,7 +1,7 @@
 from googleapiclient.discovery import Resource
 from googleapiclient.http import MediaFileUpload
 
-from src.dlg_config import Config, Section, Param
+from src.config import Config, Section, Param
 from src.google_api_mgr import GetGoogleApiMgr
 
 TYPE_FOLDER = 'application/vnd.google-apps.folder'

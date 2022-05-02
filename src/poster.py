@@ -6,7 +6,7 @@ from googleapiclient.discovery import Resource
 from oauth2client import client
 
 from src.aux_title_str import RE_DATE_DMY, RE_DATE_YMD, RE_TIME
-from src.dlg_config import Config, Section, Param
+from src.config import Config, Section, Param
 from src.google_api_mgr import GetGoogleApiMgr
 from src.read_blog import BlogHiddenData
 

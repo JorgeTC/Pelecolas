@@ -1,7 +1,7 @@
 from openpyxl import load_workbook
 
 from src.aux_res_directory import get_res_folder
-from src.dlg_config import Config, Section, Param
+from src.config import Config, Section, Param
 
 
 class ExcelMgr():

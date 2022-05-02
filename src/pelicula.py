@@ -3,7 +3,7 @@ import re
 
 from bs4 import BeautifulSoup
 
-from src.dlg_config import Config, Section, Param
+from src.config import Config, Section, Param
 from src.safe_url import safe_get_url
 from src.url_FA import URL_FILM_ID
 

@@ -9,8 +9,8 @@ from src.aux_console import clear_current_line, delete_line, go_to_upper_row
 from src.aux_res_directory import get_res_folder
 from src.blog_csv_mgr import CSV_COLUMN, BlogCsvMgr
 from src.blog_scraper import BlogScraper
+from src.config import Config, Param, Section
 from src.dlg_bool import YesNo
-from src.dlg_config import Config, Section, Param
 
 
 @dataclass

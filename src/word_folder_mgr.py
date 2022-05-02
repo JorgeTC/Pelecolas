@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-from src.dlg_config import Config, Section, Param
+from src.config import Config, Section, Param
 
 
 class WordFolderMgr():
