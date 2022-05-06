@@ -193,7 +193,7 @@ class Quoter(BlogCsvMgr):
 
     def __row_in_csv(self, title: str) -> int:
         for index, row in enumerate(self.__csv_reader):
-            if title.lower() == row[0].lower().strip("\""):
+            if title.lower() == row[int(CSV_COLUMN.TITLE)].lower().strip("\""):
                 return index
 
         # No lo hemos encontrado
@@ -226,7 +226,7 @@ class Quoter(BlogCsvMgr):
 
     def __get_directors_indexed(self) -> set[str]:
         # Listamos los directores que hay en el csv asegurando una única ocurrencia de ellos
-        return {row[2] for row in self.__csv_reader}
+        return {row[int(CSV_COLUMN.DIRECTOR)] for row in self.__csv_reader}
 
     def clear_questions(self) -> None:
         # Elimino todas las preguntas por directores
