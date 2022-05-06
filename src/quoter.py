@@ -37,9 +37,8 @@ class Quoter(BlogCsvMgr):
 
     def __init__(self) -> None:
         # Necesito el csv, así que lo escribo
-        scraper = BlogScraper()
         if self.is_needed():
-            scraper.write_csv()
+            BlogScraper().write_csv()
 
         # Guardo las citaciones que vaya sugiriendo
         self.__quoted_directors: set[str] = set()
