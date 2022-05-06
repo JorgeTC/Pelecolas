@@ -1,4 +1,4 @@
-from concurrent import futures
+from typing import TextIO
 
 from bs4 import BeautifulSoup
 
@@ -13,7 +13,7 @@ class BlogScraper(BlogCsvMgr):
 
     def __init__(self) -> None:
         # Abro el archivo y se lo doy al objeto que escribe el csv
-        self.csv_file = None
+        self.csv_file: TextIO = None
         self.__csv_writer = None
 
     def __del__(self):
@@ -39,12 +39,11 @@ class BlogScraper(BlogCsvMgr):
         posted = Poster.get_all_active_posts()
 
         # Quiero extraer datos de cada reseña para escribir el csv
-        # Creo un objeto para paralelizar el proceso
-        with futures.ThreadPoolExecutor() as executor:
-            extracted_data = list(executor.map(
-                self.get_data_from_post, posted))
+        extracted_data = [self.get_data_from_post(post) for post in posted]
 
         self.__csv_writer.writerows(extracted_data)
+        # Guardo el archivo
+        self.csv_file.close()
 
 
 def main():
