@@ -21,14 +21,14 @@ class BlogScraper(BlogCsvMgr):
         if self.csv_file:
             self.csv_file.close()
 
-    def get_data_from_post(self, post):
+    def get_data_from_post(self, post: dict) -> tuple[str]:
         name = post['title']
         link = post['url']
         body = BeautifulSoup(post['content'], 'html.parser')
         director = BlogHiddenData.DIRECTOR.get(body)
         año = BlogHiddenData.YEAR.get(body)
 
-        return [name, link, director, año]
+        return name, link, director, año
 
     def write_csv(self):
         # Escribo el header del csv

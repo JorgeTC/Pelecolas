@@ -29,7 +29,7 @@ class BlogCsvMgr():
     # Codificación con la que escribo y leo el csv
     ENCODING = "utf-8"
 
-    def is_needed(self):
+    def is_needed(self) -> bool:
         # Si el archivo no existe, hay que crearlo
         if not self.exists_csv:
             return True
@@ -57,7 +57,7 @@ class BlogCsvMgr():
 
         return len(new_posts) > 0
 
-    def open_to_read(self):
+    def open_to_read(self) -> list[list[str]]:
         self.csv_file = open(self.sz_csv_file, encoding=self.ENCODING)
         csv_reader = csv.reader(self.csv_file, delimiter=",")
         # Convierto lo leído en listas

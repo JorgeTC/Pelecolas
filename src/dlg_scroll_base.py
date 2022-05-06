@@ -15,7 +15,8 @@ class DlgScrollBase():
     b_keyboard_listen = True
     sz_ans = ""
 
-    def __init__(self, question="", options=[], empty_option=True, empty_ans=False):
+    def __init__(self, question: str = "", options: list[str] = [],
+                 empty_option: bool = True, empty_ans: bool = False):
         self.sz_question = question
         self.sz_options = options
         self.n_options = len(self.sz_options)
@@ -29,7 +30,7 @@ class DlgScrollBase():
 
         self.curr_index = self.min_index
 
-    def get_ans(self):
+    def get_ans(self) -> str:
         # Doy a las flechas las funciones para hacer scroll
         keyboard.add_hotkey('up arrow', self.__scroll_up)
         keyboard.add_hotkey('down arrow', self.__scroll_down)
@@ -41,7 +42,7 @@ class DlgScrollBase():
 
         return ans
 
-    def get_ans_body(self):
+    def get_ans_body(self) -> str:
         self.sz_ans = ""
         # Función para sobreescribir.
         # Es la que hace la petición efectiva de un elemento de la lista
@@ -119,7 +120,7 @@ class DlgScrollBase():
             curr_suggested = self.__get_option_by_index()
             keyboard.write(curr_suggested)
 
-    def __get_option_by_index(self):
+    def __get_option_by_index(self) -> str:
         return self.sz_options[self.curr_index]
 
     def __clear_written(self):
@@ -129,7 +130,7 @@ class DlgScrollBase():
         # Borro lo que haya escrito para que no lo detecte el input
         keyboard.send('esc')
 
-    def __check_ans(self, ans):
+    def __check_ans(self, ans: str) -> str:
         # Compruebo si la respuesta está en la lista
         if ans in self.sz_options:
             return ans

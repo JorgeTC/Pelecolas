@@ -16,7 +16,7 @@ def get_id_from_url(url: str) -> int:
 
 
 SET_VALID_FILM = Config.get_int(Section.READDATA, Param.FILTER_FA)
-def es_valida(titulo):
+def es_valida(titulo: str) -> bool:
     """
     Busca en el título que sea una película realmente
     """
@@ -77,7 +77,7 @@ class Pelicula():
         self.__exists = bool()
 
     @classmethod
-    def from_id(cls, id):
+    def from_id(cls, id: int) -> 'Pelicula':
         # Creo el objeto
         instance = cls()
 
@@ -89,7 +89,7 @@ class Pelicula():
         return instance
 
     @classmethod
-    def from_fa_url(cls, urlFA):
+    def from_fa_url(cls, urlFA: str) -> 'Pelicula':
         # Creo el objeto
         instance = cls()
 
@@ -101,7 +101,7 @@ class Pelicula():
         return instance
 
     @classmethod
-    def from_movie_box(cls, movie_box: BeautifulSoup):
+    def from_movie_box(cls, movie_box: BeautifulSoup) -> 'Pelicula':
         # Creo el objeto
         instance = cls()
 
@@ -163,7 +163,7 @@ class Pelicula():
             # caso en el que no está escrita la duración
             self.pais = ""
 
-    def valid(self):
+    def valid(self) -> bool:
         return es_valida(self.titulo)
 
     def get_parsed_page(self):
@@ -251,5 +251,5 @@ class Pelicula():
         # Doy el valor a la variable miembro, lo convierto a desviación típica
         self.desvest_FA = math.sqrt(varianza)
 
-    def exists(self):
+    def exists(self) -> bool:
         return self.__exists

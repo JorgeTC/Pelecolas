@@ -5,7 +5,7 @@ class TitleMgr():
     # Clase para hallar el título más próximo.
     # Cuando se inserta un título por teclado trato de buscar el título más parecido
     # de las reseñas que hay escritas.
-    def __init__(self, title_list):
+    def __init__(self, title_list: list[str]):
         # Copio todos los títulos disponibles.
         # La clase html los tiene en forma de diccionario.
         # Yo sólo necesito las llaves de ese diccionario.
@@ -19,8 +19,8 @@ class TitleMgr():
         # Uno en minísculas
         self.ls_lower = [title.lower() for title in self.ls_title]
         # Otro con los títulos normalizados
-        self.ls_norm = [self.__normalize_string(
-            title) for title in self.ls_lower]
+        self.ls_norm = [self.__normalize_string(title)
+                        for title in self.ls_lower]
 
         # Variables para guardar el resultado del cálculo.
         self.__exists = False
@@ -28,7 +28,7 @@ class TitleMgr():
         # Indices para cuando haya que sugerir resultados
         self.__lsn_suggestions = []
 
-    def __make_unwanted_chars(self):
+    def __make_unwanted_chars(self) -> dict[int, int | None]:
 
         # No quiero que los caracteres de puntuación afecten al buscar la película
         chars_dict = dict.fromkeys(map(ord, " ,!¡@#$?¿()."), None)
@@ -40,7 +40,7 @@ class TitleMgr():
 
         return chars_dict
 
-    def is_title_in_list(self, titulo):
+    def is_title_in_list(self, titulo: str) -> bool:
 
         # Inicio las variables de búsqueda
         self.__exists = False
@@ -61,7 +61,7 @@ class TitleMgr():
 
         return False
 
-    def exists(self, titulo):
+    def exists(self, titulo: str) -> bool:
 
         # Si el título está en la lista, puedo salir de aquí
         if self.is_title_in_list(titulo):
@@ -71,7 +71,7 @@ class TitleMgr():
         self.__closest_title(titulo)
         return False
 
-    def __closest_title(self, titulo):
+    def __closest_title(self, titulo: str):
         # Intento buscar los casos más cercanos
         titulo = self.__normalize_string(titulo)
 
@@ -88,7 +88,7 @@ class TitleMgr():
             return
         self.print()
 
-    def __normalize_string(self, str):
+    def __normalize_string(self, str: str) -> str:
         # Elimino las mayúsculas
         str = str.lower()
         # Elimino espacios, signos de puntuación y acentos
@@ -97,7 +97,7 @@ class TitleMgr():
         str = re.sub(r'(.)\1+', r'\1', str)
         return str
 
-    def exact_key(self, title):
+    def exact_key(self, title: str) -> str:
 
         self.exists(title)
 
@@ -108,8 +108,9 @@ class TitleMgr():
             # Ya sé que no está en la lista de llaves.
             return ""
 
-    def exact_key_without_dlg(self, title):
+    def exact_key_without_dlg(self, title: str) -> str:
 
+        # Calculo las variables exists y position
         self.is_title_in_list(title)
 
         # Variables exists y position ya calculadas.
@@ -130,14 +131,14 @@ class TitleMgr():
             # Imprimo el título original. El que se ha leído en el documento
             print(self.ls_title[index])
 
-    def get_suggested_titles_count(self):
+    def get_suggested_titles_count(self) -> int:
         return len(self.__lsn_suggestions)
 
-    def get_suggested_title(self, index):
+    def get_suggested_title(self, index: int) -> str:
         # Obtengo la posición que el indexésimo título ocupa en la lista de títulos
         suggested_index = self.__lsn_suggestions[index]
         # Devuelvo el título
         return self.ls_title[suggested_index]
 
-    def get_suggestions(self):
+    def get_suggestions(self) -> list[str]:
         return [self.ls_title[index] for index in self.__lsn_suggestions]

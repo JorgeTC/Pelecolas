@@ -24,9 +24,9 @@ class BlogThemeUpdater():
         # Compruebo que no haya posts repetidos
         self.exist_repeated_posts(self.all_posts)
 
-    def get_word_name_from_blog_post(self, post, *, keep_parsed: bool = False) -> str:
+    def get_word_name_from_blog_post(self, post: dict, *, keep_parsed: bool = False) -> str:
 
-        def body(self: 'BlogThemeUpdater', post) -> str:
+        def body(self: 'BlogThemeUpdater', post: dict) -> str:
             name = post['title']
             # Si el nombre que tiene en el word no es el normal, es que tiene un año
             if self.title_manager.is_title_in_list(name):
@@ -58,11 +58,9 @@ class BlogThemeUpdater():
 
     def select_and_update_post(self):
 
-        word_names = {}
-
         # Creo un diccionario que asocia cada post con su nombre en el word
-        for post in self.all_posts:
-            word_names[self.get_word_name_from_blog_post(post)] = post
+        word_names = {self.get_word_name_from_blog_post(post): post
+                      for post in self.all_posts}
 
         # Pregunto al usuario cuál quiere actualizar
         dlg = DlgUpdatePost(list(word_names.keys()))
@@ -70,7 +68,7 @@ class BlogThemeUpdater():
 
         self.update_post(word_names[to_update])
 
-    def update_post(self, post, *, dowload_data=False):
+    def update_post(self, post: dict, *, dowload_data=False) -> bool:
 
         # A partir del post busco cuál es su nombre en el Word
         title = self.get_word_name_from_blog_post(post, keep_parsed=True)

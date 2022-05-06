@@ -53,7 +53,7 @@ class Writer():
         # Descargo la propia página actual. Es una página "de fuera".
         self.soup_page = None
         # Lista de películas que hay en la página actual
-        self.film_list = []
+        self.film_list: list[list[BeautifulSoup]] = None
 
         # Votaciones en total
         self.total_films = self.get_total_films()
@@ -62,7 +62,7 @@ class Writer():
         # Hoja de excel
         self.ws = worksheet
 
-    def get_total_films(self):
+    def get_total_films(self) -> int:
 
         url = self.get_list_url(self.page_index)
         resp = safe_get_url(url)
@@ -83,14 +83,14 @@ class Writer():
         executor = concurrent.futures.ThreadPoolExecutor()
         self.film_list = list(executor.map(self.__list_boxes, url_pages))
 
-    def __list_boxes(self, url):
+    def __list_boxes(self, url: str) -> list[BeautifulSoup]:
         resp = safe_get_url(url)
         # Guardo la página ya parseada
         soup_page = BeautifulSoup(resp.text, 'html.parser')
         # Leo todas las películas que haya en ella
         return list(soup_page.findAll("div", {"class": "user-ratings-movie"}))
 
-    def get_list_url(self, page_index):
+    def get_list_url(self, page_index) -> str:
         # Compongo la url dado el usuario y el índice
         return url_FA.URL_USER_PAGE(self.id_user, str(page_index))
 

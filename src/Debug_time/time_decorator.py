@@ -1,14 +1,15 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import csv
 from pathlib import Path
 
+
 class Profiler():
 
-    fun_runtimes= {}
+    fun_runtimes: dict[str, list[timedelta]] = {}
     begin_time = datetime.now()
     end_time = datetime.now()
 
-    HEADERS = ['Function', 'Calls', 'Average', 'Total', 'Percen','Max', 'Min']
+    HEADERS = ['Function', 'Calls', 'Average', 'Total', 'Percen', 'Max', 'Min']
 
     @classmethod
     def profile(self, method):
@@ -36,7 +37,7 @@ class Profiler():
         sz_csv_file = sz_csv_file / "time_log.csv"
 
         self.csv_file = open(sz_csv_file, 'w',
-                               encoding="utf-8", newline='')
+                             encoding="utf-8", newline='')
         csv_writer = csv.writer(self.csv_file)
 
         # Escribo encabezados
@@ -71,5 +72,6 @@ class Profiler():
         # Limpio el objeto de registro
         self.fun_runtimes = {}
 
-def to_sec(delta):
+
+def to_sec(delta: timedelta):
     return delta.microseconds * 1e-6

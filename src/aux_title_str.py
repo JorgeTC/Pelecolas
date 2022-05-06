@@ -1,7 +1,7 @@
 import re
 
 
-def split_title_year(title: str):
+def split_title_year(title: str) -> tuple[str, str]:
     '''
     Dado un título de los escritos en el word,
     quiero extraer el posible año que tenga entre paréntesis
