@@ -214,8 +214,8 @@ class Poster():
             body = BeautifulSoup(post['content'], 'html.parser')
 
             # Extraigo los datos que quiero
-            director = BlogHiddenData.get(body, BlogHiddenData.DIRECTOR)
-            year = BlogHiddenData.get(body, BlogHiddenData.YEAR)
+            director = BlogHiddenData.DIRECTOR.get(body)
+            year = BlogHiddenData.YEAR.get(body)
 
             ans.append([title, "", director, year])
 

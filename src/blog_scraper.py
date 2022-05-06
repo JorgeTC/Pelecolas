@@ -25,8 +25,8 @@ class BlogScraper(BlogCsvMgr):
         name = post['title']
         link = post['url']
         body = BeautifulSoup(post['content'], 'html.parser')
-        director = BlogHiddenData.get(body, BlogHiddenData.DIRECTOR)
-        año = BlogHiddenData.get(body, BlogHiddenData.YEAR)
+        director = BlogHiddenData.DIRECTOR.get(body)
+        año = BlogHiddenData.YEAR.get(body)
 
         return [name, link, director, año]
 

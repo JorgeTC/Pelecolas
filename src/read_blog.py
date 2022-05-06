@@ -12,6 +12,5 @@ class BlogHiddenData(enum.Enum):
     DURATION = "duration"
     IMAGE = "link-image"
 
-    @staticmethod
-    def get(content: BeautifulSoup, field):
-        return content.find(id=field)['value']
+    def get(self, content: BeautifulSoup):
+        return content.find(id=self.value)['value']
