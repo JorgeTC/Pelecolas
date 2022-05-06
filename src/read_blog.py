@@ -1,7 +1,8 @@
+import enum
 from bs4 import BeautifulSoup
 
 
-class BlogHiddenData():
+class BlogHiddenData(enum.Enum):
     TITLE = "film-title"
     YEAR = "year"
     DIRECTOR = "director"
