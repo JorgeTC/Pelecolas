@@ -1,6 +1,6 @@
 from src.aux_title_str import split_title_year
 from src.blog_csv_mgr import CSV_COLUMN, BlogCsvMgr
-from src.config import Config, Section, Param
+from src.config import Config, Param, Section
 from src.dlg_scroll_base import DlgScrollBase
 from src.list_title_mgr import TitleMgr
 from src.pelicula import Pelicula
@@ -109,7 +109,7 @@ class DlgHtml(DlgScrollBase):
                 # Compruebo que esté el título en la lista de publicados
                 index = all_indices_in_list(published, title)
                 # Compruebo que el año sea correcto
-                if not any(candidato_año == csv[ocurr][CSV_COLUMN.YEAR.value] for ocurr in index):
+                if not any(candidato_año == csv[ocurr][int(CSV_COLUMN.YEAR)] for ocurr in index):
                     # Añado el título con las mayúsculas originales
                     ls_unpublished.append(ls_titles[i])
 

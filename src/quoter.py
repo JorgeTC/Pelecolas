@@ -109,7 +109,7 @@ class Quoter(BlogCsvMgr):
     def __add_post_link(self, citation: FilmCitation, row: int) -> None:
         # Construyo el html para el enlace
         ini_link = self.OPEN_LINK.format(
-            self.__csv_reader[row][CSV_COLUMN.LINK.value])
+            self.__csv_reader[row][int(CSV_COLUMN.LINK)])
 
         # Escribo el cierre del link
         position = citation.end
