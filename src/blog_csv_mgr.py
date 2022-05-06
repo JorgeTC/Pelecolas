@@ -4,7 +4,7 @@ import os
 from datetime import datetime
 
 from src.aux_res_directory import get_res_folder
-from src.config import Config, Section, Param
+from src.config import Config, Param, Section
 from src.poster import Poster
 
 
@@ -13,6 +13,9 @@ class CSV_COLUMN(enum.Enum):
     LINK = enum.auto()
     DIRECTOR = enum.auto()
     YEAR = enum.auto()
+
+    def __int__(self):
+        return int(self.value)
 
 
 class BlogCsvMgr():
