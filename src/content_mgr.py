@@ -38,9 +38,9 @@ class ContentMgr():
             content = res.read()
             # Extraigo de las notas del post el nombre de la película y las etiquetas
             parsed = BeautifulSoup(content, 'html.parser')
-            title = parsed.find(id=BlogHiddenData.TITLE)['value']
+            title = BlogHiddenData.TITLE.get(parsed)
             _, title = split_title_year(title)
-            labels = parsed.find(id=BlogHiddenData.LABELS)['value']
+            labels = BlogHiddenData.LABELS.get(parsed)
 
         # Devuelvo la información en un diccionario
         post_info = {

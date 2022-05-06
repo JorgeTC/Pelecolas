@@ -1,7 +1,8 @@
+import enum
 from bs4 import BeautifulSoup
 
 
-class BlogHiddenData():
+class BlogHiddenData(enum.Enum):
     TITLE = "film-title"
     YEAR = "year"
     DIRECTOR = "director"
@@ -11,6 +12,5 @@ class BlogHiddenData():
     DURATION = "duration"
     IMAGE = "link-image"
 
-    @staticmethod
-    def get(content: BeautifulSoup, field):
-        return content.find(id=field)['value']
+    def get(self, content: BeautifulSoup):
+        return content.find(id=self.value)['value']

@@ -36,13 +36,13 @@ class BlogThemeUpdater():
             self.parsed = BeautifulSoup(post['content'], 'html.parser')
 
             # Tomo el nombre que está escrito en los datos ocultos
-            name = self.get_secret_data(BlogHiddenData.TITLE)
+            name = BlogHiddenData.TITLE.get(self.parsed)
             if self.title_manager.is_title_in_list(name):
                 return self.title_manager.exact_key_without_dlg(name)
 
             # El nombre que viene en el html no es correcto,
             # pruebo a componer un nuevo nombre con el título y el año
-            year = self.get_secret_data(BlogHiddenData.YEAR)
+            year = BlogHiddenData.YEAR.get(self.parsed)
             name = f'{name} ({year})'
 
             if self.title_manager.is_title_in_list(name):
@@ -55,13 +55,6 @@ class BlogThemeUpdater():
         finally:
             if not keep_parsed:
                 self.parsed = None
-
-    def get_secret_data(self, data_id):
-
-        if not self.parsed:
-            return None
-
-        return BlogHiddenData.get(self.parsed, data_id)
 
     def select_and_update_post(self):
 
@@ -90,7 +83,7 @@ class BlogThemeUpdater():
             self.parsed = BeautifulSoup(post['content'], 'html.parser')
 
         # En base al nombre busco su ficha en FA
-        url_fa = self.get_secret_data(BlogHiddenData.URL_FA)
+        url_fa = BlogHiddenData.URL_FA.get(self.parsed)
 
         # Creo un objeto a partir de la url de FA
         self.Documento.data = Pelicula.from_fa_url(url_fa)
@@ -104,11 +97,11 @@ class BlogThemeUpdater():
         # Restituyo el nombre que tenía en Word
         self.Documento.data.titulo = title
         # Leo en las notas ocultas del html los datos
-        self.Documento.data.director = self.get_secret_data(BlogHiddenData.DIRECTOR)
-        self.Documento.data.año = self.get_secret_data(BlogHiddenData.YEAR)
-        self.Documento.data.duracion = self.get_secret_data(BlogHiddenData.DURATION)
-        self.Documento.data.pais = self.get_secret_data(BlogHiddenData.COUNTRY)
-        self.Documento.data.url_image = self.get_secret_data(BlogHiddenData.IMAGE)
+        self.Documento.data.director = BlogHiddenData.DIRECTOR.get(self.parsed)
+        self.Documento.data.año = BlogHiddenData.YEAR.get(self.parsed)
+        self.Documento.data.duracion = BlogHiddenData.DURATION.get(self.parsed)
+        self.Documento.data.pais = BlogHiddenData.COUNTRY.get(self.parsed)
+        self.Documento.data.url_image = BlogHiddenData.IMAGE.get(self.parsed)
 
         # Escribo el archivo html
         self.Documento.write_html()
