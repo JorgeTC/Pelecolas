@@ -11,7 +11,7 @@ from src.dlg_config import DlgConfig
 SZ_FILE = "General.ini"
 
 
-class Section(enum.Enum):
+class Section(str, enum.Enum):
     HTML = "HTML"
     READDATA = "READDATA"
     COUNT_FILMS = "CONTAR"
@@ -19,7 +19,7 @@ class Section(enum.Enum):
     DRIVE = "DRIVE"
 
 
-class Param(enum.Enum):
+class Param(str, enum.Enum):
     # Html
     FILTER_PUBLISHED = "Filter_published"
     SCRAP_BLOG = "Force_bog_scraping"
@@ -45,21 +45,6 @@ class Param(enum.Enum):
     PDF_PATH = "Pdf_folder"
 
 
-def enum_to_str(fun: Callable):
-    '''Convierto los argumentos de enumeración en su valor'''
-
-    def wr(*args):
-
-        # Si el parámetro es Section o Param, lo convierto a string
-        args = tuple(arg.value if type(arg) in (Section, Param)
-                     else arg for arg in args)
-
-        return fun(*args)
-
-    return wr
-
-
-@enum_to_str
 def add_default_value(config: ConfigParser, section: Section, param: Param, value) -> None:
 
     # Si no existe la sección, la añado
@@ -114,22 +99,18 @@ class Config:
             cls.config.write(configfile)
 
     @classmethod
-    @enum_to_str
     def get_value(cls, section: Section, param: Param) -> str:
         return cls.config[section][param]
 
     @classmethod
-    @enum_to_str
     def get_int(cls, section: Section, param: Param) -> int:
         return cls.config.getint(section, param)
 
     @classmethod
-    @enum_to_str
     def get_bool(cls, section: Section, param: Param) -> bool:
         return cls.config.getboolean(section, param)
 
     @classmethod
-    @enum_to_str
     def get_folder_path(cls, section: Section, param: Param) -> Path:
         # Leo lo que hya escrito en el ini
         ini_data = cls.config[section][param]
@@ -145,7 +126,6 @@ class Config:
         return Path(ini_data)
 
     @classmethod
-    @enum_to_str
     def get_file_path(cls, section: Section, param: Param) -> Path:
         # Leo lo que hya escrito en el ini
         ini_data = cls.config[section][param]
@@ -161,7 +141,6 @@ class Config:
         return Path(ini_data)
 
     @classmethod
-    @enum_to_str
     def set_value(cls, section: Section, param: Param, value) -> None:
         # Me espero que se introduzca un valor en una sección que existe
         if param not in cls.config[section]:
