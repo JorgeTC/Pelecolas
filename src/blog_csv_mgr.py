@@ -8,14 +8,11 @@ from src.config import Config, Param, Section
 from src.poster import Poster
 
 
-class CSV_COLUMN(enum.Enum):
+class CSV_COLUMN(int, enum.Enum):
     TITLE = 0
     LINK = enum.auto()
     DIRECTOR = enum.auto()
     YEAR = enum.auto()
-
-    def __int__(self):
-        return int(self.value)
 
 
 class BlogCsvMgr():

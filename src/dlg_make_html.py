@@ -109,7 +109,7 @@ class DlgHtml(DlgScrollBase):
                 # Compruebo que esté el título en la lista de publicados
                 index = all_indices_in_list(published, title)
                 # Compruebo que el año sea correcto
-                if not any(candidato_año == csv[ocurr][int(CSV_COLUMN.YEAR)]
+                if not any(candidato_año == csv[ocurr][CSV_COLUMN.YEAR]
                            for ocurr in index):
                     # Añado el título con las mayúsculas originales
                     ls_unpublished.append(ls_titles[i])
