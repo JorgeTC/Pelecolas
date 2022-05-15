@@ -17,7 +17,7 @@ class Usuario():
 
         self.ask_user()
 
-    def read_dict(self):
+    def read_dict(self) -> dict[str, int]:
 
         sz_json = get_res_folder("Readdata", "usuarios.json")
 

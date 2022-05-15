@@ -108,7 +108,7 @@ class Quoter(BlogCsvMgr):
     def __add_post_link(self, citation: FilmCitation, row: int) -> None:
         # Construyo el html para el enlace
         ini_link = self.OPEN_LINK.format(
-            self.__csv_reader[row][CSV_COLUMN.LINK.value])
+            self.__csv_reader[row][CSV_COLUMN.LINK])
 
         # Escribo el cierre del link
         position = citation.end
@@ -192,7 +192,7 @@ class Quoter(BlogCsvMgr):
 
     def __row_in_csv(self, title: str) -> int:
         for index, row in enumerate(self.__csv_reader):
-            if title.lower() == row[0].lower().strip("\""):
+            if title.lower() == row[CSV_COLUMN.TITLE].lower().strip("\""):
                 return index
 
         # No lo hemos encontrado
@@ -225,7 +225,7 @@ class Quoter(BlogCsvMgr):
 
     def __get_directors_indexed(self) -> set[str]:
         # Listamos los directores que hay en el csv asegurando una única ocurrencia de ellos
-        return {row[2] for row in self.__csv_reader}
+        return {row[CSV_COLUMN.DIRECTOR] for row in self.__csv_reader}
 
     def clear_questions(self) -> None:
         # Elimino todas las preguntas por directores

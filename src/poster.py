@@ -134,11 +134,11 @@ class Poster():
         return (day, month, year)
 
     @classmethod
-    def get_all_active_posts(cls):
+    def get_all_active_posts(cls) -> list[dict]:
         return cls.get_published_from_date(cls.__first_month)
 
     @classmethod
-    def get_all_posts(cls):
+    def get_all_posts(cls) -> list[dict]:
 
         # Obtengo todos los posts publicados
         posted = cls.get_all_active_posts()
@@ -159,7 +159,7 @@ class Poster():
                          body=new_post).execute()
 
     @classmethod
-    def get_published_from_date(cls, min_date: date | datetime):
+    def get_published_from_date(cls, min_date: date | datetime) -> list[dict]:
 
         # Las fechas deben estar introducidas en formato date
         # Las convierto a cadena
@@ -181,7 +181,7 @@ class Poster():
         return scheduled
 
     @classmethod
-    def get_scheduled(cls):
+    def get_scheduled(cls) -> list[dict]:
         # Hago una lista de todos los posts programados a partir de hoy
         today = datetime.today()
         start_date = date_to_str(today)
@@ -201,7 +201,7 @@ class Poster():
         return scheduled
 
     @classmethod
-    def get_scheduled_as_list(cls):
+    def get_scheduled_as_list(cls) -> list[list[str]]:
         # Quiero una lista de listas.
         ans = []
         # Cada sublista deberá tener 4 elementos:
@@ -214,8 +214,8 @@ class Poster():
             body = BeautifulSoup(post['content'], 'html.parser')
 
             # Extraigo los datos que quiero
-            director = BlogHiddenData.get(body, BlogHiddenData.DIRECTOR)
-            year = BlogHiddenData.get(body, BlogHiddenData.YEAR)
+            director = BlogHiddenData.DIRECTOR.get(body)
+            year = BlogHiddenData.YEAR.get(body)
 
             ans.append([title, "", director, year])
 
@@ -224,7 +224,7 @@ class Poster():
 
 ############ aux ################
 TIME_ZONE = tz.gettz('Europe/Madrid')
-def date_to_str(date: date | datetime):
+def date_to_str(date: date | datetime) -> str:
     '''
     Dada una fecha, devuelvo una cadena
     para poder publicar el post en esa fecha

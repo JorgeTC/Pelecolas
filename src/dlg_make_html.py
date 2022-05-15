@@ -1,6 +1,6 @@
 from src.aux_title_str import split_title_year
 from src.blog_csv_mgr import CSV_COLUMN, BlogCsvMgr
-from src.config import Config, Section, Param
+from src.config import Config, Param, Section
 from src.dlg_scroll_base import DlgScrollBase
 from src.list_title_mgr import TitleMgr
 from src.pelicula import Pelicula
@@ -17,7 +17,7 @@ class DlgHtml(DlgScrollBase):
     ASK_YEAR = "Introduzca el año: "
     ASK_DURATION = "Introduzca duración de la película: "
 
-    def __init__(self, title_list) -> None:
+    def __init__(self, title_list: list[str]) -> None:
         if Config.get_bool(Section.HTML, Param.FILTER_PUBLISHED):
             title_list = self.__unpublished(title_list)
         # Objeto para buscar si el título que ha pedido el usuario
@@ -47,7 +47,7 @@ class DlgHtml(DlgScrollBase):
         self.data.año = input(self.ASK_YEAR)
         self.data.duracion = input(self.ASK_DURATION)
 
-    def __interpretate_director(self, suggested_url):
+    def __interpretate_director(self, suggested_url: str) -> bool:
 
         # Caso en el que no se ha introducido nada.
         # Busco la ficha automáticamente.
@@ -70,7 +70,7 @@ class DlgHtml(DlgScrollBase):
             # El director de la película es lo introducido por teclado
             return True
 
-    def __get_data_from_FA(self, url):
+    def __get_data_from_FA(self, url: str) -> bool:
         # No quiero que se modifique el título que tengo leído.
         # El actual lo he oebtenido del word,
         # Pelicula me puede dar un título de FA que no sea idéntico al que hay en el word
@@ -90,7 +90,7 @@ class DlgHtml(DlgScrollBase):
         self.data.get_image_url()
         return True
 
-    def __unpublished(self, ls_titles):
+    def __unpublished(self, ls_titles: list[str]) -> list[str]:
         # Objeto capaz de leer el csv con todos los títulos publicados
         csv = BlogCsvMgr().open_to_read()
         csv = csv + self.get_scheduled_csv()
@@ -98,9 +98,9 @@ class DlgHtml(DlgScrollBase):
         # por si están entrecomillados, quito las comillas
         published = [title[0].strip("\"") for title in csv]
         published = [str(title.lower()) for title in published]
-        lower_titles = [str(title.lower()) for title in ls_titles]
+        lower_titles = [title.lower() for title in ls_titles]
 
-        ls_unpublished = []
+        ls_unpublished: list[str] = []
         for i, title in enumerate(lower_titles):
             # Compruebo que no tenga escrito el año
             candidato_año, title = split_title_year(title)
@@ -109,7 +109,8 @@ class DlgHtml(DlgScrollBase):
                 # Compruebo que esté el título en la lista de publicados
                 index = all_indices_in_list(published, title)
                 # Compruebo que el año sea correcto
-                if not any(candidato_año == csv[ocurr][CSV_COLUMN.YEAR.value] for ocurr in index):
+                if not any(candidato_año == csv[ocurr][CSV_COLUMN.YEAR]
+                           for ocurr in index):
                     # Añado el título con las mayúsculas originales
                     ls_unpublished.append(ls_titles[i])
 
@@ -120,25 +121,25 @@ class DlgHtml(DlgScrollBase):
 
         return ls_unpublished
 
-    def get_ans_body(self):
+    def get_ans_body(self) -> str:
         # Función sobreescrita de la clase base
         while not self.data.titulo:
             # Inicializo las variables antes de llamar a input
             self.curr_index = -1
             self.sz_options = self.quisiste_decir.get_suggestions()
             self.n_options = len(self.sz_options)
-            # Al llamar a input es cuando me espero que se itilicen las flechas
+            # Al llamar a input es cuando me espero que se utilicen las flechas
             self.data.titulo = input(self.ASK_TITLE)
             # Se ha introducido un título, compruebo que sea correcto
             self.data.titulo = self.quisiste_decir.exact_key(self.data.titulo)
 
         return self.data.titulo
 
-    def get_scheduled_csv(self):
+    def get_scheduled_csv(self) -> list[list[str]]:
         # Pido la lista de posts por publicar
         return Poster.get_scheduled_as_list()
 
-    def get_scheduled_titles(self):
+    def get_scheduled_titles(self) -> list[str]:
 
         # Pido la lista de posts por publicar
         scheduled = Poster.get_scheduled()
@@ -149,7 +150,7 @@ class DlgHtml(DlgScrollBase):
         return titles
 
 
-def all_indices_in_list(ls, el):
+def all_indices_in_list(ls, el) -> list[int]:
     '''
     Dado un elemento, lo busco en una lista.
     Devuelvo las posiciones de la lista que contengan al elemento

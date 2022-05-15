@@ -32,15 +32,15 @@ class ContentMgr():
 
         return title
 
-    def extract_html(self, file_name: str):
+    def extract_html(self, file_name: str) -> dict[str, str]:
         with open(self.dir / file_name, 'r', encoding="utf-8") as res:
             # Obtengo en una única string todo lo que voy a publicar
             content = res.read()
             # Extraigo de las notas del post el nombre de la película y las etiquetas
             parsed = BeautifulSoup(content, 'html.parser')
-            title = parsed.find(id=BlogHiddenData.TITLE)['value']
+            title = BlogHiddenData.TITLE.get(parsed)
             _, title = split_title_year(title)
-            labels = parsed.find(id=BlogHiddenData.LABELS)['value']
+            labels = BlogHiddenData.LABELS.get(parsed)
 
         # Devuelvo la información en un diccionario
         post_info = {
@@ -51,7 +51,7 @@ class ContentMgr():
 
         return post_info
 
-    def get_content(self):
+    def get_content(self) -> dict[str, str]:
         # Abro el diálogo para obtener el título entre los html que hay
         dlg = DlgScrollBase(question="Elija una reseña disponible:",
                             options=self.titles)

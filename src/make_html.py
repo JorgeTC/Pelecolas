@@ -1,8 +1,10 @@
 import os
 import re
 
+from docx.text.paragraph import Paragraph
+
 from src.aux_res_directory import get_res_folder
-from src.config import Config, Section, Param
+from src.config import Config, Param, Section
 from src.dlg_make_html import DlgHtml
 from src.pelicula import Pelicula
 from src.quoter import Quoter
@@ -47,7 +49,7 @@ class html(WordReader):
         # Variable para el nombre del archivo
         self.sz_file_name = ""
         # Creo una lista para guardar el texto de la crítica con el formato html
-        self.parrafos_critica = []
+        self.parrafos_critica: list[str] = []
 
         # Objeto Pelicula para guardar los datos que necesito para escribir el html
         # quiero de ella su titulo, año, duración, y director
@@ -101,7 +103,7 @@ class html(WordReader):
 
         assert("No ha sido posible encontrar la reseña.")
 
-    def __parr_to_html(self, paragraph):
+    def __parr_to_html(self, paragraph: Paragraph) -> str:
         # Inicializo el párrafo
         parr_text = ""
 
@@ -196,7 +198,7 @@ class html(WordReader):
 
         reseña.close()
 
-    def get_labels(self):
+    def get_labels(self) -> str:
         # Calcula una string con todas las etiquetas estándar que lleva una reseña
         sz_labels = ""
         # Cronológicas

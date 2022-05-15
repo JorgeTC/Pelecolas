@@ -55,13 +55,13 @@ class Drive():
             # Ejecuto la actualización
             update_operation.execute()
 
-    def get_item_by_id(self, sz_id):
+    def get_item_by_id(self, sz_id: str):
         try:
             return self.files.get(fileId=sz_id).execute()
         except:
             return None
 
-    def get_files_in_folder(self, sz_folder_id):
+    def get_files_in_folder(self, sz_folder_id: str):
 
         answer = []
         try:
@@ -69,7 +69,7 @@ class Drive():
             page_token = None
             while True:
                 # Pido los archivos que tengan como carpeta parent la que he introducido
-                response = self.files.list(q="'{}' in parents".format(sz_folder_id),
+                response = self.files.list(q=f"'{sz_folder_id}' in parents",
                                            spaces='drive',
                                            fields='nextPageToken, files(id, name, trashed)',
                                            pageToken=page_token).execute()
@@ -87,7 +87,7 @@ class Drive():
                 if page_token is None:
                     break
 
-            # Devuelo la lista
+            # Devuelvo la lista
             return answer
         except:
             # Si algo ha ido mal, devuelvo una lista vacía

@@ -12,7 +12,7 @@ class WordFolderMgr():
         # Lista de todos los archivos word
         self.sz_all_docx = self.get_files()
 
-    def get_files(self):
+    def get_files(self) -> list[Path]:
 
         # Obtengo todos los archivos de la carpeta
         all_files = [x for x in self.word_folder.iterdir()]

@@ -1,7 +1,6 @@
 import enum
 import urllib.parse
 from dataclasses import dataclass
-from typing import List
 
 from bs4 import BeautifulSoup
 
@@ -33,7 +32,7 @@ SZ_ONLY_ONE_FILM_YEAR = "Se ha encontrado una única película llamada {} del a�
 
 class Searcher():
 
-    def __init__(self, to_search):
+    def __init__(self, to_search: str):
         # Separo en la cadena introducida el título y el año
         self.año, self.title = split_title_year(to_search)
 
@@ -48,7 +47,7 @@ class Searcher():
 
         # Creo una variable para cuando encuentre a película
         self.film_url = ''
-        self.__coincidente = None
+        self.__coincidente: TituloYAño = None
 
         # Guardo la página de búsqueda parseada.
         req = safe_get_url(self.search_url)
@@ -60,7 +59,7 @@ class Searcher():
         self.__get_redirected_url()
         self.__estado = self.__clarify_case()
 
-    def __get_search_url(self):
+    def __get_search_url(self) -> str:
         # Convierto los caracteres no alfanuméricpos en hexadecimal
         # No puedo convertir los espacios:
         # FilmAffinity convierte los espacios en +.
@@ -72,11 +71,11 @@ class Searcher():
         # Devuelvo la dirección de búsqueda
         return url_FA.URL_SEARCH(title_for_url)
 
-    def __search_boxes(self):
+    def __search_boxes(self) -> list[TituloYAño]:
 
         # Sólo tengo un listado de películas encontradas cuando tenga muchos resultados.
         if self.__estado != SearchResult.VARIOS_RESULTADOS:
-            return
+            return []
 
         # Caja donde están todos los resultados
         peliculas_encontradas = self.parsed_page.find_all(
@@ -104,7 +103,7 @@ class Searcher():
 
         return lista_peliculas
 
-    def __clarify_case(self):
+    def __clarify_case(self) -> SearchResult:
 
         # Ya me han redireccionado
         # Mirando la url puedo distinguir los tres casos.
@@ -125,14 +124,14 @@ class Searcher():
         self.film_url = self.parsed_page.find(
             'meta', property='og:url')['content']
 
-    def encontrada(self):
+    def encontrada(self) -> bool:
         return self.__estado == SearchResult.ENCONTRADA
 
-    def resultados(self):
+    def resultados(self) -> bool:
         # Comprobar si hay esperanza de encontrar la ficha
         return self.__estado == SearchResult.ENCONTRADA or self.__estado == SearchResult.VARIOS_RESULTADOS
 
-    def get_url(self):
+    def get_url(self) -> str:
         # Una vez hechas todas las consideraciones,
         # me devuelve la ficha de la película que ha encontrado.
         if self.__estado == SearchResult.ENCONTRADA:
@@ -146,13 +145,13 @@ class Searcher():
         # No he sido capaz de encontrar nada
         return ""
 
-    def __elegir_url(self, lista: List[TituloYAño]):
+    def __elegir_url(self, lista: list[TituloYAño]) -> str:
         # Tengo una lista de películas con sus años.
         # Miro cuál de ellas me sirve más.
 
         # Guardo todas las que sean coincidentes.
         # Espero que sólo sea una.
-        coincidentes = []
+        coincidentes: list[TituloYAño] = []
 
         # Itero las películas candidatas
         for candidato in lista:

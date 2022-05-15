@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 import docx2pdf
 from PyPDF2 import PdfFileMerger
@@ -12,7 +13,7 @@ class PDFWriter(WordFolderMgr):
         super().__init__()
         self.sz_all_pdf = self.get_pdf_files()
 
-    def get_pdf_files(self):
+    def get_pdf_files(self) -> list[Path]:
         # Lista donde guardo todos los pdf que genere
         sz_pdf = []
 
