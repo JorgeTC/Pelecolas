@@ -1,4 +1,5 @@
 import sys
+from functools import wraps
 
 import keyboard
 
@@ -59,6 +60,7 @@ class DlgScrollBase():
         return self.sz_ans
 
     def hotkey_method(fn):
+        @wraps(fn)
         def wrap(self: 'DlgScrollBase'):
             # Compruebo que la consola tenga el foco
             if not is_console_on_focus():
