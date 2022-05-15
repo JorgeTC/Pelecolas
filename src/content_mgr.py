@@ -1,10 +1,11 @@
 import re
+from dataclasses import dataclass
 from pathlib import Path
 
 from bs4 import BeautifulSoup
 
 from src.aux_title_str import split_title_year
-from src.config import Config, Section, Param
+from src.config import Config, Param, Section
 from src.dlg_scroll_base import DlgScrollBase
 from src.make_html import SZ_HTML_FILE
 from src.read_blog import BlogHiddenData
@@ -25,13 +26,19 @@ def get_title_from_html_name(html_name: str) -> str:
     return title
 
 
+@dataclass(frozen=True)
+class PostInfo:
+    title: str
+    content: str
+    labels: str
+
 
 class ContentMgr():
 
     DIR = Config.get_folder_path(Section.HTML, Param.OUTPUT_PATH_HTML)
 
     @classmethod
-    def extract_html(cls, file_name: str) -> dict[str, str]:
+    def extract_html(cls, file_name: str) -> PostInfo:
         with open(cls.DIR / file_name, 'r', encoding="utf-8") as res:
             # Obtengo en una única string todo lo que voy a publicar
             content = res.read()
@@ -41,14 +48,9 @@ class ContentMgr():
             _, title = split_title_year(title)
             labels = BlogHiddenData.LABELS.get(parsed)
 
-        # Devuelvo la información en un diccionario
-        post_info = {
-            'title': title.upper(),
-            'content': content,
-            'labels': labels
-        }
-
-        return post_info
+        return PostInfo(title=title.upper(),
+                        content=content,
+                        labels=labels)
 
     @classmethod
     def get_content(cls) -> dict[str, str]:
