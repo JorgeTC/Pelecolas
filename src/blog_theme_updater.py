@@ -18,7 +18,6 @@ class BlogThemeUpdater():
     def __init__(self):
         self.Documento = html()
         self.title_manager = TitleMgr(self.Documento.titulos.keys())
-        self.content_mgr = ContentMgr()
         self.all_posts = Poster.get_all_posts()
         self.parsed: BeautifulSoup = None
 
@@ -132,8 +131,8 @@ class BlogThemeUpdater():
         self.Documento.write_html()
         # Extraigo el texto del documento html
         # El resto de datos del post deben quedar intactos
-        post_info = self.content_mgr.extract_html(self.Documento.sz_file_name)
-        post['content'] = post_info['content']
+        post_info = ContentMgr.extract_html(self.Documento.sz_file_name)
+        post['content'] = post_info.content
         # Subo el nuevo post
         Poster.update_post(post)
 
