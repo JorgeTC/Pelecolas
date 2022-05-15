@@ -160,7 +160,7 @@ class Pelicula():
             self.pais = self.parsed_page.find(
                 id="country-img").contents[0].attrs['alt']
         except:
-            # caso en el que no está escrita la duración
+            # caso en el que no encuentre el país
             self.pais = ""
 
     def valid(self) -> bool:
