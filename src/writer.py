@@ -13,7 +13,7 @@ from src.progress_bar import ProgressBar
 from src.safe_url import safe_get_url
 
 
-class ExcelColumns(enum.Enum):
+class ExcelColumns(int, enum.Enum):
     Id = enum.auto()
     Mia = enum.auto()
     FA = enum.auto()
@@ -199,7 +199,7 @@ class Writer():
     def __set_cell_value(self, line: int, col: ExcelColumns, value, id=0):
 
         # Obtengo un objeto celda
-        cell = self.ws.cell(row=line, column=col.value)
+        cell = self.ws.cell(row=line, column=col)
         # Le asigno el valor
         cell.value = value
 
