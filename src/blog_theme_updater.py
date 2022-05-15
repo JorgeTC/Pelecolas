@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 
 from src.aux_console import clear_current_line, go_to_upper_row
+from src.config import Config, Param, Section
 from src.content_mgr import ContentMgr
 from src.dlg_scroll_base import DlgScrollBase
 from src.list_title_mgr import TitleMgr
@@ -68,7 +69,11 @@ class BlogThemeUpdater():
 
         self.update_post(word_names[to_update])
 
-    def update_post(self, post: dict, *, dowload_data=False) -> bool:
+    def update_post(self, post: dict, *,
+                    dowload_data: bool = Config.get_bool(
+                        Section.POST, Param.GET_DATA_FROM_FA),
+                    fa_url_from_hidden_data: bool = Config.get_bool(
+                        Section.POST, Param.FA_URL_FROM_HIDDEN_DATA)) -> bool:
 
         # A partir del post busco cuál es su nombre en el Word
         title = self.get_word_name_from_blog_post(post, keep_parsed=True)
@@ -80,8 +85,16 @@ class BlogThemeUpdater():
             # Parseo el contenido
             self.parsed = BeautifulSoup(post['content'], 'html.parser')
 
-        # En base al nombre busco su ficha en FA
-        url_fa = BlogHiddenData.URL_FA.get(self.parsed)
+        # Obtengo la url de la película
+        if fa_url_from_hidden_data:
+            # Obtengo la dirección desde los datos ocultos de la reseña
+            url_fa = BlogHiddenData.URL_FA.get(self.parsed)
+        else:
+            # No quiero la url que tiene anotada el html.
+            # Hago una búsqueda del título en FilmAffinity
+            if not (url_fa := Searcher(title).get_url()):
+                # Si no encuentro la url, la pido al usuario
+                url_fa = input(f"Necesito url de FilmAffinity de {title}. ")
 
         # Creo un objeto a partir de la url de FA
         self.Documento.data = Pelicula.from_fa_url(url_fa)
@@ -92,14 +105,28 @@ class BlogThemeUpdater():
             # Si no he conseguido leer nada de FA, salgo de la función
             if not self.Documento.data.exists():
                 return False
+
+            # Obtengo los datos de la página de FA
+            self.Documento.data.get_director()
+            self.Documento.data.get_año()
+            self.Documento.data.get_duracion()
+            self.Documento.data.get_country()
+            self.Documento.data.get_image_url()
+        else:
+            # Por el contrario leo en las notas ocultas del html los datos
+            self.Documento.data.director = BlogHiddenData.DIRECTOR.get(
+                self.parsed)
+            self.Documento.data.año = BlogHiddenData.YEAR.get(
+                self.parsed)
+            self.Documento.data.duracion = BlogHiddenData.DURATION.get(
+                self.parsed)
+            self.Documento.data.pais = BlogHiddenData.COUNTRY.get(
+                self.parsed)
+            self.Documento.data.url_image = BlogHiddenData.IMAGE.get(
+                self.parsed)
+
         # Restituyo el nombre que tenía en Word
         self.Documento.data.titulo = title
-        # Leo en las notas ocultas del html los datos
-        self.Documento.data.director = BlogHiddenData.DIRECTOR.get(self.parsed)
-        self.Documento.data.año = BlogHiddenData.YEAR.get(self.parsed)
-        self.Documento.data.duracion = BlogHiddenData.DURATION.get(self.parsed)
-        self.Documento.data.pais = BlogHiddenData.COUNTRY.get(self.parsed)
-        self.Documento.data.url_image = BlogHiddenData.IMAGE.get(self.parsed)
 
         # Escribo el archivo html
         self.Documento.write_html()
