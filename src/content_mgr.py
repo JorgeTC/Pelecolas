@@ -53,7 +53,7 @@ class ContentMgr():
                         labels=labels)
 
     @classmethod
-    def get_content(cls) -> dict[str, str]:
+    def get_content(cls) -> PostInfo:
         # Abro el diálogo para obtener el título entre los html que hay
         dlg = DlgScrollBase(question="Elija una reseña disponible: ",
                             options=cls.available_titles())
