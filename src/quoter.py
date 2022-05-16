@@ -223,13 +223,10 @@ class Quoter:
             self.__ori_text, ini_link, cit.position)
 
     def __row_in_csv(self, title: str) -> int:
-        try:
-            return next((index
-                         for index, row in enumerate(self.CSV_CONTENT)
-                         if title.lower() == row[CSV_COLUMN.TITLE].lower().strip("\"")))
-        except StopIteration:
-            # No lo hemos encontrado
-            return -1
+        return next((index
+                     for index, row in enumerate(self.CSV_CONTENT)
+                     if title.lower() == row[CSV_COLUMN.TITLE].lower().strip("\"")),
+                    -1)
 
     def extract_names(self, text: str) -> list[str]:
         # Usando un procesador de lenguaje natural extraigo los nombres del párrafo
