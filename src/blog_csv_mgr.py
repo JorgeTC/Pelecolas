@@ -61,9 +61,9 @@ class BlogCsvMgr():
     def open_to_read(cls) -> list[list[str]]:
         with open(cls.SZ_CSV_FILE, encoding=cls.ENCODING) as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=",")
-        # Convierto lo leído en listas
-        # Es una lista que contiene cada linea expresada como lista
-        csv_reader = list(csv_reader)
+            # Convierto lo leído en listas
+            # Es una lista que contiene cada linea expresada como lista
+            csv_reader = list(csv_reader)
 
         try:
             # Devuelvo la lista sin la primera fila, que tiene los encabezados
