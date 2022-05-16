@@ -11,7 +11,7 @@ from src.google_api_mgr import GetGoogleApiMgr
 from src.read_blog import BlogHiddenData
 
 
-def get_blog_and_api(service: Resource, blog_id: str):
+def get_blog_and_api(service: Resource, blog_id: str) -> tuple[dict, Resource]:
     try:
         # Obtengo la API
         post_api = service.posts()
@@ -40,7 +40,7 @@ class Poster():
     blog, posts = get_blog_and_api(SERVICE, BLOG_ID)
 
     @classmethod
-    def add_post(cls, content, title, labels):
+    def add_post(cls, content: str, title: str, labels: str):
 
         # Cuándo se va a publicar la reseña
         str_date = cls.__get_publish_datatime()
@@ -222,9 +222,8 @@ class Poster():
         return ans
 
 
-############ aux ################
-TIME_ZONE = tz.gettz('Europe/Madrid')
-def date_to_str(date: date | datetime) -> str:
+def date_to_str(date: date | datetime, *,
+                TIME_ZONE=tz.gettz('Europe/Madrid')) -> str:
     '''
     Dada una fecha, devuelvo una cadena
     para poder publicar el post en esa fecha
