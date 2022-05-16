@@ -59,7 +59,7 @@ class html(WordReader):
         self.list_titles()
 
         # Objeto para hacer las citas de forma automática
-        self.__citas = Quoter()
+        self.__citas: Quoter = None
 
     def ask_for_data(self):
         # Diálogo para pedir los datos necesarios para crear el html
@@ -75,8 +75,7 @@ class html(WordReader):
             self.ask_for_data()
 
         # Preparo el citador con los datos de la película actual
-        self.__citas.titulo = self.data.titulo
-        self.__citas.director = self.data.director
+        self.__citas = Quoter(self.data.titulo, self.data.director)
 
         # Empiezo a recorrer los párrafos desde el que sé que inicia la crítica que busco
         for paragraph in self.paragraphs[self.titulos[self.data.titulo]:]:
@@ -228,7 +227,7 @@ class html(WordReader):
     def reset(self):
         self.parrafos_critica.clear()
         self.data = Pelicula()
-        self.__citas.reset()
+        self.__citas.clear_questions()
         self.sz_file_name = ""
 
     def delete_file(self):

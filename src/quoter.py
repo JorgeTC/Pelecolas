@@ -27,7 +27,35 @@ class FilmCitation():
     title: str
 
 
-class Quoter(BlogCsvMgr):
+def load_trust_directors() -> set[str]:
+    # Leo si el ini me pide nuevos directores
+    new_directors = Config.get_value(Section.HTML, Param.YES_ALWAYS_DIR)
+    new_directors = new_directors.split(",")
+    # Elimino espacios innecesarios
+    new_directors = [director.strip() for director in new_directors]
+    # Evito guardar cadenas vacías
+    new_directors = [director for director in new_directors if director]
+
+    # Creo el conjunto de directores
+    directors = set(new_directors)
+
+    # Cargo los directores del archivo
+    path = get_res_folder("Make_html", "Trust_directors.txt")
+    if path.is_file():
+        directors.update(open(path, encoding="utf-8").read().splitlines())
+
+    # Guardo de nuevo el archivo
+    with open(path, 'w', encoding="utf-8") as f:
+        f.write("\n".join(directors))
+
+    # Ya los he añadido, los puedo borrar del ini
+    Config.set_value(Section.HTML, Param.YES_ALWAYS_DIR, "")
+
+    # Devuelvo el conjunto
+    return directors
+
+
+class Quoter:
     INI_QUOTE_CHAR = "“"
     FIN_QUOTE_CHAR = "”"
 
@@ -35,10 +63,30 @@ class Quoter(BlogCsvMgr):
     CLOSE_LINK = "</a>"
     LINK_LABEL = "https://pelecolas.blogspot.com/search/label/{}"
 
-    def __init__(self) -> None:
-        # Necesito el csv, así que lo escribo
-        if self.is_needed():
-            BlogScraper().write_csv()
+    # Procesador de lenguaje para obtener nombres propios
+    # Cargando el modelo en español de spacy
+    NLP = textacy.load_spacy_lang('es_core_news_sm')
+
+    # Compruebo si tengo un csv actualizado.
+    # En caso contrario, lo escribo
+    if BlogCsvMgr.is_needed():
+        BlogScraper.write_csv()
+    # Lector de csv
+    CSV_CONTENT = BlogCsvMgr.open_to_read()
+
+    # Registro de todos los directores reseñados
+    ALL_DIRECTORS = {row[CSV_COLUMN.DIRECTOR] for row in CSV_CONTENT}
+
+    # Lista de apellidos que siempre que aparezcan se referirán al director
+    TRUST_DIRECTORS = load_trust_directors()
+
+    def __init__(self, titulo: str, director: str) -> None:
+
+        # Guardo los datos de la película actual.
+        # No quiero citarme a mi mismo
+        self.titulo = titulo
+        # Director actual, no quiero citarle
+        self.director = director
 
         # Guardo las citaciones que vaya sugiriendo
         self.__quoted_directors: set[str] = set()
@@ -47,25 +95,9 @@ class Quoter(BlogCsvMgr):
 
         # Texto que estoy estudiando actualmente
         self.__ori_text = ""
-        # Película actual.
-        # No quiero citarme a mi mismo
-        self.titulo = ""
-        # Director actual, no quiero citarle
-        self.director = ""
-
-        # Lector de csv
-        self.__csv_reader = self.open_to_read()
 
         # Cuántas preguntas he hecho para la película actual
         self.questions_counter = 0
-
-        # Procesador de lenguaje para obtener nombres propios
-        # Cargando el modelo en español de spacy
-        self.__nlp = textacy.load_spacy_lang('es_core_news_sm')
-        self.__all_director = self.__get_directors_indexed()
-
-        # Lista de apellidos que siempre que aparezcan se referirán al director
-        self.__trust_directors = load_trust_directors()
 
     def quote_parr(self, text: str) -> str:
         # Guardo el párrafo recién introducido
@@ -108,7 +140,7 @@ class Quoter(BlogCsvMgr):
     def __add_post_link(self, citation: FilmCitation, row: int) -> None:
         # Construyo el html para el enlace
         ini_link = self.OPEN_LINK.format(
-            self.__csv_reader[row][CSV_COLUMN.LINK])
+            self.CSV_CONTENT[row][CSV_COLUMN.LINK])
 
         # Escribo el cierre del link
         position = citation.end
@@ -132,7 +164,7 @@ class Quoter(BlogCsvMgr):
                 continue
             # Lo guardo como nombre ya preguntado
             self.__personajes.add(nombre)
-            for director in self.__all_director:
+            for director in self.ALL_DIRECTORS:
                 # No quiero citar dos veces el mismo director
                 if director in self.__quoted_directors:
                     continue
@@ -166,7 +198,7 @@ class Quoter(BlogCsvMgr):
         if nombre == director:
             return True
         # Si es una referencia que siempre se ejecuta igual, es una cita
-        if nombre in self.__trust_directors:
+        if nombre in self.TRUST_DIRECTORS:
             return True
         # En caso contrario, pregunto
         self.questions_counter += 1
@@ -191,41 +223,25 @@ class Quoter(BlogCsvMgr):
             self.__ori_text, ini_link, cit.position)
 
     def __row_in_csv(self, title: str) -> int:
-        for index, row in enumerate(self.__csv_reader):
-            if title.lower() == row[CSV_COLUMN.TITLE].lower().strip("\""):
-                return index
-
-        # No lo hemos encontrado
-        return -1
+        try:
+            return next((index
+                         for index, row in enumerate(self.CSV_CONTENT)
+                         if title.lower() == row[CSV_COLUMN.TITLE].lower().strip("\"")))
+        except StopIteration:
+            # No lo hemos encontrado
+            return -1
 
     def extract_names(self, text: str) -> list[str]:
         # Usando un procesador de lenguaje natural extraigo los nombres del párrafo
-        texto_procesado = self.__nlp(text)
+        texto_procesado = self.NLP(text)
 
         personajes = []
         for ent in texto_procesado.ents:
             # Sólo lo añado a mi lista si la etiqueta asignada dice personaje
-            if self.__is_person(ent):
-                if ent.lemma_ not in personajes:
-                    personajes.append(str(ent.lemma_))
+            if is_person(ent) and ent.lemma_ not in personajes:
+                personajes.append(str(ent.lemma_))
 
         return personajes
-
-    def __is_person(self, ent: Span) -> bool:
-        # Aplico un correctivo a los Coen
-        if (ent.lemma_ == 'Coen'):
-            return True
-
-        # Elimino los pronombres
-        if (ent.lemma_ == 'yo' or ent.lemma_ == 'él'):
-            return False
-
-        # Caso general en el que me fio del modelo
-        return ent.label_ == 'PER'
-
-    def __get_directors_indexed(self) -> set[str]:
-        # Listamos los directores que hay en el csv asegurando una única ocurrencia de ellos
-        return {row[CSV_COLUMN.DIRECTOR] for row in self.__csv_reader}
 
     def clear_questions(self) -> None:
         # Elimino todas las preguntas por directores
@@ -234,46 +250,21 @@ class Quoter(BlogCsvMgr):
             delete_line()
             print("")
 
-    def reset(self) -> None:
-        # Dejo el objeto listo para usar de nuevo
-        # Elimino todos los datos relativos a la última reseña
-        self.titulo = ""
-        self.director = ""
-        # Borro las preguntas del director
-        self.clear_questions()
+        # Reseteo el contador
         self.questions_counter = 0
-        # Limpio las listas de las citaciones ya realizadas
-        self.__quoted_directors.clear()
-        self.__titles.clear()
-        self.__personajes.clear()
 
 
-def load_trust_directors() -> set[str]:
-    # Leo si el ini me pide nuevos directores
-    new_directors = Config.get_value(Section.HTML, Param.YES_ALWAYS_DIR)
-    new_directors = new_directors.split(",")
-    # Elimino espacios innecesarios
-    new_directors = [director.strip() for director in new_directors]
-    # Evito guardar cadenas vacías
-    new_directors = [director for director in new_directors if director]
+def is_person(ent: Span) -> bool:
+    # Aplico un correctivo a los Coen
+    if (ent.lemma_ == 'Coen'):
+        return True
 
-    # Creo el conjunto de directores
-    directors = set(new_directors)
+    # Elimino los pronombres
+    if (ent.lemma_ == 'yo' or ent.lemma_ == 'él'):
+        return False
 
-    # Cargo los directores del archivo
-    path = get_res_folder("Make_html", "Trust_directors.txt")
-    if path.is_file():
-        directors.update(open(path, encoding="utf-8").read().splitlines())
-
-    # Guardo de nuevo el archivo
-    with open(path, 'w', encoding="utf-8") as f:
-        f.write("\n".join(directors))
-
-    # Ya los he añadido, los puedo borrar del ini
-    Config.set_value(Section.HTML, Param.YES_ALWAYS_DIR, "")
-
-    # Devuelvo el conjunto
-    return directors
+    # Caso general en el que me fio del modelo
+    return ent.label_ == 'PER'
 
 
 def find(s: str, ch: str) -> list[int]:
