@@ -9,9 +9,9 @@ def main():
     from src.content_mgr import ContentMgr
 
     post_data = ContentMgr.get_content()
-    Poster.add_post(title=post_data['title'],
-                    content=post_data['content'],
-                    labels=post_data['labels'])
+    Poster.add_post(title=post_data.title,
+                    content=post_data.content,
+                    labels=post_data.labels)
 
 
 if __name__ == '__main__':
