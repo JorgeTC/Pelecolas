@@ -37,7 +37,7 @@ def PassCaptcha(url):
         # Intento pasar el Captcha de forma automática
         automatically_pass_captcha(url)
 
-        if requests.get(url).status_code != 200:
+        if requests.get(url).status_code == 429:
             # No he conseguido pasar el Captcha, necesito ayuda del usuario
             # abro un navegador para poder pasar el Captcha
             webbrowser.open(url)
@@ -45,7 +45,7 @@ def PassCaptcha(url):
 
     resp = requests.get(url)
     # Controlo que se haya pasado el Captcha
-    while resp.status_code != 200:
+    while resp.status_code == 429:
         time.sleep(3)  # intento recargar la página cada 3 segundos
         resp = requests.get(url)
     stopped = False

@@ -164,7 +164,18 @@ class Pelicula():
             self.pais = ""
 
     def valid(self) -> bool:
-        return es_valida(self.titulo)
+        try:
+            self.get_title()
+            return es_valida(self.titulo)
+        except:
+            return False
+
+    def get_title(self):
+        if not self.parsed_page:
+            self.get_parsed_page()
+
+        l = self.parsed_page.find(itemprop="name")
+        self.titulo = l.contents[0]
 
     def get_parsed_page(self):
         resp = safe_get_url(self.url_FA)
@@ -185,9 +196,10 @@ class Pelicula():
 
         # Llamo a las funciones que leen la ficha parseada
         self.get_nota_FA()
-        self.get_votantes_FA()
-        self.get_duracion()
-        self.get_desvest()
+        if self.nota_FA:
+            self.get_votantes_FA()
+            self.get_duracion()
+            self.get_desvest()
 
     def get_director(self):
 

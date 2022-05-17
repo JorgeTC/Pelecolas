@@ -2,6 +2,7 @@ from collections import namedtuple
 import concurrent.futures
 import enum
 from math import ceil
+from random import sample
 
 from bs4 import BeautifulSoup
 from openpyxl.styles import Alignment, Font
@@ -55,12 +56,51 @@ class Writer():
         # Lista de películas que hay en la página actual
         self.film_list: list[list[BeautifulSoup]] = None
 
-        # Votaciones en total
-        self.total_films = self.get_total_films()
-        # Rellenar la lista de film_list
-        self.__get_all_boxes()
+        try:
+            # Votaciones en total
+            self.total_films = self.get_total_films()
+            # Rellenar la lista de film_list
+            self.__get_all_boxes()
+        except:
+            pass
+
         # Hoja de excel
         self.ws = worksheet
+
+    def read_sample(self, sample_size: int) -> None:
+        # Creo un objeto para hacer la gestión de paralelización
+        executor = concurrent.futures.ThreadPoolExecutor(max_workers=50)
+        # Creo una lista de listas donde se guardarán los datos de las películas
+        films_data = []
+
+        # Creo un generador aleatorio de ids de películas
+        ids = range(100_000, 1_000_000)
+        ids = sample(ids, len(ids))
+
+        # Creo una barra de progreso
+        self.bar.reset_timer()
+
+        # Itero hasta que haya leído todas las películas
+        while len(films_data) < sample_size:
+            # Lista de las películas válidas en la página actual.
+            valid_film_list = [Pelicula.from_id(id) for id in (ids.pop() for _ in range(50))]
+            valid_film_list = [film for film in valid_film_list if film.valid()]
+
+            # Itero las películas en mi página actual
+            curr_sample = list(executor.map(self.__read_film, valid_film_list))
+            films_data += [film for film in curr_sample if film.nota_FA]
+
+            # Avanzo a la siguiente página de películas vistas por el usuario
+            self.bar.update(len(films_data)/sample_size)
+
+        # Escribo en el Excel
+        self.bar.reset_timer()
+        total_rows = len(films_data)
+        index = 0
+        while films_data:
+            self.__write_in_excel(index, films_data.pop())
+            index += 1
+            self.bar.update(index / total_rows)
 
     def get_total_films(self) -> int:
 
