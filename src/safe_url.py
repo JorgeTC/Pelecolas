@@ -2,6 +2,7 @@ import time
 import webbrowser
 
 import requests
+from requests.models import Response
 from selenium import webdriver
 
 from src.aux_res_directory import get_res_folder
@@ -17,17 +18,17 @@ DRIVER_OPTION.add_experimental_option('excludeSwitches', ['enable-logging'])
 DRIVER_PATH = get_res_folder("Readdata", "driver", "chromedriver")
 
 
-def safe_get_url(url):
+def safe_get_url(url: str) -> Response:
     # open with GET method
     resp = requests.get(url)
     # Caso 429: too many requests
     if resp.status_code == 429:
         return PassCaptcha(url)
-    else:  # No está contemplado el caso 404: not found
+    else:
         return resp
 
 
-def PassCaptcha(url):
+def PassCaptcha(url: str) -> Response:
     global stopped
     if not stopped:
 
@@ -52,7 +53,7 @@ def PassCaptcha(url):
     return resp
 
 
-def automatically_pass_captcha(url):
+def automatically_pass_captcha(url: str) -> None:
     try:
         # Abro una instancia de Chrome
         # Lo creo con un conjunto de opciones para no emitir errores por consola
