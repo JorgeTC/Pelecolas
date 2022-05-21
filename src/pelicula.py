@@ -16,12 +16,12 @@ def get_id_from_url(url: str) -> int:
     return int(str_id)
 
 
-SET_VALID_FILM = Config.get_int(Section.READDATA, Param.FILTER_FA)
-def es_valida(titulo: str) -> bool:
+def es_valida(titulo: str, *,
+              SET_VALID_FILM=Config.get_int(Section.READDATA, Param.FILTER_FA)) -> bool:
     """
     Busca en el título que sea una película realmente
     """
-    # Comprobamos que no tenga ninuno de los sufijos a evitar
+    # Comprobamos que no tenga ninguno de los sufijos a evitar
     # Filtro los cortos
     if titulo.find("(C)") > 0:
         return SET_VALID_FILM & (1 << 5)
@@ -32,8 +32,8 @@ def es_valida(titulo: str) -> bool:
         return SET_VALID_FILM & (1 << 3)
     if titulo.find("(TV)") > 0:
         # Hay varios tipos de películas aquí.
-        # Algunos son programas de televisón, otros estrenos directos a tele.
-        # Hay también episosios concretos de series.
+        # Algunos son programas de televisión, otros estrenos directos a tele.
+        # Hay también episodios concretos de series.
         return SET_VALID_FILM & (1 << 2)
     # Filtro los videos musicales
     if titulo.find("(Vídeo musical)") > 0:
@@ -45,17 +45,20 @@ def es_valida(titulo: str) -> bool:
 # Cómo debo buscar la información de las barras
 RATING_BARS_PATTERN = re.compile(r'RatingBars.*?\[(.*?)\]')
 
-# Funciones para extraer datos de la caja de la película
-def get_title_from_film_box(film_box: BeautifulSoup) -> str:
-    return film_box.contents[1].contents[1].contents[3].contents[1].contents[0].contents[0]
 
+class FromFilmBox:
+    '''Funciones para extraer datos de la caja de la película'''
+    @staticmethod
+    def get_title(film_box: BeautifulSoup) -> str:
+        return film_box.contents[1].contents[1].contents[3].contents[1].contents[0].contents[0]
 
-def get_user_note_from_film_box(film_box: BeautifulSoup) -> int:
-    return int(film_box.contents[3].contents[1].contents[1].contents[0])
+    @staticmethod
+    def get_user_note(film_box: BeautifulSoup) -> int:
+        return int(film_box.contents[3].contents[1].contents[1].contents[0])
 
-
-def get_id_from_film_box(film_box: BeautifulSoup) -> int:
-    return int(film_box.contents[1].contents[1].attrs['data-movie-id'])
+    @staticmethod
+    def get_id(film_box: BeautifulSoup) -> int:
+        return int(film_box.contents[1].contents[1].attrs['data-movie-id'])
 
 
 def scrap_data(att: str):
@@ -85,6 +88,7 @@ def scrap_data(att: str):
         return wrp
 
     return decorator
+
 
 class Pelicula():
     def __init__(self):
@@ -135,9 +139,9 @@ class Pelicula():
         instance = cls()
 
         # Guardo los valores que conozco por la información introducida
-        instance.titulo = get_title_from_film_box(movie_box)
-        instance.user_note = get_user_note_from_film_box(movie_box)
-        instance.id = get_id_from_film_box(movie_box)
+        instance.titulo = FromFilmBox.get_title(movie_box)
+        instance.user_note = FromFilmBox.get_user_note(movie_box)
+        instance.id = FromFilmBox.get_id(movie_box)
         instance.url_FA = URL_FILM_ID(instance.id)
 
         # Devuelvo la instancia
