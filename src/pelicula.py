@@ -99,7 +99,7 @@ class Pelicula():
         self.votantes_FA: int = None
         self.desvest_FA: float = None
         self.values: list[int] = None
-        self.duracion: int = 0
+        self.duracion: int = None
         self.director: str = None
         self.año: int = None
         self.pais: str = None
