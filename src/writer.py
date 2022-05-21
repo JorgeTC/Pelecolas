@@ -66,11 +66,9 @@ class Writer():
             # Lista de las películas válidas en la página actual.
             valid_film_list = [Pelicula.from_id(id)
                                for id in (ids.pop() for _ in range(50))]
-            valid_film_list = [film for film in valid_film_list
-                               if film.valid()]
 
             # Itero las películas en mi página actual
-            curr_sample = list(executor.map(self.__read_film, valid_film_list))
+            curr_sample = list(executor.map(read_film_if_valid, valid_film_list))
             films_data += [film for film in curr_sample if film.nota_FA]
 
             # Avanzo a la siguiente página de películas vistas por el usuario
@@ -135,7 +133,7 @@ class Writer():
                                if film.valid()]
 
             # Itero las películas en mi página actual
-            films_data += list(executor.map(self.__read_film, valid_film_list))
+            films_data += list(executor.map(read_film, valid_film_list))
 
             # Avanzo a la siguiente página de películas vistas por el usuario
             film_index = min(film_index + 20, total_films)
@@ -144,19 +142,6 @@ class Writer():
 
         # Escribo en el Excel
         self.__dump_to_excel(films_data)
-
-    def __read_film(self, film: Pelicula) -> FilmData:
-        # Hacemos la parte más lenta, que necesita parsear la página.
-        film.get_time_and_FA()
-
-        # Extraemos los datos que usaremos para que el objeto sea más pequeño
-        return FilmData(film.user_note,
-                        film.titulo,
-                        film.id,
-                        film.duracion,
-                        film.nota_FA,
-                        film.votantes_FA,
-                        film.desvest_FA)
 
     def __dump_to_excel(self, films_data: list[FilmData]) -> None:
         self.bar.reset_timer()
@@ -255,3 +240,50 @@ class Writer():
             cell.hyperlink = url_FA.URL_FILM_ID(id)
             # Fuerzo el formato como texto
             cell.number_format = '@'
+
+
+def has_valid_id(film: Pelicula) -> bool:
+
+    # Parseo la página.
+    film.get_parsed_page()
+    # compruebo si la página obtenida existe
+    if not film.exists():
+        return False
+
+    # Obtengo el título de la película...
+    film.get_title()
+    # ...para comprobar si es válido
+    if not film.valid():
+        return False
+
+    # Compruebo por último que tenga nota media
+    film.get_nota_FA()
+    if not film.nota_FA:
+        return False
+
+    # Si el id es válido, el título es válido y tiene nota en FA, es un id válido para mi estadística
+    return True
+
+
+def read_film(film: Pelicula) -> FilmData:
+    # Hacemos la parte más lenta, que necesita parsear la página.
+    film.get_time_and_FA()
+
+    # Extraemos los datos que usaremos para que el objeto sea más pequeño
+    return FilmData(film.user_note,
+                    film.titulo,
+                    film.id,
+                    film.duracion,
+                    film.nota_FA,
+                    film.votantes_FA,
+                    film.desvest_FA)
+
+
+def read_film_if_valid(film: Pelicula) -> FilmData:
+
+    # Si la película no es válida devuelvo una tupla vacía
+    if not has_valid_id(film):
+        return FilmData(0, 0, 0, 0, 0, 0, 0)
+
+    # Es válida, devuelvo la tupla habitual
+    return read_film(film)

@@ -18,7 +18,7 @@ def main():
 
     ex_doc = ExcelMgr("Sample")
 
-    writer = Writer(None, ex_doc.get_worksheet())
+    writer = Writer(ex_doc.get_worksheet())
     writer.read_sample(1_000)
 
     ex_doc.save_wb()
