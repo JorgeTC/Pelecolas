@@ -64,12 +64,12 @@ class Writer():
         # Itero hasta que haya leído todas las películas
         while len(films_data) < sample_size:
             # Lista de las películas válidas en la página actual.
-            valid_film_list = [Pelicula.from_id(id)
-                               for id in (ids.pop() for _ in range(50))]
+            valid_film_list = (Pelicula.from_id(id)
+                               for id in (ids.pop() for _ in range(50)))
 
             # Itero las películas en mi página actual
-            curr_sample = list(executor.map(read_film_if_valid, valid_film_list))
-            films_data += [film for film in curr_sample if film.nota_FA]
+            curr_sample = executor.map(read_film_if_valid, valid_film_list)
+            films_data.extend((film for film in curr_sample if film.nota_FA))
 
             # Avanzo a la siguiente página de películas vistas por el usuario
             self.bar.update(len(films_data)/sample_size)
@@ -93,18 +93,18 @@ class Writer():
 
     def __get_all_boxes(self, user_id: int, total_films: int) -> list[list[BeautifulSoup]]:
         n_pages = ceil(total_films / 20)
-        url_pages = [url_FA.URL_USER_PAGE(user_id, i + 1)
-                     for i in range(n_pages)]
+        url_pages = (url_FA.URL_USER_PAGE(user_id, i + 1)
+                     for i in range(n_pages))
 
         executor = ThreadPoolExecutor()
-        return list(executor.map(self.__list_boxes, url_pages))
+        return executor.map(self.__list_boxes, url_pages)
 
     def __list_boxes(self, url: str) -> list[BeautifulSoup]:
         resp = safe_get_url(url)
         # Guardo la página ya parseada
         soup_page = BeautifulSoup(resp.text, 'html.parser')
         # Leo todas las películas que haya en ella
-        return list(soup_page.findAll("div", {"class": "user-ratings-movie"}))
+        return soup_page.findAll("div", {"class": "user-ratings-movie"})
 
     def read_watched(self, id_user: int):
 
@@ -125,15 +125,15 @@ class Writer():
         self.bar.reset_timer()
 
         # Itero hasta que haya leído todas las películas
-        while film_list:
+        for page_boxes in film_list:
             # Lista de las películas válidas en la página actual.
-            valid_film_list = [Pelicula.from_movie_box(box)
-                               for box in film_list.pop()]
-            valid_film_list = [film for film in valid_film_list
-                               if film.valid()]
+            valid_film_list = (Pelicula.from_movie_box(box)
+                               for box in page_boxes)
+            valid_film_list = (film for film in valid_film_list
+                               if film.valid())
 
             # Itero las películas en mi página actual
-            films_data += list(executor.map(read_film, valid_film_list))
+            films_data.extend((executor.map(read_film, valid_film_list)))
 
             # Avanzo a la siguiente página de películas vistas por el usuario
             film_index = min(film_index + 20, total_films)
