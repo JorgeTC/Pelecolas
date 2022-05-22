@@ -19,7 +19,8 @@ def main():
     ex_doc = ExcelMgr("Sample")
 
     writer = Writer(ex_doc.get_worksheet())
-    writer.read_sample(1_000)
+    sample_size = int(input("Introduzca el tamaño de la muestra buscada "))
+    writer.read_sample(sample_size)
 
     ex_doc.save_wb()
 
