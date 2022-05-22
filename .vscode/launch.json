@@ -80,6 +80,14 @@
             "program": "${workspaceFolder}/../Películas/Update post.py",
             "console": "integratedTerminal",
             "justMyCode": true
+        },
+        {
+            "name": "Read sample",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/mains/main_read_sample.py",
+            "console": "integratedTerminal",
+            "justMyCode": true
         }
     ]
 }

@@ -1,3 +1,10 @@
+import sys
+from pathlib import Path
+
+SCRIPT_DIR = Path(__file__).parent
+CODE_DIR = SCRIPT_DIR.parent
+sys.path.append(str(CODE_DIR))
+
 from src.config import manage_config
 
 
@@ -6,15 +13,14 @@ def main():
     manage_config()
 
     # Importo los módulos del programa cuando la configuración ya está settada
-    from src.usuario import Usuario
     from src.excel_mgr import ExcelMgr
     from src.writer import Writer
-    usuario = Usuario()
 
-    ex_doc = ExcelMgr(usuario.nombre)
+    ex_doc = ExcelMgr("Sample")
 
     writer = Writer(ex_doc.get_worksheet())
-    writer.read_watched(usuario.id)
+    sample_size = int(input("Introduzca el tamaño de la muestra buscada "))
+    writer.read_sample(sample_size)
 
     ex_doc.save_wb()
 

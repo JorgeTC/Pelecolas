@@ -1,7 +1,9 @@
-from collections import namedtuple
-import concurrent.futures
 import enum
+from collections import namedtuple
+from concurrent.futures import ThreadPoolExecutor
 from math import ceil
+from random import sample
+from typing import Iterable
 
 from bs4 import BeautifulSoup
 from openpyxl.styles import Alignment, Font
@@ -39,93 +41,110 @@ FilmData = namedtuple(
 
 class Writer():
 
-    def __init__(self, id, worksheet: worksheet.Worksheet):
-        # numero de usuario en string
-        self.id_user = str(id)
-        # Contador de películas
-        self.film_index = 0
-        # Numero de pagina actual
-        self.page_index = 1
+    def __init__(self, worksheet: worksheet.Worksheet):
 
         # Barra de progreso
         self.bar = ProgressBar()
 
-        # Descargo la propia página actual. Es una página "de fuera".
-        self.soup_page = None
-        # Lista de películas que hay en la página actual
-        self.film_list: list[list[BeautifulSoup]] = None
-
-        # Votaciones en total
-        self.total_films = self.get_total_films()
-        # Rellenar la lista de film_list
-        self.__get_all_boxes()
         # Hoja de excel
         self.ws = worksheet
 
-    def get_total_films(self) -> int:
-
-        url = self.get_list_url(self.page_index)
-        resp = safe_get_url(url)
-        # Guardo la página ya parseada
-        self.soup_page = BeautifulSoup(resp.text, 'html.parser')
-
-        # me espero que haya un único "value-box active-tab"
-        mydivs = self.soup_page.find("a", {"class": "value-box active-tab"})
-        stringNumber = str(mydivs.contents[3].contents[1])
-        # Elimino el punto de los millares
-        stringNumber = stringNumber.replace('.', '')
-        return int(stringNumber)
-
-    def __get_all_boxes(self):
-        n_pages = ceil(self.total_films / 20)
-        url_pages = [self.get_list_url(i + 1) for i in range(n_pages)]
-
-        executor = concurrent.futures.ThreadPoolExecutor()
-        self.film_list = list(executor.map(self.__list_boxes, url_pages))
-
-    def __list_boxes(self, url: str) -> list[BeautifulSoup]:
-        resp = safe_get_url(url)
-        # Guardo la página ya parseada
-        soup_page = BeautifulSoup(resp.text, 'html.parser')
-        # Leo todas las películas que haya en ella
-        return list(soup_page.findAll("div", {"class": "user-ratings-movie"}))
-
-    def get_list_url(self, page_index) -> str:
-        # Compongo la url dado el usuario y el índice
-        return url_FA.URL_USER_PAGE(self.id_user, str(page_index))
-
-    def __next_page(self):
-
-        self.film_index += 20
-        self.film_index = min(self.film_index, self.total_films)
-        if self.film_index:
-            self.bar.update(self.film_index/self.total_films)
-
-        # Avanzo a la siguiente página
-        self.page_index += 1
-
-    def read_watched(self):
+    def read_sample(self, sample_size: int) -> None:
         # Creo un objeto para hacer la gestión de paralelización
-        executor = concurrent.futures.ThreadPoolExecutor(max_workers=20)
+        executor = ThreadPoolExecutor(max_workers=50)
         # Creo una lista de listas donde se guardarán los datos de las películas
-        films_data = []
+        films_data: list[FilmData] = []
+
+        # Creo un generador aleatorio de ids de películas
+        ids = range(100_000, 1_000_000)
+        ids = sample(ids, len(ids))
 
         # Creo una barra de progreso
         self.bar.reset_timer()
 
         # Itero hasta que haya leído todas las películas
-        while self.film_list:
+        while len(films_data) < sample_size:
             # Lista de las películas válidas en la página actual.
-            valid_film_list = [Pelicula.from_movie_box(box) for box in self.film_list.pop()]
-            valid_film_list = [film for film in valid_film_list if film.valid()]
+            valid_film_list = (Pelicula.from_id(id)
+                               for id in (ids.pop() for _ in range(50)))
 
             # Itero las películas en mi página actual
-            films_data += list(executor.map(self.__read_film, valid_film_list))
+            curr_sample = executor.map(read_film_if_valid, valid_film_list)
+            films_data.extend(film for film in curr_sample if film.nota_FA)
 
             # Avanzo a la siguiente página de películas vistas por el usuario
-            self.__next_page()
+            self.bar.update(len(films_data)/sample_size)
 
         # Escribo en el Excel
+        self.__dump_to_excel(films_data)
+
+    def get_total_films(self, id_user: int) -> int:
+
+        url = url_FA.URL_USER_PAGE(id_user, 1)
+        resp = safe_get_url(url)
+        # Guardo la página ya parseada
+        soup_page = BeautifulSoup(resp.text, 'html.parser')
+
+        # me espero que haya un único "value-box active-tab"
+        mydivs = soup_page.find("a", {"class": "value-box active-tab"})
+        stringNumber = str(mydivs.contents[3].contents[1])
+        # Elimino el punto de los millares
+        stringNumber = stringNumber.replace('.', '')
+        return int(stringNumber)
+
+    def __get_all_boxes(self, user_id: int, total_films: int) -> Iterable[Iterable[BeautifulSoup]]:
+        n_pages = ceil(total_films / 20)
+        url_pages = (url_FA.URL_USER_PAGE(user_id, i + 1)
+                     for i in range(n_pages))
+
+        executor = ThreadPoolExecutor()
+        return executor.map(self.__list_boxes, url_pages)
+
+    def __list_boxes(self, url: str) -> Iterable[BeautifulSoup]:
+        resp = safe_get_url(url)
+        # Guardo la página ya parseada
+        soup_page = BeautifulSoup(resp.text, 'html.parser')
+        # Leo todas las películas que haya en ella
+        return soup_page.findAll("div", {"class": "user-ratings-movie"})
+
+    def read_watched(self, id_user: int):
+
+        # Votaciones en total
+        total_films = self.get_total_films(id_user)
+
+        # Creo un objeto para hacer la gestión de paralelización
+        executor = ThreadPoolExecutor(max_workers=20)
+        # Creo una lista de listas donde se guardarán los datos de las películas
+        films_data: list[FilmData] = []
+
+        # Inicializo un contador de las películas que ya he leído
+        film_index = 0
+        # Lista de todas las cajas de películas del usuario
+        film_list = self.__get_all_boxes(id_user, total_films)
+
+        # Creo una barra de progreso
+        self.bar.reset_timer()
+
+        # Itero hasta que haya leído todas las películas
+        for page_boxes in film_list:
+            # Lista de las películas válidas en la página actual.
+            valid_film_list = (Pelicula.from_movie_box(box)
+                               for box in page_boxes)
+            valid_film_list = (film for film in valid_film_list
+                               if film.valid())
+
+            # Itero las películas en mi página actual
+            films_data.extend(executor.map(read_film, valid_film_list))
+
+            # Avanzo a la siguiente página de películas vistas por el usuario
+            film_index = min(film_index + 20, total_films)
+
+            self.bar.update(film_index/total_films)
+
+        # Escribo en el Excel
+        self.__dump_to_excel(films_data)
+
+    def __dump_to_excel(self, films_data: list[FilmData]) -> None:
         self.bar.reset_timer()
         total_rows = len(films_data)
         index = 0
@@ -133,19 +152,6 @@ class Writer():
             self.__write_in_excel(index, films_data.pop())
             index += 1
             self.bar.update(index / total_rows)
-
-    def __read_film(self, film: Pelicula) -> FilmData:
-        # Hacemos la parte más lenta, que necesita parsear la página.
-        film.get_time_and_FA()
-
-        # Extraemos los datos que usaremos para que el objeto sea más pequeño
-        return FilmData(film.user_note,
-                        film.titulo,
-                        film.id,
-                        film.duracion,
-                        film.nota_FA,
-                        film.votantes_FA,
-                        film.desvest_FA)
 
     def __write_in_excel(self, line: int, film: FilmData):
 
@@ -235,3 +241,50 @@ class Writer():
             cell.hyperlink = url_FA.URL_FILM_ID(id)
             # Fuerzo el formato como texto
             cell.number_format = '@'
+
+
+def has_valid_id(film: Pelicula) -> bool:
+
+    # Parseo la página.
+    film.get_parsed_page()
+    # compruebo si la página obtenida existe
+    if not film.exists():
+        return False
+
+    # Obtengo el título de la película...
+    film.get_title()
+    # ...para comprobar si es válido
+    if not film.valid():
+        return False
+
+    # Compruebo por último que tenga nota media
+    film.get_nota_FA()
+    if not film.nota_FA:
+        return False
+
+    # Si el id es válido, el título es válido y tiene nota en FA, es un id válido para mi estadística
+    return True
+
+
+def read_film(film: Pelicula) -> FilmData:
+    # Hacemos la parte más lenta, que necesita parsear la página.
+    film.get_time_and_FA()
+
+    # Extraemos los datos que usaremos para que el objeto sea más pequeño
+    return FilmData(film.user_note,
+                    film.titulo,
+                    film.id,
+                    film.duracion,
+                    film.nota_FA,
+                    film.votantes_FA,
+                    film.desvest_FA)
+
+
+def read_film_if_valid(film: Pelicula) -> FilmData:
+
+    # Si la película no es válida devuelvo una tupla vacía
+    if not has_valid_id(film):
+        return FilmData(0, 0, 0, 0, 0, 0, 0)
+
+    # Es válida, devuelvo la tupla habitual
+    return read_film(film)
