@@ -3,6 +3,7 @@ from collections import namedtuple
 from concurrent.futures import ThreadPoolExecutor
 from math import ceil
 from random import sample
+from typing import Iterable
 
 from bs4 import BeautifulSoup
 from openpyxl.styles import Alignment, Font
@@ -69,7 +70,7 @@ class Writer():
 
             # Itero las películas en mi página actual
             curr_sample = executor.map(read_film_if_valid, valid_film_list)
-            films_data.extend((film for film in curr_sample if film.nota_FA))
+            films_data.extend(film for film in curr_sample if film.nota_FA)
 
             # Avanzo a la siguiente página de películas vistas por el usuario
             self.bar.update(len(films_data)/sample_size)
@@ -91,7 +92,7 @@ class Writer():
         stringNumber = stringNumber.replace('.', '')
         return int(stringNumber)
 
-    def __get_all_boxes(self, user_id: int, total_films: int) -> list[list[BeautifulSoup]]:
+    def __get_all_boxes(self, user_id: int, total_films: int) -> Iterable[Iterable[BeautifulSoup]]:
         n_pages = ceil(total_films / 20)
         url_pages = (url_FA.URL_USER_PAGE(user_id, i + 1)
                      for i in range(n_pages))
@@ -99,7 +100,7 @@ class Writer():
         executor = ThreadPoolExecutor()
         return executor.map(self.__list_boxes, url_pages)
 
-    def __list_boxes(self, url: str) -> list[BeautifulSoup]:
+    def __list_boxes(self, url: str) -> Iterable[BeautifulSoup]:
         resp = safe_get_url(url)
         # Guardo la página ya parseada
         soup_page = BeautifulSoup(resp.text, 'html.parser')
@@ -133,7 +134,7 @@ class Writer():
                                if film.valid())
 
             # Itero las películas en mi página actual
-            films_data.extend((executor.map(read_film, valid_film_list)))
+            films_data.extend(executor.map(read_film, valid_film_list))
 
             # Avanzo a la siguiente página de películas vistas por el usuario
             film_index = min(film_index + 20, total_films)
