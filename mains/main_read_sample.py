@@ -16,11 +16,11 @@ def main():
     from src.excel_mgr import ExcelMgr
     from src.writer import Writer
 
-    ex_doc = ExcelMgr("Sample")
+    ex_doc = ExcelMgr("Sample 2")
 
     writer = Writer(ex_doc.get_worksheet())
     sample_size = int(input("Introduzca el tamaño de la muestra buscada "))
-    writer.read_sample(sample_size)
+    writer.write_sample(sample_size)
 
     ex_doc.save_wb()
 

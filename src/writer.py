@@ -1,6 +1,7 @@
 import enum
 from collections import namedtuple
 from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import as_completed
 from math import ceil
 from random import sample
 from typing import Iterable
@@ -49,34 +50,43 @@ class Writer():
         # Hoja de excel
         self.ws = worksheet
 
-    def read_sample(self, sample_size: int) -> None:
+    def read_sample(self) -> Iterable[FilmData]:
         # Creo un objeto para hacer la gestión de paralelización
         executor = ThreadPoolExecutor(max_workers=50)
-        # Creo una lista de listas donde se guardarán los datos de las películas
-        films_data: list[FilmData] = []
 
         # Creo un generador aleatorio de ids de películas
         ids = range(100_000, 1_000_000)
         ids = sample(ids, len(ids))
 
+        while ids:
+            # Lista de las películas válidas en la página actual.
+            valid_film_list = (Pelicula.from_id(id)
+                                for id in (ids.pop() for _ in range(50)))
+
+            # Itero las películas en mi página actual
+            # for film_data in as_completed([executor.submit(read_film_if_valid, film) for film in valid_film_list]):
+            for film_data in executor.map(read_film_if_valid, valid_film_list):
+                if film_data.result().nota_FA:
+                    yield film_data.result()
+
+    def write_sample(self, sample_size: int) -> None:
         # Creo una barra de progreso
         self.bar.reset_timer()
 
+        # Número de películas leídas
+        row = 0
+
         # Itero hasta que haya leído todas las películas
-        while len(films_data) < sample_size:
-            # Lista de las películas válidas en la página actual.
-            valid_film_list = (Pelicula.from_id(id)
-                               for id in (ids.pop() for _ in range(50)))
+        for film_data in self.read_sample():
+            self.__write_in_excel(row, film_data)
+            row += 1
 
-            # Itero las películas en mi página actual
-            curr_sample = executor.map(read_film_if_valid, valid_film_list)
-            films_data.extend(film for film in curr_sample if film.nota_FA)
+            # Actualizo la barra de progreso
+            self.bar.update(row / sample_size)
 
-            # Avanzo a la siguiente página de películas vistas por el usuario
-            self.bar.update(len(films_data)/sample_size)
-
-        # Escribo en el Excel
-        self.__dump_to_excel(films_data)
+            # Si ya tengo suficientes películas, salgo del bucle
+            if row >= sample_size:
+                break
 
     def get_total_films(self, id_user: int) -> int:
 
@@ -107,7 +117,7 @@ class Writer():
         # Leo todas las películas que haya en ella
         return soup_page.findAll("div", {"class": "user-ratings-movie"})
 
-    def read_watched(self, id_user: int):
+    def write_watched(self, id_user: int):
 
         # Votaciones en total
         total_films = self.get_total_films(id_user)
