@@ -1,7 +1,6 @@
 import enum
 from collections import namedtuple
 from concurrent.futures import ThreadPoolExecutor
-from concurrent.futures import as_completed
 from math import ceil
 from random import sample
 from typing import Iterable
@@ -61,13 +60,12 @@ class Writer():
         while ids:
             # Lista de las películas válidas en la página actual.
             valid_film_list = (Pelicula.from_id(id)
-                                for id in (ids.pop() for _ in range(50)))
+                               for id in (ids.pop() for _ in range(50)))
 
             # Itero las películas en mi página actual
-            # for film_data in as_completed([executor.submit(read_film_if_valid, film) for film in valid_film_list]):
             for film_data in executor.map(read_film_if_valid, valid_film_list):
-                if film_data.result().nota_FA:
-                    yield film_data.result()
+                if film_data.nota_FA:
+                    yield film_data
 
     def write_sample(self, sample_size: int) -> None:
         # Creo una barra de progreso
