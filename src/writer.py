@@ -258,7 +258,10 @@ def has_valid_id(film: Pelicula) -> bool:
         return False
 
     # Obtengo el título de la película...
-    film.get_title()
+    try:
+        film.get_title()
+    except:
+        return False
     # ...para comprobar si es válido
     if not film.valid():
         return False
