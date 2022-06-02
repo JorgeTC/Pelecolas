@@ -74,11 +74,7 @@ class WordReader(WordFolderMgr):
         text = text.strip()
 
         # Compruebo que contenga un salto de linea
-        if text == '':
-            return True
-        if text == "\t":
-            return True
-        if text == "\n":
+        if text in ('', "\t", "\n"):
             return True
 
         # Es un párrafo y no un salto de línea
