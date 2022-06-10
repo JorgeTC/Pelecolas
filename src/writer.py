@@ -22,6 +22,7 @@ class ExcelColumns(int, enum.Enum):
     Duracion = enum.auto()
     Visionados = enum.auto()
     Varianza_FA = enum.auto()
+    Prop_aprobados_FA = enum.auto()
     FA_redondeo = enum.auto()
     Diferencia = enum.auto()
     Diferencia_abs = enum.auto()
@@ -35,8 +36,15 @@ class ExcelColumns(int, enum.Enum):
         return f"Tabla1[{self.name}]"
 
 
-FilmData = namedtuple(
-    "FilmData", "user_note titulo id duracion nota_FA votantes_FA desvest_FA")
+FilmData = namedtuple("FilmData",
+                      ["user_note",
+                       "titulo",
+                       "id",
+                       "duracion",
+                       "nota_FA",
+                       "votantes_FA",
+                       "desvest_FA",
+                       "prop_aprobados"])
 
 
 class Writer():
@@ -175,7 +183,7 @@ class Writer():
                               f"=({ExcelColumns.Mia}-1)*10/9")
         # En la primera columna guardo la id para poder reconocerla
         self.__set_cell_value(line, ExcelColumns.Id,
-                              film.titulo, film.id)
+                              film.titulo, id=film.id)
 
         if (film.duracion != 0):
             # dejo la casilla en blanco si no logra leer ninguna duración de FA
@@ -207,8 +215,10 @@ class Writer():
         if (film.desvest_FA != 0):
             self.__set_cell_value(line, ExcelColumns.Varianza_FA,
                                   film.desvest_FA)
+            self.__set_cell_value(line, ExcelColumns.Prop_aprobados_FA,
+                                  film.prop_aprobados)
 
-    def __set_cell_value(self, line: int, col: ExcelColumns, value, id=0):
+    def __set_cell_value(self, line: int, col: ExcelColumns, value, *, id=0):
 
         # Obtengo un objeto celda
         cell = self.ws.cell(row=line, column=col)
@@ -234,6 +244,9 @@ class Writer():
         # Varianza de los votos en FA
         elif (col == ExcelColumns.Varianza_FA):
             cell.number_format = '0.00'
+        # Proporción de aprobados
+        elif (col == ExcelColumns.Prop_aprobados_FA):
+            cell.number_format = '0.00%'
         # reescala
         elif (col == ExcelColumns.Mia_rees or
               col == ExcelColumns.FA_rees or
@@ -286,7 +299,8 @@ def read_film(film: Pelicula) -> FilmData:
                     film.duracion,
                     film.nota_FA,
                     film.votantes_FA,
-                    film.desvest_FA)
+                    film.desvest_FA,
+                    film.prop_aprobados)
 
 
 def read_film_if_valid(film: Pelicula) -> FilmData:

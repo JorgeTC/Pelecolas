@@ -1,10 +1,10 @@
 import math
 import re
-
-from bs4 import BeautifulSoup
 from functools import wraps
 
-from src.config import Config, Section, Param
+from bs4 import BeautifulSoup
+
+from src.config import Config, Param, Section
 from src.safe_url import safe_get_url
 from src.url_FA import URL_FILM_ID
 
@@ -68,7 +68,6 @@ def scrap_data(att: str):
     Comprueba antes de buscar en la página que ya esté parseada.
     '''
     def decorator(fn):
-
         @wraps(fn)
         def wrp(*args, **kwarg):
             # Me guardo la instancia
@@ -83,10 +82,47 @@ def scrap_data(att: str):
                 self.get_parsed_page()
 
             fn(*args, **kwarg)
-            pass
-
         return wrp
+    return decorator
 
+
+def check_votes(att: str):
+    '''
+    Decorador para obtener cálculos de las votaciones.
+    Comprueba que ya tenga los votos
+    '''
+    def decorator(fn):
+        @wraps(fn)
+        def wrp(*args, **kwarg):
+            # Me guardo la instancia
+            self: 'Pelicula' = args[0]
+
+            # Compruebo que haya leído los votos de la película
+            if self.values is None:
+                self.get_values()
+
+            # Si a pesar de haberlos buscado no he conseguido los votos, no puedo saber su nota
+            # por lo tanto no puedo calcular el atributo actual
+            if not self.values:
+                setattr(self, att, 0)
+                return
+
+            # Tengo los datos que necesito para calcular el atributo en cuestión
+            fn(*args, **kwarg)
+        return wrp
+    return decorator
+
+
+def scrap_from_values(att: str):
+    '''
+    Concatena el decorador para no calcular un atributo dos veces
+    y el decorador para comprobar que se tienen los valores
+    '''
+    def decorator(fn):
+        # Aplico primero el decorador para evitar calcular el atributo dos veces.
+        # Una vez que sé que tengo que estoy obligado a calcular el atributo,
+        # compruebo que la lista de valores esté calculada.
+        return scrap_data(att)(check_votes(att)(fn))
     return decorator
 
 
@@ -102,6 +138,7 @@ class Pelicula():
         self.nota_FA: float = None
         self.votantes_FA: int = None
         self.desvest_FA: float = None
+        self.prop_aprobados: float = None
         self.values: list[int] = None
         self.duracion: int = None
         self.director: str = None
@@ -147,18 +184,9 @@ class Pelicula():
         # Devuelvo la instancia
         return instance
 
-    @scrap_data('nota_FA')
+    @scrap_from_values('nota_FA')
     def get_nota_FA(self):
-
-        # Doy valor inicial a la nota
         self.nota_FA = 0
-
-        # Obtengo la lista
-        self.get_values()
-        # Si no la consigo, salgo
-        if not self.values:
-            return
-
         # Multiplico la nota por la cantidad de gente que la ha dado
         for vote, quantity in enumerate(self.values):
             self.nota_FA += (vote + 1) * quantity
@@ -228,6 +256,7 @@ class Pelicula():
         self.get_votantes_FA()
         self.get_duracion()
         self.get_desvest()
+        self.get_prop_aprobados()
 
     @scrap_data('director')
     def get_director(self):
@@ -248,6 +277,7 @@ class Pelicula():
         if script:
             bars = script.string
         else:
+            self.values = []
             return
 
         # Extraigo cuánto vale cada barra
@@ -264,14 +294,14 @@ class Pelicula():
         self.url_image = self.parsed_page.find(
             "meta", property="og:image")['content']
 
-    @scrap_data('desvest_FA')
+    @scrap_from_values('desvest_FA')
     def get_desvest(self):
 
-        if not self.values:
-            self.get_values()
-
-        # Me espero que antes de llamar a esta función ya se haya llamado
-        # a la función para buscar la nota de FA
+        # Me aseguro que se haya tratado de calcular la nota
+        if self.nota_FA is None:
+            self.get_nota_FA()
+        # Si a pesar de haber tratado de encontrar la nota
+        # no he conseguido calcularla, no calculo la varianza.
         if self.nota_FA == 0:
             self.desvest_FA = 0
             return
@@ -286,6 +316,15 @@ class Pelicula():
 
         # Doy el valor a la variable miembro, lo convierto a desviación típica
         self.desvest_FA = math.sqrt(varianza)
+
+    @scrap_from_values('prop_aprobados')
+    def get_prop_aprobados(self):
+        # Cuento cuántos votos positivos hay
+        positives = sum(self.values[5:])
+        # Cuento cuántos votos hay en total
+        total_votes = sum(self.values)
+        # Calculo la proporción
+        self.prop_aprobados = positives / total_votes
 
     def exists(self) -> bool:
         return self.__exists
