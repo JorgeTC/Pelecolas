@@ -102,6 +102,7 @@ class Pelicula():
         self.nota_FA: float = None
         self.votantes_FA: int = None
         self.desvest_FA: float = None
+        self.prop_aprobados: float = None
         self.values: list[int] = None
         self.duracion: int = None
         self.director: str = None
@@ -228,6 +229,7 @@ class Pelicula():
         self.get_votantes_FA()
         self.get_duracion()
         self.get_desvest()
+        self.get_prop_aprobados()
 
     @scrap_data('director')
     def get_director(self):
@@ -286,6 +288,26 @@ class Pelicula():
 
         # Doy el valor a la variable miembro, lo convierto a desviación típica
         self.desvest_FA = math.sqrt(varianza)
+
+    @scrap_data('prop_aprobados')
+    def get_prop_aprobados(self):
+
+        if not self.values:
+           self.get_values()
+
+        # Me espero que antes de llamar a esta función ya se haya llamado
+        # a la función para buscar la nota de FA
+        if self.nota_FA == 0:
+            self.prop_aprobados = 0
+            return
+
+        # Cuento cuántos votos positivos hay
+        positives = sum(self.values[5:])
+        # Cuento cuántos votos hay en total
+        total_votes = sum(self.values)
+        # Calculo la proporción
+        self.prop_aprobados = positives / total_votes
+
 
     def exists(self) -> bool:
         return self.__exists
