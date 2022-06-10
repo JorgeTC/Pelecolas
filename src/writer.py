@@ -49,34 +49,42 @@ class Writer():
         # Hoja de excel
         self.ws = worksheet
 
-    def read_sample(self, sample_size: int) -> None:
+    def read_sample(self) -> Iterable[FilmData]:
         # Creo un objeto para hacer la gestión de paralelización
         executor = ThreadPoolExecutor(max_workers=50)
-        # Creo una lista de listas donde se guardarán los datos de las películas
-        films_data: list[FilmData] = []
 
         # Creo un generador aleatorio de ids de películas
         ids = range(100_000, 1_000_000)
         ids = sample(ids, len(ids))
 
-        # Creo una barra de progreso
-        self.bar.reset_timer()
-
-        # Itero hasta que haya leído todas las películas
-        while len(films_data) < sample_size:
+        while ids:
             # Lista de las películas válidas en la página actual.
             valid_film_list = (Pelicula.from_id(id)
                                for id in (ids.pop() for _ in range(50)))
 
             # Itero las películas en mi página actual
-            curr_sample = executor.map(read_film_if_valid, valid_film_list)
-            films_data.extend(film for film in curr_sample if film.nota_FA)
+            for film_data in executor.map(read_film_if_valid, valid_film_list):
+                if film_data.nota_FA:
+                    yield film_data
 
-            # Avanzo a la siguiente página de películas vistas por el usuario
-            self.bar.update(len(films_data)/sample_size)
+    def write_sample(self, sample_size: int) -> None:
+        # Creo una barra de progreso
+        self.bar.reset_timer()
 
-        # Escribo en el Excel
-        self.__dump_to_excel(films_data)
+        # Número de películas leídas
+        row = 0
+
+        # Itero hasta que haya leído todas las películas
+        for film_data in self.read_sample():
+            self.__write_in_excel(row, film_data)
+            row += 1
+
+            # Actualizo la barra de progreso
+            self.bar.update(row / sample_size)
+
+            # Si ya tengo suficientes películas, salgo del bucle
+            if row >= sample_size:
+                break
 
     def get_total_films(self, id_user: int) -> int:
 
@@ -107,23 +115,18 @@ class Writer():
         # Leo todas las películas que haya en ella
         return soup_page.findAll("div", {"class": "user-ratings-movie"})
 
-    def read_watched(self, id_user: int):
+    def read_watched(self, id_user: int) -> Iterable[tuple[FilmData, float]]:
 
         # Votaciones en total
         total_films = self.get_total_films(id_user)
 
         # Creo un objeto para hacer la gestión de paralelización
         executor = ThreadPoolExecutor(max_workers=20)
-        # Creo una lista de listas donde se guardarán los datos de las películas
-        films_data: list[FilmData] = []
 
-        # Inicializo un contador de las películas que ya he leído
-        film_index = 0
         # Lista de todas las cajas de películas del usuario
         film_list = self.__get_all_boxes(id_user, total_films)
-
-        # Creo una barra de progreso
-        self.bar.reset_timer()
+        # Contador de películas leídas
+        film_index = 0
 
         # Itero hasta que haya leído todas las películas
         for page_boxes in film_list:
@@ -134,24 +137,27 @@ class Writer():
                                if film.valid())
 
             # Itero las películas en mi página actual
-            films_data.extend(executor.map(read_film, valid_film_list))
+            read_in_page = 0
+            for film_data in executor.map(read_film, valid_film_list):
+                read_in_page += 1
+                yield film_data, (film_index + read_in_page)/total_films
 
             # Avanzo a la siguiente página de películas vistas por el usuario
             film_index = min(film_index + 20, total_films)
 
-            self.bar.update(film_index/total_films)
+    def write_watched(self, id_user: int):
 
-        # Escribo en el Excel
-        self.__dump_to_excel(films_data)
-
-    def __dump_to_excel(self, films_data: list[FilmData]) -> None:
+        # Creo una barra de progreso
         self.bar.reset_timer()
-        total_rows = len(films_data)
+
+        # Inicializo la fila actual en la que estoy escribiendo
         index = 0
-        while films_data:
-            self.__write_in_excel(index, films_data.pop())
+        for film_data, progress in self.read_watched(id_user):
+            self.__write_in_excel(index, film_data)
             index += 1
-            self.bar.update(index / total_rows)
+            self.bar.update(progress)
+
+        self.bar.update(1)
 
     def __write_in_excel(self, line: int, film: FilmData):
 
@@ -252,7 +258,10 @@ def has_valid_id(film: Pelicula) -> bool:
         return False
 
     # Obtengo el título de la película...
-    film.get_title()
+    try:
+        film.get_title()
+    except:
+        return False
     # ...para comprobar si es válido
     if not film.valid():
         return False

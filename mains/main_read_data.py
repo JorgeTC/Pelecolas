@@ -14,7 +14,7 @@ def main():
     ex_doc = ExcelMgr(usuario.nombre)
 
     writer = Writer(ex_doc.get_worksheet())
-    writer.read_watched(usuario.id)
+    writer.write_watched(usuario.id)
 
     ex_doc.save_wb()
 
