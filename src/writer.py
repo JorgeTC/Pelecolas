@@ -307,7 +307,7 @@ def read_film_if_valid(film: Pelicula) -> FilmData:
 
     # Si la película no es válida devuelvo una tupla vacía
     if not has_valid_id(film):
-        return FilmData(0, 0, 0, 0, 0, 0, 0)
+        return FilmData(0, 0, 0, 0, 0, 0, 0, 0)
 
     # Es válida, devuelvo la tupla habitual
     return read_film(film)
