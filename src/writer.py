@@ -37,14 +37,14 @@ class ExcelColumns(int, enum.Enum):
 
 
 FilmData = namedtuple("FilmData",
-                      ["user_note",
+                      ("user_note",
                        "titulo",
                        "id",
                        "duracion",
                        "nota_FA",
                        "votantes_FA",
                        "desvest_FA",
-                       "prop_aprobados"])
+                       "prop_aprobados"))
 
 
 class Writer():
@@ -307,7 +307,10 @@ def read_film_if_valid(film: Pelicula) -> FilmData:
 
     # Si la película no es válida devuelvo una tupla vacía
     if not has_valid_id(film):
-        return FilmData(0, 0, 0, 0, 0, 0, 0)
+        return FilmData(*((0,)*len(FilmData._fields)))
 
     # Es válida, devuelvo la tupla habitual
-    return read_film(film)
+    try:
+        return read_film(film)
+    except:
+        return FilmData(*((0,)*len(FilmData._fields)))
