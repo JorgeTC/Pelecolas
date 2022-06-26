@@ -30,18 +30,18 @@ def date_from_YMD(string: str) -> date:
     if not (match := RE_DATE_YMD.match(string)):
         return None
 
-    return date(int(match.group(1)),
-                int(match.group(3)),
-                int(match.group(5)))
+    return str_to_date(day=match.group(5),
+                       month=match.group(3),
+                       year=match.group(1))
 
 
 def date_from_DMY(string: str) -> date:
     if not (match := RE_DATE_DMY.match(string)):
         return None
 
-    return date(int(match.group(5)),
-                int(match.group(3)),
-                int(match.group(1)))
+    return str_to_date(day=match.group(1),
+                       month=match.group(3),
+                       year=match.group(5))
 
 
 def time_from_str(string: str) -> time:
@@ -58,3 +58,28 @@ def DMY(ymd_date: str) -> str:
     al formato español (DMY)
     '''
     return RE_DATE_YMD.sub(r"\5\4\3\2\1", ymd_date)
+
+
+def str_to_date(*, day: str, month: str, year: str) -> date:
+    '''
+    Convierto tres strings a una fecha.
+    Me aseguro de completar el año a 4 cifras.
+    '''
+    return date(int(complete_year(year)),
+                int(month),
+                int(day))
+
+
+def complete_year(year: str) -> str:
+    '''
+    Si la string que representa el año tiene 2 caracteres,
+    considero que son los últimos dos dígitos de un año del Siglo XXI
+    '''
+    # Aplico corrección si la string son exactamente dos dígitos
+    if re.match(r"^\d{2}$", year):
+        return f"20{year}"
+    # Son los cuatro dígitos de un año
+    if re.match(r"^\d{4}$", year):
+        return year
+    else:
+        raise ValueError(f"Cannot convert {year} to a year string.")
