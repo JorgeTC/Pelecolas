@@ -5,8 +5,8 @@ from dateutil import tz
 from googleapiclient.discovery import Resource
 from oauth2client import client
 
-from src.aux_title_str import RE_DATE_DMY, RE_DATE_YMD, RE_TIME
-from src.config import Config, Section, Param
+from src.aux_title_str import DMY, date_from_DMY, date_from_YMD, time_from_str
+from src.config import Config, Param, Section
 from src.google_api_mgr import GetGoogleApiMgr
 from src.read_blog import BlogHiddenData
 
@@ -64,7 +64,8 @@ class Poster():
             f.execute()
             # Si no está programada como borrador, aviso al usuario de cuándo se va a publicar la reseña
             if not bDraft:
-                print(f"La reseña de {title} se publicará el {str_date[:10]}")
+                print(f"La reseña de {title}"
+                      f"se publicará el {DMY(str_date[:10])}")
 
         except client.AccessTokenRefreshError:
             print('The credentials have been revoked or expired, please re-run'
@@ -74,38 +75,23 @@ class Poster():
     def __get_publish_datatime(cls) -> str:
         # Obtengo qué día tengo que publicar la reseña
         sz_date = Config.get_value(Section.POST, Param.DATE)
-        if (match := RE_DATE_DMY.match(sz_date)):
-            day = int(match.group(1))
-            month = int(match.group(2))
-            year = int(match.group(3))
-        else:
+        if not (publish_date := date_from_DMY(sz_date)):
             # Si no consigo interpretarlo como fecha, le doy la fecha automática
-            day, month, year = cls.__get_automatic_date()
+            publish_date = cls.__get_automatic_date()
+
         # Obtengo a qué hora tengo que publicar la reseña
         sz_time = Config.get_value(Section.POST, Param.TIME)
-        match = RE_TIME.match(sz_time)
-        sz_hour = int(match.group(1))
-        sz_minute = int(match.group(2))
+        time = time_from_str(sz_time)
 
-        return date_to_str(datetime(year, month, day,
-                                    sz_hour, sz_minute))
+        return date_to_str(datetime.combine(publish_date, time))
 
     @classmethod
-    def __get_automatic_date(cls) -> tuple[int, int, int]:
+    def __get_automatic_date(cls) -> date:
 
         scheduled = cls.get_scheduled()
 
-        dates = []
         # Extraigo todas las fechas que ya tienen asignado un blog
-        for post in scheduled:
-            # Leo la fecha
-            publish_date = RE_DATE_YMD.match(post['published'])
-            year = int(publish_date.group(1))
-            month = int(publish_date.group(2))
-            day = int(publish_date.group(3))
-            publish_date = str(datetime(year, month, day).date())
-            # La añado a mi lista
-            dates.append(publish_date)
+        dates = {str(date_from_YMD(post['published'])) for post in scheduled}
 
         # Busco los viernes disponibles
         # Voy al próximo viernes
@@ -119,19 +105,14 @@ class Poster():
         while not found:
             # Convierto a string
             str_next_friday = str(next_friday)
-            # Si no se encuentra entre las fechas con reseña, he econtrado un viernes disponible
+            # Si no se encuentra entre las fechas con reseña, he encontrado un viernes disponible
             if str_next_friday not in dates:
                 found = str_next_friday
             # Avanzo al siguiente viernes
             next_friday = next_friday + timedelta(days=7)
 
-        # Devuelvo la fecha encontrada como números
-        found = RE_DATE_YMD.match(found)
-        year = int(found.group(1))
-        month = int(found.group(2))
-        day = int(found.group(3))
-
-        return (day, month, year)
+        # Devuelvo la fecha encontrada como fecha
+        return date_from_YMD(found)
 
     @classmethod
     def get_all_active_posts(cls) -> list[dict]:
