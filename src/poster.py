@@ -64,7 +64,7 @@ class Poster():
             f.execute()
             # Si no está programada como borrador, aviso al usuario de cuándo se va a publicar la reseña
             if not bDraft:
-                print(f"La reseña de {title}"
+                print(f"La reseña de {title} "
                       f"se publicará el {DMY(str_date[:10])}")
 
         except client.AccessTokenRefreshError:
