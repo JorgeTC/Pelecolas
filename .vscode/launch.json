@@ -87,7 +87,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/mains/main_read_sample.py",
             "console": "integratedTerminal",
-            "justMyCode": true
+            "justMyCode": false
         }
     ]
 }
