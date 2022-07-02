@@ -1,10 +1,14 @@
+import os
 import time
 import webbrowser
+from pathlib import Path
 
+import chromedriver_autoinstaller
 import requests
 from requests.models import Response
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
+from selenium.webdriver import Chrome
 
 from src.aux_res_directory import get_res_folder
 
@@ -16,7 +20,7 @@ XPATH_PASS_BUTTON = "/html/body/div[1]/div[2]/form/div[2]/input"
 DRIVER_OPTION = webdriver.ChromeOptions()
 DRIVER_OPTION.add_experimental_option('excludeSwitches', ['enable-logging'])
 # Path donde se encuentra el driver
-DRIVER_PATH = get_res_folder("Readdata", "driver", "chromedriver")
+DRIVER_PATH = get_res_folder("Readdata", "driver", "chromedriver.exe")
 
 
 def safe_get_url(url: str) -> Response:
@@ -54,14 +58,22 @@ def PassCaptcha(url: str) -> Response:
     return resp
 
 
+def create_chrome_instance() -> Chrome:
+    # Abro una instancia de Chrome
+    # Lo creo con un conjunto de opciones para no emitir errores por consola
+    return webdriver.Chrome(DRIVER_PATH,
+                            options=DRIVER_OPTION)
+
+
 def automatically_pass_captcha(url: str) -> None:
     try:
-        # Abro una instancia de Chrome
-        # Lo creo con un conjunto de opciones para no emitir errores por consola
-        driver = webdriver.Chrome(DRIVER_PATH,
-                                  options=DRIVER_OPTION)
+        driver = create_chrome_instance()
     except WebDriverException:
-        print("Tienes que actualizar driver")
+        update_chrome_driver()
+        driver = create_chrome_instance()
+        if not driver:
+            print("Por favor, actualiza el driver de Chrome.")
+            return
     # Entro a la dirección que ha dado error
     driver.get(url)
     # Espero a que se haya cargado el botón que quiero clicar
@@ -76,3 +88,23 @@ def automatically_pass_captcha(url: str) -> None:
 
     # Cierro la instancia de Chrome
     driver.close()
+
+
+def update_chrome_driver():
+    # Descargo el nuevo driver
+    str_path_new_driver = chromedriver_autoinstaller.install(
+        path=DRIVER_PATH.parent)
+    # Si no he descargado nada, salgo
+    if not str_path_new_driver:
+        return
+
+    # Elimino el antiguo driver
+    if os.path.isfile(DRIVER_PATH):
+        os.remove(DRIVER_PATH)
+    # Coloco el nuevo en la ruta que le corresponde
+    os.rename(src=str_path_new_driver, dst=DRIVER_PATH)
+
+    # Elimino la carpeta que ha creado
+    path_new_driver = Path(str_path_new_driver).parent
+    if DRIVER_PATH.parent == path_new_driver.parent:
+        os.rmdir(path_new_driver)
