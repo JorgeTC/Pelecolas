@@ -4,6 +4,7 @@ import webbrowser
 import requests
 from requests.models import Response
 from selenium import webdriver
+from selenium.common.exceptions import WebDriverException
 
 from src.aux_res_directory import get_res_folder
 
@@ -54,10 +55,13 @@ def PassCaptcha(url: str) -> Response:
 
 
 def automatically_pass_captcha(url: str) -> None:
-    # Abro una instancia de Chrome
-    # Lo creo con un conjunto de opciones para no emitir errores por consola
-    driver = webdriver.Chrome(DRIVER_PATH,
-                                options=DRIVER_OPTION)
+    try:
+        # Abro una instancia de Chrome
+        # Lo creo con un conjunto de opciones para no emitir errores por consola
+        driver = webdriver.Chrome(DRIVER_PATH,
+                                  options=DRIVER_OPTION)
+    except WebDriverException:
+        print("Tienes que actualizar driver")
     # Entro a la dirección que ha dado error
     driver.get(url)
     # Espero a que se haya cargado el botón que quiero clicar
