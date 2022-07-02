@@ -18,6 +18,7 @@ stopped = False
 XPATH_PASS_BUTTON = "/html/body/div[1]/div[2]/form/div[2]/input"
 # Opciones para el driver de Chrome
 DRIVER_OPTION = webdriver.ChromeOptions()
+DRIVER_OPTION.add_argument('headless')
 DRIVER_OPTION.add_experimental_option('excludeSwitches', ['enable-logging'])
 # Path donde se encuentra el driver
 DRIVER_PATH = get_res_folder("Readdata", "driver", "chromedriver.exe")
