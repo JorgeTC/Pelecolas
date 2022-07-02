@@ -80,11 +80,11 @@ def automatically_pass_captcha(url: str) -> None:
     time.sleep(1)
 
     # Accedo al botón que permite pasar el captcha
-    button = driver.find_element_by_xpath(XPATH_PASS_BUTTON)
-    # Clico sobre él
-    button.click()
-    # Espero a que me redirija a la página a la que quería acceder
-    time.sleep(1)
+    if button := driver.find_element_by_xpath(XPATH_PASS_BUTTON):
+        # Clico sobre él
+        button.click()
+        # Espero a que me redirija a la página a la que quería acceder
+        time.sleep(1)
 
     # Cierro la instancia de Chrome
     driver.close()
