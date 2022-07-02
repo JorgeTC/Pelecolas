@@ -1,11 +1,11 @@
 import sys
 from pathlib import Path
 
+from src.config import Config, Param, Section, manage_config
+
 SCRIPT_DIR = Path(__file__).parent
 CODE_DIR = SCRIPT_DIR.parent
 sys.path.append(str(CODE_DIR))
-
-from src.config import manage_config
 
 
 def main():
@@ -23,6 +23,7 @@ def main():
     writer.write_sample(sample_size)
 
     ex_doc.save_wb()
+
 
 if __name__ == "__main__":
     main()
