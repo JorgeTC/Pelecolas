@@ -7,7 +7,8 @@ import chromedriver_autoinstaller
 import requests
 from requests.models import Response
 from selenium import webdriver
-from selenium.common.exceptions import WebDriverException
+from selenium.common.exceptions import (NoSuchElementException,
+                                        WebDriverException)
 from selenium.webdriver import Chrome
 
 from src.aux_res_directory import get_res_folder
@@ -18,7 +19,7 @@ stopped = False
 XPATH_PASS_BUTTON = "/html/body/div[1]/div[2]/form/div[2]/input"
 # Opciones para el driver de Chrome
 DRIVER_OPTION = webdriver.ChromeOptions()
-DRIVER_OPTION.add_argument('headless')
+DRIVER_OPTION.add_argument('--headless')
 DRIVER_OPTION.add_experimental_option('excludeSwitches', ['enable-logging'])
 # Path donde se encuentra el driver
 DRIVER_PATH = get_res_folder("Readdata", "driver", "chromedriver.exe")
@@ -81,11 +82,16 @@ def automatically_pass_captcha(url: str) -> None:
     time.sleep(1)
 
     # Accedo al botón que permite pasar el captcha
-    if button := driver.find_element_by_xpath(XPATH_PASS_BUTTON):
-        # Clico sobre él
-        button.click()
-        # Espero a que me redirija a la página a la que quería acceder
-        time.sleep(1)
+    try:
+        button = driver.find_element_by_xpath(XPATH_PASS_BUTTON)
+    except NoSuchElementException:
+        driver.close()
+        return
+    # Clico sobre él
+    button.click()
+    # Espero a que me redirija a la página a la que quería acceder
+    time.sleep(1)
+    driver.get(url)
 
     # Cierro la instancia de Chrome
     driver.close()
