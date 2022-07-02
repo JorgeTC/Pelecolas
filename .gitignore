@@ -17,6 +17,9 @@ client_secrets.json
 
 # Credenciales para usar la API de Google
 *.dat
+# Driver de Chrome
+chromedriver.exe
+
 
 # Carpeta de entorno virtual
 venv
