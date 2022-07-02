@@ -10,6 +10,7 @@ from openpyxl.styles import Alignment, Font
 from openpyxl.worksheet import worksheet
 
 import src.url_FA as url_FA
+from src.config import Config, Param, Section
 from src.pelicula import Pelicula
 from src.progress_bar import ProgressBar
 from src.safe_url import safe_get_url
@@ -49,7 +50,7 @@ FilmData = namedtuple("FilmData",
 
 class Writer():
 
-    USE_MULTI_THREAD = True
+    USE_MULTI_THREAD = Config.get_bool(Section.READDATA, Param.PARALLELIZE)
 
     def __init__(self, worksheet: worksheet.Worksheet):
 
