@@ -30,6 +30,7 @@ class Param(str, enum.Enum):
     FILTER_FA = "Filter_FilmAffinity"
     DEFAULT_USER = "Mem_user_FA"
     OUTPUT_EXCEL = "Path_output_excel"
+    SAMPLE_OUTPUT = "Name_sample_output_file"
     PARALLELIZE  = "Parallelize"
     # Count films
     ADD_YEAR = "Add_year"
@@ -79,6 +80,7 @@ class Config:
     add_def_value(Section.READDATA, Param.FILTER_FA, 1)
     add_def_value(Section.READDATA, Param.DEFAULT_USER, 'Jorge')
     add_def_value(Section.READDATA, Param.OUTPUT_EXCEL, 'auto')
+    add_def_value(Section.READDATA, Param.SAMPLE_OUTPUT, 'Sample')
     add_def_value(Section.READDATA, Param.PARALLELIZE, True)
     # Configuraciones para escribir el txt
     add_def_value(Section.COUNT_FILMS, Param.ADD_YEAR, False)
