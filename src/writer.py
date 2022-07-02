@@ -10,6 +10,7 @@ from openpyxl.styles import Alignment, Font
 from openpyxl.worksheet import worksheet
 
 import src.url_FA as url_FA
+from src.config import Config, Param, Section
 from src.pelicula import Pelicula
 from src.progress_bar import ProgressBar
 from src.safe_url import safe_get_url
@@ -49,6 +50,8 @@ FilmData = namedtuple("FilmData",
 
 class Writer():
 
+    USE_MULTI_THREAD = Config.get_bool(Section.READDATA, Param.PARALLELIZE)
+
     def __init__(self, worksheet: worksheet.Worksheet):
 
         # Barra de progreso
@@ -71,7 +74,14 @@ class Writer():
                                for id in (ids.pop() for _ in range(50)))
 
             # Itero las películas en mi página actual
-            for film_data in executor.map(read_film_if_valid, valid_film_list):
+            if self.USE_MULTI_THREAD:
+                iter_film_data = executor.map(
+                    read_film_if_valid, valid_film_list)
+            else:
+                iter_film_data = (read_film_if_valid(film)
+                                  for film in valid_film_list)
+
+            for film_data in iter_film_data:
                 if film_data.nota_FA:
                     yield film_data
 
@@ -145,8 +155,13 @@ class Writer():
                                if film.valid())
 
             # Itero las películas en mi página actual
+            if self.USE_MULTI_THREAD:
+                iter_film_data = executor.map(read_film, valid_film_list)
+            else:
+                iter_film_data = (read_film(film) for film in valid_film_list)
+
             read_in_page = 0
-            for film_data in executor.map(read_film, valid_film_list):
+            for film_data in iter_film_data:
                 read_in_page += 1
                 yield film_data, (film_index + read_in_page)/total_films
 
