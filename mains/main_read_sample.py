@@ -16,7 +16,7 @@ def main():
     from src.excel_mgr import ExcelMgr
     from src.writer import Writer
 
-    ex_doc = ExcelMgr("Sample 2")
+    ex_doc = ExcelMgr(Config.get_value(Section.READDATA, Param.SAMPLE_OUTPUT))
 
     writer = Writer(ex_doc.get_worksheet())
     sample_size = int(input("Introduzca el tamaño de la muestra buscada "))
