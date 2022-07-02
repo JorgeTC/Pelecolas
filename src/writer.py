@@ -49,6 +49,8 @@ FilmData = namedtuple("FilmData",
 
 class Writer():
 
+    USE_MULTI_THREAD = True
+
     def __init__(self, worksheet: worksheet.Worksheet):
 
         # Barra de progreso
@@ -71,7 +73,13 @@ class Writer():
                                for id in (ids.pop() for _ in range(50)))
 
             # Itero las películas en mi página actual
-            for film_data in executor.map(read_film_if_valid, valid_film_list):
+            if self.USE_MULTI_THREAD:
+                iter_film_data = executor.map(
+                    read_film_if_valid, valid_film_list)
+            else:
+                iter_film_data = (read_film_if_valid(film)
+                                  for film in valid_film_list)
+            for film_data in iter_film_data:
                 if film_data.nota_FA:
                     yield film_data
 
@@ -146,7 +154,12 @@ class Writer():
 
             # Itero las películas en mi página actual
             read_in_page = 0
-            for film_data in executor.map(read_film, valid_film_list):
+            if self.USE_MULTI_THREAD:
+                iter_film_data = executor.map(read_film, valid_film_list)
+            else:
+                iter_film_data = (read_film(film) for film in valid_film_list)
+
+            for film_data in iter_film_data:
                 read_in_page += 1
                 yield film_data, (film_index + read_in_page)/total_films
 
