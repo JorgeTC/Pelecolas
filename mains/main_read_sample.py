@@ -1,8 +1,6 @@
 import sys
 from pathlib import Path
 
-from src.config import Config, Param, Section, manage_config
-
 SCRIPT_DIR = Path(__file__).parent
 CODE_DIR = SCRIPT_DIR.parent
 sys.path.append(str(CODE_DIR))
@@ -10,6 +8,7 @@ sys.path.append(str(CODE_DIR))
 
 def main():
 
+    from src.config import Config, Param, Section, manage_config
     manage_config()
 
     # Importo los módulos del programa cuando la configuración ya está settada
