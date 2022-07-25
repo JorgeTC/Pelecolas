@@ -60,6 +60,12 @@ class FromFilmBox:
     def get_id(film_box: BeautifulSoup) -> int:
         return int(film_box.contents[1].contents[1].attrs['data-movie-id'])
 
+    @staticmethod
+    def get_year(film_box: BeautifulSoup) -> int:
+        str_year = str(
+            film_box.contents[1].contents[1].contents[3].contents[1].contents[1])
+        return int(re.search(r"(\d{4})", str_year).group(1))
+
 
 def scrap_data(att: str):
     '''
