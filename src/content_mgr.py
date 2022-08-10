@@ -12,19 +12,11 @@ from src.read_blog import BlogHiddenData
 
 
 def get_title_from_html(html_path: Path) -> str:
-    # Quito la palabra reseña y la extensión
-    return get_title_from_html_name(html_path.name)
-
-
-def get_title_from_html_name(html_name: str) -> str:
-    regular_expresion = re.search('Reseña (.+).html', html_name)
+    # Devuelve el nombre del archivo sin la palabra Reseña y la extensión
+    regular_expresion = re.search('Reseña (.+).html', html_path.name)
     # Obtengo lo que haya después de la palabra reseña y antes de la extensión
     name = regular_expresion.group(1)
-    # Quito el posible año
-    _, title = split_title_year(name)
-
-    return title
-
+    return name
 
 @dataclass(frozen=True)
 class PostInfo:
