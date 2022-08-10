@@ -203,7 +203,7 @@ class Quoter:
         # En caso contrario, pregunto
         self.questions_counter += 1
         clear_current_line()
-        pregunta = "¿Es {} una cita de {}? ".format(nombre, director)
+        pregunta = f"¿Es {nombre} una cita de {director}? "
         question = YesNo(pregunta)
         ans = question.get_ans()
         return bool(ans)
