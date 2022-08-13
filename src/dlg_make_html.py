@@ -141,16 +141,6 @@ class DlgHtml(DlgScrollBase):
         # Pido la lista de posts por publicar
         return Poster.get_scheduled_as_list()
 
-    def get_scheduled_titles(self) -> list[str]:
-
-        # Pido la lista de posts por publicar
-        scheduled = Poster.get_scheduled()
-        # Obtengo sus títulos
-        titles = [post['title'].lower() for post in scheduled]
-
-        # Devuelvo una lista con todos los títulos que están programados
-        return titles
-
 
 def all_indices_in_list(ls, el) -> list[int]:
     '''
