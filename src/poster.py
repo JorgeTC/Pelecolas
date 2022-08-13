@@ -190,13 +190,13 @@ class Poster():
         scheduled = cls.get_scheduled()
 
         for post in scheduled:
-            title = post['title']
             # Parseo el contenido
             body = BeautifulSoup(post['content'], 'html.parser')
 
             # Extraigo los datos que quiero
             director = BlogHiddenData.DIRECTOR.get(body)
             year = BlogHiddenData.YEAR.get(body)
+            title = BlogHiddenData.TITLE.get(body)
 
             ans.append([title, "", director, year])
 
