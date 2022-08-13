@@ -92,13 +92,13 @@ class DlgHtml(DlgScrollBase):
 
     def __unpublished(self, ls_titles: list[str]) -> list[str]:
         # Objeto capaz de leer el csv con todos los títulos publicados
-        csv = BlogCsvMgr().open_to_read()
+        csv = BlogCsvMgr.open_to_read()
         csv = csv + self.get_scheduled_csv()
         # Obtengo la lista de títulos,
         # por si están entrecomillados, quito las comillas
-        published = [title[0].strip("\"") for title in csv]
-        published = [str(title.lower()) for title in published]
-        lower_titles = [title.lower() for title in ls_titles]
+        published = (row[0].strip("\"") for row in csv)
+        published = (title.lower() for title in published)
+        lower_titles = (title.lower() for title in ls_titles)
 
         ls_unpublished: list[str] = []
         for i, title in enumerate(lower_titles):

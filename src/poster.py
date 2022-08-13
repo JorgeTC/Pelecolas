@@ -184,7 +184,7 @@ class Poster():
     @classmethod
     def get_scheduled_as_list(cls) -> list[list[str]]:
         # Quiero una lista de listas.
-        ans = []
+        ans: list[list[str]] = []
         # Cada sublista deberá tener 4 elementos:
         # título, link(vacío), director y año
         scheduled = cls.get_scheduled()

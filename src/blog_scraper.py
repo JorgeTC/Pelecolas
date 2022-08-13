@@ -26,7 +26,7 @@ class BlogScraper:
         posted = Poster.get_all_active_posts()
 
         # Quiero extraer datos de cada reseña para escribir el csv
-        extracted_data = [cls.get_data_from_post(post) for post in posted]
+        extracted_data = (cls.get_data_from_post(post) for post in posted)
 
         BlogCsvMgr.write(cls.HEADER_CSV, extracted_data)
 
