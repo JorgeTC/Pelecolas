@@ -108,7 +108,9 @@ class DlgHtml(DlgScrollBase):
             if candidato_año:
                 # Compruebo que esté el título en la lista de publicados
                 index = all_indices_in_list(published, title)
-                # Compruebo que el año sea correcto
+                # Compruebo que el año sea correcto.
+                # Esta comprobación la hacemos para los casos en los que un título
+                # se haya añadido al Word sin año y posteriormente se haya añadido el año.
                 if not any(candidato_año == csv[ocurr][CSV_COLUMN.YEAR]
                            for ocurr in index):
                     # Añado el título con las mayúsculas originales
