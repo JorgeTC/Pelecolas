@@ -1,3 +1,4 @@
+from dataclasses import asdict
 from datetime import date, datetime, timedelta
 
 from bs4 import BeautifulSoup
@@ -5,13 +6,14 @@ from dateutil import tz
 from googleapiclient.discovery import Resource
 from oauth2client import client
 
+from src.api_dataclasses import Blog, Post
 from src.aux_title_str import DMY, date_from_DMY, date_from_YMD, time_from_str
 from src.config import Config, Param, Section
 from src.google_api_mgr import GetGoogleApiMgr
 from src.read_blog import BlogHiddenData
 
 
-def get_blog_and_api(service: Resource, blog_id: str) -> tuple[dict, Resource]:
+def get_blog_and_api(service: Resource, blog_id: str) -> tuple[Blog, Resource]:
     try:
         # Obtengo la API
         post_api = service.posts()
@@ -21,6 +23,7 @@ def get_blog_and_api(service: Resource, blog_id: str) -> tuple[dict, Resource]:
         my_blogs = blogs.listByUser(userId='self').execute()
         right_blog = next(
             (blog for blog in my_blogs['items'] if blog['id'] == blog_id), None)
+        right_blog = Blog(**right_blog)
 
         return right_blog, post_api
 
@@ -46,15 +49,12 @@ class Poster():
         str_date = cls.__get_publish_datatime()
 
         # Creo el contenido que voy a publicar
-        body = {
-            "kind": "blogger#post",
-            "title": title,
-            "content": content,
-            "published": str_date
-        }
+        body = Post(title=title,
+                    content=content,
+                    published=str_date)
         # Solo añado las etiquetas si son válidas
         if labels:
-            body["labels"] = labels
+            body.labels = labels
 
         try:
             # Miro si la configuración me pide que lo publique como borrador
@@ -91,7 +91,7 @@ class Poster():
         scheduled = cls.get_scheduled()
 
         # Extraigo todas las fechas que ya tienen asignado un blog
-        dates = {str(date_from_YMD(post['published'])) for post in scheduled}
+        dates = {str(date_from_YMD(post.published)) for post in scheduled}
 
         # Busco los viernes disponibles
         # Voy al próximo viernes
@@ -115,11 +115,11 @@ class Poster():
         return date_from_YMD(found)
 
     @classmethod
-    def get_all_active_posts(cls) -> list[dict]:
+    def get_all_active_posts(cls) -> list[Post]:
         return cls.get_published_from_date(cls.__first_month)
 
     @classmethod
-    def get_all_posts(cls) -> list[dict]:
+    def get_all_posts(cls) -> list[Post]:
 
         # Obtengo todos los posts publicados
         posted = cls.get_all_active_posts()
@@ -133,14 +133,14 @@ class Poster():
         return all_posts
 
     @classmethod
-    def update_post(cls, new_post):
+    def update_post(cls, new_post: Post):
 
         cls.posts.update(blogId=cls.BLOG_ID,
-                         postId=new_post['id'],
-                         body=new_post).execute()
+                         postId=new_post.id,
+                         body=asdict(new_post)).execute()
 
     @classmethod
-    def get_published_from_date(cls, min_date: date | datetime) -> list[dict]:
+    def get_published_from_date(cls, min_date: date | datetime) -> list[Post]:
 
         # Las fechas deben estar introducidas en formato date
         # Las convierto a cadena
@@ -155,14 +155,14 @@ class Poster():
 
         # Obtengo todos los posts que están programados
         try:
-            scheduled = execute['items']
+            scheduled = [Post(**item) for item in execute['items']]
         except:
             scheduled = []
 
         return scheduled
 
     @classmethod
-    def get_scheduled(cls) -> list[dict]:
+    def get_scheduled(cls) -> list[Post]:
         # Hago una lista de todos los posts programados a partir de hoy
         today = datetime.today()
         start_date = date_to_str(today)
@@ -175,7 +175,7 @@ class Poster():
 
         # Obtengo todos los posts que están programados
         try:
-            scheduled = execute['items']
+            scheduled = [Post(**item) for item in execute['items']]
         except:
             scheduled = []
 
@@ -190,9 +190,9 @@ class Poster():
         scheduled = cls.get_scheduled()
 
         for post in scheduled:
-            title = post['title']
+            title = post.title
             # Parseo el contenido
-            body = BeautifulSoup(post['content'], 'html.parser')
+            body = BeautifulSoup(post.content, 'html.parser')
 
             # Extraigo los datos que quiero
             director = BlogHiddenData.DIRECTOR.get(body)

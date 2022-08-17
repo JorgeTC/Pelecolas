@@ -1,7 +1,8 @@
 from googleapiclient.discovery import Resource
 from googleapiclient.http import MediaFileUpload
 
-from src.config import Config, Section, Param
+from src.api_dataclasses import DriveFile
+from src.config import Config, Param, Section
 from src.google_api_mgr import GetGoogleApiMgr
 
 TYPE_FOLDER = 'application/vnd.google-apps.folder'
@@ -33,24 +34,24 @@ class Drive():
         # Le paso todos los archivos para actualizar
         self.update_files(files_in_folder)
 
-    def update_files(self, files_to_update):
+    def update_files(self, files_to_update: list[DriveFile]):
         # Itero los archivos de la lista
         for file in files_to_update:
 
             # Contenido del nuevo archivo
-            if file['name'].find('.docx') >= 0:
+            if file.name.find('.docx') >= 0:
                 # Caso en el que sea un word
-                sz_file = self.docx_folder / file['name']
+                sz_file = self.docx_folder / file.name
             else:
                 # Caso en el que sea el pdf
-                sz_file = self.pdf_folder / file['name']
+                sz_file = self.pdf_folder / file.name
 
             # Realizo la actualización
             # Obtengo el archivo como un objeto
             media_body = MediaFileUpload(sz_file, resumable=True)
             # Defino la acción de actualización
             update_operation = self.files.update(
-                fileId=file['id'],
+                fileId=file.id,
                 media_body=media_body)
             # Ejecuto la actualización
             update_operation.execute()
@@ -61,7 +62,7 @@ class Drive():
         except:
             return None
 
-    def get_files_in_folder(self, sz_folder_id: str):
+    def get_files_in_folder(self, sz_folder_id: str) -> list[DriveFile]:
 
         answer = []
         try:
@@ -76,8 +77,9 @@ class Drive():
 
                 # Itero lo que me ha dado la api en esta petición
                 for file in response.get('files', []):
+                    drive_file = DriveFile(file)
                     # Compruebo que sean archivos no eliminados
-                    if not file['trashed']:
+                    if not drive_file.trashed:
                         answer.append(file)
 
                 # Avanzo a la siguiente petición

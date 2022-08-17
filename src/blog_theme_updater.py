@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 
+from src.api_dataclasses import Post
 from src.aux_console import clear_current_line, go_to_upper_row
 from src.config import Config, Param, Section
 from src.content_mgr import ContentMgr
@@ -24,16 +25,16 @@ class BlogThemeUpdater():
         # Compruebo que no haya posts repetidos
         self.exist_repeated_posts(self.all_posts)
 
-    def get_word_name_from_blog_post(self, post: dict, *, keep_parsed: bool = False) -> str:
+    def get_word_name_from_blog_post(self, post: Post, *, keep_parsed: bool = False) -> str:
 
-        def body(self: 'BlogThemeUpdater', post: dict) -> str:
-            name = post['title']
+        def body(self: 'BlogThemeUpdater', post: Post) -> str:
+            name = post.title
             # Si el nombre que tiene en el word no es el normal, es que tiene un año
             if self.title_manager.is_title_in_list(name):
                 return self.title_manager.exact_key_without_dlg(name)
 
             # Parseo el contenido
-            self.parsed = BeautifulSoup(post['content'], 'html.parser')
+            self.parsed = BeautifulSoup(post.content, 'html.parser')
 
             # Tomo el nombre que está escrito en los datos ocultos
             name = BlogHiddenData.TITLE.get(self.parsed)
@@ -68,7 +69,7 @@ class BlogThemeUpdater():
 
         self.update_post(word_names[to_update])
 
-    def update_post(self, post: dict, *,
+    def update_post(self, post: Post, *,
                     dowload_data: bool = Config.get_bool(
                         Section.POST, Param.GET_DATA_FROM_FA),
                     fa_url_from_hidden_data: bool = Config.get_bool(
@@ -82,7 +83,7 @@ class BlogThemeUpdater():
 
         if not self.parsed:
             # Parseo el contenido
-            self.parsed = BeautifulSoup(post['content'], 'html.parser')
+            self.parsed = BeautifulSoup(post.content, 'html.parser')
 
         # Obtengo la url de la película
         if fa_url_from_hidden_data:
@@ -132,7 +133,7 @@ class BlogThemeUpdater():
         # Extraigo el texto del documento html
         # El resto de datos del post deben quedar intactos
         post_info = ContentMgr.extract_html(self.Documento.sz_file_name)
-        post['content'] = post_info.content
+        post.content = post_info.content
         # Subo el nuevo post
         Poster.update_post(post)
 
@@ -144,7 +145,7 @@ class BlogThemeUpdater():
 
         return True
 
-    def exist_repeated_posts(self, posts: list[dict]) -> bool:
+    def exist_repeated_posts(self, posts: list[Post]) -> bool:
 
         # Genero un contenedor para guardar los títulos ya visitados
         titles: set[str] = set()
@@ -171,10 +172,10 @@ class BlogThemeUpdater():
 
             # Imprimo el nombre de la película actual
             clear_current_line()
-            print(f"Actualizando {post['title']}")
+            print(f"Actualizando {post.title}")
 
             if not self.update_post(post):
-                print(f"Error con la película {post['title']}")
+                print(f"Error con la película {post.title}")
 
             # Imprimo el progreso de la barra
             bar.update((index + 1)/total_elements)

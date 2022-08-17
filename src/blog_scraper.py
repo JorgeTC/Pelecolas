@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 
+from src.api_dataclasses import Post
 from src.blog_csv_mgr import BlogCsvMgr
 from src.poster import Poster
 from src.read_blog import BlogHiddenData
@@ -10,10 +11,10 @@ class BlogScraper:
     HEADER_CSV = ('Titulo', 'Link', 'Director', 'Año')
 
     @classmethod
-    def get_data_from_post(cls, post: dict) -> tuple[str]:
-        name = post['title']
-        link = post['url']
-        body = BeautifulSoup(post['content'], 'html.parser')
+    def get_data_from_post(cls, post: Post) -> tuple[str]:
+        name = post.title
+        link = post.url
+        body = BeautifulSoup(post.content, 'html.parser')
         director = BlogHiddenData.DIRECTOR.get(body)
         año = BlogHiddenData.YEAR.get(body)
 
