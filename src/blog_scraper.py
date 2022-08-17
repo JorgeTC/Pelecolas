@@ -11,7 +11,7 @@ from src.word_reader import WordReader
 class BlogScraper:
 
     HEADER_CSV = ('Titulo', 'Link', 'Director', 'Año')
-    TITLE_MGR = TitleMgr(WordReader().list_titles())
+    TITLE_MGR = TitleMgr(WordReader.list_titles())
 
     @classmethod
     def get_name_from_post(cls, post: Post) -> str:
