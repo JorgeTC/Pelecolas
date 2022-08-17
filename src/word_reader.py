@@ -116,7 +116,7 @@ class WordReader(WordFolderMgr):
 
         return titulo
 
-    def list_titles(self):
+    def list_titles(self) -> list[str]:
         # inicializo la variable.
         # No quiero buscar desde el principio porque sé que encontraré el título del documento.
         search_title = False
@@ -132,7 +132,7 @@ class WordReader(WordFolderMgr):
                 # Si no he añadido nada, sigo buscando.
                 search_title = not self.__append_title(paragraph, i)
 
-        return self.titulos.keys()
+        return list(self.titulos.keys())
 
     def write_list(self):
         output_path = Config.get_folder_path(
