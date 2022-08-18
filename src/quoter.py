@@ -7,10 +7,12 @@ from spacy.tokens.span import Span
 
 from src.aux_console import clear_current_line, delete_line, go_to_upper_row
 from src.aux_res_directory import get_res_folder
+from src.aux_title_str import split_title_year
 from src.blog_csv_mgr import CSV_COLUMN, BlogCsvMgr
 from src.blog_scraper import BlogScraper
 from src.config import Config, Param, Section
 from src.dlg_bool import YesNo
+from src.word_reader import WordReader
 
 
 @dataclass
@@ -123,18 +125,20 @@ class Quoter:
 
         while posible_titles:
             title = posible_titles.pop()
-            row = self.__row_in_csv(title.title)
+            row = self.__find_row_in_csv(title.title)
             # La película no está indexada
             if row < 0:
                 continue
+            # Guardo el título como viene escrito en el CSV
+            title_in_csv = self.CSV_CONTENT[row][CSV_COLUMN.TITLE]
             # Si la película ya está citada, no la cito otra vez
-            if title.title in self.__titles:
+            if title_in_csv in self.__titles:
                 continue
             # Si la cita es la película actual, no añado link
-            if title.title == self.titulo:
+            if title_in_csv == self.titulo:
                 continue
             # Guardo este título como ya citado
-            self.__titles.add(title.title)
+            self.__titles.add(title_in_csv)
             self.__add_post_link(title, row)
 
     def __add_post_link(self, citation: FilmCitation, row: int) -> None:
@@ -228,6 +232,21 @@ class Quoter:
                      if title.lower() == row[CSV_COLUMN.TITLE].lower().strip("\"")),
                     -1)
 
+    def __find_row_in_csv(self, title: str) -> int:
+        # Busco la fila del csv con coincidencia exacta
+        exact_match = self.__row_in_csv(title)
+        if exact_match >= 0:
+            return exact_match
+
+        # Busco cuántos títulos del Word coinciden salvo el año
+        matches_but_year = [word_title
+                            for word_title in WordReader.list_titles()
+                            if title.lower() == trim_year(word_title.lower())]
+        # Si la coincidencia es única, miro que lo que he encontrado esté presente en el CSV
+        if len(matches_but_year) != 1:
+            return -1
+        return self.__row_in_csv(matches_but_year[0])
+
     def extract_names(self, text: str) -> list[str]:
         # Usando un procesador de lenguaje natural extraigo los nombres del párrafo
         texto_procesado = self.NLP(text)
@@ -249,6 +268,11 @@ class Quoter:
 
         # Reseteo el contador
         self.questions_counter = 0
+
+
+def trim_year(title: str) -> str:
+    _, title = split_title_year(title)
+    return title
 
 
 def is_person(ent: Span) -> bool:
