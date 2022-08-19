@@ -18,19 +18,19 @@ class Drive():
         self.files: Resource = self.SERVICE.files()
 
         # Obtengo la carpeta dentro del drive
-        self.folder_id = Config.get_value(Section.DRIVE, Param.FOLDER_ID)
-        self.folder = self.get_item_by_id(self.folder_id)
+        self.FOLDER_ID = Config.get_value(Section.DRIVE, Param.FOLDER_ID)
+        self.folder = self.get_item_by_id(self.FOLDER_ID)
 
         # Obtengo la carpeta donde vive el pdf
-        self.pdf_folder = Config.get_folder_path(
+        self.PDF_FOLDER = Config.get_folder_path(
             Section.DRIVE, Param.PDF_PATH)
         # Obtengo la carpeta donde viven los docx
-        self.docx_folder = Config.get_folder_path(
+        self.DOCX_FOLDER = Config.get_folder_path(
             Section.COUNT_FILMS, Param.WORD_FOLDER)
 
     def update_folder(self):
         # Obtengo los archivos dentro de la carpeta
-        files_in_folder = self.get_files_in_folder(self.folder_id)
+        files_in_folder = self.get_files_in_folder(self.FOLDER_ID)
         # Le paso todos los archivos para actualizar
         self.update_files(files_in_folder)
 
@@ -41,10 +41,10 @@ class Drive():
             # Contenido del nuevo archivo
             if file.name.find('.docx') >= 0:
                 # Caso en el que sea un word
-                sz_file = self.docx_folder / file.name
+                sz_file = self.DOCX_FOLDER / file.name
             else:
                 # Caso en el que sea el pdf
-                sz_file = self.pdf_folder / file.name
+                sz_file = self.PDF_FOLDER / file.name
 
             # Realizo la actualización
             # Obtengo el archivo como un objeto
