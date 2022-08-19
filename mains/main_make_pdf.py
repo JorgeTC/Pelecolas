@@ -11,13 +11,12 @@ def create_PDF():
     # Iniclaización necesaria para poder abrir Word con multithreading
     pythoncom.CoInitialize()
 
-    writer = PDFWriter()
     # Convierto cada word a un pdf
-    writer.convert_all_word()
+    PDFWriter.convert_all_word()
     # Uno todos los pdf en uno solo
-    writer.join_pdf()
+    PDFWriter.join_pdf()
     # Elimino los pdf individuales
-    writer.clear_temp_pdf()
+    PDFWriter.clear_temp_pdf()
 
 
 def main():

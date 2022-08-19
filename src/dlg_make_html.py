@@ -92,13 +92,13 @@ class DlgHtml(DlgScrollBase):
 
     def __unpublished(self, ls_titles: list[str]) -> list[str]:
         # Objeto capaz de leer el csv con todos los títulos publicados
-        csv = BlogCsvMgr().open_to_read()
+        csv = BlogCsvMgr.open_to_read()
         csv = csv + self.get_scheduled_csv()
         # Obtengo la lista de títulos,
         # por si están entrecomillados, quito las comillas
-        published = [title[0].strip("\"") for title in csv]
-        published = [str(title.lower()) for title in published]
-        lower_titles = [title.lower() for title in ls_titles]
+        published = (row[0].strip("\"") for row in csv)
+        published = (title.lower() for title in published)
+        lower_titles = (title.lower() for title in ls_titles)
 
         ls_unpublished: list[str] = []
         for i, title in enumerate(lower_titles):
@@ -108,7 +108,9 @@ class DlgHtml(DlgScrollBase):
             if candidato_año:
                 # Compruebo que esté el título en la lista de publicados
                 index = all_indices_in_list(published, title)
-                # Compruebo que el año sea correcto
+                # Compruebo que el año sea correcto.
+                # Esta comprobación la hacemos para los casos en los que un título
+                # se haya añadido al Word sin año y posteriormente se haya añadido el año.
                 if not any(candidato_año == csv[ocurr][CSV_COLUMN.YEAR]
                            for ocurr in index):
                     # Añado el título con las mayúsculas originales

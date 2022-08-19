@@ -7,39 +7,38 @@ from PyPDF2 import PdfFileMerger
 from src.config import Config, Section, Param
 from src.word_folder_mgr import WordFolderMgr
 
+def get_pdf_files(docx_folder: Path, docx_list: list[Path]) -> list[Path]:
+    # Lista donde guardo todos los pdf que genere
+    sz_pdf = []
 
-class PDFWriter(WordFolderMgr):
-    def __init__(self):
-        super().__init__()
-        self.sz_all_pdf = self.get_pdf_files()
+    # Aún no existen los pdf.
+    # Recorro los docx que existen, los que voy a convertir a pdf.
+    # Genero el nombre que tendrá el pdf resultante de cada uno de ellos
+    for file in docx_list:
+        # Cojo el nombre del docx y le cambio la extensión
+        sz_pdf_name = docx_folder / (file.stem + ".pdf")
+        sz_pdf.append(sz_pdf_name)
 
-    def get_pdf_files(self) -> list[Path]:
-        # Lista donde guardo todos los pdf que genere
-        sz_pdf = []
+    return sz_pdf
 
-        # Aún no existen los pdf.
-        # Recorro los docx que existen, los que voy a convertir a pdf.
-        # Genero el nombre que tendrá el pdf resultante de cada uno de ellos
-        for file in self.sz_all_docx:
-            # Cojo el nombre del docx y le cambio la extensión
-            sz_pdf_name = self.word_folder / (file.stem + ".pdf")
-            sz_pdf.append(sz_pdf_name)
+class PDFWriter():
+    SZ_ALL_PDF: list[Path] = get_pdf_files(WordFolderMgr.WORD_FOLDER)
 
-        return sz_pdf
-
-    def convert_all_word(self):
+    @classmethod
+    def convert_all_word(cls):
         # Elimino los archivos temprales
-        self.delete_temp_files()
+        WordFolderMgr.delete_temp_files()
 
         # Convierto todo a pdf
-        docx2pdf.convert(str(self.word_folder))
+        docx2pdf.convert(str(WordFolderMgr.WORD_FOLDER))
 
-    def join_pdf(self):
+    @classmethod
+    def join_pdf(cls):
 
         # Creo un objeto para unir pdf
         merger = PdfFileMerger()
         # Le doy todos los que necesita añadir
-        for pdf in self.sz_all_pdf:
+        for pdf in cls.SZ_ALL_PDF:
             merger.append(str(pdf))
 
         # Le doy la carpeta y el nombre del pdf
@@ -47,7 +46,8 @@ class PDFWriter(WordFolderMgr):
             Section.DRIVE, Param.PDF_PATH) / "Reseñas.pdf"))
         merger.close()
 
-    def clear_temp_pdf(self):
+    @classmethod
+    def clear_temp_pdf(cls):
         # Elimino los archivos pdf temporales que había escrito
-        for file in self.sz_all_pdf:
+        for file in cls.SZ_ALL_PDF:
             os.remove(file)

@@ -44,7 +44,6 @@ class html(WordReader):
     html_output_folder = Config.get_folder_path(Section.HTML, Param.OUTPUT_PATH_HTML)
 
     def __init__(self):
-        WordReader.__init__(self)
 
         # Variable para el nombre del archivo
         self.sz_file_name = ""
@@ -55,16 +54,13 @@ class html(WordReader):
         # quiero de ella su titulo, año, duración, y director
         self.data = Pelicula()
 
-        # Hago un diccionario con todos los títulos que tienen una crítica escrita
-        self.list_titles()
-
         # Objeto para hacer las citas de forma automática
         self.__citas: Quoter = None
 
     def ask_for_data(self):
         # Diálogo para pedir los datos necesarios para crear el html
         # Necesito darle una lista de todos los títulos que tengo en el word
-        dlg = DlgHtml(list(self.titulos.keys()))
+        dlg = DlgHtml(self.list_titles())
         # Llamo al diálogo para que pida por la consola los datos que necesito
         dlg.ask_for_data()
         self.data = dlg.data
@@ -78,7 +74,7 @@ class html(WordReader):
         self.__citas = Quoter(self.data.titulo, self.data.director)
 
         # Empiezo a recorrer los párrafos desde el que sé que inicia la crítica que busco
-        for paragraph in self.paragraphs[self.titulos[self.data.titulo]:]:
+        for paragraph in self.PARAGRAPHS[self.TITULOS[self.data.titulo]:]:
 
             if self.is_break_line(paragraph.text):
                 # He llegado al final de la crítica. Dejo de leer el documento

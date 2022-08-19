@@ -27,14 +27,14 @@ class TitleMgr():
         # Copio todos los títulos disponibles.
         # La clase html los tiene en forma de diccionario.
         # Yo sólo necesito las llaves de ese diccionario.
-        self.ls_title: list[str] = list(title_list)
+        self.TITLES: list[str] = list(title_list)
 
         # Hago dos versiones más de la lista de títulos.
         # Uno en minísculas
-        self.ls_lower: list[str] = [title.lower() for title in self.ls_title]
+        self.LOWER_TITLES: list[str] = [title.lower() for title in self.TITLES]
         # Otro con los títulos normalizados
-        self.ls_norm: list[str] = [self.__normalize_string(title)
-                                   for title in self.ls_lower]
+        self.NORMALIZED_TITLES: list[str] = [self.__normalize_string(title)
+                                             for title in self.LOWER_TITLES]
 
         # Variables para guardar el resultado del cálculo.
         self.__exists: bool = False
@@ -43,6 +43,10 @@ class TitleMgr():
         self.__lsn_suggestions: list[int] = []
 
     def is_title_in_list(self, titulo: str) -> bool:
+        '''
+        Devuelve `True` si el argumento introducido se encuentra
+        exactamente así (salvo mayúsculas) en la lista de títulos.
+        '''
 
         # Inicio las variables de búsqueda
         self.__lsn_suggestions.clear()
@@ -52,7 +56,7 @@ class TitleMgr():
 
         try:
             # Guardo la posición para saber cuál es la llave que le corresponde
-            self.__position = self.ls_lower.index(titulo)
+            self.__position = self.LOWER_TITLES.index(titulo)
         except ValueError:
             self.__position = -1
 
@@ -78,7 +82,7 @@ class TitleMgr():
         # Esto significa que o bien lo introducido esté contenido en el título o viceversa
         self.__lsn_suggestions = \
             [index
-             for index, normalized in enumerate(self.ls_norm)
+             for index, normalized in enumerate(self.NORMALIZED_TITLES)
              if titulo.find(normalized) >= 0 or normalized.find(titulo) >= 0]
 
         # Si he encontrado títulos para sugerir, los imprimo
@@ -100,7 +104,7 @@ class TitleMgr():
 
         # Variables exists y position ya calculadas.
         if self.__exists:
-            return self.ls_title[self.__position]
+            return self.TITLES[self.__position]
         else:
             # Ya sé que no está en la lista de llaves.
             return ""
@@ -112,7 +116,7 @@ class TitleMgr():
 
         # Variables exists y position ya calculadas.
         if self.__exists:
-            return self.ls_title[self.__position]
+            return self.TITLES[self.__position]
         else:
             # Ya sé que no está en la lista de llaves.
             return ""
@@ -126,7 +130,7 @@ class TitleMgr():
         print("Quizás quisiste decir...")
         for index in self.__lsn_suggestions:
             # Imprimo el título original. El que se ha leído en el documento
-            print(self.ls_title[index])
+            print(self.TITLES[index])
 
     def get_suggested_titles_count(self) -> int:
         return len(self.__lsn_suggestions)
@@ -135,7 +139,7 @@ class TitleMgr():
         # Obtengo la posición que el indexésimo título ocupa en la lista de títulos
         suggested_index = self.__lsn_suggestions[index]
         # Devuelvo el título
-        return self.ls_title[suggested_index]
+        return self.TITLES[suggested_index]
 
     def get_suggestions(self) -> list[str]:
-        return [self.ls_title[index] for index in self.__lsn_suggestions]
+        return [self.TITLES[index] for index in self.__lsn_suggestions]

@@ -12,13 +12,14 @@ from src.poster import Poster
 from src.progress_bar import ProgressBar
 from src.read_blog import BlogHiddenData
 from src.searcher import Searcher
+from src.word_reader import WordReader
 
 
 class BlogThemeUpdater():
 
     def __init__(self):
         self.Documento = html()
-        self.title_manager = TitleMgr(self.Documento.titulos.keys())
+        self.title_manager = TitleMgr(WordReader.list_titles())
         self.all_posts = Poster.get_all_posts()
         self.parsed: BeautifulSoup = None
 

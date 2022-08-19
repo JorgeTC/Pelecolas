@@ -184,19 +184,19 @@ class Poster():
     @classmethod
     def get_scheduled_as_list(cls) -> list[list[str]]:
         # Quiero una lista de listas.
-        ans = []
+        ans: list[list[str]] = []
         # Cada sublista deberá tener 4 elementos:
         # título, link(vacío), director y año
         scheduled = cls.get_scheduled()
 
         for post in scheduled:
-            title = post.title
             # Parseo el contenido
             body = BeautifulSoup(post.content, 'html.parser')
 
             # Extraigo los datos que quiero
             director = BlogHiddenData.DIRECTOR.get(body)
             year = BlogHiddenData.YEAR.get(body)
+            title = BlogHiddenData.TITLE.get(body)
 
             ans.append([title, "", director, year])
 

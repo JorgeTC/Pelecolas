@@ -78,8 +78,8 @@ class Searcher():
             return []
 
         # Caja donde están todos los resultados
-        peliculas_encontradas = self.parsed_page.find_all(
-            'div', {'class': 'se-it'})
+        peliculas_encontradas: list[BeautifulSoup] = \
+            self.parsed_page.find_all('div', {'class': 'se-it'})
 
         lista_peliculas = []
         curr_year = 0
@@ -94,8 +94,8 @@ class Searcher():
 
             # Leo el título y el enlace
             title_box = p.find('div', {'class': 'mc-title'})
-            url = title_box.contents[0].previous_element.contents[0].attrs['href']
-            title = title_box.contents[0].previous_element.contents[0].attrs['title']
+            url: str = title_box.contents[0].previous_element.contents[0].attrs['href']
+            title: str = title_box.contents[0].previous_element.contents[0].attrs['title']
             title = title.strip()
 
             # Lo añado a la lista
