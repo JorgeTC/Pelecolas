@@ -7,7 +7,7 @@ from src.config import Config, Param, Section
 
 class ExcelMgr():
 
-    SZ_FILE_NAME = 'Sintaxis - {}.xlsx'
+    SZ_FILE_NAME = 'Sintaxis - {}.xlsx'.format
     SZ_TEMPLATE_NAME = 'Plantilla.xlsx'
 
     def __init__(self, usuario: str):
@@ -20,7 +20,7 @@ class ExcelMgr():
         self.ws: Worksheet = self.wb[self.wb.sheetnames[0]]
 
         # Construyo el nombre con el que voy a guardar el excel
-        self.ExcelName = self.SZ_FILE_NAME.format(usuario)
+        self.ExcelName = self.SZ_FILE_NAME(usuario)
 
         # Cargo la carpeta donde se guardará
         self.output_path = Config.get_folder_path(

@@ -14,9 +14,9 @@ class Timer():
             left = (1 - done) * (now - self.start) / done
             sec = int(left.total_seconds())
             if sec < 60:
-                return "{} seconds".format(sec)
+                return f"{sec} seconds"
             else:
-                return "{} minutes".format(int(sec / 60))
+                return f"{int(sec / 60)} minutes"
 
     def reset(self) -> None:
         self.start = datetime.datetime.now()

@@ -43,7 +43,7 @@ class Profiler():
         # Escribo encabezados
         csv_writer.writerow(self.HEADERS)
 
-        # Obtengo el timpo total que he estado midiendo
+        # Obtengo el tiempo total que he estado midiendo
         total_time = to_sec(self.end_time - self.begin_time)
 
         for function in self.fun_runtimes:
@@ -57,11 +57,11 @@ class Profiler():
             row.append(len(calls))
             # Añado la media de tiempo en cada llamada
             row.append(sum(calls) / len(calls))
-            # Añado el timepo total
+            # Añado el tiempo total
             all_calls = sum(calls)
             row.append(all_calls)
-            # Añado el porcentaje de timepo que ha consumido
-            row.append('{} %'.format(all_calls/total_time))
+            # Añado el porcentaje de tiempo que ha consumido
+            row.append(f'{all_calls/total_time} %')
             # Añado el máximo
             row.append(max(calls))
             # Añado el mínimo

@@ -61,9 +61,9 @@ class Quoter:
     INI_QUOTE_CHAR = "“"
     FIN_QUOTE_CHAR = "”"
 
-    OPEN_LINK = "<a href=\"{}\">"
+    OPEN_LINK = "<a href=\"{}\">".format
     CLOSE_LINK = "</a>"
-    LINK_LABEL = "https://pelecolas.blogspot.com/search/label/{}"
+    LINK_LABEL = "https://pelecolas.blogspot.com/search/label/{}".format
 
     # Procesador de lenguaje para obtener nombres propios
     # Cargando el modelo en español de spacy
@@ -143,8 +143,7 @@ class Quoter:
 
     def __add_post_link(self, citation: FilmCitation, row: int) -> None:
         # Construyo el html para el enlace
-        ini_link = self.OPEN_LINK.format(
-            self.CSV_CONTENT[row][CSV_COLUMN.LINK])
+        ini_link = self.OPEN_LINK(self.CSV_CONTENT[row][CSV_COLUMN.LINK])
 
         # Escribo el cierre del link
         position = citation.end
@@ -219,9 +218,9 @@ class Quoter:
 
         # Construyo el link
         dir = urllib.parse.quote(cit.director)
-        link = self.LINK_LABEL.format(dir)
+        link = self.LINK_LABEL(dir)
         # Construyo el html para el enlace
-        ini_link = self.OPEN_LINK.format(link)
+        ini_link = self.OPEN_LINK(link)
         # Escribo el inicio del hipervínculo
         self.__ori_text = insert_string_in_position(
             self.__ori_text, ini_link, cit.position)

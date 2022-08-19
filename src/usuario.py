@@ -7,7 +7,7 @@ from src.dlg_scroll_base import DlgScrollBase
 
 class Usuario():
 
-    SZ_QUESTION = "Se van a importar los datos de {}\nEspero enter..."
+    SZ_QUESTION = "Se van a importar los datos de {}\nEspero enter...".format
 
     def __init__(self):
         self.ids = self.read_dict()
@@ -30,7 +30,7 @@ class Usuario():
         return dictionary
 
     def ask_user(self):
-        asker = DlgScrollBase(question=self.SZ_QUESTION.format(self.nombre),
+        asker = DlgScrollBase(question=self.SZ_QUESTION(self.nombre),
                               options=list(self.ids.keys()),
                               empty_ans=True)
         # Pido el nombre del usuario cuyos datos se quieren importar

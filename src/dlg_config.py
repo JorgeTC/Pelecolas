@@ -4,11 +4,11 @@ from src.dlg_scroll_base import DlgScrollBase
 
 SZ_SECTIONS = "Secciones: "
 SZ_PARAMETROS = "Parámetros: "
-SZ_NEW_VALUE = "Nuevo valor de {}: "
+SZ_NEW_VALUE = "Nuevo valor de {}: ".format
 
 SZ_WELCOME = "## BIENVENIDO A LA CONFIGURACIÓN ##"
 SZ_CLOSE = "### SALIENDO DE LA CONFIGURACIÓN ##"
-SZ_PRINT_VALUE = "  {}: {}"
+SZ_PRINT_VALUE = "  {}: {}".format
 
 
 class DlgConfig(DlgScrollBase):
@@ -56,7 +56,7 @@ class DlgConfig(DlgScrollBase):
             self.__choose_section()
 
     def __ask_param(self):
-        ans = input(SZ_NEW_VALUE.format(self.__curr_param))
+        ans = input(SZ_NEW_VALUE(self.__curr_param))
         self.config.set(self.__curr_section, self.__curr_param, ans)
 
     def print(self):
@@ -66,4 +66,4 @@ class DlgConfig(DlgScrollBase):
     def print_section(self, section: str):
         print(section.upper())
         for param in self.config[section]:
-            print(SZ_PRINT_VALUE.format(param, self.config[section][param]))
+            print(SZ_PRINT_VALUE(param, self.config[section][param]))

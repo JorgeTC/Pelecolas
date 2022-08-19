@@ -152,7 +152,7 @@ class Config:
     def set_value(cls, section: Section, param: Param, value) -> None:
         # Me espero que se introduzca un valor en una sección que existe
         if param not in cls.config[section]:
-            assert("{} no pertenece a la sección {}.".format(param, section))
+            assert(f"{param} no pertenece a la sección {section}.")
 
         # Lo cambio en el objeto
         cls.config.set(section, param, str(value))
