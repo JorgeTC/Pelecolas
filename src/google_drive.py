@@ -15,22 +15,22 @@ class Drive():
     def __init__(self) -> None:
 
         # Gestor de archivos en el drive
-        self.files = self.SERVICE.files()
+        self.files: Resource = self.SERVICE.files()
 
         # Obtengo la carpeta dentro del drive
-        self.folder_id = Config.get_value(Section.DRIVE, Param.FOLDER_ID)
-        self.folder = self.get_item_by_id(self.folder_id)
+        self.FOLDER_ID = Config.get_value(Section.DRIVE, Param.FOLDER_ID)
+        self.folder = self.get_item_by_id(self.FOLDER_ID)
 
         # Obtengo la carpeta donde vive el pdf
-        self.pdf_folder = Config.get_folder_path(
+        self.PDF_FOLDER = Config.get_folder_path(
             Section.DRIVE, Param.PDF_PATH)
         # Obtengo la carpeta donde viven los docx
-        self.docx_folder = Config.get_folder_path(
+        self.DOCX_FOLDER = Config.get_folder_path(
             Section.COUNT_FILMS, Param.WORD_FOLDER)
 
     def update_folder(self):
         # Obtengo los archivos dentro de la carpeta
-        files_in_folder = self.get_files_in_folder(self.folder_id)
+        files_in_folder = self.get_files_in_folder(self.FOLDER_ID)
         # Le paso todos los archivos para actualizar
         self.update_files(files_in_folder)
 
@@ -41,10 +41,10 @@ class Drive():
             # Contenido del nuevo archivo
             if file.name.find('.docx') >= 0:
                 # Caso en el que sea un word
-                sz_file = self.docx_folder / file.name
+                sz_file = self.DOCX_FOLDER / file.name
             else:
                 # Caso en el que sea el pdf
-                sz_file = self.pdf_folder / file.name
+                sz_file = self.PDF_FOLDER / file.name
 
             # Realizo la actualización
             # Obtengo el archivo como un objeto
@@ -65,32 +65,29 @@ class Drive():
     def get_files_in_folder(self, sz_folder_id: str) -> list[DriveFile]:
 
         answer = []
-        try:
-            # Índice para iterar las peticiones a la api
-            page_token = None
-            while True:
-                # Pido los archivos que tengan como carpeta parent la que he introducido
-                response = self.files.list(q=f"'{sz_folder_id}' in parents",
-                                           spaces='drive',
-                                           fields='nextPageToken, files(id, name, trashed)',
-                                           pageToken=page_token).execute()
 
-                # Itero lo que me ha dado la api en esta petición
-                for file in response.get('files', []):
-                    drive_file = DriveFile(file)
-                    # Compruebo que sean archivos no eliminados
-                    if not drive_file.trashed:
-                        answer.append(file)
+        # Índice para iterar las peticiones a la api
+        page_token = None
+        while True:
+            # Pido los archivos que tengan como carpeta parent la que he introducido
+            response = self.files.list(q=f"'{sz_folder_id}' in parents",
+                                        spaces='drive',
+                                        fields='nextPageToken, files(id, name, trashed)',
+                                        pageToken=page_token).execute()
 
-                # Avanzo a la siguiente petición
-                page_token = response.get('nextPageToken', None)
+            # Itero lo que me ha dado la api en esta petición
+            for file in response.get('files', []):
+                drive_file = DriveFile(**file)
+                # Compruebo que sean archivos no eliminados
+                if not drive_file.trashed:
+                    answer.append(drive_file)
 
-                # Si no puedo hacer más peticiones, salgo del bucle
-                if page_token is None:
-                    break
+            # Avanzo a la siguiente petición
+            page_token = response.get('nextPageToken', None)
 
-            # Devuelvo la lista
-            return answer
-        except:
-            # Si algo ha ido mal, devuelvo una lista vacía
-            return []
+            # Si no puedo hacer más peticiones, salgo del bucle
+            if page_token is None:
+                break
+
+        # Devuelvo la lista
+        return answer
