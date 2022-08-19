@@ -22,7 +22,7 @@ def get_pdf_files(docx_folder: Path, docx_list: list[Path]) -> list[Path]:
     return sz_pdf
 
 class PDFWriter():
-    SZ_ALL_PDF: list[Path] = get_pdf_files(WordFolderMgr.WORD_FOLDER)
+    SZ_ALL_PDF: list[Path] = get_pdf_files(WordFolderMgr.WORD_FOLDER, WordFolderMgr.SZ_ALL_DOCX)
 
     @classmethod
     def convert_all_word(cls):
