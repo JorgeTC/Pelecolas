@@ -15,7 +15,7 @@ class Drive():
     def __init__(self) -> None:
 
         # Gestor de archivos en el drive
-        self.files = self.SERVICE.files()
+        self.files: Resource = self.SERVICE.files()
 
         # Obtengo la carpeta dentro del drive
         self.folder_id = Config.get_value(Section.DRIVE, Param.FOLDER_ID)
@@ -65,32 +65,29 @@ class Drive():
     def get_files_in_folder(self, sz_folder_id: str) -> list[DriveFile]:
 
         answer = []
-        try:
-            # Índice para iterar las peticiones a la api
-            page_token = None
-            while True:
-                # Pido los archivos que tengan como carpeta parent la que he introducido
-                response = self.files.list(q=f"'{sz_folder_id}' in parents",
-                                           spaces='drive',
-                                           fields='nextPageToken, files(id, name, trashed)',
-                                           pageToken=page_token).execute()
 
-                # Itero lo que me ha dado la api en esta petición
-                for file in response.get('files', []):
-                    drive_file = DriveFile(file)
-                    # Compruebo que sean archivos no eliminados
-                    if not drive_file.trashed:
-                        answer.append(file)
+        # Índice para iterar las peticiones a la api
+        page_token = None
+        while True:
+            # Pido los archivos que tengan como carpeta parent la que he introducido
+            response = self.files.list(q=f"'{sz_folder_id}' in parents",
+                                        spaces='drive',
+                                        fields='nextPageToken, files(id, name, trashed)',
+                                        pageToken=page_token).execute()
 
-                # Avanzo a la siguiente petición
-                page_token = response.get('nextPageToken', None)
+            # Itero lo que me ha dado la api en esta petición
+            for file in response.get('files', []):
+                drive_file = DriveFile(**file)
+                # Compruebo que sean archivos no eliminados
+                if not drive_file.trashed:
+                    answer.append(drive_file)
 
-                # Si no puedo hacer más peticiones, salgo del bucle
-                if page_token is None:
-                    break
+            # Avanzo a la siguiente petición
+            page_token = response.get('nextPageToken', None)
 
-            # Devuelvo la lista
-            return answer
-        except:
-            # Si algo ha ido mal, devuelvo una lista vacía
-            return []
+            # Si no puedo hacer más peticiones, salgo del bucle
+            if page_token is None:
+                break
+
+        # Devuelvo la lista
+        return answer
