@@ -10,7 +10,7 @@ class ApiDataclass:
                 setattr(self, param, dict[param])
             except KeyError:
                 # No se ha indicado el atributo
-                continue
+                setattr(self, param, None)
 
 
 @dataclass(slots=True, init=False)

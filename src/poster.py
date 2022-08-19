@@ -56,11 +56,11 @@ class Poster():
         if labels:
             body.labels = labels
 
+        # Miro si la configuración me pide que lo publique como borrador
+        bDraft = Config.get_bool(Section.POST, Param.AS_DRAFT)
         try:
-            # Miro si la configuración me pide que lo publique como borrador
-            bDraft = Config.get_bool(Section.POST, Param.AS_DRAFT)
             f = cls.posts.insert(blogId=cls.BLOG_ID,
-                                 body=body, isDraft=bDraft)
+                                 body=asdict(body), isDraft=bDraft)
             f.execute()
             # Si no está programada como borrador, aviso al usuario de cuándo se va a publicar la reseña
             if not bDraft:
