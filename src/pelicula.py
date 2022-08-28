@@ -306,11 +306,6 @@ class Pelicula():
         # Me aseguro que se haya tratado de calcular la nota
         if self.nota_FA is None:
             self.get_nota_FA()
-        # Si a pesar de haber tratado de encontrar la nota
-        # no he conseguido calcularla, no calculo la varianza.
-        if self.nota_FA == 0:
-            self.desvest_FA = 0
-            return
 
         # Calculo la varianza
         varianza = 0
