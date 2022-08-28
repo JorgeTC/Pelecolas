@@ -132,6 +132,14 @@ def scrap_from_values(att: str):
     return decorator
 
 
+def read_avg_note_from_page(page: BeautifulSoup) -> float:
+    search_avg = page.find(id="movie-rat-avg")
+    try:
+        return float(search_avg.attrs['content'])
+    except AttributeError:
+        return 0
+
+
 class Pelicula():
     def __init__(self):
 
