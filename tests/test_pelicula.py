@@ -1,7 +1,5 @@
 import pytest
-from bs4 import BeautifulSoup
-from src.pelicula import FromFilmBox, Pelicula, read_avg_note_from_page
-from src.safe_url import safe_get_url
+from src.pelicula import Pelicula, read_avg_note_from_page
 from src.url_FA import URL_USER_PAGE
 
 
@@ -125,33 +123,6 @@ def test_scrap_prop_aprobados(film: Pelicula):
 def test_scrap_prop_aprobados_without_note(film_without_note: Pelicula):
     film_without_note.get_prop_aprobados()
     assert film_without_note.prop_aprobados == 0
-
-
-def test_get_time_and_FA(film: Pelicula):
-    film.get_time_and_FA()
-
-    note_in_page = read_avg_note_from_page(film.parsed_page)
-    assert film.nota_FA == pytest.approx(note_in_page, 0.1)
-    assert film.votantes_FA > 1_000
-    assert film.duracion == 153
-    assert film.desvest_FA > 0
-    assert 0.5 < film.prop_aprobados < 1
-
-
-def test_film_from_box():
-    resp = safe_get_url(URL_USER_PAGE(4627260, 1))
-    soup_page = BeautifulSoup(resp.text, 'html.parser')
-    box = soup_page.find("div", {"class": "user-ratings-movie"})
-    film_in_box = Pelicula.from_movie_box(box)
-
-    film_from_id = Pelicula.from_id(film_in_box.id)
-
-    film_from_id.get_title()
-    assert film_in_box.titulo == film_from_id.titulo
-
-    film_from_id.get_año()
-    assert isinstance(FromFilmBox.get_year(box), int)
-    assert FromFilmBox.get_year(box) == int(film_from_id.año)
 
 
 def test_valid_film(film: Pelicula):
