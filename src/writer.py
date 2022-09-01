@@ -67,9 +67,10 @@ class Writer():
         # Creo un generador aleatorio de ids de películas
         rnd = RandomFilmId()
 
-        # Lista de las películas válidas en la página actual.
-        while valid_film_list := (Pelicula.from_id(id)
-                                  for id in rnd.get_ids_lot(50)):
+        while rnd.size:
+            # Lista de las películas válidas en la página actual.
+            valid_film_list = (Pelicula.from_id(id)
+                               for id in rnd.get_ids_lot(50))
 
             # Itero las películas en mi página actual
             if self.USE_MULTI_THREAD:
