@@ -2,7 +2,7 @@ import enum
 from collections import namedtuple
 from concurrent.futures import ThreadPoolExecutor
 from math import ceil
-from random import sample, randint
+from random import randint
 from typing import Iterable
 
 from bs4 import BeautifulSoup
@@ -68,8 +68,8 @@ class Writer():
         rnd = RandomFilmId()
 
         # Lista de las películas válidas en la página actual.
-        while (valid_film_list := (Pelicula.from_id(id)
-                                   for id in (rnd.get_id() for _ in range(50)))):
+        while valid_film_list := (Pelicula.from_id(id)
+                                  for id in rnd.get_ids_lot(50)):
 
             # Itero las películas en mi página actual
             if self.USE_MULTI_THREAD:
@@ -337,10 +337,14 @@ class RandomFilmId:
     def get_id(self) -> int:
 
         if self.size == 0:
-            return
+            return 0
 
         self.size -= 1
         rand_index = randint(0, self.size)
         self.ids[self.size], self.ids[rand_index] = self.ids[rand_index], self.ids[self.size]
 
         return self.ids.pop()
+
+    def get_ids_lot(self, lot_size: int) -> Iterable[int]:
+        lot_size = min(lot_size, self.size)
+        return (self.get_id() for _ in range(lot_size))
