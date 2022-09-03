@@ -3,7 +3,7 @@ import re
 from collections import namedtuple
 from concurrent.futures import ThreadPoolExecutor
 from math import ceil
-from random import sample
+from random import randint
 from typing import Iterable
 
 from bs4 import BeautifulSoup
@@ -66,13 +66,12 @@ class Writer():
         executor = ThreadPoolExecutor(max_workers=50)
 
         # Creo un generador aleatorio de ids de películas
-        ids = range(100_000, 1_000_000)
-        ids = sample(ids, len(ids))
+        rnd = RandomFilmId()
 
-        while ids:
+        while rnd.size:
             # Lista de las películas válidas en la página actual.
             valid_film_list = (Pelicula.from_id(id)
-                               for id in (ids.pop() for _ in range(50)))
+                               for id in rnd.get_ids_lot(50))
 
             # Itero las películas en mi página actual
             if self.USE_MULTI_THREAD:
@@ -336,6 +335,27 @@ def read_film_if_valid(film: Pelicula) -> FilmData:
         return FilmData(*((0,)*len(FilmData._fields)))
 
 
+class RandomFilmId:
+    def __init__(self) -> None:
+        self.ids = list(range(100_000, 1_000_000))
+        self.size = len(self.ids)
+
+    def get_id(self) -> int:
+
+        if self.size == 0:
+            return 0
+
+        self.size -= 1
+        rand_index = randint(0, self.size)
+        self.ids[self.size], self.ids[rand_index] = self.ids[rand_index], self.ids[self.size]
+
+        return self.ids.pop()
+
+    def get_ids_lot(self, lot_size: int) -> Iterable[int]:
+        lot_size = min(lot_size, self.size)
+        return (self.get_id() for _ in range(lot_size))
+        
+        
 class FromFilmBox:
     '''Funciones para extraer datos de la caja de la película'''
     @staticmethod
