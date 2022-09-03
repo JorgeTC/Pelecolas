@@ -1,6 +1,5 @@
 import pytest
 from src.pelicula import Pelicula, read_avg_note_from_page
-from src.url_FA import URL_USER_PAGE
 
 
 @pytest.fixture
