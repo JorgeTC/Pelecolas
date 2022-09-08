@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 
 from src.api_dataclasses import Post
 from src.aux_console import clear_current_line, go_to_upper_row
+from src.blog_scraper import BlogScraper
 from src.config import Config, Param, Section
 from src.content_mgr import ContentMgr
 from src.dlg_scroll_base import DlgScrollBase
@@ -27,36 +28,15 @@ class BlogThemeUpdater():
         self.exist_repeated_posts(self.all_posts)
 
     def get_word_name_from_blog_post(self, post: Post, *, keep_parsed: bool = False) -> str:
+        # Obtengo el nombre a partir del post usando la clase específica
+        name = BlogScraper.get_name_from_post(post, self)
 
-        def body(self: 'BlogThemeUpdater', post: Post) -> str:
-            name = post.title
-            # Si el nombre que tiene en el word no es el normal, es que tiene un año
-            if self.title_manager.is_title_in_list(name):
-                return self.title_manager.exact_key_without_dlg(name)
+        # Si no me interesa quedarme el post parseado, lo borro
+        if not keep_parsed:
+            self.parsed = None
 
-            # Parseo el contenido
-            self.parsed = BeautifulSoup(post.content, 'html.parser')
-
-            # Tomo el nombre que está escrito en los datos ocultos
-            name = BlogHiddenData.TITLE.get(self.parsed)
-            if self.title_manager.is_title_in_list(name):
-                return self.title_manager.exact_key_without_dlg(name)
-
-            # El nombre que viene en el html no es correcto,
-            # pruebo a componer un nuevo nombre con el título y el año
-            year = BlogHiddenData.YEAR.get(self.parsed)
-            name = f'{name} ({year})'
-
-            if self.title_manager.is_title_in_list(name):
-                return self.title_manager.exact_key_without_dlg(name)
-
-            return ""
-
-        try:
-            return body(self, post)
-        finally:
-            if not keep_parsed:
-                self.parsed = None
+        # Devuelvo el nombre que he leído del post
+        return name
 
     def select_and_update_post(self):
 
