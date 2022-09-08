@@ -6,11 +6,7 @@ class ApiDataclass:
 
     def __init__(self, **dict: dict[str, Any]) -> None:
         for param in self.__slots__:
-            try:
-                setattr(self, param, dict[param])
-            except KeyError:
-                # No se ha indicado el atributo
-                setattr(self, param, None)
+            setattr(self, param, dict.get(param))
 
 
 @dataclass(slots=True, init=False)
