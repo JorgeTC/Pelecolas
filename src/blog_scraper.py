@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 
+import src.blog_theme_updater as btu
 from src.api_dataclasses import Post
 from src.blog_csv_mgr import BlogCsvMgr
 from src.list_title_mgr import TitleMgr
@@ -14,7 +15,7 @@ class BlogScraper:
     TITLE_MGR = TitleMgr(WordReader.list_titles())
 
     @classmethod
-    def get_name_from_post(cls, post: Post) -> str:
+    def get_name_from_post(cls, post: Post, blog_theme_updater: 'btu.BlogThemeUpdater' = None) -> str:
         name = post.title
         # Si el nombre que tiene en el word no es el normal, es que tiene un año
         if cls.TITLE_MGR.is_title_in_list(name):
@@ -22,6 +23,8 @@ class BlogScraper:
 
         # Parseo el contenido
         parsed = BeautifulSoup(post.content, 'html.parser')
+        if blog_theme_updater is not None:
+            blog_theme_updater.parsed = parsed
 
         # Tomo el nombre que está escrito en los datos ocultos
         name = BlogHiddenData.TITLE.get(parsed)
