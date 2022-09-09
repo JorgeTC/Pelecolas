@@ -88,6 +88,14 @@
             "program": "${workspaceFolder}/mains/main_read_sample.py",
             "console": "integratedTerminal",
             "justMyCode": true
+        },
+        {
+            "name": "Read flags",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/mains/main_favourite_countries.py",
+            "console": "integratedTerminal",
+            "justMyCode": false
         }
     ]
 }
