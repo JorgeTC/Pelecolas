@@ -29,7 +29,7 @@ class BlogThemeUpdater():
 
     def get_word_name_from_blog_post(self, post: Post, *, keep_parsed: bool = False) -> str:
         # Obtengo el nombre a partir del post usando la clase específica
-        name = BlogScraper.get_name_from_post(post, self)
+        name, self.parsed = BlogScraper.get_name_and_parsed_from_post(post)
 
         # Si no me interesa quedarme el post parseado, lo borro
         if not keep_parsed:
