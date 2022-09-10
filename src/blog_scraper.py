@@ -1,6 +1,5 @@
 from bs4 import BeautifulSoup
 
-import src.blog_theme_updater as btu
 from src.api_dataclasses import Post
 from src.blog_csv_mgr import BlogCsvMgr
 from src.list_title_mgr import TitleMgr
@@ -15,21 +14,24 @@ class BlogScraper:
     TITLE_MGR = TitleMgr(WordReader.list_titles())
 
     @classmethod
-    def get_name_from_post(cls, post: Post, blog_theme_updater: 'btu.BlogThemeUpdater' = None) -> str:
+    def get_name_from_post(cls, post: Post) -> str:
+        name, _ = cls.get_name_and_parsed_from_post(post)
+        return name
+
+    @classmethod
+    def get_name_and_parsed_from_post(cls, post: Post) -> tuple[str, BeautifulSoup]:
         name = post.title
         # Si el nombre que tiene en el word no es el normal, es que tiene un año
         if cls.TITLE_MGR.is_title_in_list(name):
-            return cls.TITLE_MGR.exact_key_without_dlg(name)
+            return cls.TITLE_MGR.exact_key_without_dlg(name), None
 
         # Parseo el contenido
         parsed = BeautifulSoup(post.content, 'html.parser')
-        if blog_theme_updater is not None:
-            blog_theme_updater.parsed = parsed
 
         # Tomo el nombre que está escrito en los datos ocultos
         name = BlogHiddenData.TITLE.get(parsed)
         if cls.TITLE_MGR.is_title_in_list(name):
-            return cls.TITLE_MGR.exact_key_without_dlg(name)
+            return cls.TITLE_MGR.exact_key_without_dlg(name), parsed
 
         # El nombre que viene en el html no es correcto,
         # pruebo a componer un nuevo nombre con el título y el año
@@ -37,9 +39,9 @@ class BlogScraper:
         name = f'{name} ({year})'
 
         if cls.TITLE_MGR.is_title_in_list(name):
-            return cls.TITLE_MGR.exact_key_without_dlg(name)
+            return cls.TITLE_MGR.exact_key_without_dlg(name), parsed
 
-        return ""
+        return "", parsed
 
     @classmethod
     def get_data_from_post(cls, post: Post) -> tuple[str]:
