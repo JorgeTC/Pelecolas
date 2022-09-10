@@ -182,3 +182,28 @@ def test_not_quote_twice_same_title(Joker: str):
     assert quoted_parr.find(sentences[1]) == -1
     # Compruebo que no se haya citado la primera
     assert quoted_parr.find(sentences[0]) > -1
+
+
+@pytest.fixture
+def SpecialLemma() -> str:
+    return get_file_content("pronombre_personal.txt")
+
+
+def test_lemma(SpecialLemma: str):
+    quoter = Quoter("", "")
+    with mock.patch('builtins.input', return_value="Sí") as mock_confirmation:
+        quoted_parr = quoter.quote_parr(SpecialLemma)
+        if "Coen" in Quoter.TRUST_DIRECTORS:
+            assert mock_confirmation.call_count == 0
+        else:
+            assert mock_confirmation.call_count == 1
+
+    # Compruebo que se haya citado a los Coen
+    quoted_directors = {"Joel Coen"}
+    assert quoted_directors == quoter._Quoter__quoted_directors
+    # El resto de frases no pueden haber cambiado
+    ori_sentences = SpecialLemma.split(". ")
+    quoted_sentences = quoted_parr.split(". ")
+    assert len(ori_sentences) == len(quoted_sentences)
+    for i in range(1, len(ori_sentences)):
+        assert ori_sentences[i] == quoted_sentences[i]
