@@ -75,6 +75,20 @@ def test_exact_but_double_letters(quisiste_decir: TitleMgr):
     assert "Peppermint Frappé" in quisiste_decir.get_suggestions()
 
 
+def test_partial_title(quisiste_decir: TitleMgr):
+    title = "lluvia"
+    assert not quisiste_decir.exists(title)
+    # Compruebo que haya sido capaz de encontrar coincidencia
+    assert "Cantando bajo la lluvia" in quisiste_decir.get_suggestions()
+
+
+def test_title_with_year(quisiste_decir: TitleMgr):
+    title = "Cantando bajo la lluvia (1952)"
+    assert not quisiste_decir.exists(title)
+    # Compruebo que haya sido capaz de encontrar coincidencia
+    assert "Cantando bajo la lluvia" in quisiste_decir.get_suggestions()
+
+
 '''
 def test_doctor(quisiste_decir: TitleMgr):
     title = "El gabinete del doctor Caligari"
