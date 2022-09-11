@@ -1,5 +1,7 @@
+from unittest import mock
+
 import pytest
-from src.pelicula import Pelicula, read_avg_note_from_page
+from src.pelicula import Pelicula, es_valida, read_avg_note_from_page
 
 
 @pytest.fixture
@@ -124,10 +126,12 @@ def test_scrap_prop_aprobados_without_note(film_without_note: Pelicula):
     assert film_without_note.prop_aprobados == 0
 
 
+@mock.patch.object(es_valida, "__kwdefaults__", {'SET_VALID_FILM': 1})
 def test_valid_film(film: Pelicula):
     assert film.valid()
 
 
+@mock.patch.object(es_valida, "__kwdefaults__", {'SET_VALID_FILM': 1})
 def test_not_valid_film():
 
     thriller = Pelicula.from_id(571895)
