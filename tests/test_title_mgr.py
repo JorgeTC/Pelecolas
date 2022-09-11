@@ -6,12 +6,13 @@ from src.list_title_mgr import TitleMgr
 @pytest.fixture
 def quisiste_decir() -> TitleMgr:
     return TitleMgr(["Cantando bajo la lluvia",
-            "Él",
-            "La caza (1966)",
-            "El Topo",
-            "La caza (2020)",
-            "El último",
-            "El gabinete del Dr. Caligari"])
+                     "Él",
+                     "La caza (1966)",
+                     "El Topo",
+                     "La caza (2020)",
+                     "El último",
+                     "Peppermint Frappé",
+                     "El gabinete del Dr. Caligari"])
 
 
 def test_exact_key(quisiste_decir: TitleMgr):
@@ -61,10 +62,17 @@ def test_exact_but_accent(quisiste_decir: TitleMgr):
 
 
 def test_exact_but_spaces(quisiste_decir: TitleMgr):
-    title = "  Cantando bajo la lluvia "
+    title = "  Cantando   bajo la lluvia "
     assert not quisiste_decir.exists(title)
     # Compruebo que haya sido capaz de encontrar coincidencia
-    assert title.strip() in quisiste_decir.get_suggestions()
+    assert "Cantando bajo la lluvia" in quisiste_decir.get_suggestions()
+
+
+def test_exact_but_double_letters(quisiste_decir: TitleMgr):
+    title = "Pepermint frape"
+    assert not quisiste_decir.exists(title)
+    # Compruebo que haya sido capaz de encontrar coincidencia
+    assert "Peppermint Frappé" in quisiste_decir.get_suggestions()
 
 
 '''
