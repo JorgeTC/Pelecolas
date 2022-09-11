@@ -199,3 +199,52 @@ def test_lemma(SpecialLemma: str):
     assert len(ori_sentences) == len(quoted_sentences)
     for i in range(1, len(ori_sentences)):
         assert ori_sentences[i] == quoted_sentences[i]
+
+
+@pytest.fixture
+def Punctuation() -> str:
+    return get_file_content("name_with_points.txt")
+
+
+'''
+@mock.patch.object(Quoter, "ALL_DIRECTORS", {"Jose Antonio Bardem", "Jesús Pascual"})
+@mock.patch.object(Quoter, "TRUST_DIRECTORS", {""})
+def test_director_punctuation(Punctuation: str):
+    quoter = Quoter("", "")
+
+    def has_been_asked(name_in_question: str, calls: list[mock._Call]):
+        for call in calls:
+            args, kwargs = call
+            assert len(args) == 1 and len(kwargs) == 0
+            question: str = args[0]
+            if question.find(name_in_question) > -1:
+                return True
+        return False
+
+    with mock.patch('builtins.input', return_value="No") as mock_input:
+        quoted_parr = quoter.quote_parr(Punctuation)
+
+        # Compruebo que no se haya preguntado por palabras con signos de puntuación
+        assert not has_been_asked('Antonio.', mock_input.call_args_list)
+        assert not has_been_asked('Jesús?', mock_input.call_args_list)
+
+    assert quoted_parr == Punctuation
+'''
+
+
+@pytest.fixture
+def PunctuationNotRecognized() -> str:
+    return get_file_content("point_makes_not_recognized.txt")
+
+
+'''
+@mock.patch.object(Quoter, "ALL_DIRECTORS", {"Yorgos Lanthimos"})
+@mock.patch.object(Quoter, "TRUST_DIRECTORS", {"Lanthimos"})
+def test_recognize_name_with_point(PunctuationNotRecognized: str):
+    quoter = Quoter("", "")
+
+    with mock.patch('builtins.input', return_value="Sí"):
+        quoted_parr = quoter.quote_parr(PunctuationNotRecognized)
+
+    assert quoted_parr != PunctuationNotRecognized
+'''
