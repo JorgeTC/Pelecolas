@@ -1,6 +1,6 @@
-import pytest
 from unittest import mock
 
+import pytest
 from src.aux_res_directory import get_res_folder
 from src.quoter import Quoter
 
@@ -15,6 +15,8 @@ def TarantinoParr() -> str:
     return get_file_content("twice_same_director.txt")
 
 
+@mock.patch.object(Quoter, "ALL_DIRECTORS", {"Quentin Tarantino"})
+@mock.patch.object(Quoter, "TRUST_DIRECTORS", {"Tarantino"})
 def test_quote_title_without_dlg(TarantinoParr: str):
     quoter = Quoter("", "")
     parr = quoter.quote_parr(TarantinoParr)
@@ -34,11 +36,13 @@ def test_quote_title_without_dlg(TarantinoParr: str):
     assert parr == TarantinoParr
 
 
+@mock.patch.object(Quoter, "ALL_DIRECTORS", {"Quentin Tarantino"})
+@mock.patch.object(Quoter, "TRUST_DIRECTORS", {"Tarantino"})
 def test_not_quote_same_director(TarantinoParr: str):
     quoter = Quoter("", "Quentin Tarantino")
     quoted_parr = quoter.quote_parr(TarantinoParr)
 
-    # Compruebo que haya citado a Tarantino
+    # Compruebo que no haya citado a Tarantino
     assert "Quentin Tarantino" not in quoter._Quoter__quoted_directors
 
     # Compruebo que no se haya modificado el texto
@@ -50,12 +54,9 @@ def Bergman() -> str:
     return get_file_content("ask.txt")
 
 
+@mock.patch.object(Quoter, "ALL_DIRECTORS", {"Ingmar Bergman"})
+@mock.patch.object(Quoter, "TRUST_DIRECTORS", {""})
 def test_quote_director_with_dlg(Bergman: str):
-    # Si Ingmar Bergman no está, este test no sirve
-    assert "Ingmar Bergman" in Quoter.ALL_DIRECTORS
-    # tampoco puede estar la palabra Bergman como uno de los directores de confianza
-    assert "Bergman" not in Quoter.TRUST_DIRECTORS
-
     quoter = Quoter("", "")
     # Compruebo que se haya preguntado al usuario por Bergman
     with mock.patch('builtins.input', return_value="Sí") as mock_confirmation:
@@ -67,12 +68,9 @@ def test_quote_director_with_dlg(Bergman: str):
     assert quoted_parr != Bergman
 
 
+@mock.patch.object(Quoter, "ALL_DIRECTORS", {"Ingmar Bergman"})
+@mock.patch.object(Quoter, "TRUST_DIRECTORS", {""})
 def test_not_quote_director_with_dlg(Bergman: str):
-    # Si Ingmar Bergman no está, este test no sirve
-    assert "Ingmar Bergman" in Quoter.ALL_DIRECTORS
-    # tampoco puede estar la palabra Bergman como uno de los directores de confianza
-    assert "Bergman" not in Quoter.TRUST_DIRECTORS
-
     quoter = Quoter("", "")
     # Compruebo que se haya preguntado al usuario por Bergman
     with mock.patch('builtins.input', return_value="No") as mock_confirmation:
@@ -89,17 +87,14 @@ def vonTrier() -> str:
     return get_file_content("not_whole_name.txt")
 
 
+@mock.patch.object(Quoter, "ALL_DIRECTORS", {"Lars von Trier"})
+@mock.patch.object(Quoter, "TRUST_DIRECTORS", {"von Trier"})
 def test_director_more_than_one_word_not_complete_name(vonTrier: str):
-    # Me espero que von Trier esté como director a citar siempre
-    assert "von Trier" in Quoter.TRUST_DIRECTORS
-
     quoter = Quoter("", "")
+
     with mock.patch('builtins.input', return_value="No") as mock_confirmation:
         quoted_parr = quoter.quote_parr(vonTrier)
-        if "von Trier" in Quoter.TRUST_DIRECTORS:
-            assert mock_confirmation.call_count == 0
-        else:
-            assert mock_confirmation.call_count == 1
+        assert mock_confirmation.call_count == 0
 
     # Compruebo que se haya hecho la citación
     assert "Lars von Trier" in quoter._Quoter__quoted_directors
@@ -112,13 +107,11 @@ def Paco() -> str:
 
 
 '''
+@mock.patch.object(Quoter, "ALL_DIRECTORS", {"Paco Plaza"})
+@mock.patch.object(Quoter, "TRUST_DIRECTORS", {""})
 def test_not_ask_in_title(Paco: str):
-    # Si no hay ningún Paco en los directores, el test no sirve
-    assert "Paco Plaza" in Quoter.ALL_DIRECTORS
-    # tampoco puede estar la palabra Paco como uno de los directores de confianza
-    assert "Paco" not in Quoter.TRUST_DIRECTORS
-
     quoter = Quoter("", "")
+
     # Compruebo que no se pregunte por ningún director
     with mock.patch('builtins.input', return_value="No") as mock_confirmation:
         quoted_parr = quoter.quote_parr(Paco)
@@ -189,14 +182,13 @@ def SpecialLemma() -> str:
     return get_file_content("pronombre_personal.txt")
 
 
+@mock.patch.object(Quoter, "ALL_DIRECTORS", {"Joel Coen"})
+@mock.patch.object(Quoter, "TRUST_DIRECTORS", {"Coen"})
 def test_lemma(SpecialLemma: str):
     quoter = Quoter("", "")
     with mock.patch('builtins.input', return_value="Sí") as mock_confirmation:
         quoted_parr = quoter.quote_parr(SpecialLemma)
-        if "Coen" in Quoter.TRUST_DIRECTORS:
-            assert mock_confirmation.call_count == 0
-        else:
-            assert mock_confirmation.call_count == 1
+        assert mock_confirmation.call_count == 0
 
     # Compruebo que se haya citado a los Coen
     quoted_directors = {"Joel Coen"}
