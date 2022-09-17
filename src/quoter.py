@@ -193,7 +193,7 @@ class Quoter:
             self.__add_director_link(ini_director_pos.pop())
 
     def __is_name_in_director(self, name: str, director: str) -> bool:
-        patron = r'\b({0})\b'.format(name)
+        patron = rf'\b({name})\b'
         return bool(re.search(patron, director))
 
     def __ask_confirmation(self, nombre: str, director: str) -> bool:
