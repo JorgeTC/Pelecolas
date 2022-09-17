@@ -43,10 +43,9 @@ class Searcher():
             self.año = 0
 
         # Creo la url para buscar ese título
-        self.search_url = self.__get_search_url()
+        self.search_url = get_search_url(self.title)
 
         # Creo una variable para cuando encuentre a película
-        self.film_url = ''
         self.__coincidente: TituloYAño = None
 
         # Guardo la página de búsqueda parseada.
@@ -56,20 +55,8 @@ class Searcher():
         # Ya he hecho la búsqueda.
         # Quiero saber qué se ha conseguido, en qué caso estamos.
         # Antes de hacer esta distinción, necesito ver si FilmAffinity me ha redirigido.
-        self.__get_redirected_url()
+        self.film_url = get_redirected_url(self.parsed_page)
         self.__estado = self.__clarify_case()
-
-    def __get_search_url(self) -> str:
-        # Convierto los caracteres no alfanuméricpos en hexadecimal
-        # No puedo convertir los espacios:
-        # FilmAffinity convierte los espacios en +.
-        title_for_url = urllib.parse.quote(self.title, safe=" ")
-
-        # Cambio los espacios para poder tener una sola url
-        title_for_url = title_for_url.replace(" ", "+")
-
-        # Devuelvo la dirección de búsqueda
-        return url_FA.URL_SEARCH(title_for_url)
 
     def __search_boxes(self) -> list[TituloYAño]:
 
@@ -119,10 +106,6 @@ class Searcher():
             return SearchResult.VARIOS_RESULTADOS
 
         return SearchResult.ERROR
-
-    def __get_redirected_url(self):
-        self.film_url = self.parsed_page.find(
-            'meta', property='og:url')['content']
 
     def encontrada(self) -> bool:
         return self.__estado == SearchResult.ENCONTRADA
@@ -189,6 +172,23 @@ class Searcher():
         self.get_url()
         if self.film_url:
             print(SZ_ONLY_ONE_FILM_YEAR(self.title, self.__coincidente.año))
+
+
+def get_search_url(title) -> str:
+    # Convierto los caracteres no alfanuméricpos en hexadecimal
+    # No puedo convertir los espacios:
+    # FilmAffinity convierte los espacios en +.
+    title_for_url = urllib.parse.quote(title, safe=" ")
+
+    # Cambio los espacios para poder tener una sola url
+    title_for_url = title_for_url.replace(" ", "+")
+
+    # Devuelvo la dirección de búsqueda
+    return url_FA.URL_SEARCH(title_for_url)
+
+
+def get_redirected_url(parsed_page: BeautifulSoup) -> str:
+    return parsed_page.find('meta', property='og:url')['content']
 
 
 if __name__ == '__main__':
