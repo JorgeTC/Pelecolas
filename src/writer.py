@@ -1,4 +1,5 @@
 import enum
+import re
 from collections import namedtuple
 from concurrent.futures import ThreadPoolExecutor
 from math import ceil
@@ -148,7 +149,7 @@ class Writer():
         # Itero hasta que haya leído todas las películas
         for page_boxes in film_list:
             # Lista de las películas válidas en la página actual.
-            valid_film_list = (Pelicula.from_movie_box(box)
+            valid_film_list = (init_film_from_movie_box(box)
                                for box in page_boxes)
             valid_film_list = (film for film in valid_film_list
                                if film.valid())
@@ -304,7 +305,11 @@ def has_valid_id(film: Pelicula) -> bool:
 
 def read_film(film: Pelicula) -> FilmData:
     # Hacemos la parte más lenta, que necesita parsear la página.
-    film.get_time_and_FA()
+    film.get_nota_FA()
+    film.get_votantes_FA()
+    film.get_duracion()
+    film.get_desvest()
+    film.get_prop_aprobados()
 
     # Extraemos los datos que usaremos para que el objeto sea más pequeño
     return FilmData(film.user_note,
@@ -349,3 +354,37 @@ class RandomFilmId:
     def get_ids_lot(self, lot_size: int) -> Iterable[int]:
         lot_size = min(lot_size, self.size)
         return (self.get_id() for _ in range(lot_size))
+        
+        
+class FromFilmBox:
+    '''Funciones para extraer datos de la caja de la película'''
+    @staticmethod
+    def get_title(film_box: BeautifulSoup) -> str:
+        return film_box.contents[1].contents[1].contents[3].contents[1].contents[0].contents[0]
+
+    @staticmethod
+    def get_user_note(film_box: BeautifulSoup) -> int:
+        return int(film_box.contents[3].contents[1].contents[1].contents[0])
+
+    @staticmethod
+    def get_id(film_box: BeautifulSoup) -> int:
+        return int(film_box.contents[1].contents[1].attrs['data-movie-id'])
+
+    @staticmethod
+    def get_year(film_box: BeautifulSoup) -> int:
+        str_year = str(
+            film_box.contents[1].contents[1].contents[3].contents[1].contents[1])
+        return int(re.search(r"(\d{4})", str_year).group(1))
+
+
+def init_film_from_movie_box(movie_box: BeautifulSoup) -> Pelicula:
+    instance = Pelicula()
+
+    # Guardo los valores que conozco por la información introducida
+    instance.titulo = FromFilmBox.get_title(movie_box)
+    instance.user_note = FromFilmBox.get_user_note(movie_box)
+    instance.id = FromFilmBox.get_id(movie_box)
+    instance.url_FA = url_FA.URL_FILM_ID(instance.id)
+
+    # Devuelvo la instancia
+    return instance

@@ -46,27 +46,6 @@ def es_valida(titulo: str, *,
 RATING_BARS_PATTERN = re.compile(r'RatingBars.*?\[(.*?)\]')
 
 
-class FromFilmBox:
-    '''Funciones para extraer datos de la caja de la película'''
-    @staticmethod
-    def get_title(film_box: BeautifulSoup) -> str:
-        return film_box.contents[1].contents[1].contents[3].contents[1].contents[0].contents[0]
-
-    @staticmethod
-    def get_user_note(film_box: BeautifulSoup) -> int:
-        return int(film_box.contents[3].contents[1].contents[1].contents[0])
-
-    @staticmethod
-    def get_id(film_box: BeautifulSoup) -> int:
-        return int(film_box.contents[1].contents[1].attrs['data-movie-id'])
-
-    @staticmethod
-    def get_year(film_box: BeautifulSoup) -> int:
-        str_year = str(
-            film_box.contents[1].contents[1].contents[3].contents[1].contents[1])
-        return int(re.search(r"(\d{4})", str_year).group(1))
-
-
 def scrap_data(att: str):
     '''
     Decorador para obtener datos parseados de la página.
@@ -132,6 +111,14 @@ def scrap_from_values(att: str):
     return decorator
 
 
+def read_avg_note_from_page(page: BeautifulSoup) -> float:
+    search_avg = page.find(id="movie-rat-avg")
+    try:
+        return float(search_avg.attrs['content'])
+    except AttributeError:
+        return 0
+
+
 class Pelicula():
     def __init__(self):
 
@@ -172,20 +159,6 @@ class Pelicula():
         # Guardo los valores que conozco por la información introducida
         instance.url_FA = str(urlFA)
         instance.id = get_id_from_url(instance.url_FA)
-
-        # Devuelvo la instancia
-        return instance
-
-    @classmethod
-    def from_movie_box(cls, movie_box: BeautifulSoup) -> 'Pelicula':
-        # Creo el objeto
-        instance = cls()
-
-        # Guardo los valores que conozco por la información introducida
-        instance.titulo = FromFilmBox.get_title(movie_box)
-        instance.user_note = FromFilmBox.get_user_note(movie_box)
-        instance.id = FromFilmBox.get_id(movie_box)
-        instance.url_FA = URL_FILM_ID(instance.id)
 
         # Devuelvo la instancia
         return instance
@@ -255,15 +228,6 @@ class Pelicula():
         # Parseo la página
         self.parsed_page = BeautifulSoup(resp.text, 'html.parser')
 
-    def get_time_and_FA(self):
-
-        # Llamo a las funciones que leen la ficha parseada
-        self.get_nota_FA()
-        self.get_votantes_FA()
-        self.get_duracion()
-        self.get_desvest()
-        self.get_prop_aprobados()
-
     @scrap_data('director')
     def get_director(self):
 
@@ -306,11 +270,6 @@ class Pelicula():
         # Me aseguro que se haya tratado de calcular la nota
         if self.nota_FA is None:
             self.get_nota_FA()
-        # Si a pesar de haber tratado de encontrar la nota
-        # no he conseguido calcularla, no calculo la varianza.
-        if self.nota_FA == 0:
-            self.desvest_FA = 0
-            return
 
         # Calculo la varianza
         varianza = 0
