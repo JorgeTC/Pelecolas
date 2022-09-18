@@ -109,7 +109,7 @@ class Writer():
         url = url_FA.URL_USER_PAGE(id_user, 1)
         resp = safe_get_url(url)
         # Guardo la página ya parseada
-        soup_page = BeautifulSoup(resp.text, 'html.parser')
+        soup_page = BeautifulSoup(resp.text, 'lxml')
 
         # me espero que haya un único "value-box active-tab"
         mydivs = soup_page.find("a", {"class": "value-box active-tab"})
@@ -129,7 +129,7 @@ class Writer():
     def __list_boxes(self, url: str) -> Iterable[BeautifulSoup]:
         resp = safe_get_url(url)
         # Guardo la página ya parseada
-        soup_page = BeautifulSoup(resp.text, 'html.parser')
+        soup_page = BeautifulSoup(resp.text, 'lxml')
         # Leo todas las películas que haya en ella
         return soup_page.findAll("div", {"class": "user-ratings-movie"})
 
@@ -354,8 +354,8 @@ class RandomFilmId:
     def get_ids_lot(self, lot_size: int) -> Iterable[int]:
         lot_size = min(lot_size, self.size)
         return (self.get_id() for _ in range(lot_size))
-        
-        
+
+
 class FromFilmBox:
     '''Funciones para extraer datos de la caja de la película'''
     @staticmethod

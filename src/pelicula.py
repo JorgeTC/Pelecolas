@@ -226,7 +226,7 @@ class Pelicula():
         self.__exists = True
 
         # Parseo la página
-        self.parsed_page = BeautifulSoup(resp.text, 'html.parser')
+        self.parsed_page = BeautifulSoup(resp.text, 'lxml')
 
     @scrap_data('director')
     def get_director(self):

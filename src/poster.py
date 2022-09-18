@@ -191,7 +191,7 @@ class Poster():
 
         for post in scheduled:
             # Parseo el contenido
-            body = BeautifulSoup(post.content, 'html.parser')
+            body = BeautifulSoup(post.content, 'lxml')
 
             # Extraigo los datos que quiero
             director = BlogHiddenData.DIRECTOR.get(body)
