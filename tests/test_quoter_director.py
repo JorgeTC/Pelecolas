@@ -3,6 +3,7 @@ from unittest import mock
 import pytest
 from src.aux_res_directory import get_res_folder
 from src.quoter import Quoter
+from src.quoter_director import QuoterDirector
 
 
 def get_file_content(file_name: str) -> str:
@@ -15,14 +16,14 @@ def TarantinoParr() -> str:
     return get_file_content("twice_same_director.txt")
 
 
-@mock.patch.object(Quoter, "ALL_DIRECTORS", {"Quentin Tarantino"})
-@mock.patch.object(Quoter, "TRUST_DIRECTORS", {"Tarantino"})
+@mock.patch.object(QuoterDirector, "ALL_DIRECTORS", {"Quentin Tarantino"})
+@mock.patch.object(QuoterDirector, "TRUST_DIRECTORS", {"Tarantino"})
 def test_quote_title_without_dlg(TarantinoParr: str):
     quoter = Quoter("", "")
     parr = quoter.quote_parr(TarantinoParr)
 
     # Compruebo que haya citado a Tarantino
-    assert "Quentin Tarantino" in quoter._Quoter__quoted_directors
+    assert "Quentin Tarantino" in quoter.get_quoted_directors()
 
     sentences = TarantinoParr.split(".")
     # Compruebo que se haya citado la primera aparición
@@ -36,14 +37,14 @@ def test_quote_title_without_dlg(TarantinoParr: str):
     assert parr == TarantinoParr
 
 
-@mock.patch.object(Quoter, "ALL_DIRECTORS", {"Quentin Tarantino"})
-@mock.patch.object(Quoter, "TRUST_DIRECTORS", {"Tarantino"})
+@mock.patch.object(QuoterDirector, "ALL_DIRECTORS", {"Quentin Tarantino"})
+@mock.patch.object(QuoterDirector, "TRUST_DIRECTORS", {"Tarantino"})
 def test_not_quote_same_director(TarantinoParr: str):
     quoter = Quoter("", "Quentin Tarantino")
     quoted_parr = quoter.quote_parr(TarantinoParr)
 
     # Compruebo que no haya citado a Tarantino
-    assert "Quentin Tarantino" not in quoter._Quoter__quoted_directors
+    assert "Quentin Tarantino" not in quoter.get_quoted_directors()
 
     # Compruebo que no se haya modificado el texto
     assert quoted_parr == TarantinoParr
@@ -54,8 +55,8 @@ def Bergman() -> str:
     return get_file_content("ask.txt")
 
 
-@mock.patch.object(Quoter, "ALL_DIRECTORS", {"Ingmar Bergman"})
-@mock.patch.object(Quoter, "TRUST_DIRECTORS", {""})
+@mock.patch.object(QuoterDirector, "ALL_DIRECTORS", {"Ingmar Bergman"})
+@mock.patch.object(QuoterDirector, "TRUST_DIRECTORS", {""})
 def test_quote_director_with_dlg(Bergman: str):
     quoter = Quoter("", "")
     # Compruebo que se haya preguntado al usuario por Bergman
@@ -64,12 +65,12 @@ def test_quote_director_with_dlg(Bergman: str):
         assert mock_confirmation.call_count == 1
 
     # Como el usuario ha contestado que sí, se comprueba que se haya hecho la cita
-    assert "Ingmar Bergman" in quoter._Quoter__quoted_directors
+    assert "Ingmar Bergman" in quoter.get_quoted_directors()
     assert quoted_parr != Bergman
 
 
-@mock.patch.object(Quoter, "ALL_DIRECTORS", {"Ingmar Bergman"})
-@mock.patch.object(Quoter, "TRUST_DIRECTORS", {""})
+@mock.patch.object(QuoterDirector, "ALL_DIRECTORS", {"Ingmar Bergman"})
+@mock.patch.object(QuoterDirector, "TRUST_DIRECTORS", {""})
 def test_not_quote_director_with_dlg(Bergman: str):
     quoter = Quoter("", "")
     # Compruebo que se haya preguntado al usuario por Bergman
@@ -78,7 +79,7 @@ def test_not_quote_director_with_dlg(Bergman: str):
         assert mock_confirmation.call_count == 1
 
     # Como el usuario ha contestado que no, se comprueba que se haya hecho la cita
-    assert "Ingmar Bergman" not in quoter._Quoter__quoted_directors
+    assert "Ingmar Bergman" not in quoter.get_quoted_directors()
     assert quoted_parr == Bergman
 
 
@@ -87,8 +88,8 @@ def vonTrier() -> str:
     return get_file_content("not_whole_name.txt")
 
 
-@mock.patch.object(Quoter, "ALL_DIRECTORS", {"Lars von Trier"})
-@mock.patch.object(Quoter, "TRUST_DIRECTORS", {"von Trier"})
+@mock.patch.object(QuoterDirector, "ALL_DIRECTORS", {"Lars von Trier"})
+@mock.patch.object(QuoterDirector, "TRUST_DIRECTORS", {"von Trier"})
 def test_director_more_than_one_word_not_complete_name(vonTrier: str):
     quoter = Quoter("", "")
 
@@ -97,7 +98,7 @@ def test_director_more_than_one_word_not_complete_name(vonTrier: str):
         assert mock_confirmation.call_count == 0
 
     # Compruebo que se haya hecho la citación
-    assert "Lars von Trier" in quoter._Quoter__quoted_directors
+    assert "Lars von Trier" in quoter.get_quoted_directors()
     assert quoted_parr != vonTrier
 
 
@@ -107,8 +108,8 @@ def Paco() -> str:
 
 
 '''
-@mock.patch.object(Quoter, "ALL_DIRECTORS", {"Paco Plaza"})
-@mock.patch.object(Quoter, "TRUST_DIRECTORS", {""})
+@mock.patch.object(QuoterDirector, "ALL_DIRECTORS", {"Paco Plaza"})
+@mock.patch.object(QuoterDirector, "TRUST_DIRECTORS", {""})
 def test_not_ask_in_title(Paco: str):
     quoter = Quoter("", "")
 
@@ -126,8 +127,8 @@ def SpecialLemma() -> str:
     return get_file_content("pronombre_personal.txt")
 
 
-@mock.patch.object(Quoter, "ALL_DIRECTORS", {"Joel Coen"})
-@mock.patch.object(Quoter, "TRUST_DIRECTORS", {"Coen"})
+@mock.patch.object(QuoterDirector, "ALL_DIRECTORS", {"Joel Coen"})
+@mock.patch.object(QuoterDirector, "TRUST_DIRECTORS", {"Coen"})
 def test_lemma(SpecialLemma: str):
     quoter = Quoter("", "")
     with mock.patch('builtins.input', return_value="Sí") as mock_confirmation:
@@ -136,7 +137,7 @@ def test_lemma(SpecialLemma: str):
 
     # Compruebo que se haya citado a los Coen
     quoted_directors = {"Joel Coen"}
-    assert quoted_directors == quoter._Quoter__quoted_directors
+    assert quoted_directors == quoter.get_quoted_directors()
     # El resto de frases no pueden haber cambiado
     ori_sentences = SpecialLemma.split(". ")
     quoted_sentences = quoted_parr.split(". ")
@@ -151,8 +152,8 @@ def Punctuation() -> str:
 
 
 '''
-@mock.patch.object(Quoter, "ALL_DIRECTORS", {"Jose Antonio Bardem", "Jesús Pascual"})
-@mock.patch.object(Quoter, "TRUST_DIRECTORS", {""})
+@mock.patch.object(QuoterDirector, "ALL_DIRECTORS", {"Jose Antonio Bardem", "Jesús Pascual"})
+@mock.patch.object(QuoterDirector, "TRUST_DIRECTORS", {""})
 def test_director_punctuation(Punctuation: str):
     quoter = Quoter("", "")
 
@@ -182,8 +183,8 @@ def PunctuationNotRecognized() -> str:
 
 
 '''
-@mock.patch.object(Quoter, "ALL_DIRECTORS", {"Yorgos Lanthimos"})
-@mock.patch.object(Quoter, "TRUST_DIRECTORS", {"Lanthimos"})
+@mock.patch.object(QuoterDirector, "ALL_DIRECTORS", {"Yorgos Lanthimos"})
+@mock.patch.object(QuoterDirector, "TRUST_DIRECTORS", {"Lanthimos"})
 def test_recognize_name_with_point(PunctuationNotRecognized: str):
     quoter = Quoter("", "")
 
