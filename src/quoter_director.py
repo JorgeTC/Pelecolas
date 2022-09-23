@@ -1,9 +1,7 @@
 import re
 import urllib.parse
 from dataclasses import dataclass
-
-import textacy
-from spacy.tokens.span import Span
+from typing import Iterable
 
 from src.aux_console import clear_current_line, delete_line, go_to_upper_row
 from src.aux_res_directory import get_res_folder
@@ -50,10 +48,6 @@ def load_trust_directors() -> set[str]:
 
 class QuoterDirector:
 
-    # Procesador de lenguaje para obtener nombres propios
-    # Cargando el modelo en español de spacy
-    NLP = textacy.load_spacy_lang('es_core_news_sm')
-
     # Registro de todos los directores reseñados
     ALL_DIRECTORS = {row[CSV_COLUMN.DIRECTOR]
                      for row in QuoterBase.CSV_CONTENT}
@@ -73,22 +67,17 @@ class QuoterDirector:
         # Cuántas preguntas he hecho para la película actual
         self.questions_counter = 0
 
-    def __is_name_in_director(self, name: str, director: str) -> bool:
-        patron = rf'\b({name})\b'
-        return bool(re.search(patron, director))
-
     def quote_directors(self, text: str) -> str:
-        # Con procesamiento de lenguaje extraigo lo que puede ser un nombre
-        nombres = self.extract_names(text)
         # Inicio una lista para buscar apariciones de los directores en el texto
         ini_director_pos: list[DirectorCitation] = []
-        # Compruebo que el nombre corresponda con un director indexado
-        for nombre in nombres:
-            # Si ya he preguntado por este nombre paso al siguiente
-            if nombre in self.__personajes:
-                continue
-            # Lo guardo como nombre ya preguntado
-            self.__personajes.add(nombre)
+
+        # Recorro las palabras buscando que sea el apellido de un director
+        for it_position, it_word in split_words(text):
+
+            # Inicializo una lista con los personajes que se vayan a preguntar
+            personajes_preguntados: set(str) = set()
+
+            # Recorro todos los directores buscando la palabra que tengo
             for director in self.ALL_DIRECTORS:
                 # No quiero citar dos veces el mismo director
                 if director in self.__quoted_directors:
@@ -96,19 +85,27 @@ class QuoterDirector:
                 # No quiero citar al director actual
                 if director == self.director:
                     continue
-                # Puede que sólo esté escrito el apellido del director
-                if not self.__is_name_in_director(nombre, director):
+                position, word = complete_quote(
+                    text, it_position, it_word, director)
+                if not word:
                     continue
+                # Si ya he preguntado por este nombre paso al siguiente
+                if word in self.__personajes:
+                    continue
+                personajes_preguntados.add(word)
                 # Pido confirmación al usuario de la cita
-                if not self.__ask_confirmation(nombre, director):
+                if not self.__ask_confirmation(word, director):
                     continue
-                citation = DirectorCitation(position=text.find(nombre),
+                citation = DirectorCitation(position=position,
                                             director=director,
-                                            length=len(nombre))
+                                            length=len(word))
                 ini_director_pos.append(citation)
                 # Lo guardo como director ya citado
                 self.__quoted_directors.add(director)
                 break
+
+            # Actualizo el conjunto de nombres ya preguntados
+            self.__personajes.update(personajes_preguntados)
 
         # Ahora ya tengo los índices que quería
         while ini_director_pos:
@@ -131,18 +128,6 @@ class QuoterDirector:
         ans = question.get_ans()
         return bool(ans)
 
-    def extract_names(self, text: str) -> list[str]:
-        # Usando un procesador de lenguaje natural extraigo los nombres del párrafo
-        texto_procesado = self.NLP(text)
-
-        personajes = []
-        for ent in texto_procesado.ents:
-            # Sólo lo añado a mi lista si la etiqueta asignada dice personaje
-            if is_person(ent) and ent.lemma_ not in personajes:
-                personajes.append(str(ent.lemma_))
-
-        return personajes
-
     def clear_questions(self) -> None:
         # Elimino todas las preguntas por directores
         for _ in range(self.questions_counter):
@@ -154,17 +139,128 @@ class QuoterDirector:
         self.questions_counter = 0
 
 
-def is_person(ent: Span) -> bool:
-    # Aplico un correctivo a los Coen
-    if (ent.lemma_ == 'Coen'):
-        return True
+def split_words(text: str) -> Iterable[tuple[int, str]]:
+    # Inicializo las variables de retorno
+    new_word = ""
+    index_begin_word = 0
 
-    # Elimino los pronombres
-    if (ent.lemma_ == 'yo' or ent.lemma_ == 'él'):
+    # Aún no he visto ningunas comillas que me digan que estoy en un título
+    in_title = False
+    # Aún no he visto que esté entre comillas
+    in_italic = False
+    # Aún no he visto que esté en un link
+    in_link = False
+
+    # Recorro los caracteres
+    for index, char in enumerate(text):
+
+        # Proceso las letras
+        if char.isalpha() and not in_title and not in_italic and not in_link:
+
+            # Comienza una palabra, me guardo la posición actual
+            if not new_word:
+                index_begin_word = index
+
+            # Aumento la palabra actual
+            new_word = new_word + char
+        else:
+            # No es una letra, no añado los caracteres
+            if new_word:
+                yield index_begin_word, new_word
+                new_word = ""
+
+            # Empieza el título de una película, no puede haber directores ahí dentro
+            if char == QuoterBase.INI_QUOTE_CHAR:
+                in_title = True
+            elif char == QuoterBase.FIN_QUOTE_CHAR:
+                in_title = False
+
+            # Empieza una cursiva
+            if begins_italic(index, text):
+                in_italic = True
+            elif ends_italic(index, text):
+                in_italic = False
+
+            # Empieza un link
+            if begins_link(index, text):
+                in_link = True
+            elif ends_link(index, text):
+                in_link = False
+
+
+def begins_link(index: int, text: str) -> bool:
+    return begins_tag(index, text, "<a href")
+
+
+def ends_link(index: int, text: str) -> bool:
+    return ends_tag(index, text, "</a>")
+
+
+def begins_italic(index: int, text: str) -> bool:
+    return begins_tag(index, text, "<i>")
+
+
+def ends_italic(index: int, text: str) -> bool:
+    return ends_tag(index, text, "</i>")
+
+
+def begins_tag(index: int, text: str, tag: str) -> bool:
+    # Debe empezar con el símbolo correspondiente
+    if text[index] != tag[0]:
         return False
 
-    # Caso general en el que me fio del modelo
-    return ent.label_ == 'PER'
+    # Debe caber el tag de html
+    if index + len(tag) >= len(text):
+        return False
+
+    # Devuelvo si es el inicio de una cursiva
+    return text[index: index + len(tag)] == tag
+
+
+def ends_tag(index: int, text: str, tag: str) -> bool:
+    # Debe acabar con el símbolo correspondiente
+    if text[index] != tag[-1]:
+        return False
+
+    # Debe caber el tag de html
+    if index + 1 - len(tag) < 0:
+        return False
+
+    # Devuelvo si es el fin de una cursiva
+    return text[index + 1 - len(tag): index + 1] == tag
+
+
+def complete_quote(text: str, index: int, word: str, director: str) -> tuple[int, str]:
+    words_in_director = director.split(" ")
+    # Obtengo la última palabra del director
+    surname = words_in_director[-1]
+    if word != surname:
+        return None, None
+
+    # A partir de este punto tengo una citación que sugerir:
+    # intentemos que sea lo más larga posible.
+
+    # Posición del texto en la que debe acabar la cita
+    index_end_quote = index + len(word)
+    # Trozo de texto que sabemos seguro que es cita
+    whole_quote = word
+    # Inicio de cita
+    index_begin_quote = index
+
+    for n_words in range(2, len(words_in_director) + 1):
+        # Añado una palabra más
+        surname = f"{words_in_director[-n_words]} {surname}"
+        # Compruebo que la cita sea así
+        lower_index = index_end_quote - len(surname)
+        longest_quote = text[lower_index:index_end_quote]
+        if longest_quote != surname:
+            break
+
+        # Si todo va bien, actualizo los valores de respuesta
+        index_begin_quote = lower_index
+        whole_quote = text[index_begin_quote:index_end_quote]
+
+    return index_begin_quote, whole_quote
 
 
 def add_director_link(text: str, cit: DirectorCitation) -> str:

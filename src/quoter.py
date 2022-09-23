@@ -18,3 +18,6 @@ class Quoter:
 
     def get_quoted_titles(self) -> set[str]:
         return self.quoter_title._QuoterTitle__quoted_title
+
+    def clear_questions(self) -> None:
+        self.quoter_director.clear_questions()
