@@ -26,7 +26,7 @@ class BlogScraper:
             return cls.TITLE_MGR.exact_key_without_dlg(name), None
 
         # Parseo el contenido
-        parsed = BeautifulSoup(post.content, 'html.parser')
+        parsed = BeautifulSoup(post.content, 'lxml')
 
         # Tomo el nombre que está escrito en los datos ocultos
         name = BlogHiddenData.TITLE.get(parsed)
@@ -46,7 +46,7 @@ class BlogScraper:
     @classmethod
     def get_data_from_post(cls, post: Post) -> tuple[str]:
         link = post.url
-        body = BeautifulSoup(post.content, 'html.parser')
+        body = BeautifulSoup(post.content, 'lxml')
         director = BlogHiddenData.DIRECTOR.get(body)
         año = BlogHiddenData.YEAR.get(body)
         name = cls.get_name_from_post(post)

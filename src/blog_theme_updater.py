@@ -64,7 +64,7 @@ class BlogThemeUpdater():
 
         if not self.parsed:
             # Parseo el contenido
-            self.parsed = BeautifulSoup(post.content, 'html.parser')
+            self.parsed = BeautifulSoup(post.content, 'lxml')
 
         # Obtengo la url de la película
         if fa_url_from_hidden_data:

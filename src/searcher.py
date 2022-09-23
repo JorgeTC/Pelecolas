@@ -50,7 +50,7 @@ class Searcher():
 
         # Guardo la página de búsqueda parseada.
         req = safe_get_url(self.search_url)
-        self.parsed_page = BeautifulSoup(req.text, 'html.parser')
+        self.parsed_page = BeautifulSoup(req.text, 'lxml')
 
         # Ya he hecho la búsqueda.
         # Quiero saber qué se ha conseguido, en qué caso estamos.

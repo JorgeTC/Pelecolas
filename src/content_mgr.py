@@ -35,7 +35,7 @@ class ContentMgr():
             # Obtengo en una única string todo lo que voy a publicar
             content = res.read()
             # Extraigo de las notas del post el nombre de la película y las etiquetas
-            parsed = BeautifulSoup(content, 'html.parser')
+            parsed = BeautifulSoup(content, 'lxml')
             title = BlogHiddenData.TITLE.get(parsed)
             _, title = split_title_year(title)
             labels = BlogHiddenData.LABELS.get(parsed)
