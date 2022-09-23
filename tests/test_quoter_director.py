@@ -103,23 +103,21 @@ def test_director_more_than_one_word_not_complete_name(vonTrier: str):
 
 
 @pytest.fixture
-def Paco() -> str:
+def Plaza() -> str:
     return get_file_content("name_in_title.txt")
 
 
-'''
 @mock.patch.object(QuoterDirector, "ALL_DIRECTORS", {"Paco Plaza"})
 @mock.patch.object(QuoterDirector, "TRUST_DIRECTORS", {""})
-def test_not_ask_in_title(Paco: str):
+def test_not_ask_in_title(Plaza: str):
     quoter = Quoter("", "")
 
     # Compruebo que no se pregunte por ningún director
     with mock.patch('builtins.input', return_value="No") as mock_confirmation:
-        quoted_parr = quoter.quote_parr(Paco)
+        quoted_parr = quoter.quote_parr(Plaza)
         assert mock_confirmation.call_count == 0
 
-    assert quoted_parr == Paco
-'''
+    assert quoted_parr == Plaza
 
 
 @pytest.fixture
@@ -151,7 +149,6 @@ def Punctuation() -> str:
     return get_file_content("name_with_points.txt")
 
 
-'''
 @mock.patch.object(QuoterDirector, "ALL_DIRECTORS", {"Jose Antonio Bardem", "Jesús Pascual"})
 @mock.patch.object(QuoterDirector, "TRUST_DIRECTORS", {""})
 def test_director_punctuation(Punctuation: str):
@@ -174,7 +171,6 @@ def test_director_punctuation(Punctuation: str):
         assert not has_been_asked('Jesús?', mock_input.call_args_list)
 
     assert quoted_parr == Punctuation
-'''
 
 
 @pytest.fixture
@@ -182,7 +178,6 @@ def PunctuationNotRecognized() -> str:
     return get_file_content("point_makes_not_recognized.txt")
 
 
-'''
 @mock.patch.object(QuoterDirector, "ALL_DIRECTORS", {"Yorgos Lanthimos"})
 @mock.patch.object(QuoterDirector, "TRUST_DIRECTORS", {"Lanthimos"})
 def test_recognize_name_with_point(PunctuationNotRecognized: str):
@@ -192,4 +187,3 @@ def test_recognize_name_with_point(PunctuationNotRecognized: str):
         quoted_parr = quoter.quote_parr(PunctuationNotRecognized)
 
     assert quoted_parr != PunctuationNotRecognized
-'''
