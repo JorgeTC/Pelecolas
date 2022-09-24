@@ -72,46 +72,55 @@ class QuoterDirector:
         ini_director_pos: list[DirectorCitation] = []
 
         # Recorro las palabras buscando que sea el apellido de un director
-        for it_position, it_word in split_words(text):
-
-            # Inicializo una lista con los personajes que se vayan a preguntar
-            personajes_preguntados: set(str) = set()
-
-            # Recorro todos los directores buscando la palabra que tengo
-            for director in self.ALL_DIRECTORS:
-                # No quiero citar dos veces el mismo director
-                if director in self.__quoted_directors:
-                    continue
-                # No quiero citar al director actual
-                if director == self.director:
-                    continue
-                position, word = complete_quote(
-                    text, it_position, it_word, director)
-                if not word:
-                    continue
-                # Si ya he preguntado por este nombre paso al siguiente
-                if word in self.__personajes:
-                    continue
-                personajes_preguntados.add(word)
-                # Pido confirmación al usuario de la cita
-                if not self.__ask_confirmation(word, director):
-                    continue
-                citation = DirectorCitation(position=position,
-                                            director=director,
-                                            length=len(word))
+        for position, word in split_words(text):
+            if citation := self.__quote_word(text, position, word):
                 ini_director_pos.append(citation)
-                # Lo guardo como director ya citado
-                self.__quoted_directors.add(director)
-                break
-
-            # Actualizo el conjunto de nombres ya preguntados
-            self.__personajes.update(personajes_preguntados)
 
         # Ahora ya tengo los índices que quería
         while ini_director_pos:
             text = add_director_link(text, ini_director_pos.pop())
 
         return text
+
+    def __quote_word(self, text: str, it_position: int, it_word: str) -> DirectorCitation:
+
+        # Inicializo una lista con los personajes que se vayan a preguntar
+        personajes_preguntados: set[str] = set()
+
+        # Variable de retorno
+        citation: DirectorCitation = None
+
+        # Recorro todos los directores buscando la palabra que tengo
+        for director in self.ALL_DIRECTORS:
+            # No quiero citar dos veces el mismo director
+            if director in self.__quoted_directors:
+                continue
+            # No quiero citar al director actual
+            if director == self.director:
+                continue
+            position, word = complete_quote(
+                text, it_position, it_word, director)
+            if not word:
+                continue
+            # Si ya he preguntado por este nombre paso al siguiente
+            if word in self.__personajes:
+                continue
+            personajes_preguntados.add(word)
+            # Pido confirmación al usuario de la cita
+            if not self.__ask_confirmation(word, director):
+                continue
+            citation = DirectorCitation(position=position,
+                                        director=director,
+                                        length=len(word))
+            # Lo guardo como director ya citado
+            self.__quoted_directors.add(director)
+            break
+
+        # Actualizo el conjunto de nombres ya preguntados
+        self.__personajes.update(personajes_preguntados)
+
+        # Devuelvo la posible citación
+        return citation
 
     def __ask_confirmation(self, nombre: str, director: str) -> bool:
         # Si son idénticos, evidentemente es una cita
