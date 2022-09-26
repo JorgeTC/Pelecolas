@@ -187,3 +187,18 @@ def test_recognize_name_with_point(PunctuationNotRecognized: str):
         quoted_parr = quoter.quote_parr(PunctuationNotRecognized)
 
     assert quoted_parr != PunctuationNotRecognized
+
+@pytest.fixture
+def PunctuationNotRecognized() -> str:
+    return get_file_content("point_makes_not_recognized.txt")
+
+
+@mock.patch.object(QuoterDirector, "ALL_DIRECTORS", {"Jim O'Connolly"})
+@mock.patch.object(QuoterDirector, "TRUST_DIRECTORS", {""})
+def test_recognize_name_with_point(PunctuationNotRecognized: str):
+    quoter = Quoter("", "")
+
+    with mock.patch('builtins.input', return_value="Sí"):
+        quoted_parr = quoter.quote_parr(PunctuationNotRecognized)
+
+    assert quoted_parr != PunctuationNotRecognized
