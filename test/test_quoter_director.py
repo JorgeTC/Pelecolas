@@ -1,13 +1,13 @@
 from unittest import mock
 
 import pytest
-from src.aux_res_directory import get_res_folder
+from src.aux_res_directory import get_test_res_folder
 from src.quoter import Quoter
 from src.quoter_director import QuoterDirector
 
 
 def get_file_content(file_name: str) -> str:
-    res_file_path = get_res_folder("tests", "quoter_director", file_name)
+    res_file_path = get_test_res_folder("quoter_director", file_name)
     return open(res_file_path, encoding='utf-8').read()
 
 
