@@ -196,6 +196,9 @@ def split_words(text: str) -> Iterable[tuple[int, str]]:
             elif ends_link(index, text):
                 in_link = False
 
+    if not in_title and not in_link and not in_italic:
+        yield index_begin_word, new_word
+
 
 def begins_link(index: int, text: str) -> bool:
     return begins_tag(index, text, "<a href")
@@ -239,35 +242,34 @@ def ends_tag(index: int, text: str, tag: str) -> bool:
     return text[index + 1 - len(tag): index + 1] == tag
 
 
-def complete_quote(text: str, index: int, word: str, director: str) -> tuple[int, str]:
-    words_in_director = director.split(" ")
-    # Obtengo la última palabra del director
-    surname = words_in_director[-1]
-    if word != surname:
-        return None, None
+def reverse_iterate_director(director: str) -> Iterable[str]:
+    # Itero el nombre del director al revés.
+    # Dividiré las palabras de la misma forma que estoy dividiendo el texto.
+    for chars_till_end, reverse_word in split_words(director[::-1]):
+        # Añado una palabra más
+        yield director[-chars_till_end-len(reverse_word):]
 
-    # A partir de este punto tengo una citación que sugerir:
-    # intentemos que sea lo más larga posible.
+
+def complete_quote(text: str, index: int, word: str, director: str) -> tuple[int, str]:
 
     # Posición del texto en la que debe acabar la cita
-    index_end_quote = index + len(word)
-    # Trozo de texto que sabemos seguro que es cita
-    whole_quote = word
-    # Inicio de cita
-    index_begin_quote = index
+    INDEX_END_QUOTE = index + len(word)
 
-    for n_words in range(2, len(words_in_director) + 1):
-        # Añado una palabra más
-        surname = f"{words_in_director[-n_words]} {surname}"
+    # Trozo de texto que sabemos seguro que es cita
+    whole_quote = ""
+    # Inicio de cita
+    index_begin_quote = INDEX_END_QUOTE
+
+    for surname in reverse_iterate_director(director):
         # Compruebo que la cita sea así
-        lower_index = index_end_quote - len(surname)
-        longest_quote = text[lower_index:index_end_quote]
+        lower_index = INDEX_END_QUOTE - len(surname)
+        longest_quote = text[lower_index:INDEX_END_QUOTE]
         if longest_quote != surname:
             break
 
         # Si todo va bien, actualizo los valores de respuesta
         index_begin_quote = lower_index
-        whole_quote = text[index_begin_quote:index_end_quote]
+        whole_quote = text[index_begin_quote:INDEX_END_QUOTE]
 
     return index_begin_quote, whole_quote
 

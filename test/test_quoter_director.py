@@ -149,19 +149,20 @@ def Punctuation() -> str:
     return get_file_content("name_with_points.txt")
 
 
+def has_been_asked(name_in_question: str, calls: list[mock._Call]) -> bool:
+    for call in calls:
+        args, kwargs = call
+        assert len(args) == 1 and len(kwargs) == 0
+        question: str = args[0]
+        if question.find(name_in_question) > -1:
+            return True
+    return False
+
+
 @mock.patch.object(QuoterDirector, "ALL_DIRECTORS", {"Jose Antonio Bardem", "Jesús Pascual"})
 @mock.patch.object(QuoterDirector, "TRUST_DIRECTORS", {""})
 def test_director_punctuation(Punctuation: str):
     quoter = Quoter("", "")
-
-    def has_been_asked(name_in_question: str, calls: list[mock._Call]):
-        for call in calls:
-            args, kwargs = call
-            assert len(args) == 1 and len(kwargs) == 0
-            question: str = args[0]
-            if question.find(name_in_question) > -1:
-                return True
-        return False
 
     with mock.patch('builtins.input', return_value="No") as mock_input:
         quoted_parr = quoter.quote_parr(Punctuation)
@@ -188,17 +189,20 @@ def test_recognize_name_with_point(PunctuationNotRecognized: str):
 
     assert quoted_parr != PunctuationNotRecognized
 
+
 @pytest.fixture
-def PunctuationNotRecognized() -> str:
-    return get_file_content("point_makes_not_recognized.txt")
+def Apostrophe() -> str:
+    return get_file_content("apostrophe.txt")
 
 
 @mock.patch.object(QuoterDirector, "ALL_DIRECTORS", {"Jim O'Connolly"})
 @mock.patch.object(QuoterDirector, "TRUST_DIRECTORS", {""})
-def test_recognize_name_with_point(PunctuationNotRecognized: str):
+def test_recognize_name_with_apostrophe(Apostrophe: str):
     quoter = Quoter("", "")
 
-    with mock.patch('builtins.input', return_value="Sí"):
-        quoted_parr = quoter.quote_parr(PunctuationNotRecognized)
+    with mock.patch('builtins.input', return_value="Sí") as mock_input:
+        quoted_parr = quoter.quote_parr(Apostrophe)
+        assert has_been_asked("O'Connolly", mock_input.call_args_list)
 
-    assert quoted_parr != PunctuationNotRecognized
+    assert "Jim O'Connolly" in quoter.get_quoted_directors()
+    assert quoted_parr != Apostrophe
