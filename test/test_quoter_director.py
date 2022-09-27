@@ -11,6 +11,10 @@ def get_file_content(file_name: str) -> str:
     return open(res_file_path, encoding='utf-8').read()
 
 
+def mock_ask_confirmation(return_value: bool):
+    return mock.patch.object(QuoterDirector, '_QuoterDirector__ask_confirmation', return_value=return_value)
+
+
 @pytest.fixture
 def TarantinoParr() -> str:
     return get_file_content("twice_same_director.txt")
@@ -149,12 +153,15 @@ def Punctuation() -> str:
     return get_file_content("name_with_points.txt")
 
 
-def has_been_asked(name_in_question: str, calls: list[mock._Call]) -> bool:
+def is_to_be_asked(name_in_question: str, mock: mock.MagicMock) -> bool:
+    calls = mock.call_args_list
     for call in calls:
         args, kwargs = call
-        assert len(args) == 1 and len(kwargs) == 0
-        question: str = args[0]
-        if question.find(name_in_question) > -1:
+        try:
+            name = kwargs['name']
+        except KeyError:
+            name = args[0]
+        if name_in_question == name:
             return True
     return False
 
@@ -164,12 +171,12 @@ def has_been_asked(name_in_question: str, calls: list[mock._Call]) -> bool:
 def test_director_punctuation(Punctuation: str):
     quoter = Quoter("", "")
 
-    with mock.patch('builtins.input', return_value="No") as mock_input:
+    with mock_ask_confirmation(False) as mock_input:
         quoted_parr = quoter.quote_parr(Punctuation)
 
         # Compruebo que no se haya preguntado por palabras con signos de puntuación
-        assert not has_been_asked('Antonio.', mock_input.call_args_list)
-        assert not has_been_asked('Jesús?', mock_input.call_args_list)
+        assert not is_to_be_asked('Antonio.', mock_input)
+        assert not is_to_be_asked('Jesús?', mock_input)
 
     assert quoted_parr == Punctuation
 
@@ -184,7 +191,7 @@ def PunctuationNotRecognized() -> str:
 def test_recognize_name_with_point(PunctuationNotRecognized: str):
     quoter = Quoter("", "")
 
-    with mock.patch('builtins.input', return_value="Sí"):
+    with mock_ask_confirmation(True):
         quoted_parr = quoter.quote_parr(PunctuationNotRecognized)
 
     assert quoted_parr != PunctuationNotRecognized
@@ -200,9 +207,9 @@ def Apostrophe() -> str:
 def test_recognize_name_with_apostrophe(Apostrophe: str):
     quoter = Quoter("", "")
 
-    with mock.patch('builtins.input', return_value="Sí") as mock_input:
+    with mock_ask_confirmation(True) as mock_input:
         quoted_parr = quoter.quote_parr(Apostrophe)
-        assert has_been_asked("O'Connolly", mock_input.call_args_list)
+        assert is_to_be_asked("O'Connolly", mock_input)
 
     assert "Jim O'Connolly" in quoter.get_quoted_directors()
     assert quoted_parr != Apostrophe
@@ -214,13 +221,13 @@ def Bunuel() -> str:
 
 
 @mock.patch.object(QuoterDirector, "ALL_DIRECTORS", {"Luis Buñuel"})
-@mock.patch.object(QuoterDirector, "TRUST_DIRECTORS", {"Buñuel"})
+@mock.patch.object(QuoterDirector, "TRUST_DIRECTORS", {""})
 def test_parragraph_starts_with_not_complete_name(Bunuel: str):
     quoter = Quoter("", "")
 
-    with mock.patch('builtins.input', return_value="Sí") as mock_input:
+    with mock_ask_confirmation(True) as mock_input:
         quoted_parr = quoter.quote_parr(Bunuel)
-        assert not has_been_asked("Buñuel", mock_input.call_args_list)
+        assert is_to_be_asked("Buñuel", mock_input)
 
     assert "Luis Buñuel" in quoter.get_quoted_directors()
     assert quoted_parr != Bunuel
@@ -236,9 +243,9 @@ def DeLaIglesia() -> str:
 def test_lower_name_starts_upper(DeLaIglesia: str):
     quoter = Quoter("", "")
 
-    with mock.patch('builtins.input', return_value="Sí") as mock_input:
+    with mock_ask_confirmation(True) as mock_input:
         quoted_parr = quoter.quote_parr(DeLaIglesia)
-        assert has_been_asked("De la Iglesia", mock_input.call_args_list)
+        assert is_to_be_asked("De la Iglesia", mock_input)
 
     assert "Álex de la Iglesia" in quoter.get_quoted_directors()
     assert quoted_parr != DeLaIglesia
