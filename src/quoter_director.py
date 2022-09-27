@@ -261,7 +261,7 @@ def complete_quote(text: str, index: int, word: str, director: str) -> tuple[int
     index_begin_quote = INDEX_END_QUOTE
 
     for surname in reverse_iterate_director(director):
-        # Compruebo que la cita sea así
+        # Compruebo que la cita coincida
         lower_index = INDEX_END_QUOTE - len(surname)
         longest_quote = text[lower_index:INDEX_END_QUOTE]
         if longest_quote != surname:
@@ -269,7 +269,7 @@ def complete_quote(text: str, index: int, word: str, director: str) -> tuple[int
 
         # Si todo va bien, actualizo los valores de respuesta
         index_begin_quote = lower_index
-        whole_quote = text[index_begin_quote:INDEX_END_QUOTE]
+        whole_quote = longest_quote
 
     return index_begin_quote, whole_quote
 

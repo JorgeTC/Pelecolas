@@ -206,3 +206,21 @@ def test_recognize_name_with_apostrophe(Apostrophe: str):
 
     assert "Jim O'Connolly" in quoter.get_quoted_directors()
     assert quoted_parr != Apostrophe
+
+
+@pytest.fixture
+def Bunuel() -> str:
+    return get_file_content("name_at_first.txt")
+
+
+@mock.patch.object(QuoterDirector, "ALL_DIRECTORS", {"Luis Buñuel"})
+@mock.patch.object(QuoterDirector, "TRUST_DIRECTORS", {"Buñuel"})
+def test_parragraph_starts_with_not_complete_name(Bunuel: str):
+    quoter = Quoter("", "")
+
+    with mock.patch('builtins.input', return_value="Sí") as mock_input:
+        quoted_parr = quoter.quote_parr(Bunuel)
+        assert not has_been_asked("Buñuel", mock_input.call_args_list)
+
+    assert "Luis Buñuel" in quoter.get_quoted_directors()
+    assert quoted_parr != Bunuel
