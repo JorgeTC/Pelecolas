@@ -264,7 +264,7 @@ def complete_quote(text: str, index: int, word: str, director: str) -> tuple[int
         # Compruebo que la cita coincida
         lower_index = INDEX_END_QUOTE - len(surname)
         longest_quote = text[lower_index:INDEX_END_QUOTE]
-        if longest_quote != surname:
+        if not equals(longest_quote, surname):
             break
 
         # Si todo va bien, actualizo los valores de respuesta
@@ -272,6 +272,17 @@ def complete_quote(text: str, index: int, word: str, director: str) -> tuple[int
         whole_quote = longest_quote
 
     return index_begin_quote, whole_quote
+
+
+def equals(text: str, surname: str) -> bool:
+    if not text:
+        return False
+    if text == surname:
+        return True
+
+    # Caso en el que el apellido haya adquirido mayúsculas por la puntuación
+    text = text[0].lower() + text[1:]
+    return text == surname
 
 
 def add_director_link(text: str, cit: DirectorCitation) -> str:

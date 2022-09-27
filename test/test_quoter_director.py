@@ -224,3 +224,21 @@ def test_parragraph_starts_with_not_complete_name(Bunuel: str):
 
     assert "Luis Buñuel" in quoter.get_quoted_directors()
     assert quoted_parr != Bunuel
+
+
+@pytest.fixture
+def DeLaIglesia() -> str:
+    return get_file_content("upper_case_sentence.txt")
+
+
+@mock.patch.object(QuoterDirector, "ALL_DIRECTORS", {"Álex de la Iglesia"})
+@mock.patch.object(QuoterDirector, "TRUST_DIRECTORS", {""})
+def test_lower_name_starts_upper(DeLaIglesia: str):
+    quoter = Quoter("", "")
+
+    with mock.patch('builtins.input', return_value="Sí") as mock_input:
+        quoted_parr = quoter.quote_parr(DeLaIglesia)
+        assert has_been_asked("De la Iglesia", mock_input.call_args_list)
+
+    assert "Álex de la Iglesia" in quoter.get_quoted_directors()
+    assert quoted_parr != DeLaIglesia
