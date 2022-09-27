@@ -5,42 +5,44 @@ from src.config import Config, Section, Param
 from src.dlg_scroll_base import DlgScrollBase
 
 
+def load_users_id() -> dict[str, int]:
+    sz_json = get_res_folder("Readdata", "usuarios.json")
+
+    with open(sz_json, "r") as file:
+        contents = file.read()
+        dictionary = ast.literal_eval(contents)
+    return dictionary
+
 class Usuario():
 
     SZ_QUESTION = "Se van a importar los datos de {}\nEspero enter...".format
+    DEFAULT_USER = Config.get_value(Section.READDATA, Param.DEFAULT_USER)
+    IDS = load_users_id()
 
-    def __init__(self):
-        self.ids = self.read_dict()
-        self.nombre = Config.get_value(
-            Section.READDATA, Param.DEFAULT_USER)
-        self.id = 0
+    def __init__(self, nombre: str = None, id: int = None):
+        self.nombre: str = nombre
+        self.id: int = id
 
-        self.ask_user()
+    @classmethod
+    def ask_user(cls) -> 'Usuario':
 
-    def read_dict(self) -> dict[str, int]:
+        instance = Usuario()
 
-        sz_json = get_res_folder("Readdata", "usuarios.json")
-
-        file = open(sz_json, "r")
-        contents = file.read()
-        dictionary = ast.literal_eval(contents)
-
-        file.close()
-
-        return dictionary
-
-    def ask_user(self):
-        asker = DlgScrollBase(question=self.SZ_QUESTION(self.nombre),
-                              options=list(self.ids.keys()),
+        asker = DlgScrollBase(question=cls.SZ_QUESTION(cls.DEFAULT_USER),
+                              options=list(cls.IDS.keys()),
                               empty_ans=True)
         # Pido el nombre del usuario cuyos datos se quieren importar
         nombre = asker.get_ans()
         # Si no se ha introducido nada por teclado, utilizo el nombre default.
         if nombre:
-            self.nombre = nombre
+            instance.nombre = nombre
+        else:
+            instance.nombre = cls.DEFAULT_USER
 
         # Sé que el diálogo me ha dado un usuario válido, estará en el diccionario
-        self.id = self.ids[self.nombre]
+        instance.id = cls.IDS[instance.nombre]
 
         # Guardo la última elección del usuario en el ini
-        Config.set_value(Section.READDATA, Param.DEFAULT_USER, self.nombre)
+        Config.set_value(Section.READDATA, Param.DEFAULT_USER, instance.nombre)
+
+        return instance
