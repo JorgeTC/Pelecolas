@@ -262,7 +262,7 @@ def complete_quote(text: str, index: int, word: str, director: str) -> tuple[int
 
     for surname in reverse_iterate_director(director):
         # Compruebo que la cita coincida
-        lower_index = INDEX_END_QUOTE - len(surname)
+        lower_index = min(INDEX_END_QUOTE - len(surname), index)
         longest_quote = text[lower_index:INDEX_END_QUOTE]
         if not equals(longest_quote, surname):
             break

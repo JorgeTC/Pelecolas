@@ -249,3 +249,21 @@ def test_lower_name_starts_upper(DeLaIglesia: str):
 
     assert "Álex de la Iglesia" in quoter.get_quoted_directors()
     assert quoted_parr != DeLaIglesia
+
+
+@pytest.fixture
+def DeHecho() -> str:
+    return get_file_content("end_assian.txt")
+
+
+@mock.patch.object(QuoterDirector, "ALL_DIRECTORS", {"Bong Joon-ho"})
+@mock.patch.object(QuoterDirector, "TRUST_DIRECTORS", {""})
+def test_quote_shorter_than_word(DeHecho: str):
+    quoter = Quoter("", "")
+
+    with mock_ask_confirmation(False) as mock_input:
+        quoted_parr = quoter.quote_parr(DeHecho)
+        assert mock_input.call_count == 0
+
+    assert not quoter.get_quoted_directors()
+    assert quoted_parr == DeHecho
