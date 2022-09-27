@@ -10,7 +10,7 @@ class YesNo(DlgScrollBase):
         self.curr_index = 1
         self.min_index = 0
 
-    def get_ans(self) -> str:
+    def get_ans(self) -> bool:
         ans = DlgScrollBase.get_ans(self)
 
         return ans == "Sí"
