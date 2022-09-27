@@ -9,7 +9,7 @@ def main():
     from src.usuario import Usuario
     from src.excel_mgr import ExcelMgr
     from src.writer import Writer
-    usuario = Usuario()
+    usuario = Usuario.ask_user()
 
     ex_doc = ExcelMgr(usuario.nombre)
 
