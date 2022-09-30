@@ -267,9 +267,11 @@ def complete_quote(text: str, index: int, word: str, director: str) -> tuple[int
         if not equals(longest_quote, surname):
             break
 
-        # Si todo va bien, actualizo los valores de respuesta
-        index_begin_quote = lower_index
-        whole_quote = longest_quote
+        # Para que sea una cita, la primera letra debe ser mayúscula
+        if longest_quote[0] != longest_quote[0].lower():
+            # Si todo va bien, actualizo los valores de respuesta
+            index_begin_quote = lower_index
+            whole_quote = longest_quote
 
     return index_begin_quote, whole_quote
 

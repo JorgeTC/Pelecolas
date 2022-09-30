@@ -92,7 +92,7 @@ def vonTrier() -> str:
 
 
 @mock.patch.object(QuoterDirector, "ALL_DIRECTORS", {"Lars von Trier"})
-@mock.patch.object(QuoterDirector, "TRUST_DIRECTORS", {"von Trier"})
+@mock.patch.object(QuoterDirector, "TRUST_DIRECTORS", {"Von Trier"})
 def test_director_more_than_one_word_not_complete_name(vonTrier: str):
     quoter = Quoter("", "")
 
