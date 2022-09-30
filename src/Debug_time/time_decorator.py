@@ -1,5 +1,6 @@
-from datetime import datetime, timedelta
 import csv
+from datetime import datetime, timedelta
+from functools import wraps
 from pathlib import Path
 
 
@@ -13,6 +14,7 @@ class Profiler():
 
     @classmethod
     def profile(self, method):
+        @wraps(method)
         def wrapper(*args, **kw):
             start_time = datetime.now()
 
@@ -20,10 +22,7 @@ class Profiler():
 
             self.end_time = datetime.now()
             elapsed_time = self.end_time - start_time
-            if method.__name__ in self.fun_runtimes.keys():
-                self.fun_runtimes[method.__name__].append(elapsed_time)
-            else:
-                self.fun_runtimes[method.__name__] = [elapsed_time]
+            self.fun_runtimes.setdefault(method.__name__, []).append(elapsed_time)
 
             return result
         # Decorated method
