@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from src.aux_title_str import split_title_year
 from src.blog_csv_mgr import CSV_COLUMN
-from src.quoter_base import QuoterBase, find, insert_string_in_position
+from src.quoter.quoter_base import QuoterBase, find, insert_string_in_position
 from src.word_reader import WordReader
 
 
