@@ -42,8 +42,6 @@ class Poster():
     # Guardo el primer mes que tiene reseña
     __first_month = date(2019, 5, 1)
 
-    blog, posts = get_blog_and_api(SERVICE, BLOG_ID)
-
     @classmethod
     @property
     def SERVICE(cls):
@@ -54,6 +52,12 @@ class Poster():
             if cls._SERVICE is not None:
                 cls._SERVICE = GetGoogleApiMgr('blogger')
         return cls._SERVICE
+
+    @classmethod
+    @property
+    def posts(cls):
+        blog, posts = get_blog_and_api(cls.SERVICE, cls.BLOG_ID)
+        return posts
 
     @classmethod
     def add_post(cls, content: str, title: str, labels: str):
