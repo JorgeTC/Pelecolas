@@ -1,5 +1,6 @@
 from dataclasses import asdict
 from datetime import date, datetime, timedelta
+from threading import Lock
 
 from bs4 import BeautifulSoup
 from dateutil import tz
@@ -35,12 +36,24 @@ def get_blog_and_api(service: Resource, blog_id: str) -> tuple[Blog, Resource]:
 class Poster():
 
     BLOG_ID = Config.get_value(Section.POST, Param.BLOG_ID)
-    SERVICE: Resource = GetGoogleApiMgr('blogger')
+    _SERVICE: Resource = None
+    _SERVICE_lock = Lock()
 
     # Guardo el primer mes que tiene reseña
     __first_month = date(2019, 5, 1)
 
     blog, posts = get_blog_and_api(SERVICE, BLOG_ID)
+
+    @classmethod
+    @property
+    def SERVICE(cls):
+        if cls._SERVICE is not None:
+            return cls._SERVICE
+
+        with cls._SERVICE_lock:
+            if cls._SERVICE is not None:
+                cls._SERVICE = GetGoogleApiMgr('blogger')
+        return cls._SERVICE
 
     @classmethod
     def add_post(cls, content: str, title: str, labels: str):
