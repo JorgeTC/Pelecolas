@@ -5,7 +5,7 @@ def main():
 
     manage_config()
 
-    from src.poster import Poster
+    from src.google_api.poster import Poster
     from src.content_mgr import ContentMgr
 
     post_data = ContentMgr.get_content()

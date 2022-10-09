@@ -23,7 +23,7 @@ def main():
 
     manage_config()
 
-    from src.google_drive import Drive
+    from src.google_api.google_drive import Drive
 
     # Inicio la conversión a PDF en paralelo
     create_pdf = threading.Thread(target=create_PDF)

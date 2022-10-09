@@ -4,7 +4,7 @@ from src.config import Config, Param, Section
 from src.dlg_scroll_base import DlgScrollBase
 from src.list_title_mgr import TitleMgr
 from src.pelicula import Pelicula
-from src.poster import Poster
+from src.google_api.poster import Poster
 from src.searcher import Searcher
 from src.url_FA import URL_FILM_ID
 

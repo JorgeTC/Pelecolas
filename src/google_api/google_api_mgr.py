@@ -7,7 +7,7 @@ from src.aux_res_directory import get_res_folder
 SZ_CREDENTIALS = get_res_folder("blog_credentials", "client_secrets.json")
 
 
-def GetGoogleApiMgr(type: str) -> Resource:
+def get_google_service(type: str) -> Resource:
     SERVICE, _ = sample_tools.init(
         [__file__], type, 'v3', __doc__, SZ_CREDENTIALS,
         scope=f'https://www.googleapis.com/auth/{type}')

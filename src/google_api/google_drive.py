@@ -1,20 +1,17 @@
 from pathlib import Path
+from typing import Generator, Iterable
 from googleapiclient.discovery import Resource
 from googleapiclient.http import MediaFileUpload
 
-from src.api_dataclasses import DriveFile
+from src.google_api.api_dataclasses import DriveFile
 from src.config import Config, Param, Section
-from src.google_api_mgr import GetGoogleApiMgr
+from src.thread_safe_property import cach
+import src.google_api.drive_client as Client
 
 TYPE_FOLDER = 'application/vnd.google-apps.folder'
 
 
 class Drive():
-
-    # Google Drive API
-    _SERVICE: Resource = None
-    # Gestor de archivos de Drive
-    _FILES: Resource = None
 
     # Obtengo la carpeta dentro del drive
     FOLDER_ID = Config.get_value(Section.DRIVE, Param.FOLDER_ID)
@@ -49,70 +46,40 @@ class Drive():
             # Obtengo el archivo como un objeto
             media_body = MediaFileUpload(file_path, resumable=True)
             # Defino la acción de actualización
-            update_operation = cls.FILES.update(
-                fileId=file.id,
-                media_body=media_body)
-            # Ejecuto la actualización
-            update_operation.execute()
+            Client.update_file(file.id, media_body)
 
     @classmethod
     @property
+    @cach
     def FILES_IN_DRIVE(cls) -> list[DriveFile]:
-        if cls._FILES_IN_DRIVE is None:
-            cls._FILES_IN_DRIVE = cls.get_files_in_folder(cls.FOLDER_ID)
-        return cls._FILES_IN_DRIVE
-
-    @classmethod
-    @property
-    def SERVICE(cls) -> Resource:
-        if cls._SERVICE is None:
-            cls._SERVICE = GetGoogleApiMgr('drive')
-        return cls._SERVICE
-
-    @classmethod
-    @property
-    def FILES(cls) -> Resource:
-        if cls._FILES is None:
-            cls._FILES = cls.SERVICE.files()
-        return cls._FILES
+        return cls.get_files_in_folder(cls.FOLDER_ID)
 
     @classmethod
     def get_item_by_id(cls, sz_id: str):
-        try:
-            return cls.FILES.get(fileId=sz_id).execute()
-        except:
-            return None
+        return Client.get_item(sz_id)
 
     @classmethod
     def get_files_in_folder(cls, sz_folder_id: str) -> list[DriveFile]:
+        # Devuelvo una lista con todos los archivos no eliminados
+        # en la carpeta introducida
+        return [file
+                for file in iter_folder(sz_folder_id)
+                if not file.trashed]
 
-        answer = []
 
-        # Índice para iterar las peticiones a la api
-        page_token = None
-        while True:
-            # Pido los archivos que tengan como carpeta parent la que he introducido
-            response = cls.FILES.list(q=f"'{sz_folder_id}' in parents",
-                                      spaces='drive',
-                                      fields='nextPageToken, files(id, name, trashed)',
-                                      pageToken=page_token).execute()
+def iter_folder(folder_id: str) -> Iterable[DriveFile]:
+    # Token para poder hacer varias peticiones
+    page_token: str = None
+    while True:
+        # Pido los archivos que tengan como carpeta parent la que he introducido
+        files, page_token = Client.list_files(folder_id, page_token)
 
-            # Itero lo que me ha dado la api en esta petición
-            for file in response.get('files', []):
-                drive_file = DriveFile(**file)
-                # Compruebo que sean archivos no eliminados
-                if not drive_file.trashed:
-                    answer.append(drive_file)
-
-            # Avanzo a la siguiente petición
-            page_token = response.get('nextPageToken', None)
-
-            # Si no puedo hacer más peticiones, salgo del bucle
-            if page_token is None:
-                break
-
-        # Devuelvo la lista
-        return answer
+        # Itero lo que me ha dado la api en esta petición
+        for file in files:
+            yield DriveFile(**file)
+        # Avanzo a la siguiente petición
+        if page_token is None:
+            return
 
 
 def get_path_from_drive_file(file: DriveFile, *,

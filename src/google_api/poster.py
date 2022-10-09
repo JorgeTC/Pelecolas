@@ -1,16 +1,15 @@
 from dataclasses import asdict
 from datetime import date, datetime, timedelta
-from threading import Lock
 
 from bs4 import BeautifulSoup
 from dateutil import tz
-from googleapiclient.discovery import Resource
+from googleapiclient.discovery import Resource, HttpRequest
 from oauth2client import client
 
-from src.api_dataclasses import Blog, Post
+from src.google_api.api_dataclasses import Blog, Post
 from src.aux_title_str import DMY, date_from_DMY, date_from_YMD, time_from_str
 from src.config import Config, Param, Section
-from src.google_api_mgr import GetGoogleApiMgr
+from src.google_api.google_api_mgr import get_google_service
 from src.read_blog import BlogHiddenData
 from src.thread_safe_property import cach
 
@@ -45,7 +44,7 @@ class Poster():
     @property
     @cach
     def SERVICE(cls):
-        return GetGoogleApiMgr('blogger')
+        return get_google_service('blogger')
 
     @classmethod
     @property
@@ -58,7 +57,7 @@ class Poster():
     def add_post(cls, content: str, title: str, labels: str):
 
         # Cuándo se va a publicar la reseña
-        str_date = cls.__get_publish_datatime()
+        str_date = get_publish_datatime()
 
         # Creo el contenido que voy a publicar
         body = Post(title=title,
@@ -82,49 +81,6 @@ class Poster():
         except client.AccessTokenRefreshError:
             print('The credentials have been revoked or expired, please re-run'
                   'the application to re-authorize')
-
-    @classmethod
-    def __get_publish_datatime(cls) -> str:
-        # Obtengo qué día tengo que publicar la reseña
-        sz_date = Config.get_value(Section.POST, Param.DATE)
-        if not (publish_date := date_from_DMY(sz_date)):
-            # Si no consigo interpretarlo como fecha, le doy la fecha automática
-            publish_date = cls.__get_automatic_date()
-
-        # Obtengo a qué hora tengo que publicar la reseña
-        sz_time = Config.get_value(Section.POST, Param.TIME)
-        time = time_from_str(sz_time)
-
-        return date_to_str(datetime.combine(publish_date, time))
-
-    @classmethod
-    def __get_automatic_date(cls) -> date:
-
-        scheduled = cls.get_scheduled()
-
-        # Extraigo todas las fechas que ya tienen asignado un blog
-        dates = {str(date_from_YMD(post.published)) for post in scheduled}
-
-        # Busco los viernes disponibles
-        # Voy al próximo viernes
-        today = datetime.today().date()
-        week_day = today.weekday()
-        days_till_next_friday = (4 - week_day) % 7
-        next_friday = today + timedelta(days=days_till_next_friday)
-
-        # Avanzo por los viernes hasta encontrar uno que esté disponible
-        found = ""
-        while not found:
-            # Convierto a string
-            str_next_friday = str(next_friday)
-            # Si no se encuentra entre las fechas con reseña, he encontrado un viernes disponible
-            if str_next_friday not in dates:
-                found = str_next_friday
-            # Avanzo al siguiente viernes
-            next_friday = next_friday + timedelta(days=7)
-
-        # Devuelvo la fecha encontrada como fecha
-        return date_from_YMD(found)
 
     @classmethod
     def get_all_active_posts(cls) -> list[Post]:
@@ -232,3 +188,46 @@ def date_to_str(date: date | datetime, *,
                         tzinfo=TIME_ZONE).isoformat()
     except:
         return ""
+
+
+def get_automatic_date() -> date:
+
+    scheduled = Poster.get_scheduled()
+
+    # Extraigo todas las fechas que ya tienen asignado un blog
+    dates = {str(date_from_YMD(post.published)) for post in scheduled}
+
+    # Busco los viernes disponibles
+    # Voy al próximo viernes
+    today = datetime.today().date()
+    week_day = today.weekday()
+    days_till_next_friday = (4 - week_day) % 7
+    next_friday = today + timedelta(days=days_till_next_friday)
+
+    # Avanzo por los viernes hasta encontrar uno que esté disponible
+    found = ""
+    while not found:
+        # Convierto a string
+        str_next_friday = str(next_friday)
+        # Si no se encuentra entre las fechas con reseña, he encontrado un viernes disponible
+        if str_next_friday not in dates:
+            found = str_next_friday
+        # Avanzo al siguiente viernes
+        next_friday = next_friday + timedelta(days=7)
+
+    # Devuelvo la fecha encontrada como fecha
+    return date_from_YMD(found)
+
+
+def get_publish_datatime() -> str:
+    # Obtengo qué día tengo que publicar la reseña
+    sz_date = Config.get_value(Section.POST, Param.DATE)
+    if not (publish_date := date_from_DMY(sz_date)):
+        # Si no consigo interpretarlo como fecha, le doy la fecha automática
+        publish_date = get_automatic_date()
+
+    # Obtengo a qué hora tengo que publicar la reseña
+    sz_time = Config.get_value(Section.POST, Param.TIME)
+    time = time_from_str(sz_time)
+
+    return date_to_str(datetime.combine(publish_date, time))
