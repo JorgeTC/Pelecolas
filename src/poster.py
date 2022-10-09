@@ -12,6 +12,7 @@ from src.aux_title_str import DMY, date_from_DMY, date_from_YMD, time_from_str
 from src.config import Config, Param, Section
 from src.google_api_mgr import GetGoogleApiMgr
 from src.read_blog import BlogHiddenData
+from src.thread_safe_property import cach
 
 
 def get_blog_and_api(service: Resource, blog_id: str) -> tuple[Blog, Resource]:
@@ -36,25 +37,19 @@ def get_blog_and_api(service: Resource, blog_id: str) -> tuple[Blog, Resource]:
 class Poster():
 
     BLOG_ID = Config.get_value(Section.POST, Param.BLOG_ID)
-    _SERVICE: Resource = None
-    _SERVICE_lock = Lock()
 
     # Guardo el primer mes que tiene reseña
     __first_month = date(2019, 5, 1)
 
     @classmethod
     @property
+    @cach
     def SERVICE(cls):
-        if cls._SERVICE is not None:
-            return cls._SERVICE
-
-        with cls._SERVICE_lock:
-            if cls._SERVICE is not None:
-                cls._SERVICE = GetGoogleApiMgr('blogger')
-        return cls._SERVICE
+        return GetGoogleApiMgr('blogger')
 
     @classmethod
     @property
+    @cach
     def posts(cls):
         blog, posts = get_blog_and_api(cls.SERVICE, cls.BLOG_ID)
         return posts
