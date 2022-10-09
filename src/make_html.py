@@ -41,7 +41,8 @@ SZ_HTML_HIDDEN_DATA = get_res_html_format("hidden_data.html")
 
 class html(WordReader):
 
-    html_output_folder = Config.get_folder_path(Section.HTML, Param.OUTPUT_PATH_HTML)
+    html_output_folder = Config.get_folder_path(
+        Section.HTML, Param.OUTPUT_PATH_HTML)
 
     def __init__(self):
 
@@ -150,7 +151,8 @@ class html(WordReader):
         # Escribo el estilo css si así me lo indica el ini
         if Config.get_bool(Section.HTML, Param.ADD_STYLE):
             reseña.write("<style>\n")
-            reseña.write(open(get_res_folder("Make_html", "template.css")).read())
+            reseña.write(
+                open(get_res_folder("Make_html", "template.css")).read())
             reseña.write("</style>\n")
 
         # Escribo el encabezado

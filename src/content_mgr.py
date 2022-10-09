@@ -18,6 +18,7 @@ def get_title_from_html(html_path: Path) -> str:
     name = regular_expresion.group(1)
     return name
 
+
 @dataclass(frozen=True)
 class PostInfo:
     title: str

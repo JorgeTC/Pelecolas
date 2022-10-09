@@ -1,4 +1,5 @@
 import enum
+
 from bs4 import BeautifulSoup
 
 
