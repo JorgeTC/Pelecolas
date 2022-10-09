@@ -1,57 +1,21 @@
-from dataclasses import asdict
 from datetime import date, datetime, timedelta
+from typing import Iterable
 
+import src.google_api.blog_client as Client
 from bs4 import BeautifulSoup
 from dateutil import tz
-from googleapiclient.discovery import Resource, HttpRequest
 from oauth2client import client
-
-from src.google_api.api_dataclasses import Blog, Post
 from src.aux_title_str import DMY, date_from_DMY, date_from_YMD, time_from_str
 from src.config import Config, Param, Section
-from src.google_api.google_api_mgr import get_google_service
+from src.google_api.api_dataclasses import Post
+from src.google_api.blog_client import PostStatus
 from src.read_blog import BlogHiddenData
-from src.thread_safe_property import cach
-
-
-def get_blog_and_api(service: Resource, blog_id: str) -> tuple[Blog, Resource]:
-    try:
-        # Obtengo la API
-        post_api = service.posts()
-
-        # Obtengo el blog que está indicado
-        blogs = service.blogs()
-        my_blogs = blogs.listByUser(userId='self').execute()
-        right_blog = next(
-            (blog for blog in my_blogs['items'] if blog['id'] == blog_id), None)
-        right_blog = Blog(**right_blog)
-
-        return right_blog, post_api
-
-    except client.AccessTokenRefreshError:
-        print('Error en las credenciales')
-        return None, None
 
 
 class Poster():
 
-    BLOG_ID = Config.get_value(Section.POST, Param.BLOG_ID)
-
     # Guardo el primer mes que tiene reseña
     __first_month = date(2019, 5, 1)
-
-    @classmethod
-    @property
-    @cach
-    def SERVICE(cls):
-        return get_google_service('blogger')
-
-    @classmethod
-    @property
-    @cach
-    def posts(cls):
-        blog, posts = get_blog_and_api(cls.SERVICE, cls.BLOG_ID)
-        return posts
 
     @classmethod
     def add_post(cls, content: str, title: str, labels: str):
@@ -70,17 +34,15 @@ class Poster():
         # Miro si la configuración me pide que lo publique como borrador
         bDraft = Config.get_bool(Section.POST, Param.AS_DRAFT)
         try:
-            f = cls.posts.insert(blogId=cls.BLOG_ID,
-                                 body=asdict(body), isDraft=bDraft)
-            f.execute()
-            # Si no está programada como borrador, aviso al usuario de cuándo se va a publicar la reseña
-            if not bDraft:
-                print(f"La reseña de {title} "
-                      f"se publicará el {DMY(str_date[:10])}")
-
+            Client.insert_post(body, bDraft)
         except client.AccessTokenRefreshError:
             print('The credentials have been revoked or expired, please re-run'
                   'the application to re-authorize')
+            return
+        # Si no está programada como borrador, aviso al usuario de cuándo se va a publicar la reseña
+        if not bDraft:
+            print(f"La reseña de {title} "
+                  f"se publicará el {DMY(str_date[:10])}")
 
     @classmethod
     def get_all_active_posts(cls) -> list[Post]:
@@ -102,32 +64,17 @@ class Poster():
 
     @classmethod
     def update_post(cls, new_post: Post):
-
-        cls.posts.update(blogId=cls.BLOG_ID,
-                         postId=new_post.id,
-                         body=asdict(new_post)).execute()
+        Client.update_post(new_post)
 
     @classmethod
     def get_published_from_date(cls, min_date: date | datetime) -> list[Post]:
 
         # Las fechas deben estar introducidas en formato date
         # Las convierto a cadena
-        sz_min_date = date_to_str(min_date)
+        min_date = date_to_str(min_date)
 
         # Pido los blogs desde entonces
-        ls = cls.posts.list(blogId=cls.BLOG_ID,
-                            status='LIVE',
-                            startDate=sz_min_date,
-                            maxResults=500)
-        execute = ls.execute()
-
-        # Obtengo todos los posts que están programados
-        try:
-            scheduled = [Post(**item) for item in execute['items']]
-        except:
-            scheduled = []
-
-        return scheduled
+        return [post for post in iter_posts(min_date, PostStatus.LIVE)]
 
     @classmethod
     def get_scheduled(cls) -> list[Post]:
@@ -135,19 +82,7 @@ class Poster():
         today = datetime.today()
         start_date = date_to_str(today)
 
-        ls = cls.posts.list(blogId=cls.BLOG_ID,
-                            maxResults=55,
-                            status='SCHEDULED',
-                            startDate=start_date)
-        execute = ls.execute()
-
-        # Obtengo todos los posts que están programados
-        try:
-            scheduled = [Post(**item) for item in execute['items']]
-        except:
-            scheduled = []
-
-        return scheduled
+        return [post for post in iter_posts(start_date, PostStatus.SCHEDULED)]
 
     @classmethod
     def get_scheduled_as_list(cls) -> list[list[str]]:
@@ -169,6 +104,22 @@ class Poster():
             ans.append([title, "", director, year])
 
         return ans
+
+
+def iter_posts(start_date: str, post_status: PostStatus) -> Iterable[Post]:
+    # Token para poder hacer varias peticiones
+    page_token: str = None
+    while True:
+        # Pido los archivos que tengan como carpeta parent la que he introducido
+        posts, page_token = Client.list_posts(
+            start_date, post_status, page_token)
+
+        # Itero lo que me ha dado la api en esta petición
+        for post in posts:
+            yield Post(**post)
+        # Avanzo a la siguiente petición
+        if page_token is None:
+            return
 
 
 def date_to_str(date: date | datetime, *,
