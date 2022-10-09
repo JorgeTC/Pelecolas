@@ -1,15 +1,14 @@
 from bs4 import BeautifulSoup
 
-from src.google_api.api_dataclasses import Post
 from src.aux_console import clear_current_line, go_to_upper_row
 from src.blog_scraper import BlogScraper
 from src.config import Config, Param, Section
 from src.content_mgr import ContentMgr
 from src.dlg_scroll_base import DlgScrollBase
+from src.google_api import Post, Poster
 from src.list_title_mgr import TitleMgr
 from src.make_html import html
 from src.pelicula import Pelicula
-from src.google_api.poster import Poster
 from src.progress_bar import ProgressBar
 from src.read_blog import BlogHiddenData
 from src.searcher import Searcher

@@ -1,9 +1,8 @@
 from bs4 import BeautifulSoup
 
-from src.google_api.api_dataclasses import Post
 from src.blog_csv_mgr import BlogCsvMgr
+from src.google_api import Post, Poster
 from src.list_title_mgr import TitleMgr
-from src.google_api.poster import Poster
 from src.read_blog import BlogHiddenData
 from src.word_reader import WordReader
 

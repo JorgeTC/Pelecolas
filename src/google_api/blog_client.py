@@ -2,7 +2,7 @@ from dataclasses import asdict
 from enum import Enum
 from typing import Any
 
-from googleapiclient.discovery import HttpRequest, Resource
+from googleapiclient.discovery import Resource
 from oauth2client import client
 from src.config import Config, Param, Section
 from src.google_api.api_dataclasses import Blog, Post

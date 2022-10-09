@@ -1,12 +1,11 @@
 from pathlib import Path
-from typing import Generator, Iterable
-from googleapiclient.discovery import Resource
-from googleapiclient.http import MediaFileUpload
+from typing import Iterable
 
-from src.google_api.api_dataclasses import DriveFile
-from src.config import Config, Param, Section
-from src.thread_safe_property import cach
 import src.google_api.drive_client as Client
+from googleapiclient.http import MediaFileUpload
+from src.config import Config, Param, Section
+from src.google_api.api_dataclasses import DriveFile
+from src.thread_safe_property import cach
 
 TYPE_FOLDER = 'application/vnd.google-apps.folder'
 
