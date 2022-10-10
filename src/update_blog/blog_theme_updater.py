@@ -4,14 +4,14 @@ from src.aux_console import clear_current_line, go_to_upper_row
 from src.blog_scraper import BlogScraper
 from src.config import Config, Param, Section
 from src.content_mgr import ContentMgr
-from src.dlg_scroll_base import DlgScrollBase
-from src.google_api import Post, Poster
+from src.google_api import Post, Poster, join
 from src.list_title_mgr import TitleMgr
 from src.make_html import html
 from src.pelicula import Pelicula
 from src.progress_bar import ProgressBar
 from src.read_blog import BlogHiddenData
 from src.searcher import Searcher
+from src.update_blog.dlg_update_post import DlgUpdatePost
 from src.word_reader import WordReader
 
 
@@ -50,7 +50,7 @@ class BlogThemeUpdater():
         self.update_post(word_names[to_update])
 
     def update_post(self, post: Post, *,
-                    dowload_data: bool = Config.get_bool(
+                    download_data: bool = Config.get_bool(
                         Section.POST, Param.GET_DATA_FROM_FA),
                     fa_url_from_hidden_data: bool = Config.get_bool(
                         Section.POST, Param.FA_URL_FROM_HIDDEN_DATA)) -> bool:
@@ -80,30 +80,13 @@ class BlogThemeUpdater():
         self.Documento.data = Pelicula.from_fa_url(url_fa)
         # Normalmente tengo todos los datos necesarios dentro del html.
         # Si me faltara alguno, indico que hay que descargar la página de FA
-        if dowload_data:
-            self.Documento.data.get_parsed_page()
-            # Si no he conseguido leer nada de FA, salgo de la función
-            if not self.Documento.data.exists():
+        if download_data:
+            try:
+                download_film_data(self.Documento.data)
+            except ValueError:
                 return False
-
-            # Obtengo los datos de la página de FA
-            self.Documento.data.get_director()
-            self.Documento.data.get_año()
-            self.Documento.data.get_duracion()
-            self.Documento.data.get_country()
-            self.Documento.data.get_image_url()
         else:
-            # Por el contrario leo en las notas ocultas del html los datos
-            self.Documento.data.director = BlogHiddenData.DIRECTOR.get(
-                self.parsed)
-            self.Documento.data.año = BlogHiddenData.YEAR.get(
-                self.parsed)
-            self.Documento.data.duracion = BlogHiddenData.DURATION.get(
-                self.parsed)
-            self.Documento.data.pais = BlogHiddenData.COUNTRY.get(
-                self.parsed)
-            self.Documento.data.url_image = BlogHiddenData.IMAGE.get(
-                self.parsed)
+            parse_film_data(self.Documento.data, self.parsed)
 
         # Restituyo el nombre que tenía en Word
         self.Documento.data.titulo = title
@@ -162,27 +145,27 @@ class BlogThemeUpdater():
             # Subo a la linea anterior a la barra de progreso
             go_to_upper_row()
 
+        join()
 
-class DlgUpdatePost(DlgScrollBase):
 
-    def __init__(self, title_list: list[str]):
-        DlgScrollBase.__init__(self,
-                               question="Elija una reseña para actualizar: ",
-                               options=title_list)
+def download_film_data(film: Pelicula):
+    film.get_parsed_page()
+    # Si no he conseguido leer nada de FA, salgo de la función
+    if not film.exists():
+        raise ValueError
 
-        self.quisiste_decir = TitleMgr(title_list)
+    # Obtengo los datos de la página de FA
+    film.get_director()
+    film.get_año()
+    film.get_duracion()
+    film.get_country()
+    film.get_image_url()
 
-    def get_ans_body(self) -> str:
-        ans = ""
-        # Función sobreescrita de la clase base
-        while not ans:
-            # Inicializo las variables antes de llamar a input
-            self.curr_index = -1
-            self.sz_options = self.quisiste_decir.get_suggestions()
-            self.n_options = len(self.sz_options)
-            # Al llamar a input es cuando me espero que se utilicen las flechas
-            ans = input(self.sz_question)
-            # Se ha introducido un título, compruebo que sea correcto
-            ans = self.quisiste_decir.exact_key(ans)
 
-        return ans
+def parse_film_data(film: Pelicula, blog_page: BeautifulSoup):
+    # Leo en las notas ocultas del html los datos
+    film.director = BlogHiddenData.DIRECTOR.get(blog_page)
+    film.año = BlogHiddenData.YEAR.get(blog_page)
+    film.duracion = BlogHiddenData.DURATION.get(blog_page)
+    film.pais = BlogHiddenData.COUNTRY.get(blog_page)
+    film.url_image = BlogHiddenData.IMAGE.get(blog_page)

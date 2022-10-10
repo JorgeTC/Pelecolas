@@ -5,7 +5,7 @@ def main():
 
     manage_config()
 
-    from src.blog_theme_updater import BlogThemeUpdater
+    from src.update_blog import BlogThemeUpdater
 
     BlogThemeUpdater().select_and_update_post()
 
