@@ -9,5 +9,9 @@ from src.google_api.poster import Poster
 consumer = Thread(target=GoogleClient.run_queue, daemon=True)
 consumer.start()
 
+def join():
+    GoogleClient.REQUESTS_QUEUE.join()
+
 __all__ = [Poster, Drive,
-           Post, DriveFile, Blog]
+           Post, DriveFile, Blog,
+           join]
