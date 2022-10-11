@@ -5,9 +5,9 @@ def main():
 
     manage_config()
 
-    from src.update_blog import BlogThemeUpdater
+    import src.update_blog as UpdateBlog
 
-    BlogThemeUpdater().update_blog()
+    UpdateBlog.update_blog()
 
 
 if __name__ == "__main__":

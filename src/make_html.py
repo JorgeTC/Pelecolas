@@ -44,7 +44,7 @@ class html(WordReader):
     html_output_folder = Config.get_folder_path(
         Section.HTML, Param.OUTPUT_PATH_HTML)
 
-    def __init__(self):
+    def __init__(self, film: Pelicula = None):
 
         # Variable para el nombre del archivo
         self.sz_file_name = ""
@@ -53,7 +53,10 @@ class html(WordReader):
 
         # Objeto Pelicula para guardar los datos que necesito para escribir el html
         # quiero de ella su titulo, año, duración, y director
-        self.data = Pelicula()
+        if film is None:
+            self.data = Pelicula()
+        else:
+            self.data = film
 
         # Objeto para hacer las citas de forma automática
         self.__citas: Quoter = None

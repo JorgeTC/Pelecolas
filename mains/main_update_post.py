@@ -5,9 +5,10 @@ def main():
 
     manage_config()
 
-    from src.update_blog import BlogThemeUpdater
+    import src.update_blog as UpdateBlog
 
-    BlogThemeUpdater().select_and_update_post()
+    post = UpdateBlog.select_post_to_update()
+    UpdateBlog.update_post(post)
 
 
 if __name__ == "__main__":

@@ -4,71 +4,53 @@ from src.aux_console import clear_current_line, go_to_upper_row
 from src.blog_scraper import BlogScraper
 from src.config import Config, Param, Section
 from src.content_mgr import ContentMgr
-from src.google_api import Post, Poster, join
-from src.list_title_mgr import TitleMgr
+from src.google_api import Post, Poster
 from src.make_html import html
 from src.pelicula import Pelicula
 from src.progress_bar import ProgressBar
 from src.read_blog import BlogHiddenData
 from src.searcher import Searcher
 from src.update_blog.dlg_update_post import DlgUpdatePost
-from src.word_reader import WordReader
 
 
-class BlogThemeUpdater():
+class PostThemeUpdater:
 
-    def __init__(self):
-        self.Documento = html()
-        self.title_manager = TitleMgr(WordReader.list_titles())
-        self.all_posts = Poster.get_all_posts()
-        self.parsed: BeautifulSoup = None
+    DOWNLOAD_DATA: bool = Config.get_bool(
+        Section.POST, Param.GET_DATA_FROM_FA)
 
-        # Compruebo que no haya posts repetidos
-        self.exist_repeated_posts(self.all_posts)
+    FA_URL_FROM_HIDDEN_DATA: bool = Config.get_bool(
+        Section.POST, Param.FA_URL_FROM_HIDDEN_DATA)
 
-    def get_word_name_from_blog_post(self, post: Post, *, keep_parsed: bool = False) -> str:
-        # Obtengo el nombre a partir del post usando la clase específica
-        name, self.parsed = BlogScraper.get_name_and_parsed_from_post(post)
+    @classmethod
+    def select_post_to_update(self):
 
-        # Si no me interesa quedarme el post parseado, lo borro
-        if not keep_parsed:
-            self.parsed = None
-
-        # Devuelvo el nombre que he leído del post
-        return name
-
-    def select_and_update_post(self):
+        ALL_POSTS = Poster.get_all_posts()
 
         # Creo un diccionario que asocia cada post con su nombre en el word
-        word_names = {self.get_word_name_from_blog_post(post): post
-                      for post in self.all_posts}
+        word_names = {BlogScraper.get_name_from_post(post): post
+                      for post in ALL_POSTS}
 
         # Pregunto al usuario cuál quiere actualizar
         dlg = DlgUpdatePost(list(word_names.keys()))
         to_update = dlg.get_ans()
 
-        self.update_post(word_names[to_update])
+        return word_names[to_update]
 
-    def update_post(self, post: Post, *,
-                    download_data: bool = Config.get_bool(
-                        Section.POST, Param.GET_DATA_FROM_FA),
-                    fa_url_from_hidden_data: bool = Config.get_bool(
-                        Section.POST, Param.FA_URL_FROM_HIDDEN_DATA)) -> bool:
+    @classmethod
+    def update_post(cls, post: Post):
+        # Parseo el contenido
+        parsed = BeautifulSoup(post.content, 'lxml')
 
         # A partir del post busco cuál es su nombre en el Word
-        title = self.get_word_name_from_blog_post(post, keep_parsed=True)
+        title = BlogScraper.get_name_from_post(post, parsed)
         # Si no encuentro su nombre en el Word, salgo
         if not title:
             return False
 
-        if not self.parsed:
-            # Parseo el contenido
-            self.parsed = BeautifulSoup(post.content, 'lxml')
-
         # Obtengo la url de la película
-        if fa_url_from_hidden_data:
+        if cls.FA_URL_FROM_HIDDEN_DATA:
             # Obtengo la dirección desde los datos ocultos de la reseña
-            url_fa = BlogHiddenData.URL_FA.get(self.parsed)
+            url_fa = BlogHiddenData.URL_FA.get(parsed)
         else:
             # No quiero la url que tiene anotada el html.
             # Hago una búsqueda del título en FilmAffinity
@@ -77,67 +59,50 @@ class BlogThemeUpdater():
                 url_fa = input(f"Necesito url de FilmAffinity de {title}. ")
 
         # Creo un objeto a partir de la url de FA
-        self.Documento.data = Pelicula.from_fa_url(url_fa)
+        film_data = Pelicula.from_fa_url(url_fa)
         # Normalmente tengo todos los datos necesarios dentro del html.
         # Si me faltara alguno, indico que hay que descargar la página de FA
-        if download_data:
+        if cls.DOWNLOAD_DATA:
             try:
-                download_film_data(self.Documento.data)
+                download_film_data(film_data)
             except ValueError:
                 return False
         else:
-            parse_film_data(self.Documento.data, self.parsed)
+            parse_film_data(film_data, parsed)
 
         # Restituyo el nombre que tenía en Word
-        self.Documento.data.titulo = title
+        film_data.titulo = title
 
         # Escribo el archivo html
-        self.Documento.write_html()
+        document = html(film_data)
+        document.write_html()
         # Extraigo el texto del documento html
         # El resto de datos del post deben quedar intactos
-        post_info = ContentMgr.extract_html(self.Documento.sz_file_name)
+        post_info = ContentMgr.extract_html(document.sz_file_name)
         post.content = post_info.content
         # Subo el nuevo post
         Poster.update_post(post)
 
-        # Elimino el archivo html que acabo de generar
-        self.Documento.delete_file()
-        # Limpio el objeto para poder escribir otro html
-        self.Documento.reset()
-        self.parsed = None
-
         return True
 
-    def exist_repeated_posts(self, posts: list[Post]) -> bool:
 
-        # Genero un contenedor para guardar los títulos ya visitados
-        titles: set[str] = set()
+class BlogThemeUpdater:
 
-        # Itero todos los posts
-        for post in posts:
-            # A partir del post busco cuál es su nombre en el Word
-            title = self.get_word_name_from_blog_post(post)
+    @staticmethod
+    def update_blog():
 
-            # Compruebo si el título ya lo hemos encontrado antes
-            if title in titles:
-                print(f"La reseña de {title} está repetida")
-            titles.add(title)
-
-        # Devuelvo si hay más posts que títulos
-        return len(titles) < len(posts)
-
-    def update_blog(self):
+        ALL_POSTS = Poster.get_all_posts()
 
         bar = ProgressBar()
-        total_elements = len(self.all_posts)
+        total_elements = len(ALL_POSTS)
 
-        for index, post in enumerate(self.all_posts):
+        for index, post in enumerate(ALL_POSTS):
 
             # Imprimo el nombre de la película actual
             clear_current_line()
             print(f"Actualizando {post.title}")
 
-            if not self.update_post(post):
+            if not PostThemeUpdater.update_post(post):
                 print(f"Error con la película {post.title}")
 
             # Imprimo el progreso de la barra
@@ -145,7 +110,25 @@ class BlogThemeUpdater():
             # Subo a la linea anterior a la barra de progreso
             go_to_upper_row()
 
-        join()
+
+
+def exist_repeated_posts(posts: list[Post]) -> bool:
+
+    # Genero un contenedor para guardar los títulos ya visitados
+    titles: set[str] = set()
+
+    # Itero todos los posts
+    for post in posts:
+        # A partir del post busco cuál es su nombre en el Word
+        title = BlogScraper.get_name_from_post(post)
+
+        # Compruebo si el título ya lo hemos encontrado antes
+        if title in titles:
+            print(f"La reseña de {title} está repetida")
+        titles.add(title)
+
+    # Devuelvo si hay más posts que títulos
+    return len(titles) < len(posts)
 
 
 def download_film_data(film: Pelicula):
