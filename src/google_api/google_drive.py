@@ -15,23 +15,20 @@ class Drive():
     # Obtengo la carpeta dentro del drive
     FOLDER_ID = Config.get_value(Section.DRIVE, Param.FOLDER_ID)
 
-    # Lista de todos los archivos que están subidos a Google Drive
-    _FILES_IN_DRIVE: list[DriveFile] = None
-
     @classmethod
     def update_folder(cls):
         # Le paso todos los archivos para actualizar
-        cls.update_files(cls.FILES_IN_DRIVE)
+        cls.update_files(cls.FILES_IN_DRIVE())
 
     @classmethod
     def update_docx_files(cls):
-        docx_files = [path for path in cls.FILES_IN_DRIVE
+        docx_files = [path for path in cls.FILES_IN_DRIVE()
                       if path.name.find('.docx') >= 0]
         cls.update_files(docx_files)
 
     @classmethod
     def update_pdf_files(cls):
-        pdf_files = [path for path in cls.FILES_IN_DRIVE
+        pdf_files = [path for path in cls.FILES_IN_DRIVE()
                      if path.name.find('.pdf') >= 0]
         cls.update_files(pdf_files)
 
@@ -48,9 +45,9 @@ class Drive():
             Client.update_file(file.id, media_body)
 
     @classmethod
-    @property
     @cach
     def FILES_IN_DRIVE(cls) -> list[DriveFile]:
+        # Lista de todos los archivos que están subidos a Google Drive
         return cls.get_files_in_folder(cls.FOLDER_ID)
 
     @classmethod
