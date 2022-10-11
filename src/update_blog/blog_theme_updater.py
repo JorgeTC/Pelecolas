@@ -111,8 +111,9 @@ class BlogThemeUpdater:
             go_to_upper_row()
 
 
+def exist_repeated_posts() -> bool:
 
-def exist_repeated_posts(posts: list[Post]) -> bool:
+    posts = Poster.get_all_posts()
 
     # Genero un contenedor para guardar los títulos ya visitados
     titles: set[str] = set()

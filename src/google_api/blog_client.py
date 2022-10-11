@@ -78,7 +78,8 @@ def list_posts(min_date: str, status: PostStatus, page_token: str) -> tuple[dict
                                   status=status.value,
                                   startDate=min_date,
                                   fields='nextPageToken, items',
-                                  pageToken=page_token)
+                                  pageToken=page_token,
+                                  maxResults=500)
 
     response: dict = GoogleClient.execute_and_wait(list_operation)
 
