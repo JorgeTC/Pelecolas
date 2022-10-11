@@ -5,8 +5,8 @@ from src.config import manage_config
 
 def create_PDF():
 
-    from src.pdf_writer import PDFWriter
     import pythoncom
+    from src.pdf_writer import PDFWriter
 
     # Inicialización necesaria para poder abrir Word con multithreading
     pythoncom.CoInitialize()
@@ -23,7 +23,7 @@ def main():
 
     manage_config()
 
-    from src.google_api import Drive
+    from src.google_api import Drive, join
 
     # Inicio la conversión a PDF en paralelo
     create_pdf = threading.Thread(target=create_PDF)
@@ -35,6 +35,7 @@ def main():
     # Antes de subir el PDF necesito que esté terminado
     create_pdf.join()
     Drive.update_pdf_files()
+    join()
 
 
 if __name__ == '__main__':
