@@ -15,7 +15,7 @@ from src.read_blog import BlogHiddenData
 class Poster():
 
     # Guardo el primer mes que tiene reseña
-    __first_month = date(2019, 5, 1)
+    __first_month = date(2022, 3, 30)
 
     @classmethod
     def add_post(cls, content: str, title: str, labels: str):

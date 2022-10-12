@@ -1,6 +1,6 @@
 from configparser import ConfigParser
 
-from src.dlg_scroll_base import DlgScrollBase
+from src.gui.dlg_scroll_base import DlgScrollBase
 
 SZ_SECTIONS = "Secciones: "
 SZ_PARAMETROS = "Parámetros: "
@@ -33,7 +33,7 @@ class DlgConfig(DlgScrollBase):
         self.sz_question = SZ_SECTIONS
         self.sz_options = self.config.sections()
         self.n_options = len(self.sz_options)
-        self.b_empty_option = True
+        self.SCROLL_EMPTY_OPTION = True
         self.__curr_section = self.get_ans()
 
         if self.__curr_section:
@@ -45,7 +45,7 @@ class DlgConfig(DlgScrollBase):
         self.sz_options = list(
             dict(self.config.items(self.__curr_section)).keys())
         self.n_options = len(self.sz_options)
-        self.b_empty_option = True
+        self.SCROLL_EMPTY_OPTION = True
         self.__curr_param = self.get_ans()
 
         if self.__curr_param:

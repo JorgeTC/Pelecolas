@@ -228,7 +228,6 @@ class html(WordReader):
     def reset(self):
         self.parrafos_critica.clear()
         self.data = Pelicula()
-        self.__citas.clear_questions()
         self.sz_file_name = ""
 
     def delete_file(self):

@@ -1,4 +1,4 @@
-from src.dlg_scroll_base import DlgScrollBase
+from src.gui.dlg_scroll_base import DlgScrollBase
 from src.list_title_mgr import TitleMgr
 
 

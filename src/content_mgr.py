@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 
 from src.aux_title_str import split_title_year
 from src.config import Config, Param, Section
-from src.dlg_scroll_base import DlgScrollBase
+from src.gui.dlg_scroll_base import DlgScrollBase
 from src.make_html import SZ_HTML_FILE
 from src.read_blog import BlogHiddenData
 

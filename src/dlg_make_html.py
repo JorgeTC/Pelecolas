@@ -1,12 +1,13 @@
 from src.aux_title_str import split_title_year
 from src.blog_csv_mgr import CSV_COLUMN, BlogCsvMgr
 from src.config import Config, Param, Section
-from src.dlg_scroll_base import DlgScrollBase
+from src.gui.dlg_scroll_base import DlgScrollBase
 from src.google_api import Poster
 from src.list_title_mgr import TitleMgr
 from src.pelicula import Pelicula
 from src.searcher import Searcher
 from src.url_FA import URL_FILM_ID
+from src.gui.input import Input
 
 
 class DlgHtml(DlgScrollBase):
@@ -18,6 +19,7 @@ class DlgHtml(DlgScrollBase):
     ASK_DURATION = "Introduzca duración de la película: "
 
     def __init__(self, title_list: list[str]) -> None:
+        DlgScrollBase.__init__(self)
         if Config.get_bool(Section.HTML, Param.FILTER_PUBLISHED):
             title_list = self.__unpublished(title_list)
         # Objeto para buscar si el título que ha pedido el usuario
@@ -39,7 +41,7 @@ class DlgHtml(DlgScrollBase):
         FA.print_state()
 
         while not self.data.director:
-            self.data.director = input(self.ASK_DIRECTOR)
+            self.data.director = Input(self.ASK_DIRECTOR)
             # Si en vez de un director se introduce la dirección de FA, no necesito nada más
             if not self.__interpretate_director(FA.get_url()):
                 return

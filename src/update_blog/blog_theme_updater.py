@@ -1,6 +1,6 @@
+from concurrent.futures import ThreadPoolExecutor
 from bs4 import BeautifulSoup
 
-from src.aux_console import clear_current_line, go_to_upper_row
 from src.blog_scraper import BlogScraper
 from src.config import Config, Param, Section
 from src.content_mgr import ContentMgr
@@ -11,6 +11,9 @@ from src.progress_bar import ProgressBar
 from src.read_blog import BlogHiddenData
 from src.searcher import Searcher
 from src.update_blog.dlg_update_post import DlgUpdatePost
+from src.gui.log import Log
+from src.gui.input import Input
+from src.gui.gui import GUI
 
 
 class PostThemeUpdater:
@@ -56,7 +59,7 @@ class PostThemeUpdater:
             # Hago una búsqueda del título en FilmAffinity
             if not (url_fa := Searcher(title).get_url()):
                 # Si no encuentro la url, la pido al usuario
-                url_fa = input(f"Necesito url de FilmAffinity de {title}. ")
+                url_fa = Input(f"Necesito url de FilmAffinity de {title}. ")
 
         # Creo un objeto a partir de la url de FA
         film_data = Pelicula.from_fa_url(url_fa)
@@ -85,6 +88,15 @@ class PostThemeUpdater:
 
         return True
 
+def update_and_notify(post: Post):
+    # Imprimo el nombre de la película actual
+    Log(f"Actualizando {post.title}")
+
+    if not PostThemeUpdater.update_post(post):
+        Log(f"Error con la película {post.title}")
+
+    GUI.close_suite()
+
 
 class BlogThemeUpdater:
 
@@ -93,22 +105,23 @@ class BlogThemeUpdater:
 
         ALL_POSTS = Poster.get_all_posts()
 
-        bar = ProgressBar()
-        total_elements = len(ALL_POSTS)
+        #bar = ProgressBar()
+        #total_elements = len(ALL_POSTS)
 
-        for index, post in enumerate(ALL_POSTS):
+        executor = ThreadPoolExecutor()
+        a = executor.map(update_and_notify, ALL_POSTS)
+        a = list(a)
 
-            # Imprimo el nombre de la película actual
-            clear_current_line()
-            print(f"Actualizando {post.title}")
+        # for index, post in enumerate(ALL_POSTS):
 
-            if not PostThemeUpdater.update_post(post):
-                print(f"Error con la película {post.title}")
+        #     # Imprimo el nombre de la película actual
+        #     Log(f"Actualizando {post.title}")
+
+        #     if not PostThemeUpdater.update_post(post):
+        #         Log(f"Error con la película {post.title}")
 
             # Imprimo el progreso de la barra
-            bar.update((index + 1)/total_elements)
-            # Subo a la linea anterior a la barra de progreso
-            go_to_upper_row()
+            #bar.update((index + 1)/total_elements)
 
 
 def exist_repeated_posts() -> bool:
@@ -125,7 +138,7 @@ def exist_repeated_posts() -> bool:
 
         # Compruebo si el título ya lo hemos encontrado antes
         if title in titles:
-            print(f"La reseña de {title} está repetida")
+            Log(f"La reseña de {title} está repetida")
         titles.add(title)
 
     # Devuelvo si hay más posts que títulos
