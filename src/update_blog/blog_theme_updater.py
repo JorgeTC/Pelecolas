@@ -1,5 +1,10 @@
-from concurrent.futures import ThreadPoolExecutor
+from functools import wraps
+from multiprocessing.pool import ThreadPool
+from queue import Queue
+from threading import Thread
 from bs4 import BeautifulSoup
+
+from multiprocessing import current_process
 
 from src.blog_scraper import BlogScraper
 from src.config import Config, Param, Section
@@ -88,7 +93,10 @@ class PostThemeUpdater:
 
         return True
 
+
 def update_and_notify(post: Post):
+    current_process().name = post.title
+
     # Imprimo el nombre de la película actual
     Log(f"Actualizando {post.title}")
 
@@ -98,6 +106,58 @@ def update_and_notify(post: Post):
     GUI.close_suite()
 
 
+class ThreadExecutor:
+    def __init__(self, threads: list[Thread], max_executors: int = 5) -> None:
+        self.q = Queue()
+
+        self.threads = [self.decorate_thread(thread)
+                        for thread in threads]
+
+        self.max_executors = max_executors
+
+    def decorate_thread(self, ori_thread: Thread) -> Thread:
+        target = ori_thread._target
+        target_decorated = self.queue_when_done(target)
+        args = ori_thread._args
+        kwargs = ori_thread._kwargs
+        name = ori_thread._name
+
+        return Thread(name=name,
+                      args=args,
+                      kwargs=kwargs,
+                      target=target_decorated)
+
+    def execute(self):
+        max_executors = min(len(self.threads), self.max_executors)
+        threads = self.threads
+
+        # Inicializo todos los hilos
+        for _ in range(max_executors):
+            threads.pop().start()
+
+        while self.q.get() is not None:
+            if not threads:
+                continue
+            # No inicializo otro hilo hasta que se haya terminado otro
+            threads.pop().start()
+            # Si he acabado los hilos, añado un indicativo de que la Queue se ha acabado
+            if not threads:
+                self.q.put(None)
+
+        # Espero a que estén todos acabados
+        for thread in self.threads:
+            thread.join()
+
+
+    def queue_when_done(self, fn):
+        @wraps(fn)
+        def wrapper(*args, **kwargs):
+            ans = fn(*args, **kwargs)
+            self.q.put(True)
+            return ans
+        return wrapper
+
+
 class BlogThemeUpdater:
 
     @staticmethod
@@ -105,23 +165,11 @@ class BlogThemeUpdater:
 
         ALL_POSTS = Poster.get_all_posts()
 
-        #bar = ProgressBar()
-        #total_elements = len(ALL_POSTS)
+        threads = [Thread(target=update_and_notify, args=(post,), name=post.title)
+                   for post in ALL_POSTS]
+        ThreadExecutor(threads).execute()
 
-        executor = ThreadPoolExecutor()
-        a = executor.map(update_and_notify, ALL_POSTS)
-        a = list(a)
-
-        # for index, post in enumerate(ALL_POSTS):
-
-        #     # Imprimo el nombre de la película actual
-        #     Log(f"Actualizando {post.title}")
-
-        #     if not PostThemeUpdater.update_post(post):
-        #         Log(f"Error con la película {post.title}")
-
-            # Imprimo el progreso de la barra
-            #bar.update((index + 1)/total_elements)
+        GUI.close_gui()
 
 
 def exist_repeated_posts() -> bool:
