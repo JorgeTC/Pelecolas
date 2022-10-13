@@ -10,6 +10,7 @@ from src.blog_scraper import BlogScraper
 from src.config import Config, Param, Section
 from src.content_mgr import ContentMgr
 from src.google_api import Post, Poster
+import src.google_api as GoogleApi
 from src.make_html import html
 from src.pelicula import Pelicula
 from src.progress_bar import ProgressBar
@@ -18,7 +19,9 @@ from src.searcher import Searcher
 from src.update_blog.dlg_update_post import DlgUpdatePost
 from src.gui.log import Log
 from src.gui.input import Input
-from src.gui.gui import GUI
+import src.gui as GUI
+
+
 
 
 class PostThemeUpdater:
@@ -103,11 +106,11 @@ def update_and_notify(post: Post):
     if not PostThemeUpdater.update_post(post):
         Log(f"Error con la película {post.title}")
 
-    GUI.close_suite()
+    GUI.GUI.close_suite()
 
 
 class ThreadExecutor:
-    def __init__(self, threads: list[Thread], max_executors: int = 5) -> None:
+    def __init__(self, threads: list[Thread], max_executors: int = 3) -> None:
         self.q = Queue()
 
         self.threads = [self.decorate_thread(thread)
@@ -169,7 +172,8 @@ class BlogThemeUpdater:
                    for post in ALL_POSTS]
         ThreadExecutor(threads).execute()
 
-        GUI.close_gui()
+        GUI.join()
+        GoogleApi.join()
 
 
 def exist_repeated_posts() -> bool:
