@@ -5,7 +5,7 @@ import src.google_api.drive_client as Client
 from googleapiclient.http import MediaFileUpload
 from src.config import Config, Param, Section
 from src.google_api.api_dataclasses import DriveFile
-from src.thread_safe_property import cach
+from src.thread_safe_property import thread_safe_cache
 
 TYPE_FOLDER = 'application/vnd.google-apps.folder'
 
@@ -45,7 +45,7 @@ class Drive():
             Client.update_file(file.id, media_body)
 
     @classmethod
-    @cach
+    @thread_safe_cache
     def FILES_IN_DRIVE(cls) -> list[DriveFile]:
         # Lista de todos los archivos que están subidos a Google Drive
         return cls.get_files_in_folder(cls.FOLDER_ID)

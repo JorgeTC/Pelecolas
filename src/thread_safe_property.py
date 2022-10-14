@@ -2,7 +2,7 @@ from functools import wraps
 from threading import Lock
 
 
-def cach(fun):
+def thread_safe_cache(fun):
 
     val_cached = None
     locker = Lock()

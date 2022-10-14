@@ -8,7 +8,7 @@ from src.config import Config, Param, Section
 from src.google_api.api_dataclasses import Blog, Post
 from src.google_api.google_api_mgr import get_google_service
 from src.google_api.google_client import GoogleClient
-from src.thread_safe_property import cach
+from src.thread_safe_property import thread_safe_cache
 
 BLOG_ID = Config.get_value(Section.POST, Param.BLOG_ID)
 
@@ -31,17 +31,17 @@ def get_blog_and_api(service: Resource, blog_id: str) -> tuple[Blog, Resource]:
         return None, None
 
 
-@cach
+@thread_safe_cache
 def SERVICE():
     return get_google_service('blogger')
 
 
-@cach
+@thread_safe_cache
 def BLOGS():
     return SERVICE().blogs()
 
 
-@cach
+@thread_safe_cache
 def POSTS():
     blog, posts = get_blog_and_api(SERVICE(), BLOG_ID)
     return posts

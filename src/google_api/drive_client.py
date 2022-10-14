@@ -2,15 +2,15 @@ from googleapiclient.discovery import HttpRequest, Resource
 from googleapiclient.http import MediaFileUpload
 from src.google_api.google_api_mgr import get_google_service
 from src.google_api.google_client import GoogleClient
-from src.thread_safe_property import cach
+from src.thread_safe_property import thread_safe_cache
 
 
-@cach
+@thread_safe_cache
 def SERVICE() -> Resource:
     return get_google_service('drive')
 
 
-@cach
+@thread_safe_cache
 def FILES() -> Resource:
     return SERVICE().files()
 
