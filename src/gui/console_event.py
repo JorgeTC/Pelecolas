@@ -13,8 +13,7 @@ class Priority(int, Enum):
     LOW = auto()
 
 
-class ConsoleEvent:
-    __metaclass__ = ABCMeta
+class ConsoleEvent(metaclass=ABCMeta):
 
     def __init__(self, priority: Priority = Priority.LOW) -> None:
         self.priority = priority
