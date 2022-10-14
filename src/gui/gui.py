@@ -1,8 +1,7 @@
-from queue import Queue
-from threading import Thread, current_thread
 from abc import ABCMeta, abstractmethod
 from multiprocessing import Lock
-from threading import current_thread, main_thread
+from queue import Queue
+from threading import Thread, current_thread, main_thread
 
 
 class ConsoleEvent(metaclass=ABCMeta):
@@ -31,8 +30,8 @@ class GUI:
     INTERFACE_QUEUE: dict[str, Queue] = {}
 
     @classmethod
-    def add_event(cls, current_process: Thread, event: ConsoleEvent):
-        thread_name: str = getattr(current_process, 'name', None)
+    def add_event(cls, current_thread: Thread, event: ConsoleEvent):
+        thread_name: str = getattr(current_thread, 'name', None)
         # Si el hilo introducido ya tiene más eventos encolados, añado uno más
         if thread_name in cls.INTERFACE_QUEUE:
             queue = cls.INTERFACE_QUEUE[thread_name]

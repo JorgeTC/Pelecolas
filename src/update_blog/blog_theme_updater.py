@@ -1,5 +1,4 @@
-from multiprocessing import current_process
-from threading import Thread
+from threading import Thread, current_thread
 
 import src.google_api as GoogleApi
 import src.gui as GUI
@@ -91,7 +90,7 @@ class PostThemeUpdater:
 
 
 def update_and_notify(post: Post):
-    current_process().name = post.title
+    current_thread().name = post.title
 
     # Imprimo el nombre de la película actual
     GUI.Log(f"Actualizando {post.title}")
