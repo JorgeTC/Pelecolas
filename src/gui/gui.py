@@ -1,6 +1,27 @@
 from queue import Queue
 from threading import Thread, current_thread
-from src.gui.console_event import ConsoleEvent
+from abc import ABCMeta, abstractmethod
+from multiprocessing import Lock
+from threading import current_thread, main_thread
+
+
+class ConsoleEvent(metaclass=ABCMeta):
+
+    def __init__(self) -> None:
+        # Bloqueo el locker hasta haber completado la tarea
+        self.locker = Lock()
+        self.locker.acquire()
+
+    @abstractmethod
+    def execute(self):
+        pass
+
+    def execute_if_main_thread(self):
+        # Si estoy en el hilo principal, lo ejecuto
+        if current_thread() is main_thread():
+            self.execute()
+        else:
+            GUI.add_event(current_thread(), self)
 
 
 class GUI:
@@ -11,7 +32,7 @@ class GUI:
 
     @classmethod
     def add_event(cls, current_process: Thread, event: ConsoleEvent):
-        thread_name = getattr(current_process, 'name', None)
+        thread_name: str = getattr(current_process, 'name', None)
         # Si el hilo introducido ya tiene más eventos encolados, añado uno más
         if thread_name in cls.INTERFACE_QUEUE:
             queue = cls.INTERFACE_QUEUE[thread_name]
@@ -42,7 +63,7 @@ class GUI:
     def run(cls):
         while True:
             # Obtengo un hilo para agotar todos sus eventos
-            thread_name = cls.THREADS_QUEUE.get()
+            thread_name: str = cls.THREADS_QUEUE.get()
             if thread_name is None:
                 return
             # Accedo a su cola de eventos

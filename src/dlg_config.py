@@ -1,6 +1,6 @@
 from configparser import ConfigParser
 
-from src.gui.dlg_scroll_base import DlgScrollBase
+from src.gui import DlgScrollBase
 
 SZ_SECTIONS = "Secciones: "
 SZ_PARAMETROS = "Parámetros: "

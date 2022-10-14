@@ -4,7 +4,7 @@ from threading import Lock
 
 import keyboard
 from src.aux_console import is_console_on_focus
-from src.gui.console_event import ConsoleEvent
+from src.gui.gui import ConsoleEvent
 
 
 class DlgScrollBase(ConsoleEvent):

@@ -1,4 +1,4 @@
-from src.gui.console_event import ConsoleEvent, Priority
+from src.gui.gui import ConsoleEvent
 
 
 def Input(message: str) -> str:
@@ -7,8 +7,8 @@ def Input(message: str) -> str:
 
 
 class CInput(ConsoleEvent):
-    def __init__(self, message: str, priority: Priority = Priority.LOW) -> None:
-        ConsoleEvent.__init__(self, priority)
+    def __init__(self, message: str) -> None:
+        ConsoleEvent.__init__(self)
 
         # Mensaje que imprimo para pedir información
         self.message = message

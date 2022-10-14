@@ -1,4 +1,4 @@
-from src.gui.dlg_scroll_base import DlgScrollBase
+from src.gui import DlgScrollBase
 
 
 class YesNo(DlgScrollBase):
