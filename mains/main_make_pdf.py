@@ -26,7 +26,7 @@ def main():
     from src.google_api import Drive, join
 
     # Inicio la conversión a PDF en paralelo
-    create_pdf = threading.Thread(target=create_PDF)
+    create_pdf = threading.Thread(target=create_PDF, name="Create PDF")
     create_pdf.start()
 
     # Mientras creo el PDF, subo los archivos Word
