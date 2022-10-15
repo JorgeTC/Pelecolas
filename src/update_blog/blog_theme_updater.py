@@ -9,7 +9,6 @@ from src.content_mgr import ContentMgr
 from src.google_api import Post, Poster
 from src.make_html import html
 from src.pelicula import Pelicula
-from src.progress_bar import ProgressBar
 from src.read_blog import BlogHiddenData
 from src.searcher import Searcher
 from src.update_blog.dlg_update_post import DlgUpdatePost
@@ -59,7 +58,8 @@ class PostThemeUpdater:
             # Hago una búsqueda del título en FilmAffinity
             if not (url_fa := Searcher(title).get_url()):
                 # Si no encuentro la url, la pido al usuario
-                url_fa = Input(f"Necesito url de FilmAffinity de {title}. ")
+                url_fa = GUI.Input(
+                    f"Necesito url de FilmAffinity de {title}. ")
 
         # Creo un objeto a partir de la url de FA
         film_data = Pelicula.from_fa_url(url_fa)
@@ -89,31 +89,35 @@ class PostThemeUpdater:
         return True
 
 
-def update_and_notify(post: Post):
-    current_thread().name = post.title
-
-    # Imprimo el nombre de la película actual
-    GUI.Log(f"Actualizando {post.title}")
-
-    if not PostThemeUpdater.update_post(post):
-        GUI.Log(f"Error con la película {post.title}")
-
-    GUI.GUI.close_suite()
-
-
 class BlogThemeUpdater:
 
-    @staticmethod
-    def update_blog():
+    def __init__(self) -> None:
+        self.progress_bar: GUI.ProgressBar = None
+
+    def update_blog(self):
 
         ALL_POSTS = Poster.get_all_posts()
+        self.progress_bar = GUI.ProgressBar(len(ALL_POSTS))
 
-        threads = [Thread(target=update_and_notify, args=(post,), name=post.title)
+        threads = [Thread(target=self.update_and_notify, args=(post,), name=post.title)
                    for post in ALL_POSTS]
         ThreadExecutor(threads).execute()
 
         GUI.join_GUI()
         GoogleApi.join()
+
+    def update_and_notify(self, post: Post):
+        current_thread().name = post.title
+
+        # Imprimo el nombre de la película actual
+        GUI.Log(f"Actualizando {post.title}")
+
+        if not PostThemeUpdater.update_post(post):
+            GUI.Log(f"Error con la película {post.title}")
+
+        self.progress_bar.update()
+
+        GUI.GUI.close_suite()
 
 
 def exist_repeated_posts() -> bool:
@@ -130,7 +134,7 @@ def exist_repeated_posts() -> bool:
 
         # Compruebo si el título ya lo hemos encontrado antes
         if title in titles:
-            Log(f"La reseña de {title} está repetida")
+            GUI.Log(f"La reseña de {title} está repetida")
         titles.add(title)
 
     # Devuelvo si hay más posts que títulos

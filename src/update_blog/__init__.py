@@ -16,7 +16,7 @@ def update_post(post: Post):
 
 
 def update_blog():
-    BlogThemeUpdater.update_blog()
+    BlogThemeUpdater().update_blog()
     join()
 
 
