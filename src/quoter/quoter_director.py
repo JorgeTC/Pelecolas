@@ -3,7 +3,6 @@ import urllib.parse
 from dataclasses import dataclass
 from typing import Iterable
 
-from src.aux_console import clear_current_line, delete_line, go_to_upper_row
 from src.aux_res_directory import get_res_folder
 from src.blog_csv_mgr import CSV_COLUMN
 from src.config import Config, Param, Section
@@ -131,21 +130,10 @@ class QuoterDirector:
             return True
         # En caso contrario, pregunto
         self.questions_counter += 1
-        clear_current_line()
         pregunta = f"¿Es {nombre} una cita de {director}? "
         question = YesNo(pregunta)
         ans = question.get_ans()
         return bool(ans)
-
-    def clear_questions(self) -> None:
-        # Elimino todas las preguntas por directores
-        for _ in range(self.questions_counter):
-            go_to_upper_row()
-            delete_line()
-            print("")
-
-        # Reseteo el contador
-        self.questions_counter = 0
 
 
 def split_words(text: str) -> Iterable[tuple[int, str]]:

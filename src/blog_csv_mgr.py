@@ -6,7 +6,7 @@ from typing import Iterable
 
 from src.aux_res_directory import get_res_folder
 from src.config import Config, Param, Section
-from src.poster import Poster
+from src.google_api import Poster
 
 
 class CSV_COLUMN(int, enum.Enum):

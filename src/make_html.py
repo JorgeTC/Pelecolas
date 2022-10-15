@@ -41,9 +41,10 @@ SZ_HTML_HIDDEN_DATA = get_res_html_format("hidden_data.html")
 
 class html(WordReader):
 
-    html_output_folder = Config.get_folder_path(Section.HTML, Param.OUTPUT_PATH_HTML)
+    html_output_folder = Config.get_folder_path(
+        Section.HTML, Param.OUTPUT_PATH_HTML)
 
-    def __init__(self):
+    def __init__(self, film: Pelicula = None):
 
         # Variable para el nombre del archivo
         self.sz_file_name = ""
@@ -52,7 +53,10 @@ class html(WordReader):
 
         # Objeto Pelicula para guardar los datos que necesito para escribir el html
         # quiero de ella su titulo, año, duración, y director
-        self.data = Pelicula()
+        if film is None:
+            self.data = Pelicula()
+        else:
+            self.data = film
 
         # Objeto para hacer las citas de forma automática
         self.__citas: Quoter = None
@@ -150,7 +154,8 @@ class html(WordReader):
         # Escribo el estilo css si así me lo indica el ini
         if Config.get_bool(Section.HTML, Param.ADD_STYLE):
             reseña.write("<style>\n")
-            reseña.write(open(get_res_folder("Make_html", "template.css")).read())
+            reseña.write(
+                open(get_res_folder("Make_html", "template.css")).read())
             reseña.write("</style>\n")
 
         # Escribo el encabezado
@@ -219,12 +224,6 @@ class html(WordReader):
 
         # Devuelvo la lista de etiquetas
         return sz_labels
-
-    def reset(self):
-        self.parrafos_critica.clear()
-        self.data = Pelicula()
-        self.__citas.clear_questions()
-        self.sz_file_name = ""
 
     def delete_file(self):
         # Elimino el último html que he escrito

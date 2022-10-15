@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 
 from src.aux_title_str import split_title_year
 from src.config import Config, Param, Section
-from src.dlg_scroll_base import DlgScrollBase
+from src.gui import DlgScrollBase
 from src.make_html import SZ_HTML_FILE
 from src.read_blog import BlogHiddenData
 
@@ -17,6 +17,7 @@ def get_title_from_html(html_path: Path) -> str:
     # Obtengo lo que haya después de la palabra reseña y antes de la extensión
     name = regular_expresion.group(1)
     return name
+
 
 @dataclass(frozen=True)
 class PostInfo:

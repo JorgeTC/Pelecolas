@@ -1,4 +1,5 @@
 from unittest import mock
+
 import pytest
 from src.list_title_mgr import TitleMgr
 

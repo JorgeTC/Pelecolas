@@ -1,8 +1,8 @@
 import ast
 
 from src.aux_res_directory import get_res_folder
-from src.config import Config, Section, Param
-from src.dlg_scroll_base import DlgScrollBase
+from src.config import Config, Param, Section
+from src.gui.dlg_scroll_base import DlgScrollBase
 
 
 def load_users_id() -> dict[str, int]:
@@ -12,6 +12,7 @@ def load_users_id() -> dict[str, int]:
         contents = file.read()
         dictionary = ast.literal_eval(contents)
     return dictionary
+
 
 class Usuario():
 

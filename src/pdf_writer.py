@@ -4,7 +4,7 @@ from pathlib import Path
 import docx2pdf
 from PyPDF2 import PdfFileMerger
 
-from src.config import Config, Section, Param
+from src.config import Config, Param, Section
 from src.word_folder_mgr import WordFolderMgr
 
 

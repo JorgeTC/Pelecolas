@@ -1,7 +1,7 @@
 import docx
 from docx.text.paragraph import Paragraph
 
-from src.config import Config, Section, Param
+from src.config import Config, Param, Section
 from src.word_folder_mgr import WordFolderMgr
 
 SEPARATOR_YEAR = " - "

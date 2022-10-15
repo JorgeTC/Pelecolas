@@ -1,9 +1,8 @@
 from bs4 import BeautifulSoup
 
-from src.api_dataclasses import Post
 from src.blog_csv_mgr import BlogCsvMgr
+from src.google_api import Post, Poster
 from src.list_title_mgr import TitleMgr
-from src.poster import Poster
 from src.read_blog import BlogHiddenData
 from src.word_reader import WordReader
 
@@ -14,24 +13,20 @@ class BlogScraper:
     TITLE_MGR = TitleMgr(WordReader.list_titles())
 
     @classmethod
-    def get_name_from_post(cls, post: Post) -> str:
-        name, _ = cls.get_name_and_parsed_from_post(post)
-        return name
-
-    @classmethod
-    def get_name_and_parsed_from_post(cls, post: Post) -> tuple[str, BeautifulSoup]:
+    def get_name_from_post(cls, post: Post, parsed: BeautifulSoup = None) -> str:
         name = post.title
         # Si el nombre que tiene en el word no es el normal, es que tiene un año
         if cls.TITLE_MGR.is_title_in_list(name):
-            return cls.TITLE_MGR.exact_key_without_dlg(name), None
+            return cls.TITLE_MGR.exact_key_without_dlg(name)
 
         # Parseo el contenido
-        parsed = BeautifulSoup(post.content, 'lxml')
+        if parsed is None:
+            parsed = BeautifulSoup(post.content, 'lxml')
 
         # Tomo el nombre que está escrito en los datos ocultos
         name = BlogHiddenData.TITLE.get(parsed)
         if cls.TITLE_MGR.is_title_in_list(name):
-            return cls.TITLE_MGR.exact_key_without_dlg(name), parsed
+            return cls.TITLE_MGR.exact_key_without_dlg(name)
 
         # El nombre que viene en el html no es correcto,
         # pruebo a componer un nuevo nombre con el título y el año
@@ -39,9 +34,9 @@ class BlogScraper:
         name = f'{name} ({year})'
 
         if cls.TITLE_MGR.is_title_in_list(name):
-            return cls.TITLE_MGR.exact_key_without_dlg(name), parsed
+            return cls.TITLE_MGR.exact_key_without_dlg(name)
 
-        return "", parsed
+        return ""
 
     @classmethod
     def get_data_from_post(cls, post: Post) -> tuple[str]:
