@@ -15,7 +15,6 @@ def main():
     # Inicializo un bucle para poder crear tantas reseñas como se quiera
     # sin necesidad de cerrar la aplicación
     b_otra = True
-    dlg_otra = YesNo(question="¿Otra reseña? ", empty_ans=True)
     while b_otra:
         # Genero el html
         Documento.write_html()
@@ -28,7 +27,7 @@ def main():
                         labels=post_data.labels)
 
         # Pregunto si quiere generar otra reseña
-        b_otra = dlg_otra.get_ans()
+        b_otra = YesNo(question="¿Otra reseña? ", empty_ans=True).get_ans()
 
         # Elimino el archivo html que acabo de generar
         Documento.delete_file()
