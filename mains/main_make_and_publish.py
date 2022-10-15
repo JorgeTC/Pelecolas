@@ -5,17 +5,17 @@ def main():
 
     manage_config()
 
-    from src.make_html import html
+    from src.content_mgr import ContentMgr
     from src.dlg_bool import YesNo
     from src.google_api import Poster
-    from src.content_mgr import ContentMgr
+    from src.make_html import html
 
-    # Objeto que escribe el html
-    Documento = html()
     # Inicializo un bucle para poder crear tantas reseñas como se quiera
     # sin necesidad de cerrar la aplicación
     b_otra = True
     while b_otra:
+        # Objeto que escribe el html
+        Documento = html()
         # Genero el html
         Documento.write_html()
 
@@ -31,5 +31,3 @@ def main():
 
         # Elimino el archivo html que acabo de generar
         Documento.delete_file()
-        # Limpio el objeto para poder escribir otro html
-        Documento.reset()

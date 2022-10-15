@@ -225,11 +225,6 @@ class html(WordReader):
         # Devuelvo la lista de etiquetas
         return sz_labels
 
-    def reset(self):
-        self.parrafos_critica.clear()
-        self.data = Pelicula()
-        self.sz_file_name = ""
-
     def delete_file(self):
         # Elimino el último html que he escrito
         os.remove(self.html_output_folder / self.sz_file_name)
