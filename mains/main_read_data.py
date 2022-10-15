@@ -7,8 +7,8 @@ def main():
 
     # Importo los módulos del programa cuando la configuración ya está settada
     from src.usuario import Usuario
-    from src.excel_mgr import ExcelMgr
-    from src.writer import Writer
+    from src.excel import ExcelMgr, Writer
+
     usuario = Usuario.ask_user()
 
     ex_doc = ExcelMgr(usuario.nombre)
@@ -17,6 +17,7 @@ def main():
     writer.write_watched(usuario.id)
 
     ex_doc.save_wb()
+
 
 if __name__ == "__main__":
     main()

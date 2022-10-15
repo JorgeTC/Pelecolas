@@ -1,11 +1,10 @@
 from openpyxl import load_workbook
 from openpyxl.worksheet.worksheet import Worksheet
-
 from src.aux_res_directory import get_res_folder
 from src.config import Config, Param, Section
 
 
-class ExcelMgr():
+class ExcelMgr:
 
     SZ_FILE_NAME = 'Sintaxis - {}.xlsx'.format
     SZ_TEMPLATE_NAME = 'Plantilla.xlsx'

@@ -12,8 +12,7 @@ def main():
     manage_config()
 
     # Importo los módulos del programa cuando la configuración ya está settada
-    from src.excel_mgr import ExcelMgr
-    from src.writer import Writer
+    from src.excel import ExcelMgr, Writer
 
     ex_doc = ExcelMgr(Config.get_value(Section.READDATA, Param.SAMPLE_OUTPUT))
 
