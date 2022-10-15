@@ -85,6 +85,8 @@ class PostThemeUpdater:
         post.content = post_info.content
         # Subo el nuevo post
         Poster.update_post(post)
+        # Elimino el archivo html
+        document.delete_file()
 
         return True
 
