@@ -243,7 +243,7 @@ class Pelicula():
     @scrap_data('values')
     def get_values(self):
         # Recopilo los datos específicos de la varianza:
-        script = self.parsed_page.find("script", text=RATING_BARS_PATTERN)
+        script = self.parsed_page.find("script", string=RATING_BARS_PATTERN)
         if script:
             bars = script.string
         else:
