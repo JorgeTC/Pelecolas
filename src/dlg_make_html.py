@@ -122,7 +122,9 @@ def unpublished(ls_titles: list[str]) -> list[str]:
     # Obtengo la lista de títulos,
     # por si están entrecomillados, quito las comillas
     published = (row[0].strip("\"") for row in csv)
-    published = (title.lower() for title in published)
+    # quito los posibles años entre paréntesis
+    published = (split_title_year(title)[1] for title in published)
+    published = [title.lower() for title in published]
     lower_titles = (title.lower() for title in ls_titles)
 
     ls_unpublished: list[str] = []
