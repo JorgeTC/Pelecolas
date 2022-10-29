@@ -95,7 +95,7 @@ class DlgHtml:
 
     def __get_data_from_FA(self, url: str) -> bool:
         # No quiero que se modifique el título que tengo leído.
-        # El actual lo he oebtenido del word,
+        # El actual lo he obtenido del word,
         # Pelicula me puede dar un título de FA que no sea idéntico al que hay en el word
         ori_title = self.data.titulo
 
