@@ -119,13 +119,18 @@ def unpublished(ls_titles: list[str]) -> list[str]:
     csv = BlogCsvMgr.open_to_read()
     # Pido la lista de posts por publicar
     csv = csv + Poster.get_scheduled_as_list()
+
+    return filter_list_from_csv(ls_titles, csv)
+
+
+def filter_list_from_csv(titles: list[str], csv: list[list[str]]):
     # Obtengo la lista de títulos,
     # por si están entrecomillados, quito las comillas
     published = (row[0].strip("\"") for row in csv)
     # quito los posibles años entre paréntesis
     published = (split_title_year(title)[1] for title in published)
     published = [title.lower() for title in published]
-    lower_titles = (title.lower() for title in ls_titles)
+    lower_titles = (title.lower() for title in titles)
 
     ls_unpublished: list[str] = []
     for i, title in enumerate(lower_titles):
@@ -141,15 +146,14 @@ def unpublished(ls_titles: list[str]) -> list[str]:
             if not any(candidato_año == csv[ocurr][CSV_COLUMN.YEAR]
                        for ocurr in indices):
                 # Añado el título con las mayúsculas originales
-                ls_unpublished.append(ls_titles[i])
+                ls_unpublished.append(titles[i])
 
         # No tiene año
         elif title not in published:
             # Añado el título con las mayúsculas originales
-            ls_unpublished.append(ls_titles[i])
+            ls_unpublished.append(titles[i])
 
     return ls_unpublished
-
 
 
 def all_indices_in_list(ls, el) -> list[int]:
