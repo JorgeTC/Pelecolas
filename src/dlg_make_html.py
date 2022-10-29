@@ -132,28 +132,28 @@ def filter_list_from_csv(titles: list[str], csv: list[list[str]]):
     published = [title.lower() for title in published]
     lower_titles = (title.lower() for title in titles)
 
-    ls_unpublished: list[str] = []
-    for i, title in enumerate(lower_titles):
+    unpublished_titles: list[str] = []
+    for title, lower_title in zip(titles, lower_titles):
         # Compruebo que no tenga escrito el año
-        candidato_año, title = split_title_year(title)
+        candidato_año, lower_title = split_title_year(lower_title)
 
         if candidato_año:
             # Compruebo que esté el título en la lista de publicados
-            indices = all_indices_in_list(published, title)
+            indices = all_indices_in_list(published, lower_title)
             # Compruebo que el año sea correcto.
             # Esta comprobación la hacemos para los casos en los que un título
             # se haya añadido al Word sin año y posteriormente se haya añadido el año.
             if not any(candidato_año == csv[ocurr][CSV_COLUMN.YEAR]
                        for ocurr in indices):
                 # Añado el título con las mayúsculas originales
-                ls_unpublished.append(titles[i])
+                unpublished_titles.append(title)
 
         # No tiene año
-        elif title not in published:
+        elif lower_title not in published:
             # Añado el título con las mayúsculas originales
-            ls_unpublished.append(titles[i])
+            unpublished_titles.append(title)
 
-    return ls_unpublished
+    return unpublished_titles
 
 
 def all_indices_in_list(ls, el) -> list[int]:
