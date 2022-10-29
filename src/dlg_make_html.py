@@ -95,7 +95,7 @@ class DlgHtml:
 
     def __get_data_from_FA(self, url: str) -> bool:
         # No quiero que se modifique el título que tengo leído.
-        # El actual lo he oebtenido del word,
+        # El actual lo he obtenido del word,
         # Pelicula me puede dar un título de FA que no sea idéntico al que hay en el word
         ori_title = self.data.titulo
 
@@ -119,35 +119,41 @@ def unpublished(ls_titles: list[str]) -> list[str]:
     csv = BlogCsvMgr.open_to_read()
     # Pido la lista de posts por publicar
     csv = csv + Poster.get_scheduled_as_list()
+
+    return filter_list_from_csv(ls_titles, csv)
+
+
+def filter_list_from_csv(titles: list[str], csv: list[list[str]]):
     # Obtengo la lista de títulos,
     # por si están entrecomillados, quito las comillas
     published = (row[0].strip("\"") for row in csv)
-    published = (title.lower() for title in published)
-    lower_titles = (title.lower() for title in ls_titles)
+    # quito los posibles años entre paréntesis
+    published = (split_title_year(title)[1] for title in published)
+    published = [title.lower() for title in published]
+    lower_titles = (title.lower() for title in titles)
 
-    ls_unpublished: list[str] = []
-    for i, title in enumerate(lower_titles):
+    unpublished_titles: list[str] = []
+    for title, lower_title in zip(titles, lower_titles):
         # Compruebo que no tenga escrito el año
-        candidato_año, title = split_title_year(title)
+        candidato_año, lower_title = split_title_year(lower_title)
 
         if candidato_año:
             # Compruebo que esté el título en la lista de publicados
-            indices = all_indices_in_list(published, title)
+            indices = all_indices_in_list(published, lower_title)
             # Compruebo que el año sea correcto.
             # Esta comprobación la hacemos para los casos en los que un título
             # se haya añadido al Word sin año y posteriormente se haya añadido el año.
             if not any(candidato_año == csv[ocurr][CSV_COLUMN.YEAR]
                        for ocurr in indices):
                 # Añado el título con las mayúsculas originales
-                ls_unpublished.append(ls_titles[i])
+                unpublished_titles.append(title)
 
         # No tiene año
-        elif title not in published:
+        elif lower_title not in published:
             # Añado el título con las mayúsculas originales
-            ls_unpublished.append(ls_titles[i])
+            unpublished_titles.append(title)
 
-    return ls_unpublished
-
+    return unpublished_titles
 
 
 def all_indices_in_list(ls, el) -> list[int]:
