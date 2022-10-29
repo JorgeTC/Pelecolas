@@ -58,8 +58,8 @@ class BlogCsvMgr():
         return len(new_posts) > 0
 
     @classmethod
-    def open_to_read(cls) -> list[list[str]]:
-        with open(cls.SZ_CSV_FILE, encoding=cls.ENCODING) as csv_file:
+    def open_to_read(cls, csv_path: str = SZ_CSV_FILE) -> list[list[str]]:
+        with open(csv_path, encoding=cls.ENCODING) as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=",")
             # Convierto lo leído en listas
             # Es una lista que contiene cada linea expresada como lista
@@ -72,8 +72,9 @@ class BlogCsvMgr():
             return []
 
     @classmethod
-    def write(cls, header: Iterable[str], rows: Iterable[Iterable[str]]) -> None:
-        with open(cls.SZ_CSV_FILE, 'w', encoding=cls.ENCODING, newline='') as csv_file:
+    def write(cls, header: Iterable[str], rows: Iterable[Iterable[str]],
+              csv_path: str = SZ_CSV_FILE) -> None:
+        with open(csv_path, 'w', encoding=cls.ENCODING, newline='') as csv_file:
             csv_writer = csv.writer(csv_file)
             csv_writer.writerow(header)
             csv_writer.writerows(rows)
