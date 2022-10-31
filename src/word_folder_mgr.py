@@ -16,7 +16,7 @@ def get_files(word_folder: Path) -> list[Path]:
     return all_files
 
 
-class WordFolderMgr():
+class WordFolderMgr:
     # Carpeta donde guardo los word
     WORD_FOLDER = Config.get_folder_path(
         Section.COUNT_FILMS, Param.WORD_FOLDER)
