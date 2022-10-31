@@ -4,7 +4,7 @@ from pathlib import Path
 
 from bs4 import BeautifulSoup
 
-from src.aux_title_str import split_title_year
+from src.aux_title_str import trim_year
 from src.config import Config, Param, Section
 from src.gui import DlgScrollBase
 from src.make_html import SZ_HTML_FILE
@@ -38,7 +38,7 @@ class ContentMgr():
             # Extraigo de las notas del post el nombre de la película y las etiquetas
             parsed = BeautifulSoup(content, 'lxml')
             title = BlogHiddenData.TITLE.get(parsed)
-            _, title = split_title_year(title)
+            title = trim_year(title)
             labels = BlogHiddenData.LABELS.get(parsed)
 
         return PostInfo(title=title.upper(),

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from src.aux_title_str import split_title_year
+from src.aux_title_str import trim_year
 from src.blog_csv_mgr import CSV_COLUMN
 from src.quoter.quoter_base import QuoterBase, find, insert_string_in_position
 from src.word_reader import WordReader
@@ -24,7 +24,7 @@ class QuoterTitle:
         ini_comillas_pos = find(text, QuoterBase.INI_QUOTE_CHAR)
         fin_comillas_pos = find(text, QuoterBase.FIN_QUOTE_CHAR)
         if len(ini_comillas_pos) != len(fin_comillas_pos):
-            assert("Comillas impares, no se citará este párrafo")
+            assert ("Comillas impares, no se citará este párrafo")
             return
 
         # Construyo una lista con todas las posibles citas
@@ -52,11 +52,6 @@ class QuoterTitle:
             text = add_post_link(text, title, row)
 
         return text
-
-
-def trim_year(title: str) -> str:
-    _, title = split_title_year(title)
-    return title
 
 
 def add_post_link(text: str, citation: FilmCitation, row: int) -> str:

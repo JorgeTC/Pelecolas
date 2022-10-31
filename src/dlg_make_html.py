@@ -1,4 +1,4 @@
-from src.aux_title_str import split_title_year
+from src.aux_title_str import split_title_year, trim_year
 from src.blog_csv_mgr import CSV_COLUMN, BlogCsvMgr
 from src.config import Config, Param, Section
 from src.google_api import Poster
@@ -128,7 +128,7 @@ def filter_list_from_csv(titles: list[str], csv: list[list[str]]):
     # por si están entrecomillados, quito las comillas
     published = (row[0].strip("\"") for row in csv)
     # quito los posibles años entre paréntesis
-    published = (split_title_year(title)[1] for title in published)
+    published = (trim_year(title) for title in published)
     published = [title.lower() for title in published]
     lower_titles = (title.lower() for title in titles)
 
