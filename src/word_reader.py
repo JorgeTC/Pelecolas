@@ -1,3 +1,5 @@
+from typing import Iterator
+
 import docx
 from docx.text.paragraph import Paragraph
 
@@ -121,6 +123,23 @@ class WordReader(WordFolderMgr):
     @classmethod
     def list_titles(self) -> list[str]:
         return list(self.TITULOS.keys())
+
+    @classmethod
+    def iter_review(cls, title: str) -> Iterator[Paragraph]:
+        # Obtengo la posición donde empieza la reseña que busco
+        first_parr: int = cls.TITULOS.get(title, -1)
+        if first_parr == -1:
+            return
+
+        # Voy devolviendo los párrafos de la reseña
+        for paragraph in cls.PARAGRAPHS[first_parr:]:
+            # He llegado al final de la crítica. Dejo de leer el documento
+            if cls.is_break_line(paragraph.text):
+                return
+            yield paragraph
+
+        # He llegado al final del documento sin encontrar salto de línea
+        return
 
     @classmethod
     def write_list(cls) -> None:
