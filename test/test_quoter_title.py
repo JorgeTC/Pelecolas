@@ -47,18 +47,39 @@ def test_not_quote_own_title_not_exact_year(VerbenaDeLaPaloma1935: str):
 
 
 @pytest.fixture
-def Joker() -> str:
+def Johnny() -> str:
     return get_file_content("twice_same_title.txt")
 
 
-def test_not_quote_twice_same_title(Joker: str):
+def test_not_quote_twice_same_title(Johnny: str):
     quoter = Quoter("", "")
-    quoted_parr = quoter.quote_parr(Joker)
+    quoted_parr = quoter.quote_parr(Johnny)
 
     # Obtengo las dos frases del archivo
-    sentences = Joker.split(".")
+    sentences = Johnny.split(".")
 
     # Compruebo que se haya citado la segunda vez
     assert quoted_parr.find(sentences[1]) == -1
     # Compruebo que no se haya citado la primera
     assert quoted_parr.find(sentences[0]) > -1
+
+
+@pytest.fixture
+def Joker() -> str:
+    return get_file_content("exactly_but_year.txt")
+
+
+def test_exactly_but_year(Joker: str):
+    quoter = Quoter("", "")
+    quoted_parr = quoter.quote_parr(Joker)
+
+    # Compruebo que se haya añadido la cita
+    assert quoted_parr != Joker
+
+
+def test_exactly_but_year_self(Joker: str):
+    quoter = Quoter("Joker (2019)", "")
+    quoted_parr = quoter.quote_parr(Joker)
+
+    # Compruebo que se no haya añadido la cita
+    assert quoted_parr == Joker
