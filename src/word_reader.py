@@ -43,6 +43,19 @@ def get_title(paragraph: Paragraph) -> str:
     return title
 
 
+def is_break_line(text: str) -> bool:
+
+    # Limpio de espacios el texto
+    text = text.strip()
+
+    # Compruebo que contenga un salto de linea
+    if text in ('', "\t", "\n"):
+        return True
+
+    # Es un párrafo y no un salto de línea
+    return False
+
+
 class WordReader(WordFolderMgr):
     # Me quedo con el nombre del archivo sin la extensión.
     HEADER = str(WordFolderMgr.SZ_ALL_DOCX[0].stem).split(SEPARATOR_YEAR)[0]
@@ -58,24 +71,11 @@ class WordReader(WordFolderMgr):
         if cls.__is_header(text):
             # No cuento el encabezado del documento
             return False
-        if cls.is_break_line(text):
+        if is_break_line(text):
             # Si hay un doble salto de párrafo, quizás ha terminado una crítica
             # El inicio del siguiente párrafo será el título de la película
             return True
 
-        return False
-
-    @staticmethod
-    def is_break_line(text: str) -> bool:
-
-        # Limpio de espacios el texto
-        text = text.strip()
-
-        # Compruebo que contenga un salto de linea
-        if text in ('', "\t", "\n"):
-            return True
-
-        # Es un párrafo y no un salto de línea
         return False
 
     @classmethod
@@ -134,7 +134,7 @@ class WordReader(WordFolderMgr):
         # Voy devolviendo los párrafos de la reseña
         for paragraph in cls.PARAGRAPHS[first_parr:]:
             # He llegado al final de la crítica. Dejo de leer el documento
-            if cls.is_break_line(paragraph.text):
+            if is_break_line(paragraph.text):
                 return
             yield paragraph
 
