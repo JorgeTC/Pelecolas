@@ -1,16 +1,16 @@
 from bs4 import BeautifulSoup
 
+import src.word as Word
 from src.blog_csv_mgr import BlogCsvMgr
 from src.google_api import Post, Poster
 from src.list_title_mgr import TitleMgr
 from src.read_blog import BlogHiddenData
-from src.word_reader import WordReader
 
 
 class BlogScraper:
 
     HEADER_CSV = ('Titulo', 'Link', 'Director', 'Año')
-    TITLE_MGR = TitleMgr(WordReader.list_titles())
+    TITLE_MGR = TitleMgr(Word.LIST_TITLES)
 
     @classmethod
     def get_name_from_post(cls, post: Post, parsed: BeautifulSoup = None) -> str:

@@ -5,7 +5,7 @@ def main():
 
     manage_config()
 
-    from src.word_reader import WordReader
+    from src.word import WordReader
 
     WordReader.list_titles()
     WordReader.write_list()

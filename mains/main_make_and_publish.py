@@ -5,10 +5,9 @@ def main():
 
     manage_config()
 
-    from src.content_mgr import ContentMgr
+    from src.html import ContentMgr, html
     from src.dlg_bool import YesNo
     from src.google_api import Poster
-    from src.make_html import html
 
     # Inicializo un bucle para poder crear tantas reseñas como se quiera
     # sin necesidad de cerrar la aplicación

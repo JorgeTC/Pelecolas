@@ -6,7 +6,7 @@ def main():
     manage_config()
 
     from src.dlg_bool import YesNo
-    from src.make_html import html
+    from src.html import html
 
     # Inicializo un bucle para poder crear tantas reseñas como se quiera
     # sin necesidad de cerrar la aplicación

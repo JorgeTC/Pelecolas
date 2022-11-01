@@ -5,9 +5,8 @@ import src.gui as GUI
 from bs4 import BeautifulSoup
 from src.blog_scraper import BlogScraper
 from src.config import Config, Param, Section
-from src.content_mgr import ContentMgr
 from src.google_api import Post, Poster
-from src.make_html import html
+from src.html import ContentMgr, html
 from src.pelicula import Pelicula
 from src.read_blog import BlogHiddenData
 from src.searcher import Searcher

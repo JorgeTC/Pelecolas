@@ -8,7 +8,7 @@ from src.config import Config, Param, Section
 from src.dlg_make_html import DlgHtml
 from src.pelicula import Pelicula
 from src.quoter import Quoter
-from src.word_reader import WordReader
+from src.word import WordReader
 
 SZ_INVALID_CHAR = "\/:*?<>|"
 SZ_HTML_COMMENT = "\n<!-- {} -->\n".format
