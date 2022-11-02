@@ -14,14 +14,20 @@ def make_unwanted_chars() -> dict[int, int | None]:
     return chars_dict
 
 
-class TitleMgr():
+def normalize_string(string: str, *, UNWANTED_CHARS=make_unwanted_chars()) -> str:
+    # Elimino las mayúsculas
+    string = string.lower()
+    # Elimino espacios, signos de puntuación y acentos
+    string = string.translate(UNWANTED_CHARS)
+    # Elimino caracteres repetidos
+    string = re.sub(r'(.)\1+', r'\1', string)
+    return string
+
+
+class TitleMgr:
     # Clase para hallar el título más próximo.
     # Cuando se inserta un título por teclado trato de buscar el título más parecido
     # de las reseñas que hay escritas.
-
-    # Defino los caracteres para los que no quiero que sea sensitivo
-    # necesario para la operación de normalización.
-    UNWANTED_CHARS = make_unwanted_chars()
 
     def __init__(self, title_list: list[str]):
         # Copio todos los títulos disponibles.
@@ -33,7 +39,7 @@ class TitleMgr():
         # Uno en minísculas
         self.LOWER_TITLES: list[str] = [title.lower() for title in self.TITLES]
         # Otro con los títulos normalizados
-        self.NORMALIZED_TITLES: list[str] = [self.__normalize_string(title)
+        self.NORMALIZED_TITLES: list[str] = [normalize_string(title)
                                              for title in self.LOWER_TITLES]
 
         # Variables para guardar el resultado del cálculo.
@@ -76,7 +82,7 @@ class TitleMgr():
 
     def __closest_title(self, titulo: str):
         # Intento buscar los casos más cercanos
-        titulo = self.__normalize_string(titulo)
+        titulo = normalize_string(titulo)
 
         # Guardo las posiciones de los títulos que tengan suficiente coincidencia.
         # Esto significa que o bien lo introducido esté contenido en el título o viceversa
@@ -88,15 +94,6 @@ class TitleMgr():
         # Si he encontrado títulos para sugerir, los imprimo
         if self.__lsn_suggestions:
             self.print()
-
-    def __normalize_string(self, str: str) -> str:
-        # Elimino las mayúsculas
-        str = str.lower()
-        # Elimino espacios, signos de puntuación y acentos
-        str = str.translate(self.UNWANTED_CHARS)
-        # Elimino caracteres repetidos
-        str = re.sub(r'(.)\1+', r'\1', str)
-        return str
 
     def exact_key(self, title: str) -> str:
 
