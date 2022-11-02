@@ -33,3 +33,9 @@ def test_not_found():
     searcher = Searcher("La película que no existe")
     assert not searcher.resultados()
     assert searcher.get_url() == ""
+
+
+def test_two_results_in_same_year():
+    searcher = Searcher("Mean girls")
+    assert searcher.resultados()
+    assert searcher.get_url() == ""
