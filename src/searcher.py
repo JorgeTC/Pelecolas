@@ -17,7 +17,7 @@ class TituloYAño():
     url: str
 
 
-class SearchResult(enum.Enum):
+class SearchResult(enum.IntEnum):
     '''Determinar qué se ha encontrado al buscar la película en FA'''
     ENCONTRADA = enum.auto()
     VARIOS_RESULTADOS = enum.auto()
@@ -30,7 +30,7 @@ SZ_ONLY_ONE_FILM = "Se ha encontrado una única película llamada {}.".format
 SZ_ONLY_ONE_FILM_YEAR = "Se ha encontrado una única película llamada {} del año {}".format
 
 
-class Searcher():
+class Searcher:
 
     def __init__(self, to_search: str):
         # Separo en la cadena introducida el título y el año
@@ -56,7 +56,7 @@ class Searcher():
         # Quiero saber qué se ha conseguido, en qué caso estamos.
         # Antes de hacer esta distinción, necesito ver si FilmAffinity me ha redirigido.
         self.film_url = get_redirected_url(self.parsed_page)
-        self.__estado = self.__clarify_case()
+        self.__estado = clarify_case(self.film_url)
 
     def __search_boxes(self) -> list[TituloYAño]:
 
@@ -81,31 +81,14 @@ class Searcher():
 
             # Leo el título y el enlace
             title_box = p.find('div', {'class': 'mc-title'})
-            url: str = title_box.contents[0].previous_element.contents[0].attrs['href']
-            title: str = title_box.contents[0].previous_element.contents[0].attrs['title']
+            url: str = title_box.contents[0].attrs['href']
+            title: str = title_box.contents[0].attrs['title']
             title = title.strip()
 
             # Lo añado a la lista
             lista_peliculas.append(TituloYAño(title, curr_year, url))
 
         return lista_peliculas
-
-    def __clarify_case(self) -> SearchResult:
-
-        # Ya me han redireccionado
-        # Mirando la url puedo distinguir los tres casos.
-        # Me quedo con la información inmediatamente posterior al idioma.
-        stage = self.film_url[32:]
-
-        # El mejor de los casos, he encontrado la película
-        if stage.find('film') >= 0:
-            return SearchResult.ENCONTRADA
-        if stage.find('advsearch') >= 0:
-            return SearchResult.NO_ENCONTRADA
-        if stage.find('search') >= 0:
-            return SearchResult.VARIOS_RESULTADOS
-
-        return SearchResult.ERROR
 
     def encontrada(self) -> bool:
         return self.__estado == SearchResult.ENCONTRADA
@@ -172,6 +155,24 @@ class Searcher():
         self.get_url()
         if self.film_url:
             print(SZ_ONLY_ONE_FILM_YEAR(self.title, self.__coincidente.año))
+
+
+def clarify_case(film_url: str) -> SearchResult:
+
+    # Ya me han redireccionado
+    # Mirando la url puedo distinguir los tres casos.
+    # Me quedo con la información inmediatamente posterior al idioma.
+    stage = film_url[32:]
+
+    # El mejor de los casos, he encontrado la película
+    if stage.find('film') >= 0:
+        return SearchResult.ENCONTRADA
+    if stage.find('advsearch') >= 0:
+        return SearchResult.NO_ENCONTRADA
+    if stage.find('search') >= 0:
+        return SearchResult.VARIOS_RESULTADOS
+
+    return SearchResult.ERROR
 
 
 def get_search_url(title) -> str:
