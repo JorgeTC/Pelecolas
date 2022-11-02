@@ -26,7 +26,7 @@ class PostInfo:
     labels: str
 
 
-class ContentMgr():
+class ContentMgr:
 
     DIR = Config.get_folder_path(Section.HTML, Param.OUTPUT_PATH_HTML)
 
