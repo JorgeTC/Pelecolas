@@ -1,20 +1,12 @@
 import enum
 import urllib.parse
-from dataclasses import dataclass
 
 from bs4 import BeautifulSoup
 
 import src.url_FA as url_FA
 from src.aux_title_str import split_title_year
+from src.pelicula import Pelicula
 from src.safe_url import safe_get_url
-
-
-@dataclass
-class TituloYAño():
-    '''Clase para guardar los datos que se lea'''
-    titulo: str
-    año: int
-    url: str
 
 
 class SearchResult(enum.IntEnum):
@@ -46,7 +38,7 @@ class Searcher:
         self.search_url = get_search_url(self.title)
 
         # Creo una variable para cuando encuentre a película
-        self.__coincidente: TituloYAño = None
+        self.__coincidente: Pelicula = None
 
         # Guardo la página de búsqueda parseada.
         req = safe_get_url(self.search_url)
@@ -58,7 +50,7 @@ class Searcher:
         self.film_url = get_redirected_url(self.parsed_page)
         self.__estado = clarify_case(self.film_url)
 
-    def __search_boxes(self) -> list[TituloYAño]:
+    def __search_boxes(self) -> list[Pelicula]:
 
         # Sólo tengo un listado de películas encontradas cuando tenga muchos resultados.
         if self.__estado != SearchResult.VARIOS_RESULTADOS:
@@ -86,7 +78,11 @@ class Searcher:
             title = title.strip()
 
             # Lo añado a la lista
-            lista_peliculas.append(TituloYAño(title, curr_year, url))
+            film = Pelicula()
+            film.titulo = title
+            film.año = curr_year
+            film.url_FA = url
+            lista_peliculas.append(film)
 
         return lista_peliculas
 
@@ -111,28 +107,29 @@ class Searcher:
         # No he sido capaz de encontrar nada
         return ""
 
-    def __elegir_url(self, lista: list[TituloYAño]) -> str:
+    def __elegir_url(self, lista: list[Pelicula]) -> str:
         # Tengo una lista de películas con sus años.
         # Miro cuál de ellas me sirve más.
 
-        # Guardo todas las que sean coincidentes.
-        # Espero que sólo sea una.
-        coincidentes: list[TituloYAño] = []
-
-        # Itero las películas candidatas
-        for candidato in lista:
+        def is_coincident(candidate: Pelicula) -> bool:
             # Si el año no coincide, no es esta la película que busco
-            if self.año and self.año != candidato.año:
-                continue
+            if self.año and self.año != candidate.año:
+                return False
 
             # Si el título coincide, devuelvo esa url.
-            if self.title.lower() == candidato.titulo.lower():
-                coincidentes.append(candidato)
+            if self.title.lower() == candidate.titulo.lower():
+                return True
+
+            return False
+
+        # Guardo todas las que sean coincidentes.
+        # Espero que sólo sea una.
+        coincidentes = [film for film in lista if is_coincident(film)]
 
         # Una vez hecha la búsqueda, miro cuántas películas me sirven.
         if len(coincidentes) == 1:
             self.__coincidente = coincidentes[0]
-            return self.__coincidente.url
+            return self.__coincidente.url_FA
         else:
             # Hay varios candidatos igual de válidos.
             # no puedo devolver nada con certeza.
