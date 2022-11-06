@@ -1,7 +1,6 @@
 from bs4 import BeautifulSoup
 
-from src.blog_csv_mgr import BlogCsvMgr
-from src.google_api import Post, Poster
+from src.google_api import Post
 from src.list_title_mgr import TitleMgr
 from src.read_blog import BlogHiddenData
 from src.word import LIST_TITLES
@@ -9,11 +8,12 @@ from src.word import LIST_TITLES
 
 class BlogScraper:
 
-    HEADER_CSV = ('Titulo', 'Link', 'Director', 'Año')
     TITLE_MGR = TitleMgr(LIST_TITLES)
 
     @classmethod
     def get_name_from_post(cls, post: Post, parsed: BeautifulSoup = None) -> str:
+        ''' Dado un post del blog, devuelve el nombre con el que aparece en el Word'''
+
         name = post.title
         # Si el nombre que tiene en el word no es el normal, es que tiene un año
         if cls.TITLE_MGR.is_title_in_list(name):
@@ -38,31 +38,18 @@ class BlogScraper:
 
         return ""
 
-    @classmethod
-    def get_data_from_post(cls, post: Post) -> tuple[str]:
-        link = post.url
-        body = BeautifulSoup(post.content, 'lxml')
-        director = BlogHiddenData.DIRECTOR.get(body)
-        año = BlogHiddenData.YEAR.get(body)
-        name = cls.get_name_from_post(post)
+    def __init__(self, post: Post):
+        self.post = post
+        self._parsed = BeautifulSoup(post.content, 'lxml')
 
-        return name, link, director, año
+    def get_post_link(self) -> str:
+        return self.post.url
 
-    @classmethod
-    def write_csv(cls):
+    def get_director(self) -> str:
+        return BlogHiddenData.DIRECTOR.get(self._parsed)
 
-        # Lista de reseñas desde que empezó el blog
-        posted = Poster.get_all_active_posts()
+    def get_year(self) -> str:
+        return BlogHiddenData.YEAR.get(self._parsed)
 
-        # Quiero extraer datos de cada reseña para escribir el csv
-        extracted_data = (cls.get_data_from_post(post) for post in posted)
-
-        BlogCsvMgr.write(cls.HEADER_CSV, extracted_data)
-
-
-def main():
-    BlogScraper.write_csv()
-
-
-if __name__ == '__main__':
-    main()
+    def get_title(self) -> str:
+        return self.get_name_from_post(self.post)

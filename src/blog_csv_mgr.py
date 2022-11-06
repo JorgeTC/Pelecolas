@@ -5,8 +5,9 @@ from datetime import datetime
 from typing import Iterable
 
 from src.aux_res_directory import get_res_folder
+from src.blog_scraper import BlogScraper
 from src.config import Config, Param, Section
-from src.google_api import Poster
+from src.google_api import Post, Poster
 
 
 class CSV_COLUMN(int, enum.Enum):
@@ -16,13 +17,16 @@ class CSV_COLUMN(int, enum.Enum):
     YEAR = enum.auto()
 
 
-class BlogCsvMgr():
+class BlogCsvMgr:
     # Creo el csv donde guardo los datos de las entradas
     # Obtengo la dirección del csv
     SZ_CSV_FILE = get_res_folder("Make_html", "bog_data.csv")
 
     # Codificación con la que escribo y leo el csv
     ENCODING = "utf-8"
+
+    # Encabezados del csv
+    HEADER_CSV = ('Titulo', 'Link', 'Director', 'Año')
 
     @classmethod
     def exists_csv(cls) -> bool:
@@ -68,7 +72,7 @@ class BlogCsvMgr():
         try:
             # Devuelvo la lista sin la primera fila, que tiene los encabezados
             return csv_reader[1:]
-        except:
+        except IndexError:
             return []
 
     @classmethod
@@ -78,3 +82,28 @@ class BlogCsvMgr():
             csv_writer = csv.writer(csv_file)
             csv_writer.writerow(header)
             csv_writer.writerows(rows)
+
+    @classmethod
+    def get_csv_row_from_post(cls, post: Post) -> tuple[str, str, str, str]:
+        # Construyo un objeto para extraer datos del Post
+        scraper = BlogScraper(post)
+
+        # Extraigo los datos necesarios para escribir la línea
+        title = scraper.get_title()
+        link = scraper.get_post_link()
+        director = scraper.get_director()
+        year = scraper.get_year()
+
+        # Devuelvo los datos en el orden correspondiente
+        return title, link, director, year
+
+    @classmethod
+    def write_csv(cls):
+
+        # Lista de reseñas desde que empezó el blog
+        posted = Poster.get_all_active_posts()
+
+        # Quiero extraer datos de cada reseña para escribir el csv
+        extracted_data = (cls.get_csv_row_from_post(post) for post in posted)
+
+        cls.write(cls.HEADER_CSV, extracted_data)

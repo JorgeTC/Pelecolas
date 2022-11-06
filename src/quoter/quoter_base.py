@@ -1,5 +1,4 @@
 from src.blog_csv_mgr import BlogCsvMgr
-from src.blog_scraper import BlogScraper
 
 
 class QuoterBase:
@@ -13,7 +12,7 @@ class QuoterBase:
     # Compruebo si tengo un csv actualizado.
     # En caso contrario, lo escribo
     if BlogCsvMgr.is_needed():
-        BlogScraper.write_csv()
+        BlogCsvMgr.write_csv()
     # Lector de csv
     CSV_CONTENT = BlogCsvMgr.open_to_read()
 
