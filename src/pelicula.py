@@ -63,7 +63,7 @@ def scrap_data(att: str):
             if not self.parsed_page:
                 self.get_parsed_page()
 
-            fn(*args, **kwarg)
+            fn(self, *args, **kwarg)
         return wrp
     return decorator
 
@@ -87,7 +87,7 @@ def check_votes(att: str):
                 return
 
             # Tengo los datos que necesito para calcular el atributo en cuestión
-            fn(*args, **kwarg)
+            fn(self, *args, **kwarg)
         return wrp
     return decorator
 
