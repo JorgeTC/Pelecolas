@@ -1,15 +1,14 @@
 from datetime import date, datetime, timedelta
 from typing import Iterable
 
-import src.google_api.blog_client as Client
-from bs4 import BeautifulSoup
 from dateutil import tz
 from oauth2client import client
+
+import src.google_api.blog_client as Client
 from src.aux_title_str import DMY, date_from_DMY, date_from_YMD, time_from_str
 from src.config import Config, Param, Section
 from src.google_api.api_dataclasses import Post
 from src.google_api.blog_client import PostStatus
-from src.read_blog import BlogHiddenData
 
 
 class Poster():
@@ -83,27 +82,6 @@ class Poster():
         start_date = date_to_str(today)
 
         return [post for post in iter_posts(start_date, PostStatus.SCHEDULED)]
-
-    @classmethod
-    def get_scheduled_as_list(cls) -> list[list[str]]:
-        # Quiero una lista de listas.
-        ans: list[list[str]] = []
-        # Cada sublista deberá tener 4 elementos:
-        # título, link(vacío), director y año
-        scheduled = cls.get_scheduled()
-
-        for post in scheduled:
-            # Parseo el contenido
-            body = BeautifulSoup(post.content, 'lxml')
-
-            # Extraigo los datos que quiero
-            director = BlogHiddenData.DIRECTOR.get(body)
-            year = BlogHiddenData.YEAR.get(body)
-            title = BlogHiddenData.TITLE.get(body)
-
-            ans.append([title, "", director, year])
-
-        return ans
 
 
 def iter_posts(start_date: str, post_status: PostStatus) -> Iterable[Post]:

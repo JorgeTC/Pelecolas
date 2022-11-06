@@ -1,5 +1,6 @@
 from src.aux_title_str import split_title_year, trim_year
 from src.blog_csv_mgr import CSV_COLUMN, BlogCsvMgr
+from src.blog_scraper import BlogScraper
 from src.config import Config, Param, Section
 from src.google_api import Poster
 from src.gui import DlgScrollBase, Input
@@ -118,7 +119,8 @@ def unpublished(ls_titles: list[str]) -> list[str]:
     # Objeto capaz de leer el csv con todos los títulos publicados
     csv = BlogCsvMgr.open_to_read()
     # Pido la lista de posts por publicar
-    csv = csv + Poster.get_scheduled_as_list()
+    csv = csv + [BlogScraper.get_data_from_post(post)
+                 for post in Poster.get_scheduled()]
 
     return filter_list_from_csv(ls_titles, csv)
 
