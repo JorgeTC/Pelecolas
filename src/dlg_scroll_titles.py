@@ -16,7 +16,7 @@ class DlgScrollTitles(DlgScrollBase):
         while not self.sz_ans:
             # Inicializo las variables antes de llamar a input
             self.curr_index = -1
-            self.sz_options = self.quisiste_decir.get_suggestions()
+            self.sz_options = self.quisiste_decir.suggestions
             self.n_options = len(self.sz_options)
             # Al llamar a input es cuando me espero que se utilicen las flechas
             self.sz_ans = input(self.sz_question)

@@ -129,14 +129,6 @@ class TitleMgr:
             # Imprimo el título original. El que se ha leído en el documento
             print(self.TITLES[index])
 
-    def get_suggested_titles_count(self) -> int:
-        return len(self.__lsn_suggestions)
-
-    def get_suggested_title(self, index: int) -> str:
-        # Obtengo la posición que el indexésimo título ocupa en la lista de títulos
-        suggested_index = self.__lsn_suggestions[index]
-        # Devuelvo el título
-        return self.TITLES[suggested_index]
-
-    def get_suggestions(self) -> list[str]:
+    @property
+    def suggestions(self) -> list[str]:
         return [self.TITLES[index] for index in self.__lsn_suggestions]

@@ -59,40 +59,40 @@ def test_exact_but_accent(quisiste_decir: TitleMgr):
     # No me espero que corrija el acento
     assert quisiste_decir.exact_key(title) == ""
     # Pero me espero que se encuentre entre los títulos sugeridos
-    assert "El último" in quisiste_decir.get_suggestions()
+    assert "El último" in quisiste_decir.suggestions
 
 
 def test_exact_but_spaces(quisiste_decir: TitleMgr):
     title = "  Cantando   bajo la lluvia "
     assert not quisiste_decir.exists(title)
     # Compruebo que haya sido capaz de encontrar coincidencia
-    assert "Cantando bajo la lluvia" in quisiste_decir.get_suggestions()
+    assert "Cantando bajo la lluvia" in quisiste_decir.suggestions
 
 
 def test_exact_but_double_letters(quisiste_decir: TitleMgr):
     title = "Pepermint frape"
     assert not quisiste_decir.exists(title)
     # Compruebo que haya sido capaz de encontrar coincidencia
-    assert "Peppermint Frappé" in quisiste_decir.get_suggestions()
+    assert "Peppermint Frappé" in quisiste_decir.suggestions
 
 
 def test_partial_title(quisiste_decir: TitleMgr):
     title = "lluvia"
     assert not quisiste_decir.exists(title)
     # Compruebo que haya sido capaz de encontrar coincidencia
-    assert "Cantando bajo la lluvia" in quisiste_decir.get_suggestions()
+    assert "Cantando bajo la lluvia" in quisiste_decir.suggestions
 
 
 def test_title_with_year(quisiste_decir: TitleMgr):
     title = "Cantando bajo la lluvia (1952)"
     assert not quisiste_decir.exists(title)
     # Compruebo que haya sido capaz de encontrar coincidencia
-    assert "Cantando bajo la lluvia" in quisiste_decir.get_suggestions()
+    assert "Cantando bajo la lluvia" in quisiste_decir.suggestions
 
 
 '''
 def test_doctor(quisiste_decir: TitleMgr):
     title = "El gabinete del doctor Caligari"
     assert not quisiste_decir.exists(title)
-    assert "El gabinete del Dr. Caligari" in quisiste_decir.get_suggestions()
+    assert "El gabinete del Dr. Caligari" in quisiste_decir.suggestions
 '''
