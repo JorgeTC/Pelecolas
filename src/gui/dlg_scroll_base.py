@@ -18,10 +18,7 @@ class DlgScrollBase(ConsoleEvent):
         # Pregunta que voy a mostrar en pantalla
         self.sz_question = question
         # Opciones sobre las que hacer scroll
-        if options is None:
-            self.sz_options = []
-        else:
-            self.sz_options = options
+        self.sz_options = [] if options is None else options
         self.n_options = len(self.sz_options)
 
         # Si después del último elemento de la iteración se mostrará una string vacía

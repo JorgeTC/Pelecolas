@@ -1,14 +1,14 @@
-from src.gui.dlg_scroll_base import DlgScrollBase
+from src.gui import DlgScrollBase
 from src.list_title_mgr import TitleMgr
 
 
-class DlgUpdatePost(DlgScrollBase):
+class DlgScrollTitles(DlgScrollBase):
 
-    def __init__(self, title_list: list[str]):
-        DlgScrollBase.__init__(self,
-                               question="Elija una reseña para actualizar: ",
-                               options=title_list)
+    def __init__(self, question: str, title_list: list[str]):
+        DlgScrollBase.__init__(self, question)
 
+        # Objeto para buscar si el título que ha pedido el usuario
+        # está entre los títulos que me han dado.
         self.quisiste_decir = TitleMgr(title_list)
 
     def get_ans_body(self) -> str:

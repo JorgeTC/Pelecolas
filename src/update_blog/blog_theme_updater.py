@@ -2,13 +2,13 @@ from threading import Thread, current_thread
 
 import src.google_api as GoogleApi
 import src.gui as GUI
-from src.blog_scraper import BlogScraper, BlogHiddenData
+from src.blog_scraper import BlogHiddenData, BlogScraper
 from src.config import Config, Param, Section
+from src.dlg_scroll_titles import DlgScrollTitles
 from src.google_api import Post, Poster
 from src.html import ContentMgr, html
 from src.pelicula import Pelicula
 from src.searcher import Searcher
-from src.update_blog.dlg_update_post import DlgUpdatePost
 from src.update_blog.thread_executor import ThreadExecutor
 
 
@@ -30,13 +30,15 @@ class PostThemeUpdater:
                       for post in ALL_POSTS}
 
         # Pregunto al usuario cuál quiere actualizar
-        dlg = DlgUpdatePost(list(word_names.keys()))
+        dlg = DlgScrollTitles("Elija una reseña para actualizar: ",
+                              list(word_names.keys()))
         to_update = dlg.get_ans()
 
         return word_names[to_update]
 
     @classmethod
     def update_post(cls, post: Post):
+        # Construyo un objeto para extraer datos del Post
         blog_scraper = BlogScraper(post)
 
         # A partir del post busco cuál es su nombre en el Word
