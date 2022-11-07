@@ -1,5 +1,4 @@
 import re
-from dataclasses import dataclass
 from pathlib import Path
 
 from bs4 import BeautifulSoup
@@ -7,8 +6,9 @@ from bs4 import BeautifulSoup
 from src.aux_title_str import trim_year
 from src.config import Config, Param, Section
 from src.gui import DlgScrollBase
-from src.make_html import SZ_HTML_FILE
-from src.read_blog import BlogHiddenData
+from src.html.make_html import SZ_HTML_FILE
+from src.blog_scraper import BlogHiddenData
+from src.google_api import Post
 
 
 def get_title_from_html(html_path: Path) -> str:
@@ -19,19 +19,12 @@ def get_title_from_html(html_path: Path) -> str:
     return name
 
 
-@dataclass(frozen=True)
-class PostInfo:
-    title: str
-    content: str
-    labels: str
-
-
-class ContentMgr():
+class ContentMgr:
 
     DIR = Config.get_folder_path(Section.HTML, Param.OUTPUT_PATH_HTML)
 
     @classmethod
-    def extract_html(cls, file_name: str) -> PostInfo:
+    def extract_html(cls, file_name: str) -> Post:
         with open(cls.DIR / file_name, 'r', encoding="utf-8") as res:
             # Obtengo en una única string todo lo que voy a publicar
             content = res.read()
@@ -41,12 +34,12 @@ class ContentMgr():
             title = trim_year(title)
             labels = BlogHiddenData.LABELS.get(parsed)
 
-        return PostInfo(title=title.upper(),
-                        content=content,
-                        labels=labels)
+        return Post(title=title.upper(),
+                    content=content,
+                    labels=labels)
 
     @classmethod
-    def get_content(cls) -> PostInfo:
+    def get_content(cls) -> Post:
         # Abro el diálogo para obtener el título entre los html que hay
         dlg = DlgScrollBase(question="Elija una reseña disponible: ",
                             options=cls.available_titles())

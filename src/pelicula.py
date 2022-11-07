@@ -54,10 +54,7 @@ def scrap_data(att: str):
     '''
     def decorator(fn):
         @wraps(fn)
-        def wrp(*args, **kwarg):
-            # Me guardo la instancia
-            self: 'Pelicula' = args[0]
-
+        def wrp(self: 'Pelicula', *args, **kwarg):
             # Si ya tengo guardado el dato que se me pide, no busco nada más
             if getattr(self, att) is not None:
                 return
@@ -66,7 +63,7 @@ def scrap_data(att: str):
             if not self.parsed_page:
                 self.get_parsed_page()
 
-            fn(*args, **kwarg)
+            fn(self, *args, **kwarg)
         return wrp
     return decorator
 
@@ -78,10 +75,7 @@ def check_votes(att: str):
     '''
     def decorator(fn):
         @wraps(fn)
-        def wrp(*args, **kwarg):
-            # Me guardo la instancia
-            self: 'Pelicula' = args[0]
-
+        def wrp(self: 'Pelicula', *args, **kwarg):
             # Compruebo que haya leído los votos de la película
             if self.values is None:
                 self.get_values()
@@ -93,7 +87,7 @@ def check_votes(att: str):
                 return
 
             # Tengo los datos que necesito para calcular el atributo en cuestión
-            fn(*args, **kwarg)
+            fn(self, *args, **kwarg)
         return wrp
     return decorator
 

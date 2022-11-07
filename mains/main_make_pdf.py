@@ -6,7 +6,7 @@ from src.config import manage_config
 def create_PDF():
 
     import pythoncom
-    from src.pdf_writer import PDFWriter
+    from src.word import PDFWriter
 
     # Inicialización necesaria para poder abrir Word con multithreading
     pythoncom.CoInitialize()

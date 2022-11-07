@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 
+import src.word as Word
 from src.aux_title_str import trim_year
 from src.blog_csv_mgr import CSV_COLUMN
 from src.quoter.quoter_base import QuoterBase, find, insert_string_in_position
-from src.word_reader import WordReader
 
 
 @dataclass
@@ -87,7 +87,7 @@ def find_row_in_csv(title: str) -> int:
 
     # Busco cuántos títulos del Word coinciden salvo el año
     matches_but_year = [word_title
-                        for word_title in WordReader.list_titles()
+                        for word_title in Word.LIST_TITLES
                         if title.lower() == trim_year(word_title.lower())]
     # Si la coincidencia es única, miro que lo que he encontrado esté presente en el CSV
     if len(matches_but_year) != 1:
