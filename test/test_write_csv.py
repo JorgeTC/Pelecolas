@@ -1,3 +1,4 @@
+from unittest import mock
 from src.blog_csv_mgr import BlogCsvMgr
 
 
@@ -11,3 +12,9 @@ def test_write_csv():
 
     # como lo acabo de escribir me espero que no sea necesario
     assert BlogCsvMgr.is_needed() == False
+
+
+@mock.patch.object(BlogCsvMgr, "SZ_CSV_FILE", "")
+def test_not_existing_csv():
+    # El Path al csv es incorrecto, compruebo que me exija escribir un csv
+    assert BlogCsvMgr.is_needed() == True
