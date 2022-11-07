@@ -45,10 +45,10 @@ class BlogCsvMgr:
             return True
 
         # Compruebo que el archivo no esté vacío
-        csv_file_temp = open(cls.SZ_CSV_FILE, encoding=cls.ENCODING)
-        csv_reader = csv.reader(csv_file_temp, delimiter=",")
-        if len(list(csv_reader)) < 2:
-            return True
+        with open(cls.SZ_CSV_FILE, encoding=cls.ENCODING) as csv_file_temp:
+            csv_reader = csv.reader(csv_file_temp, delimiter=",")
+            if len(list(csv_reader)) < 2:
+                return True
 
         # Si entre la última creación del csv y
         # el momento actual ha pasado un viernes, recalculo el csv
