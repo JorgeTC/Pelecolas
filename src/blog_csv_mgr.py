@@ -5,7 +5,7 @@ from datetime import datetime
 from typing import Iterable
 
 from src.aux_res_directory import get_res_folder
-from src.blog_scraper import BlogScraper
+from src.blog_scraper import BlogScraper, BlogHiddenData
 from src.config import Config, Param, Section
 from src.google_api import Post, Poster
 
@@ -91,8 +91,8 @@ class BlogCsvMgr:
         # Extraigo los datos necesarios para escribir la línea
         title = scraper.get_title()
         link = scraper.get_post_link()
-        director = scraper.get_director()
-        year = scraper.get_year()
+        director = scraper.get_hidden_data(BlogHiddenData.DIRECTOR)
+        year = scraper.get_hidden_data(BlogHiddenData.YEAR)
 
         # Devuelvo los datos en el orden correspondiente
         return title, link, director, year

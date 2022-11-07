@@ -1,9 +1,24 @@
+from enum import StrEnum
+
 from bs4 import BeautifulSoup
 
 from src.google_api import Post
 from src.list_title_mgr import TitleMgr
-from src.read_blog import BlogHiddenData
 from src.word import LIST_TITLES
+
+
+class BlogHiddenData(StrEnum):
+    TITLE = "film-title"
+    YEAR = "year"
+    DIRECTOR = "director"
+    COUNTRY = "pais"
+    URL_FA = "link-FA"
+    LABELS = "post-labels"
+    DURATION = "duration"
+    IMAGE = "link-image"
+
+    def get(self, content: BeautifulSoup) -> str:
+        return content.find(id=self)['value']
 
 
 class BlogScraper:
@@ -45,11 +60,8 @@ class BlogScraper:
     def get_post_link(self) -> str:
         return self.post.url
 
-    def get_director(self) -> str:
-        return BlogHiddenData.DIRECTOR.get(self._parsed)
-
-    def get_year(self) -> str:
-        return BlogHiddenData.YEAR.get(self._parsed)
+    def get_hidden_data(self, data: BlogHiddenData) -> str:
+        return data.get(self._parsed)
 
     def get_title(self) -> str:
         return self.get_name_from_post(self.post)

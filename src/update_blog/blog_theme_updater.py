@@ -2,13 +2,11 @@ from threading import Thread, current_thread
 
 import src.google_api as GoogleApi
 import src.gui as GUI
-from bs4 import BeautifulSoup
-from src.blog_scraper import BlogScraper
+from src.blog_scraper import BlogScraper, BlogHiddenData
 from src.config import Config, Param, Section
 from src.google_api import Post, Poster
 from src.html import ContentMgr, html
 from src.pelicula import Pelicula
-from src.read_blog import BlogHiddenData
 from src.searcher import Searcher
 from src.update_blog.dlg_update_post import DlgUpdatePost
 from src.update_blog.thread_executor import ThreadExecutor
@@ -39,11 +37,10 @@ class PostThemeUpdater:
 
     @classmethod
     def update_post(cls, post: Post):
-        # Parseo el contenido
-        parsed = BeautifulSoup(post.content, 'lxml')
+        blog_scraper = BlogScraper(post)
 
         # A partir del post busco cuál es su nombre en el Word
-        title = BlogScraper.get_name_from_post(post, parsed)
+        title = blog_scraper.get_title()
         # Si no encuentro su nombre en el Word, salgo
         if not title:
             return False
@@ -51,7 +48,7 @@ class PostThemeUpdater:
         # Obtengo la url de la película
         if cls.FA_URL_FROM_HIDDEN_DATA:
             # Obtengo la dirección desde los datos ocultos de la reseña
-            url_fa = BlogHiddenData.URL_FA.get(parsed)
+            url_fa = blog_scraper.get_hidden_data(BlogHiddenData.URL_FA)
         else:
             # No quiero la url que tiene anotada el html.
             # Hago una búsqueda del título en FilmAffinity
@@ -70,7 +67,7 @@ class PostThemeUpdater:
             except ValueError:
                 return False
         else:
-            parse_film_data(film_data, parsed)
+            parse_film_data(film_data, blog_scraper)
 
         # Restituyo el nombre que tenía en Word
         film_data.titulo = title
@@ -156,10 +153,10 @@ def download_film_data(film: Pelicula):
     film.get_image_url()
 
 
-def parse_film_data(film: Pelicula, blog_page: BeautifulSoup):
+def parse_film_data(film: Pelicula, blog_scraper: BlogScraper):
     # Leo en las notas ocultas del html los datos
-    film.director = BlogHiddenData.DIRECTOR.get(blog_page)
-    film.año = BlogHiddenData.YEAR.get(blog_page)
-    film.duracion = BlogHiddenData.DURATION.get(blog_page)
-    film.pais = BlogHiddenData.COUNTRY.get(blog_page)
-    film.url_image = BlogHiddenData.IMAGE.get(blog_page)
+    film.director = blog_scraper.get_hidden_data(BlogHiddenData.DIRECTOR)
+    film.año = blog_scraper.get_hidden_data(BlogHiddenData.YEAR)
+    film.duracion = blog_scraper.get_hidden_data(BlogHiddenData.DURATION)
+    film.pais = blog_scraper.get_hidden_data(BlogHiddenData.COUNTRY)
+    film.url_image = blog_scraper.get_hidden_data(BlogHiddenData.IMAGE)
