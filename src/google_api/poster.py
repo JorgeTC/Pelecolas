@@ -11,7 +11,7 @@ from src.google_api.api_dataclasses import Post
 from src.google_api.blog_client import PostStatus
 
 
-class Poster():
+class Poster:
 
     # Guardo el primer mes que tiene reseña
     __first_month = date(2019, 1, 1)

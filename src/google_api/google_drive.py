@@ -10,7 +10,7 @@ from src.thread_safe_property import thread_safe_cache
 TYPE_FOLDER = 'application/vnd.google-apps.folder'
 
 
-class Drive():
+class Drive:
 
     # Obtengo la carpeta dentro del drive
     FOLDER_ID = Config.get_value(Section.DRIVE, Param.FOLDER_ID)
