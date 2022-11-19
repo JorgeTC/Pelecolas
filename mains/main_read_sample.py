@@ -1,18 +1,9 @@
-import sys
-from pathlib import Path
-
-SCRIPT_DIR = Path(__file__).parent
-CODE_DIR = SCRIPT_DIR.parent
-sys.path.append(str(CODE_DIR))
+import __init__
+from src.config import Config, Param, Section
+from src.excel import ExcelMgr, Writer
 
 
 def main():
-
-    from src.config import Config, Param, Section, manage_config
-    manage_config()
-
-    # Importo los módulos del programa cuando la configuración ya está settada
-    from src.excel import ExcelMgr, Writer
 
     ex_doc = ExcelMgr(Config.get_value(Section.READDATA, Param.SAMPLE_OUTPUT))
 

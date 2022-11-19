@@ -1,13 +1,10 @@
-from src.config import manage_config
+import __init__
+from src.dlg_bool import YesNo
+from src.google_api import Poster
+from src.html import ContentMgr, html
 
 
 def main():
-
-    manage_config()
-
-    from src.html import ContentMgr, html
-    from src.dlg_bool import YesNo
-    from src.google_api import Poster
 
     # Inicializo un bucle para poder crear tantas reseñas como se quiera
     # sin necesidad de cerrar la aplicación
@@ -30,3 +27,7 @@ def main():
 
         # Elimino el archivo html que acabo de generar
         Documento.delete_file()
+
+
+if __name__ == "__main__":
+    main()

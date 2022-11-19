@@ -1,13 +1,9 @@
-from src.config import manage_config
+import __init__
+from src.excel import ExcelMgr, Writer
+from src.usuario import Usuario
 
 
 def main():
-
-    manage_config()
-
-    # Importo los módulos del programa cuando la configuración ya está settada
-    from src.usuario import Usuario
-    from src.excel import ExcelMgr, Writer
 
     usuario = Usuario.ask_user()
 

@@ -8,11 +8,7 @@ El perfil de FilmAffinity y un Word con reseñas y su posible publicación en un
 ## Índice
 
 1. [Estructura](#Estructura)
-    1. [Code](#Code)
-    2. [Películas](#Películas)
-        1. [Archivos Word](#Archivos-Word)
-        2. [Archivos python](#Archivos-python)
-2. [Archivo Word](#archivo-word-1)
+2. [Archivo Word](#archivo-word)
 3. [mains](#mains)
     1. [Readdata](#readdata)
     2. [Contar_criticas](#Contar_criticas)
@@ -29,33 +25,21 @@ El perfil de FilmAffinity y un Word con reseñas y su posible publicación en un
 
 ## Estructura
 
-La estructura debe ser:
+La estructura es:
 
 ```tree
-Parent
-    ├── Code
-    |   ├── mains
-    |   ├── res
-    |   └── src
-    └── Películas
-        ├── Word
-        |   ├── Películas - 2017.docx
-        |   ├── Películas - 2018.docx
-        |   └──...
-        ├── read_data.py
-        └──...
+Pelecolas
+├── mains
+├── res
+├── test
+└── src
 ```
 
-### Code
 
-El repositorio de git se debe clonar en la carpeta Code.
-
-### Películas
-
-#### Archivos Word
+### Archivo Word
 
 En una carpeta se deben guardar todos los archivos Word.
-El nombre de la carpeta se puede configurar en el ini.
+La ruta de la carpeta se puede configurar en el ini.
 El nombre de los archivos debe ser todos iguales.
 A este nombre se le añade ` - ` seguido del año de ese documento.
 
@@ -70,35 +54,9 @@ Las reseñas deberán estar separadas entre sí por un doble salto de línea.
 
 Se espera que cuando se cite literalmente una frase de la película, se haga en cursiva.
 
-Cuando se mencione el título de otra película (reseñada o no) se haga entre comillas: “Otro título”.
+Cuando se mencione el título de otra película (reseñada o no) se haga entre comillas: “<Otro título>”.
 
-Para comprobar qué consigue leer el código en nuestro documento de Word, se recomienda la ejecución de [`main_contar_criticas.py`](#Contar_criticas).
-
-#### Archivos python
-
-Los archivos `.py` sirven para ejecutar los archivos main del repositorio.
-Con frecuencia queremos que el código utilice información de la carpeta Películas o bien que emita los resultados ahí.
-Para indicar esta dirección usaremos siempre el mismo tipo de archivos `.py`.
-
-```python
-import sys
-from pathlib import Path
-
-SCRIPT_DIR = Path(__file__).parent
-CODE_DIR = SCRIPT_DIR.parent / 'Code'
-sys.path.append(str(CODE_DIR))
-
-# Modificar el archivo que se quiere importar
-from mains.main_read_data import main
-
-
-if __name__ == "__main__":
-
-    main(SCRIPT_DIR)
-```
-
-Si el `main` escogido no necesita la dirección, modificaremos la llamada.
-Igualmente hay que incluir las líneas previas a la importación de la función `main`.
+Para comprobar que consigue leer el código en nuestro documento de Word, se recomienda la ejecución de [`main_contar_criticas.py`](#Contar_criticas).
 
 ## mains
 
@@ -134,8 +92,6 @@ Los años son los que lee del nombre del Word cuyos títulos está listando.
 Dado el título de una reseña incluida en el archivo Word, generará un documento html listo para ser publicado en un blog.
 
 Las publicaciones siempre inician con un encabezado con el director, año de la película y duración.
-El programa los pedirá al usuario.
-Se deben introducir según los vaya pidiendo.
 
 #### Información automática
 
@@ -165,7 +121,6 @@ Para que esto se lleve a cabo, el programa ha tenido que leer el blog donde se q
 El resultado de esta lectura se encuentra en un `.csv` en `Code\res\Make_html\bog_data.csv`.
 El archivo csv se actualiza si se ha publicado alguna entrada entre la última fecha de creación del archivo y la fecha actual.
 
-Se utiliza un procesador de lenguaje natural para tratar de buscar referencias a otros directores.
 Si en la reseña se menciona a un director con alguna de sus películas reseñada y publicada en nuestro blog, se generará un enlace a todas las reseñas de este director.
 Como es inestable el procesado de lenguaje, antes de efectuar el enlace se nos pedirá confirmación.
 Para contestar _Sí_ o _No_ basta con movernos con las flechas de arriba y abajo.
@@ -173,12 +128,12 @@ Para contestar _Sí_ o _No_ basta con movernos con las flechas de arriba y abajo
 #### Etiquetas
 
 Todas las reseñas tienen unas etiquetas fijas: siglo, década, año, director y país.
-Dado que esta información se conoce, tras efectuar el html, se añade como comentario al final del html.
+Dado que esta información se conoce, tras efectuar el html, se añade como items ocultos al final del html.
 
 ### Publish post
 
 Se publicará en el blog un html que se encuentren en la carpeta _Películas_.
-Los html deben tener como nombre `Reseña _titulo_.html`.
+Los html deben tener como nombre `Reseña <titulo>.html`.
 
 Para que sea posible la publicación la carpeta _Películas_ debe tener los permisos pertinentes para acceder al blog.
 Son un archivo `blogger.dat` y `client_secrets.json`.
@@ -224,7 +179,7 @@ Se espera actualizar varios documentos `.docx` y un único documento `.pdf`.
 ## Config
 
 La configuración de todo el proyecto se incluye en un archivo ini que se generará la primera vez que se ejecute cualquier main.
-Para modificar la configuración acúdase al archivo `Code\res\General.ini`.
+Para modificar la configuración acúdase al archivo `res\General.ini`.
 
 Al inicial cualquier main se da la posibilidad de entrar al menú de configuración.
 Se exige para ello que el sistema operativo sea Windows.

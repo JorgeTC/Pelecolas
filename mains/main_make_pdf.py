@@ -1,12 +1,13 @@
 import threading
 
-from src.config import manage_config
+import pythoncom
+
+import __init__
+from src.google_api import Drive, join
+from src.word import PDFWriter
 
 
 def create_PDF():
-
-    import pythoncom
-    from src.word import PDFWriter
 
     # Inicialización necesaria para poder abrir Word con multithreading
     pythoncom.CoInitialize()
@@ -20,10 +21,6 @@ def create_PDF():
 
 
 def main():
-
-    manage_config()
-
-    from src.google_api import Drive, join
 
     # Inicio la conversión a PDF en paralelo
     create_pdf = threading.Thread(target=create_PDF, name="Create PDF")

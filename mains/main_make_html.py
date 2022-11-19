@@ -1,12 +1,9 @@
-from src.config import manage_config
+import __init__
+from src.dlg_bool import YesNo
+from src.html import html
 
 
 def main():
-
-    manage_config()
-
-    from src.dlg_bool import YesNo
-    from src.html import html
 
     # Inicializo un bucle para poder crear tantas reseñas como se quiera
     # sin necesidad de cerrar la aplicación
@@ -19,3 +16,7 @@ def main():
 
         # Pregunto si quiere generar otra reseña
         b_otra = YesNo(question="¿Otra reseña? ", empty_ans=True).get_ans()
+
+
+if __name__ == "__main__":
+    main()
