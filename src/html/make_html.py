@@ -53,10 +53,7 @@ class html:
 
         # Objeto Pelicula para guardar los datos que necesito para escribir el html
         # quiero de ella su titulo, año, duración, y director
-        if film is None:
-            self.data = Pelicula()
-        else:
-            self.data = film
+        self.data = Pelicula() if film is None else film
 
     def ask_for_data(self):
         # Diálogo para pedir los datos necesarios para crear el html
