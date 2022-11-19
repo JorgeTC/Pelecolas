@@ -3,10 +3,11 @@ from concurrent.futures import ThreadPoolExecutor
 from math import ceil
 from typing import Iterable
 
-import src.url_FA as url_FA
 from bs4 import BeautifulSoup
+
+import src.url_FA as url_FA
 from src.config import Config, Param, Section
-from src.excel.utils import FilmData, read_film
+from src.excel.utils import FilmData, is_valid, read_film
 from src.pelicula import Pelicula
 from src.safe_url import safe_get_url
 
@@ -28,10 +29,10 @@ def read_watched(id_user: int, *,
     # Itero hasta que haya leído todas las películas
     for page_boxes in film_list:
         # Lista de las películas válidas en la página actual.
-        valid_film_list = (init_film_from_movie_box(box)
-                           for box in page_boxes)
-        valid_film_list = (film for film in valid_film_list
-                           if film.valid())
+        films_in_page = (init_film_from_movie_box(box)
+                         for box in page_boxes)
+        valid_film_list = (film for film in films_in_page
+                           if is_valid(film))
 
         # Itero las películas en mi página actual
         if use_multithread:

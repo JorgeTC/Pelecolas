@@ -4,7 +4,6 @@ from functools import wraps
 
 from bs4 import BeautifulSoup
 
-from src.config import Config, Param, Section
 from src.safe_url import safe_get_url
 from src.url_FA import URL_FILM_ID
 
@@ -14,32 +13,6 @@ def get_id_from_url(url: str) -> int:
     str_id = re.search(r"film(\d{6}).html", url).group(1)
 
     return int(str_id)
-
-
-def es_valida(titulo: str, *,
-              SET_VALID_FILM=Config.get_int(Section.READDATA, Param.FILTER_FA)) -> bool:
-    """
-    Busca en el título que sea una película realmente
-    """
-    # Comprobamos que no tenga ninguno de los sufijos a evitar
-    # Filtro los cortos
-    if titulo.find("(C)") > 0:
-        return SET_VALID_FILM & (1 << 5)
-    # Excluyo series de televisión
-    if titulo.find("(Miniserie de TV)") > 0:
-        return SET_VALID_FILM & (1 << 4)
-    if titulo.find("(Serie de TV)") > 0:
-        return SET_VALID_FILM & (1 << 3)
-    if titulo.find("(TV)") > 0:
-        # Hay varios tipos de películas aquí.
-        # Algunos son programas de televisión, otros estrenos directos a tele.
-        # Hay también episodios concretos de series.
-        return SET_VALID_FILM & (1 << 2)
-    # Filtro los videos musicales
-    if titulo.find("(Vídeo musical)") > 0:
-        return SET_VALID_FILM & (1 << 1)
-    # No se ha encontrado sufijo, luego es una película
-    return SET_VALID_FILM & (1 << 0)
 
 
 # Cómo debo buscar la información de las barras
@@ -199,11 +172,6 @@ class Pelicula():
                 id="country-img").contents[0].attrs['alt']
         except:
             return
-
-    def valid(self) -> bool:
-        if not self.titulo:
-            self.get_title()
-        return es_valida(self.titulo)
 
     @scrap_data('titulo')
     def get_title(self):

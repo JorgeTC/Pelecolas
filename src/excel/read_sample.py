@@ -3,7 +3,7 @@ from random import randint
 from typing import Iterable
 
 from src.config import Config, Param, Section
-from src.excel.utils import FilmData, read_film
+from src.excel.utils import FilmData, is_valid, read_film
 from src.pelicula import Pelicula
 
 
@@ -81,7 +81,7 @@ def has_valid_id(film: Pelicula) -> bool:
     except:
         return False
     # ...para comprobar si es válido
-    if not film.valid():
+    if not is_valid(film):
         return False
 
     # Compruebo por último que tenga nota media
