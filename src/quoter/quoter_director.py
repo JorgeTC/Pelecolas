@@ -11,7 +11,7 @@ from src.quoter.quoter_base import QuoterBase, insert_string_in_position
 
 
 @dataclass
-class DirectorCitation():
+class DirectorCitation:
     position: int
     director: str
     length: int

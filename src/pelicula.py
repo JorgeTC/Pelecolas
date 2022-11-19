@@ -86,7 +86,7 @@ def read_avg_note_from_page(page: BeautifulSoup) -> float:
         return 0
 
 
-class Pelicula():
+class Pelicula:
     def __init__(self):
 
         self.titulo: str = None
@@ -206,19 +206,17 @@ class Pelicula():
     def get_values(self):
         # Recopilo los datos específicos de la varianza:
         script = self.parsed_page.find("script", string=RATING_BARS_PATTERN)
-        if script:
-            bars = script.string
-        else:
+        if not script:
             self.values = []
             return
 
         # Extraigo cuánto vale cada barra
-        bars = RATING_BARS_PATTERN.search(bars).group(1)
-        self.values = [int(s) for s in bars.split(',')]
+        bars = RATING_BARS_PATTERN.search(script.string).group(1)
+        values = [int(s) for s in bars.split(',')]
         # Las ordeno poniendo primero las notas más bajas
-        self.values.reverse()
+        values.reverse()
         # Me aseguro que todos los datos sean positivos
-        self.values = [max(value, 0) for value in self.values]
+        self.values = [max(value, 0) for value in values]
 
     @scrap_data('url_image')
     def get_image_url(self):

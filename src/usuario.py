@@ -14,7 +14,7 @@ def load_users_id() -> dict[str, int]:
     return dictionary
 
 
-class Usuario():
+class Usuario:
 
     SZ_QUESTION = "Se van a importar los datos de {}\nEspero enter...".format
     DEFAULT_USER = Config.get_value(Section.READDATA, Param.DEFAULT_USER)

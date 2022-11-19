@@ -4,7 +4,7 @@ from functools import wraps
 from pathlib import Path
 
 
-class Profiler():
+class Profiler:
 
     fun_runtimes: dict[str, list[timedelta]] = {}
     begin_time = datetime.now()

@@ -7,7 +7,7 @@ from src.quoter.quoter_base import QuoterBase, find, insert_string_in_position
 
 
 @dataclass
-class FilmCitation():
+class FilmCitation:
     begin: int
     end: int
     title: str
