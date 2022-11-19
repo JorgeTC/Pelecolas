@@ -1,11 +1,8 @@
-from src.config import manage_config
+import __init__
+import src.update_blog as UpdateBlog
 
 
 def main():
-
-    manage_config()
-
-    import src.update_blog as UpdateBlog
 
     UpdateBlog.update_blog()
 
