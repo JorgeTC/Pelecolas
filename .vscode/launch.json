@@ -14,15 +14,7 @@
             "name": "Read data",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/../Películas/Readdata.py",
-            "console": "integratedTerminal",
-            "justMyCode": true
-        },
-        {
-            "name": "Contar libros",
-            "type": "python",
-            "request": "launch",
-            "program": "${workspaceFolder}/../Literatura/Contar criticas.py",
+            "program": "${workspaceFolder}/mains/main_read_data.py",
             "console": "integratedTerminal",
             "justMyCode": true
         },
@@ -30,7 +22,7 @@
             "name": "Contar peliculas",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/../Películas/Contar criticas.py",
+            "program": "${workspaceFolder}/mains/main_contar_criticas.py",
             "console": "integratedTerminal",
             "justMyCode": true
         },
@@ -38,7 +30,7 @@
             "name": "Write html",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/../Películas/Make html.py",
+            "program": "${workspaceFolder}/mains/main_make_html.py",
             "console": "integratedTerminal",
             "justMyCode": true
         },
@@ -46,7 +38,7 @@
             "name": "Post html",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/../Películas/publish_html.py",
+            "program": "${workspaceFolder}/mains/main_publish_post.py",
             "console": "integratedTerminal",
             "justMyCode": true
         },
@@ -54,7 +46,7 @@
             "name": "Make and post",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/../Películas/make_and_publish.py",
+            "program": "${workspaceFolder}/mains/main_make_and_publish.py",
             "console": "integratedTerminal",
             "justMyCode": true
         },
@@ -62,7 +54,7 @@
             "name": "Write pdf",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/../Películas/Make_pdf.py",
+            "program": "${workspaceFolder}/mains/main_make_pdf.py",
             "console": "integratedTerminal",
             "justMyCode": true
         },
@@ -70,7 +62,7 @@
             "name": "Update all posts",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/../Películas/Update all posts.py",
+            "program": "${workspaceFolder}/mains/main_update_all_posts.py",
             "console": "integratedTerminal",
             "justMyCode": true
         },
@@ -78,7 +70,7 @@
             "name": "Update post",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/../Películas/Update post.py",
+            "program": "${workspaceFolder}/mains/main_update_post.py",
             "console": "integratedTerminal",
             "justMyCode": true
         },
