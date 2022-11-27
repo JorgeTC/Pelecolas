@@ -1,6 +1,6 @@
 from configparser import ConfigParser
 
-from src.dlg_scroll_base import DlgScrollBase
+from src.gui import DlgScrollBase
 
 SZ_SECTIONS = "Secciones: "
 SZ_PARAMETROS = "Parámetros: "
@@ -11,10 +11,9 @@ SZ_CLOSE = "### SALIENDO DE LA CONFIGURACIÓN ##"
 SZ_PRINT_VALUE = "  {}: {}".format
 
 
-class DlgConfig(DlgScrollBase):
+class DlgConfig:
 
     def __init__(self, config: ConfigParser):
-        super().__init__(question="", options=[], empty_option=True, empty_ans=True)
 
         self.config = config
 
@@ -30,23 +29,17 @@ class DlgConfig(DlgScrollBase):
 
     def __choose_section(self):
         # Me muevo hasta la sección que sea menester
-        self.sz_question = SZ_SECTIONS
-        self.sz_options = self.config.sections()
-        self.n_options = len(self.sz_options)
-        self.b_empty_option = True
-        self.__curr_section = self.get_ans()
+        dlg = DlgScrollBase(SZ_SECTIONS, self.config.sections(), empty_ans=True)
+        self.__curr_section = dlg.get_ans()
 
         if self.__curr_section:
             self.__choose_param()
 
     def __choose_param(self):
         # Me muevo hasta la sección que sea menester
-        self.sz_question = SZ_PARAMETROS
-        self.sz_options = list(
-            dict(self.config.items(self.__curr_section)).keys())
-        self.n_options = len(self.sz_options)
-        self.b_empty_option = True
-        self.__curr_param = self.get_ans()
+        params = [pair[0] for pair in self.config.items(self.__curr_section)]
+        dlg = DlgScrollBase(SZ_PARAMETROS, params, empty_ans=True)
+        self.__curr_param = dlg.get_ans()
 
         if self.__curr_param:
             self.__ask_param()

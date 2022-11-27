@@ -16,6 +16,15 @@ def split_title_year(title: str) -> tuple[str, str]:
         return "", title
 
 
+def trim_year(title: str) -> str:
+    '''
+    Dado un título de los escritos en el word,
+    devuelvo el título sin el año entre paréntesis
+    '''
+    _, title = split_title_year(title)
+    return title
+
+
 RE_DATE_DMY = re.compile(r"^(1[0-9]|2[0-9]|3[0-1]|0?[1-9])(\.|-|/)"
                          r"(1[0-2]|0?[1-9])(\.|-|/)"
                          r"(19[0-9][0-9]|20[0-9][0-9]|[0-9][0-9])$")

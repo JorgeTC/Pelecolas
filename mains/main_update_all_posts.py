@@ -1,13 +1,10 @@
-from src.config import manage_config
+import __init__
+import src.update_blog as UpdateBlog
 
 
 def main():
 
-    manage_config()
-
-    from src.blog_theme_updater import BlogThemeUpdater
-
-    BlogThemeUpdater().update_blog()
+    UpdateBlog.update_blog()
 
 
 if __name__ == "__main__":

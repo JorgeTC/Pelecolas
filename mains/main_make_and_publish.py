@@ -1,22 +1,17 @@
-from src.config import manage_config
+import __init__
+from src.dlg_bool import YesNo
+from src.google_api import Poster
+from src.html import ContentMgr, html
 
 
 def main():
 
-    manage_config()
-
-    from src.make_html import html
-    from src.dlg_bool import YesNo
-    from src.poster import Poster
-    from src.content_mgr import ContentMgr
-
-    # Objeto que escribe el html
-    Documento = html()
     # Inicializo un bucle para poder crear tantas reseñas como se quiera
     # sin necesidad de cerrar la aplicación
     b_otra = True
-    dlg_otra = YesNo(question="¿Otra reseña? ", empty_ans=True)
     while b_otra:
+        # Objeto que escribe el html
+        Documento = html()
         # Genero el html
         Documento.write_html()
 
@@ -28,9 +23,11 @@ def main():
                         labels=post_data.labels)
 
         # Pregunto si quiere generar otra reseña
-        b_otra = dlg_otra.get_ans()
+        b_otra = YesNo(question="¿Otra reseña? ", empty_ans=True).get_ans()
 
         # Elimino el archivo html que acabo de generar
         Documento.delete_file()
-        # Limpio el objeto para poder escribir otro html
-        Documento.reset()
+
+
+if __name__ == "__main__":
+    main()

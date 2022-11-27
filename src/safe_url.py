@@ -10,13 +10,12 @@ from selenium import webdriver
 from selenium.common.exceptions import (NoSuchElementException,
                                         WebDriverException)
 from selenium.webdriver import Chrome
+from selenium.webdriver.common.by import By
 
 from src.aux_res_directory import get_res_folder
 
 # Variable para saber si estoy intentando resolver el captcha
 stopped = False
-# XPath donde está el botón
-XPATH_PASS_BUTTON = "/html/body/div[1]/div[2]/form/div[2]/input"
 # Opciones para el driver de Chrome
 DRIVER_OPTION = webdriver.ChromeOptions()
 DRIVER_OPTION.add_argument('--headless')
@@ -82,8 +81,10 @@ def automatically_pass_captcha(url: str) -> None:
     time.sleep(1)
 
     # Accedo al botón que permite pasar el captcha
+    # XPath donde está el botón
+    XPATH_PASS_BUTTON = "/html/body/div[1]/div[2]/form/div[2]/input"
     try:
-        button = driver.find_element_by_xpath(XPATH_PASS_BUTTON)
+        button = driver.find_element(By.XPATH, XPATH_PASS_BUTTON)
     except NoSuchElementException:
         driver.close()
         return

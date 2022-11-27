@@ -4,7 +4,6 @@ from functools import wraps
 
 from bs4 import BeautifulSoup
 
-from src.config import Config, Param, Section
 from src.safe_url import safe_get_url
 from src.url_FA import URL_FILM_ID
 
@@ -16,55 +15,8 @@ def get_id_from_url(url: str) -> int:
     return int(str_id)
 
 
-def es_valida(titulo: str, *,
-              SET_VALID_FILM=Config.get_int(Section.READDATA, Param.FILTER_FA)) -> bool:
-    """
-    Busca en el título que sea una película realmente
-    """
-    # Comprobamos que no tenga ninguno de los sufijos a evitar
-    # Filtro los cortos
-    if titulo.find("(C)") > 0:
-        return SET_VALID_FILM & (1 << 5)
-    # Excluyo series de televisión
-    if titulo.find("(Miniserie de TV)") > 0:
-        return SET_VALID_FILM & (1 << 4)
-    if titulo.find("(Serie de TV)") > 0:
-        return SET_VALID_FILM & (1 << 3)
-    if titulo.find("(TV)") > 0:
-        # Hay varios tipos de películas aquí.
-        # Algunos son programas de televisión, otros estrenos directos a tele.
-        # Hay también episodios concretos de series.
-        return SET_VALID_FILM & (1 << 2)
-    # Filtro los videos musicales
-    if titulo.find("(Vídeo musical)") > 0:
-        return SET_VALID_FILM & (1 << 1)
-    # No se ha encontrado sufijo, luego es una película
-    return SET_VALID_FILM & (1 << 0)
-
-
 # Cómo debo buscar la información de las barras
 RATING_BARS_PATTERN = re.compile(r'RatingBars.*?\[(.*?)\]')
-
-
-class FromFilmBox:
-    '''Funciones para extraer datos de la caja de la película'''
-    @staticmethod
-    def get_title(film_box: BeautifulSoup) -> str:
-        return film_box.contents[1].contents[1].contents[3].contents[1].contents[0].contents[0]
-
-    @staticmethod
-    def get_user_note(film_box: BeautifulSoup) -> int:
-        return int(film_box.contents[3].contents[1].contents[1].contents[0])
-
-    @staticmethod
-    def get_id(film_box: BeautifulSoup) -> int:
-        return int(film_box.contents[1].contents[1].attrs['data-movie-id'])
-
-    @staticmethod
-    def get_year(film_box: BeautifulSoup) -> int:
-        str_year = str(
-            film_box.contents[1].contents[1].contents[3].contents[1].contents[1])
-        return int(re.search(r"(\d{4})", str_year).group(1))
 
 
 def scrap_data(att: str):
@@ -75,10 +27,7 @@ def scrap_data(att: str):
     '''
     def decorator(fn):
         @wraps(fn)
-        def wrp(*args, **kwarg):
-            # Me guardo la instancia
-            self: 'Pelicula' = args[0]
-
+        def wrp(self: 'Pelicula', *args, **kwarg):
             # Si ya tengo guardado el dato que se me pide, no busco nada más
             if getattr(self, att) is not None:
                 return
@@ -87,7 +36,7 @@ def scrap_data(att: str):
             if not self.parsed_page:
                 self.get_parsed_page()
 
-            fn(*args, **kwarg)
+            fn(self, *args, **kwarg)
         return wrp
     return decorator
 
@@ -99,10 +48,7 @@ def check_votes(att: str):
     '''
     def decorator(fn):
         @wraps(fn)
-        def wrp(*args, **kwarg):
-            # Me guardo la instancia
-            self: 'Pelicula' = args[0]
-
+        def wrp(self: 'Pelicula', *args, **kwarg):
             # Compruebo que haya leído los votos de la película
             if self.values is None:
                 self.get_values()
@@ -114,7 +60,7 @@ def check_votes(att: str):
                 return
 
             # Tengo los datos que necesito para calcular el atributo en cuestión
-            fn(*args, **kwarg)
+            fn(self, *args, **kwarg)
         return wrp
     return decorator
 
@@ -132,7 +78,15 @@ def scrap_from_values(att: str):
     return decorator
 
 
-class Pelicula():
+def read_avg_note_from_page(page: BeautifulSoup) -> float:
+    search_avg = page.find(id="movie-rat-avg")
+    try:
+        return float(search_avg.attrs['content'])
+    except AttributeError:
+        return 0
+
+
+class Pelicula:
     def __init__(self):
 
         self.titulo: str = None
@@ -147,7 +101,7 @@ class Pelicula():
         self.prop_aprobados: float = None
         self.values: list[int] = None
         self.duracion: int = None
-        self.director: str = None
+        self.directors: list[str] = None
         self.año: int = None
         self.pais: str = None
         self.__exists: bool = None
@@ -172,20 +126,6 @@ class Pelicula():
         # Guardo los valores que conozco por la información introducida
         instance.url_FA = str(urlFA)
         instance.id = get_id_from_url(instance.url_FA)
-
-        # Devuelvo la instancia
-        return instance
-
-    @classmethod
-    def from_movie_box(cls, movie_box: BeautifulSoup) -> 'Pelicula':
-        # Creo el objeto
-        instance = cls()
-
-        # Guardo los valores que conozco por la información introducida
-        instance.titulo = FromFilmBox.get_title(movie_box)
-        instance.user_note = FromFilmBox.get_user_note(movie_box)
-        instance.id = FromFilmBox.get_id(movie_box)
-        instance.url_FA = URL_FILM_ID(instance.id)
 
         # Devuelvo la instancia
         return instance
@@ -233,11 +173,6 @@ class Pelicula():
         except:
             return
 
-    def valid(self) -> bool:
-        if not self.titulo:
-            self.get_title()
-        return es_valida(self.titulo)
-
     @scrap_data('titulo')
     def get_title(self):
 
@@ -253,22 +188,14 @@ class Pelicula():
         self.__exists = True
 
         # Parseo la página
-        self.parsed_page = BeautifulSoup(resp.text, 'html.parser')
+        self.parsed_page = BeautifulSoup(resp.text, 'lxml')
 
-    def get_time_and_FA(self):
-
-        # Llamo a las funciones que leen la ficha parseada
-        self.get_nota_FA()
-        self.get_votantes_FA()
-        self.get_duracion()
-        self.get_desvest()
-        self.get_prop_aprobados()
-
-    @scrap_data('director')
+    @scrap_data('directors')
     def get_director(self):
 
-        l = self.parsed_page.find(itemprop="director")
-        self.director = l.contents[0].contents[0].contents[0]
+        tag_directors = self.parsed_page.find_all(itemprop="director")
+        self.directors = [tag.contents[0].contents[0].contents[0]
+                          for tag in tag_directors]
 
     @scrap_data('año')
     def get_año(self):
@@ -279,20 +206,18 @@ class Pelicula():
     @scrap_data('values')
     def get_values(self):
         # Recopilo los datos específicos de la varianza:
-        script = self.parsed_page.find("script", text=RATING_BARS_PATTERN)
-        if script:
-            bars = script.string
-        else:
+        script = self.parsed_page.find("script", string=RATING_BARS_PATTERN)
+        if not script:
             self.values = []
             return
 
         # Extraigo cuánto vale cada barra
-        bars = RATING_BARS_PATTERN.search(bars).group(1)
-        self.values = [int(s) for s in bars.split(',')]
+        bars = RATING_BARS_PATTERN.search(script.string).group(1)
+        values = [int(s) for s in bars.split(',')]
         # Las ordeno poniendo primero las notas más bajas
-        self.values.reverse()
+        values.reverse()
         # Me aseguro que todos los datos sean positivos
-        self.values = [max(value, 0) for value in self.values]
+        self.values = [max(value, 0) for value in values]
 
     @scrap_data('url_image')
     def get_image_url(self):
@@ -306,11 +231,6 @@ class Pelicula():
         # Me aseguro que se haya tratado de calcular la nota
         if self.nota_FA is None:
             self.get_nota_FA()
-        # Si a pesar de haber tratado de encontrar la nota
-        # no he conseguido calcularla, no calculo la varianza.
-        if self.nota_FA == 0:
-            self.desvest_FA = 0
-            return
 
         # Calculo la varianza
         varianza = 0
@@ -334,3 +254,16 @@ class Pelicula():
 
     def exists(self) -> bool:
         return self.__exists
+
+    @property
+    def director(self) -> str:
+        if self.directors is None:
+            return None
+        try:
+            return self.directors[0]
+        except IndexError:
+            return ''
+
+    @director.setter
+    def director(self, value: str):
+        self.directors = [value]

@@ -2,11 +2,9 @@ import enum
 from configparser import ConfigParser
 from functools import partial
 from pathlib import Path
-from typing import Callable
 
 from src.aux_res_directory import get_res_folder
 from src.dlg_config import DlgConfig
-
 
 SZ_FILE = "General.ini"
 
