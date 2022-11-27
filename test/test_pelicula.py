@@ -54,6 +54,31 @@ def test_scrap_director(film: Pelicula):
     assert film.director == 'Quentin Tarantino'
 
 
+def test_several_directors():
+    hermano_oso = Pelicula.from_id(321572)
+    hermano_oso.get_director()
+    assert hermano_oso.director == 'Aaron Blaise'
+    assert hermano_oso.directors == ['Aaron Blaise', 'Bob Walker']
+
+
+def test_no_director():
+    madre_de_jose = Pelicula.from_id(306645)
+    madre_de_jose.get_director()
+    assert madre_de_jose.director == ''
+    assert madre_de_jose.directors is not None
+    assert madre_de_jose.directors == []
+
+
+def test_director_with_parenthesis():
+    big_bang = Pelicula.from_id(234364)
+    big_bang.get_director()
+    # En FA el nombre aparece con la apostilla '(Creador)',
+    # no quiero que eso se añada a la clase
+    assert big_bang.director == 'Chuck Lorre'
+    # Algunos directores están escondidos, pero debe poder leerlos igualmente
+    assert len(big_bang.directors) == 13
+
+
 def test_scrap_image(film: Pelicula):
     film.get_image_url()
     assert film.url_image == 'https://pics.filmaffinity.com/pulp_fiction-210382116-mmed.jpg'
