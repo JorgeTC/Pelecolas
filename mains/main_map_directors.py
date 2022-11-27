@@ -13,7 +13,7 @@ def main():
 
     directors = Counter()
     for film, progress in read_watched(usuario.id):
-        for director in film.director:
+        for director in film.directors:
             directors.update({director: 1})
         bar.update(progress)
     most_common = directors.most_common()

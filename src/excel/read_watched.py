@@ -131,7 +131,7 @@ def init_film_from_movie_box(movie_box: BeautifulSoup) -> Pelicula:
     '''instance.user_note = FromFilmBox.get_user_note(movie_box)
     instance.id = FromFilmBox.get_id(movie_box)
     instance.url_FA = url_FA.URL_FILM_ID(instance.id)'''
-    instance.director = FromFilmBox.get_directors(movie_box)
+    instance.directors = FromFilmBox.get_directors(movie_box)
 
     # Devuelvo la instancia
     return instance
