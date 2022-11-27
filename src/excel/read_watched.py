@@ -3,7 +3,7 @@ from concurrent.futures import ThreadPoolExecutor
 from math import ceil
 from typing import Iterable
 
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 
 import src.url_FA as url_FA
 from src.config import Config, Param, Section
@@ -13,7 +13,7 @@ from src.safe_url import safe_get_url
 
 
 def read_watched(id_user: int, *,
-                 use_multithread=Config.get_bool(Section.READDATA, Param.PARALLELIZE)) -> Iterable[tuple[FilmData, float]]:
+                 use_multithread=Config.get_bool(Section.READDATA, Param.PARALLELIZE)) -> Iterable[tuple[Pelicula, float]]:
 
     # Votaciones en total
     total_films = get_total_films(id_user)
@@ -35,13 +35,13 @@ def read_watched(id_user: int, *,
                            if is_valid(film))
 
         # Itero las películas en mi página actual
-        if use_multithread:
-            iter_film_data = executor.map(read_film, valid_film_list)
-        else:
-            iter_film_data = (read_film(film) for film in valid_film_list)
+        # if use_multithread:
+        #     iter_film_data = executor.map(read_film, valid_film_list)
+        # else:
+        #     iter_film_data = (read_film(film) for film in valid_film_list)
 
         read_in_page = 0
-        for film_data in iter_film_data:
+        for film_data in valid_film_list:
             read_in_page += 1
             yield film_data, (film_index + read_in_page)/total_films
 
@@ -105,15 +105,33 @@ class FromFilmBox:
     def get_country(film_box: BeautifulSoup) -> str:
         return film_box.contents[1].contents[1].contents[3].contents[1].contents[2].attrs['alt']
 
+    @staticmethod
+    def get_directors(film_box: BeautifulSoup) -> str:
+        try:
+            directors = film_box.contents[1].contents[1].contents[3].contents[5].contents[1].contents
+        except IndexError:
+            return ''
+        return [director.contents[0].contents[0]
+                for director in directors
+                if isinstance(director, Tag)]
+
+    @staticmethod
+    def get_director(film_box: BeautifulSoup) -> str:
+        try:
+            return FromFilmBox.get_directors(film_box)[0]
+        except IndexError:
+            return ''
+
 
 def init_film_from_movie_box(movie_box: BeautifulSoup) -> Pelicula:
     instance = Pelicula()
 
     # Guardo los valores que conozco por la información introducida
     instance.titulo = FromFilmBox.get_title(movie_box)
-    instance.user_note = FromFilmBox.get_user_note(movie_box)
+    '''instance.user_note = FromFilmBox.get_user_note(movie_box)
     instance.id = FromFilmBox.get_id(movie_box)
-    instance.url_FA = url_FA.URL_FILM_ID(instance.id)
+    instance.url_FA = url_FA.URL_FILM_ID(instance.id)'''
+    instance.director = FromFilmBox.get_directors(movie_box)
 
     # Devuelvo la instancia
     return instance

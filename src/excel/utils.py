@@ -14,13 +14,16 @@ FilmData = namedtuple("FilmData",
                        "prop_aprobados"))
 
 
-def read_film(film: Pelicula) -> FilmData:
+def read_film(film: Pelicula) -> Pelicula:
     # Hacemos la parte más lenta, que necesita parsear la página.
     film.get_nota_FA()
     film.get_votantes_FA()
     film.get_duracion()
     film.get_desvest()
     film.get_prop_aprobados()
+    film.get_director()
+
+    return film
 
     # Extraemos los datos que usaremos para que el objeto sea más pequeño
     return FilmData(film.user_note,
