@@ -1,13 +1,11 @@
-import sys
-from pathlib import Path
-from urllib import request
 from collections import Counter
 
+from openpyxl import load_workbook
+from openpyxl.worksheet.worksheet import Worksheet
 
-
-SCRIPT_DIR = Path(__file__).parent
-CODE_DIR = SCRIPT_DIR.parent
-sys.path.append(str(CODE_DIR))
+import __init__
+from src.aux_res_directory import get_res_folder
+from src.safe_url import safe_get_url
 
 
 def make_url(year: int, min_votes='100', min_duration='0', max_duration='+120') -> str:
@@ -48,7 +46,7 @@ def extract_flags(content: str) -> dict[str, int]:
     countries = []
     for _ in range(15):
         # Find the next country
-        if((position := content.find('<img class="nflag"')) == -1):
+        if ((position := content.find('<img class="nflag"')) == -1):
             break
         # Trim string
         content = content[position:]
@@ -68,14 +66,6 @@ def extract_flags(content: str) -> dict[str, int]:
 
 
 def main():
-
-    from src.config import manage_config
-    manage_config()
-
-    from src.safe_url import safe_get_url
-    from openpyxl import load_workbook
-    from openpyxl.worksheet.worksheet import Worksheet
-    from src.aux_res_directory import get_res_folder
 
     flags: dict[int, dict[str, int]] = {}
 
