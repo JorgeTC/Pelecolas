@@ -101,7 +101,7 @@ class Pelicula:
         self.prop_aprobados: float = None
         self.values: list[int] = None
         self.duracion: int = None
-        self.director: str = None
+        self.directors: list[str] = None
         self.año: int = None
         self.pais: str = None
         self.__exists: bool = None
@@ -190,11 +190,12 @@ class Pelicula:
         # Parseo la página
         self.parsed_page = BeautifulSoup(resp.text, 'lxml')
 
-    @scrap_data('director')
+    @scrap_data('directors')
     def get_director(self):
 
-        l = self.parsed_page.find(itemprop="director")
-        self.director = l.contents[0].contents[0].contents[0]
+        tag_directors = self.parsed_page.find_all(itemprop="director")
+        self.directors = [tag.contents[0].contents[0].contents[0]
+                          for tag in tag_directors]
 
     @scrap_data('año')
     def get_año(self):
@@ -253,3 +254,16 @@ class Pelicula:
 
     def exists(self) -> bool:
         return self.__exists
+
+    @property
+    def director(self) -> str:
+        if self.directors is None:
+            return None
+        try:
+            return self.directors[0]
+        except IndexError:
+            return ''
+
+    @director.setter
+    def director(self, value: str):
+        self.directors = [value]
