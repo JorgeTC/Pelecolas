@@ -123,7 +123,7 @@ class DlgScrollBase(ConsoleEvent):
             return self.n_options - 1
         else:
             # Puedo bajar una posición en la lista
-            return self.curr_index - 1
+            return current_index - 1
 
     def get_ans(self):
         ConsoleEvent.execute_if_main_thread(self)
