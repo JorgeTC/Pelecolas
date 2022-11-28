@@ -1,3 +1,5 @@
+from functools import partial
+
 from configparser import ConfigParser
 
 from src.gui import DlgScrollBase
@@ -24,17 +26,16 @@ class DlgConfig:
         print(SZ_CLOSE)
 
     def __choose_section(self):
+        new_dlg = partial(DlgScrollBase, SZ_SECTIONS, self.config.sections(), empty_ans=True)
         # Me muevo hasta la sección que sea menester
-        dlg = DlgScrollBase(SZ_SECTIONS, self.config.sections(), empty_ans=True)
-
-        while (current_section := dlg.get_ans()):
+        while (current_section := new_dlg().get_ans()):
             self.__choose_param(current_section)
 
     def __choose_param(self, section: str):
         # Me muevo hasta la sección que sea menester
         params = [name for name, val in self.config.items(section)]
-        dlg = DlgScrollBase(SZ_PARAMETROS, params, empty_ans=True)
-        while (current_param := dlg.get_ans()):
+        new_dlg = partial(DlgScrollBase, SZ_PARAMETROS, params, empty_ans=True)
+        while (current_param := new_dlg().get_ans()):
             self.__ask_param_value(section, current_param)
             self.print_section(section)
 
