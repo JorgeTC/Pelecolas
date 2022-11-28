@@ -1,8 +1,10 @@
 import sys
 from functools import wraps
 from threading import Lock
+from typing import Callable
 
 import keyboard
+
 from src.aux_console import is_console_on_focus
 from src.gui.gui import ConsoleEvent
 
@@ -23,10 +25,7 @@ class DlgScrollBase(ConsoleEvent):
 
         # Si después del último elemento de la iteración se mostrará una string vacía
         self.SCROLL_EMPTY_OPTION = empty_option
-        if (self.SCROLL_EMPTY_OPTION):
-            self.min_index = -1
-        else:
-            self.min_index = 0
+        self.min_index = -1 if self.SCROLL_EMPTY_OPTION else 0
 
         # Si tolero una respuesta vacía
         self.ALLOW_EMPTY_ANS = empty_ans
@@ -63,11 +62,11 @@ class DlgScrollBase(ConsoleEvent):
             if not self.sz_ans and self.ALLOW_EMPTY_ANS:
                 return self.sz_ans
             # Se ha introducido un título, compruebo que sea correcto
-            self.sz_ans = self.__check_ans(self.sz_ans)
+            self.sz_ans = self.sz_ans if self.sz_ans in self.sz_options else ''
 
         return self.sz_ans
 
-    def hotkey_method(fn):
+    def hotkey_method(fn: Callable[['DlgScrollBase'], None]):
         @wraps(fn)
         def wrap(self: 'DlgScrollBase'):
             # Compruebo que la consola tenga el foco
@@ -86,68 +85,55 @@ class DlgScrollBase(ConsoleEvent):
 
         return wrap
 
-    @hotkey_method
-    def __scroll_up(self) -> None:
-
+    def __scroll(self, iter_fun: Callable[[int], int]):
         # si no tengo ninguna sugerencia, no puedo recorrer nada
         if not self.n_options:
             return
 
-        self.__clear_written()
-        # Compruebo si el índice es demasiado bajo (-1 o 0)
-        if (self.curr_index <= self.min_index):
-            # Le doy la última posición en la lista
-            self.curr_index = self.n_options - 1
-        else:
-            # Puedo bajar una posición en la lista
-            self.curr_index = self.curr_index - 1
+        clear_written()
+        self.curr_index = iter_fun(self.curr_index)
 
         # Si el índice corresponde a un elemento de la lista, lo escribo
         if (self.curr_index != -1):
-            curr_suggested = self.__get_option_by_index()
+            curr_suggested = self.sz_options[self.curr_index]
             keyboard.write(curr_suggested)
+
+    @hotkey_method
+    def __scroll_up(self) -> None:
+        self.__scroll(self.__prev_index)
 
     @hotkey_method
     def __scroll_down(self) -> None:
+        self.__scroll(self.__next_index)
 
-        # si no tengo ninguna sugerencia, no puedo recorrer nada
-        if not self.n_options:
-            return
-
-        # Limpio la consola
-        self.__clear_written()
+    def __next_index(self, current_index: int) -> int:
         # Compruebo si puedo aumentar mi posición en la lista
-        if (self.curr_index < self.n_options - 1):
+        if current_index < self.n_options - 1:
             # Puedo aumentar en la lista
-            self.curr_index = self.curr_index + 1
+            return current_index + 1
         else:
             # Doy la vuelta a la lista, empiezo por -1 si existe opción vacía
             # Empiezo por 0 si no existe opción vacía
-            self.curr_index = self.min_index
+            return self.min_index
 
-        # Si el índice corresponde a un elemento de la lista, lo escribo
-        if (self.curr_index != -1):
-            curr_suggested = self.__get_option_by_index()
-            keyboard.write(curr_suggested)
+    def __prev_index(self, current_index: int) -> int:
+        # Compruebo si el índice es demasiado bajo (-1 o 0)
+        if current_index <= self.min_index:
+            # Le doy la última posición en la lista
+            return self.n_options - 1
+        else:
+            # Puedo bajar una posición en la lista
+            return current_index - 1
 
     def get_ans(self):
         ConsoleEvent.execute_if_main_thread(self)
         with self.locker:
             return self.sz_ans
 
-    def __get_option_by_index(self) -> str:
-        return self.sz_options[self.curr_index]
 
-    def __clear_written(self):
-        # Al pulsar las teclas, también se está navegando entre los últimos inputs de teclado
-        # Hago que se expliciten en la consola para poder borrarlos
-        sys.stdout.flush()
-        # Borro lo que haya escrito para que no lo detecte el input
-        keyboard.send('esc')
-
-    def __check_ans(self, ans: str) -> str:
-        # Compruebo si la respuesta está en la lista
-        if ans in self.sz_options:
-            return ans
-        else:
-            return ""
+def clear_written():
+    # Al pulsar las teclas, también se está navegando entre los últimos inputs de teclado
+    # Hago que se expliciten en la consola para poder borrarlos
+    sys.stdout.flush()
+    # Borro lo que haya escrito para que no lo detecte el input
+    keyboard.send('esc')
