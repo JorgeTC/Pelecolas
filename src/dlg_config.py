@@ -26,7 +26,8 @@ class DlgConfig:
         print(SZ_CLOSE)
 
     def __choose_section(self):
-        new_dlg = partial(DlgScrollBase, SZ_SECTIONS, self.config.sections(), empty_ans=True)
+        new_dlg = partial(DlgScrollBase, SZ_SECTIONS,
+                          self.config.sections(), empty_ans=True)
         # Me muevo hasta la sección que sea menester
         while (current_section := new_dlg().get_ans()):
             self.__choose_param(current_section)
