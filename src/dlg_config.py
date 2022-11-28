@@ -17,10 +17,6 @@ class DlgConfig:
 
         self.config = config
 
-        # Qué estoy configurando actualmente
-        self.__curr_section = ""
-        self.__curr_param = ""
-
     def run(self):
         print(SZ_WELCOME)
         self.print()
@@ -30,27 +26,21 @@ class DlgConfig:
     def __choose_section(self):
         # Me muevo hasta la sección que sea menester
         dlg = DlgScrollBase(SZ_SECTIONS, self.config.sections(), empty_ans=True)
-        self.__curr_section = dlg.get_ans()
 
-        if self.__curr_section:
-            self.__choose_param()
+        while (current_section := dlg.get_ans()):
+            self.__choose_param(current_section)
 
-    def __choose_param(self):
+    def __choose_param(self, section: str):
         # Me muevo hasta la sección que sea menester
-        params = [pair[0] for pair in self.config.items(self.__curr_section)]
+        params = [name for name, val in self.config.items(section)]
         dlg = DlgScrollBase(SZ_PARAMETROS, params, empty_ans=True)
-        self.__curr_param = dlg.get_ans()
+        while (current_param := dlg.get_ans()):
+            self.__ask_param_value(section, current_param)
+            self.print_section(section)
 
-        if self.__curr_param:
-            self.__ask_param()
-            self.print_section(self.__curr_section)
-            self.__choose_param()
-        else:
-            self.__choose_section()
-
-    def __ask_param(self):
-        ans = input(SZ_NEW_VALUE(self.__curr_param))
-        self.config.set(self.__curr_section, self.__curr_param, ans)
+    def __ask_param_value(self, section: str, param: str):
+        ans = input(SZ_NEW_VALUE(param))
+        self.config.set(section, param, ans)
 
     def print(self):
         for section in self.config.sections():
