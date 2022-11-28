@@ -5,8 +5,8 @@ from src.progress_bar import ProgressBar
 from src.usuario import Usuario
 
 
-def write_in_file(directors: list[tuple[str, int]]):
-    with open("C:/Users/jdlat/Desktop/coleto.txt", mode='w', encoding='utf-8') as output_file:
+def write_in_file(directors: list[tuple[str, int]], user_name: str):
+    with open(f"C:/Users/jdlat/Desktop/{user_name}.txt", mode='w', encoding='utf-8') as output_file:
         for dir, repetitions in directors:
             line = f"{dir}: {repetitions}"
             try:
@@ -28,7 +28,7 @@ def main():
         bar.update(progress)
     most_common = directors.most_common()
 
-    write_in_file(most_common)
+    write_in_file(most_common, usuario.nombre)
 
 
 if __name__ == '__main__':
