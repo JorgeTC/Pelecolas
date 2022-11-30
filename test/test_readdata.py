@@ -1,7 +1,11 @@
+from unittest import mock
+
 import pytest
 from bs4 import BeautifulSoup
+
 import src.excel.read_watched as rw
 from src.excel.read_watched import FromFilmBox
+from src.excel.utils import is_valid
 
 
 @pytest.fixture
@@ -10,17 +14,22 @@ def sasha_id() -> int:
 
 
 @pytest.fixture
-def sashas_film_boxes(sasha_id) -> list[BeautifulSoup]:
-    pages = list(rw.get_all_boxes(sasha_id, 35))
+def sasha_total_films() -> int:
+    return 35
+
+
+@pytest.fixture
+def sashas_film_boxes(sasha_id, sasha_total_films) -> list[BeautifulSoup]:
+    pages = list(rw.get_all_boxes(sasha_id, sasha_total_films))
     return sum(pages, [])
 
 
-def test_read_total_films(sasha_id: int):
+def test_read_total_films(sasha_id: int, sasha_total_films: int):
     total_films = rw.get_total_films(sasha_id)
-    assert total_films == 35
+    assert total_films == sasha_total_films
     pages = list(rw.get_all_boxes(sasha_id, total_films))
-    assert len(pages) == 35 // 20 + 1
-    assert sum(len(page) for page in pages) == 35
+    assert len(pages) == sasha_total_films // 20 + 1
+    assert sum(len(page) for page in pages) == sasha_total_films
 
 
 def test_from_movie_box(sashas_film_boxes: list[BeautifulSoup]):
@@ -38,3 +47,9 @@ def test_read_data_from_box(sashas_film_boxes: list[BeautifulSoup]):
         'Eric Bress', 'J. Mackye Gruber']
     assert FromFilmBox.get_country(efecto_mariposa) == 'Estados Unidos'
     assert FromFilmBox.get_year(efecto_mariposa) == 2004
+
+
+@mock.patch.object(is_valid, "__kwdefaults__", {'SET_VALID_FILM': 255})
+def test_readdata(sasha_id: int, sasha_total_films: int):
+    sasha_films = list(rw.read_watched(sasha_id, use_multithread = True))
+    assert len(sasha_films) == sasha_total_films
