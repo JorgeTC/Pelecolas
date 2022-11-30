@@ -35,10 +35,36 @@ def read_watched(id_user: int, *,
                            if is_valid(film))
 
         # Itero las películas en mi página actual
-        # if use_multithread:
-        #     iter_film_data = executor.map(read_film, valid_film_list)
-        # else:
-        #     iter_film_data = (read_film(film) for film in valid_film_list)
+        if use_multithread:
+            iter_film_data = executor.map(read_film, valid_film_list)
+        else:
+            iter_film_data = (read_film(film) for film in valid_film_list)
+
+        read_in_page = 0
+        for film_data in iter_film_data:
+            read_in_page += 1
+            yield film_data, (film_index + read_in_page)/total_films
+
+        # Avanzo a la siguiente página de películas vistas por el usuario
+        film_index = min(film_index + 20, total_films)
+
+
+def read_directors(id_user: int) -> Iterable[tuple[Pelicula, float]]:
+    # Votaciones en total
+    total_films = get_total_films(id_user)
+
+    # Lista de todas las cajas de películas del usuario
+    film_list = get_all_boxes(id_user, total_films)
+    # Contador de películas leídas
+    film_index = 0
+
+    # Itero hasta que haya leído todas las películas
+    for page_boxes in film_list:
+        # Lista de las películas válidas en la página actual.
+        films_in_page = (init_director_from_movie_box(box)
+                         for box in page_boxes)
+        valid_film_list = (film for film in films_in_page
+                           if is_valid(film))
 
         read_in_page = 0
         for film_data in valid_film_list:
@@ -128,10 +154,15 @@ def init_film_from_movie_box(movie_box: BeautifulSoup) -> Pelicula:
 
     # Guardo los valores que conozco por la información introducida
     instance.titulo = FromFilmBox.get_title(movie_box)
-    '''instance.user_note = FromFilmBox.get_user_note(movie_box)
+    instance.user_note = FromFilmBox.get_user_note(movie_box)
     instance.id = FromFilmBox.get_id(movie_box)
-    instance.url_FA = url_FA.URL_FILM_ID(instance.id)'''
-    instance.directors = FromFilmBox.get_directors(movie_box)
+    instance.url_FA = url_FA.URL_FILM_ID(instance.id)
 
     # Devuelvo la instancia
+    return instance
+
+
+def init_director_from_movie_box(movie_box: BeautifulSoup) -> Pelicula:
+    instance = Pelicula()
+    instance.directors = FromFilmBox.get_directors(movie_box)
     return instance

@@ -2,7 +2,6 @@ from src.config import Config, Param, Section
 from src.pelicula import Pelicula
 
 
-
 def read_film(film: Pelicula) -> Pelicula:
     # Hacemos la parte más lenta, que necesita parsear la página.
     film.get_nota_FA()
@@ -10,7 +9,6 @@ def read_film(film: Pelicula) -> Pelicula:
     film.get_duracion()
     film.get_desvest()
     film.get_prop_aprobados()
-    film.get_director()
 
     return film
 
