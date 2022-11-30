@@ -7,13 +7,13 @@ from bs4 import BeautifulSoup
 
 import src.url_FA as url_FA
 from src.config import Config, Param, Section
-from src.excel.utils import FilmData, is_valid, read_film
+from src.excel.utils import is_valid, read_film
 from src.pelicula import Pelicula
 from src.safe_url import safe_get_url
 
 
 def read_watched(id_user: int, *,
-                 use_multithread=Config.get_bool(Section.READDATA, Param.PARALLELIZE)) -> Iterable[tuple[FilmData, float]]:
+                 use_multithread=Config.get_bool(Section.READDATA, Param.PARALLELIZE)) -> Iterable[tuple[Pelicula, float]]:
 
     # Votaciones en total
     total_films = get_total_films(id_user)
