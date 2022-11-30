@@ -1,20 +1,8 @@
-from collections import namedtuple
-
 from src.config import Config, Param, Section
 from src.pelicula import Pelicula
 
-FilmData = namedtuple("FilmData",
-                      ("user_note",
-                       "titulo",
-                       "id",
-                       "duracion",
-                       "nota_FA",
-                       "votantes_FA",
-                       "desvest_FA",
-                       "prop_aprobados"))
 
-
-def read_film(film: Pelicula) -> FilmData:
+def read_film(film: Pelicula) -> Pelicula:
     # Hacemos la parte más lenta, que necesita parsear la página.
     film.get_nota_FA()
     film.get_votantes_FA()
@@ -22,15 +10,7 @@ def read_film(film: Pelicula) -> FilmData:
     film.get_desvest()
     film.get_prop_aprobados()
 
-    # Extraemos los datos que usaremos para que el objeto sea más pequeño
-    return FilmData(film.user_note,
-                    film.titulo,
-                    film.id,
-                    film.duracion,
-                    film.nota_FA,
-                    film.votantes_FA,
-                    film.desvest_FA,
-                    film.prop_aprobados)
+    return film
 
 
 def is_valid(film: Pelicula, *,

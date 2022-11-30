@@ -1,11 +1,12 @@
 import enum
 
-import src.url_FA as url_FA
 from openpyxl.styles import Alignment, Font
 from openpyxl.worksheet import worksheet
+
+import src.url_FA as url_FA
 from src.excel.read_sample import read_sample
 from src.excel.read_watched import read_watched
-from src.excel.utils import FilmData
+from src.pelicula import Pelicula
 from src.progress_bar import ProgressBar
 
 
@@ -72,7 +73,7 @@ class Writer:
 
         bar.update(1)
 
-    def __write_in_excel(self, line: int, film: FilmData):
+    def __write_in_excel(self, line: int, film: Pelicula):
 
         # La enumeración empezará en 0,
         # pero sólo escribimos datos a partir de la segunda linea.
@@ -86,11 +87,11 @@ class Writer:
         # no puedo leer la nota del usuario dentro de la ficha
         if (film.user_note):
             self.__set_cell_value(line, ExcelColumns.Mia,
-                                film.user_note)
+                                  film.user_note)
             self.__set_cell_value(line, ExcelColumns.Mia_ruido,
-                                f"={ExcelColumns.Mia}+RAND()-0.5")
+                                  f"={ExcelColumns.Mia}+RAND()-0.5")
             self.__set_cell_value(line, ExcelColumns.Mia_rees,
-                                f"=({ExcelColumns.Mia}-1)*10/9")
+                                  f"=({ExcelColumns.Mia}-1)*10/9")
 
         if (film.duracion != 0):
             # dejo la casilla en blanco si no logra leer ninguna duración de FA
