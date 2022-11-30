@@ -3,7 +3,7 @@ from random import randint
 from typing import Iterable
 
 from src.config import Config, Param, Section
-from src.excel.utils import FilmData, is_valid, read_film
+from src.excel.utils import is_valid, read_film
 from src.pelicula import Pelicula
 
 
@@ -29,7 +29,7 @@ class RandomFilmId:
 
 
 def read_sample(*,
-                use_multithread=Config.get_bool(Section.READDATA, Param.PARALLELIZE)) -> Iterable[FilmData]:
+                use_multithread=Config.get_bool(Section.READDATA, Param.PARALLELIZE)) -> Iterable[Pelicula]:
     # Creo un objeto para hacer la gestión de paralelización
     executor = ThreadPoolExecutor(max_workers=50)
 
@@ -54,17 +54,17 @@ def read_sample(*,
                 yield film_data
 
 
-def read_film_if_valid(film: Pelicula) -> FilmData:
+def read_film_if_valid(film: Pelicula) -> Pelicula:
 
     # Si la película no es válida devuelvo una tupla vacía
     if not has_valid_id(film):
-        return FilmData(*((0,)*len(FilmData._fields)))
+        return Pelicula()
 
     # Es válida, devuelvo la tupla habitual
     try:
         return read_film(film)
     except:
-        return FilmData(*((0,)*len(FilmData._fields)))
+        return Pelicula()
 
 
 def has_valid_id(film: Pelicula) -> bool:
