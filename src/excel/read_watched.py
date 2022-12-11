@@ -164,5 +164,8 @@ def init_film_from_movie_box(movie_box: BeautifulSoup) -> Pelicula:
 
 def init_director_from_movie_box(movie_box: BeautifulSoup) -> Pelicula:
     instance = Pelicula()
+
     instance.directors = FromFilmBox.get_directors(movie_box)
+    instance.titulo = FromFilmBox.get_title(movie_box)
+
     return instance
