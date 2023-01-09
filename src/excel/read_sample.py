@@ -1,6 +1,8 @@
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import Future, ThreadPoolExecutor
+from queue import Queue
 from random import randint
-from typing import Iterable
+from threading import Lock, Thread
+from typing import Iterable, Optional
 
 from src.config import Config, Param, Section
 from src.excel.utils import is_valid, read_film
@@ -11,6 +13,7 @@ class RandomFilmId:
     def __init__(self) -> None:
         self.ids = list(range(100_000, 1_000_000))
         self.size = len(self.ids)
+        self.mutex = Lock()
 
     def get_id(self) -> int:
 
@@ -23,48 +26,67 @@ class RandomFilmId:
 
         return self.ids.pop()
 
-    def get_ids_lot(self, lot_size: int) -> Iterable[int]:
-        lot_size = min(lot_size, self.size)
-        return (self.get_id() for _ in range(lot_size))
+    def __iter__(self):
+        return self
+
+    def __next__(self) -> int:
+        with self.mutex:
+            if self.size != 0:
+                return self.get_id()
+            else:
+                raise StopIteration
 
 
-def read_sample(*,
-                use_multithread=Config.get_bool(Section.READDATA, Param.PARALLELIZE)) -> Iterable[Pelicula]:
-    # Creo un objeto para hacer la gestión de paralelización
-    executor = ThreadPoolExecutor(max_workers=50)
+def read_sample() -> Iterable[Pelicula]:
+    return ReadSample().iter()
 
-    # Creo un generador aleatorio de ids de películas
-    rnd = RandomFilmId()
 
-    while rnd.size:
-        # Lista de las películas válidas en la página actual.
-        valid_film_list = (Pelicula.from_id(id)
-                           for id in rnd.get_ids_lot(125))
+class ReadSample:
+    def __init__(self) -> None:
+        self.results: Queue[Pelicula] = Queue()
 
-        # Itero las películas en mi página actual
+        Thread(target=self.read_sample,
+               name="ReadSample").start()
+
+    def add_to_queue(self, result: Future):
+        if (film := result.result()):
+            self.results.put(film)
+
+    def read_sample(self, *,
+                    use_multithread=Config.get_bool(Section.READDATA, Param.PARALLELIZE)) -> Iterable[Pelicula]:
+
+        # Generador de películas con id aleatorio
+        film_list = (Pelicula.from_id(film_id) for film_id in RandomFilmId())
+
+        # Obtengo los datos de los id válidos que obtenga
         if use_multithread:
-            iter_film_data = executor.map(
-                read_film_if_valid, valid_film_list)
+            exe = ThreadPoolExecutor(thread_name_prefix="ReadFilm")
+            futures = (exe.submit(read_film_if_valid, film)
+                       for film in film_list)
+            for future in futures:
+                future.add_done_callback(self.add_to_queue)
+            exe.shutdown(wait=True)
         else:
-            iter_film_data = (read_film_if_valid(film)
-                              for film in valid_film_list)
+            for film in film_list:
+                if (read_film := read_film_if_valid(film)):
+                    self.results.put(read_film)
 
-        for film_data in iter_film_data:
-            if film_data.nota_FA:
-                yield film_data
+        # Añado un elemento None para indicar que la iteración ha acabado
+        self.results.put(None)
+
+    def iter(self) -> Iterable[Pelicula]:
+        while (film := self.results.get()):
+            yield film
 
 
-def read_film_if_valid(film: Pelicula) -> Pelicula:
-
-    # Si la película no es válida devuelvo una tupla vacía
+def read_film_if_valid(film: Pelicula) -> Optional[Pelicula]:
     if not has_valid_id(film):
-        return Pelicula()
-
-    # Es válida, devuelvo la tupla habitual
+        return None
+    # Es válida, devuelvo la película con todos los datos necesarios
     try:
         return read_film(film)
     except:
-        return Pelicula()
+        return None
 
 
 def has_valid_id(film: Pelicula) -> bool:
