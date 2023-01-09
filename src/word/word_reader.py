@@ -62,17 +62,14 @@ def init_paragraphs(year_parr: dict[str, int], paragraphs: list[Paragraph]):
     for word in WordFolderMgr.SZ_ALL_DOCX:
         # Obtengo el año actual
         try:
-            year = word.stem.split(SEPARATOR_YEAR)[1]
+            year = int(word.stem.split(SEPARATOR_YEAR)[1])
         except IndexError:
-            year = "2017"
+            year = 2017
         # Guardo en qué párrafo empieza el año actual
         year_parr[year] = len(paragraphs)
         # Añado los párrafos del docx actual
         # Evito añadir el primero, donde está el título del documento
-        try:
-            paragraphs.extend(docx.Document(word).paragraphs[1:])
-        except:
-            pass
+        paragraphs.extend(docx.Document(word).paragraphs[1:])
 
 
 def has_next_parr_title(text: str, header: str) -> bool:
