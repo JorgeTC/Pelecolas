@@ -4,7 +4,7 @@ import pytest
 from bs4 import BeautifulSoup
 
 import src.excel.read_watched as rw
-from src.excel.read_watched import FromFilmBox
+from src.excel.film_box import FilmBox
 from src.excel.utils import is_valid
 
 
@@ -32,7 +32,7 @@ def test_read_total_films(sasha_id: int, sasha_total_films: int):
     assert sum(len(page) for page in pages) == sasha_total_films
 
 
-def test_from_movie_box(sashas_film_boxes: list[BeautifulSoup]):
+def test_from_movie_box(sashas_film_boxes: list[FilmBox]):
     films = (rw.init_film_from_movie_box(box) for box in sashas_film_boxes)
     efecto_mariposa = next(film for film in films
                            if film.titulo == 'El efecto mariposa ')
@@ -40,16 +40,16 @@ def test_from_movie_box(sashas_film_boxes: list[BeautifulSoup]):
     assert efecto_mariposa.id == 235464
 
 
-def test_read_data_from_box(sashas_film_boxes: list[BeautifulSoup]):
+def test_read_data_from_box(sashas_film_boxes: list[FilmBox]):
     efecto_mariposa = next(box for box in sashas_film_boxes
-                           if FromFilmBox.get_title(box) == 'El efecto mariposa ')
-    assert FromFilmBox.get_directors(efecto_mariposa) == [
+                           if box.get_title() == 'El efecto mariposa ')
+    assert efecto_mariposa.get_directors() == [
         'Eric Bress', 'J. Mackye Gruber']
-    assert FromFilmBox.get_country(efecto_mariposa) == 'Estados Unidos'
-    assert FromFilmBox.get_year(efecto_mariposa) == 2004
+    assert efecto_mariposa.get_country() == 'Estados Unidos'
+    assert efecto_mariposa.get_year() == 2004
 
 
 @mock.patch.object(is_valid, "__kwdefaults__", {'SET_VALID_FILM': 255})
 def test_readdata(sasha_id: int, sasha_total_films: int):
-    sasha_films = list(rw.read_watched(sasha_id, use_multithread = True))
+    sasha_films = list(rw.read_watched(sasha_id, use_multithread=True))
     assert len(sasha_films) == sasha_total_films
