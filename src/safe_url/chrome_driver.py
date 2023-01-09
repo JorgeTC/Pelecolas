@@ -3,8 +3,8 @@ from pathlib import Path
 
 import chromedriver_autoinstaller
 from selenium import webdriver
-from selenium.webdriver import Chrome
 from selenium.common.exceptions import WebDriverException
+from selenium.webdriver import Chrome
 
 from src.aux_res_directory import get_res_folder
 
@@ -50,7 +50,7 @@ def update_chrome_driver():
         return
 
     # Elimino el antiguo driver
-    if os.path.isfile(DRIVER_PATH):
+    if DRIVER_PATH.is_file():
         os.remove(DRIVER_PATH)
     # Coloco el nuevo en la ruta que le corresponde
     os.rename(src=str_path_new_driver, dst=DRIVER_PATH)

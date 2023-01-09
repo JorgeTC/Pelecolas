@@ -39,7 +39,7 @@ def read_sample(*,
     while rnd.size:
         # Lista de las películas válidas en la página actual.
         valid_film_list = (Pelicula.from_id(id)
-                           for id in rnd.get_ids_lot(50))
+                           for id in rnd.get_ids_lot(125))
 
         # Itero las películas en mi página actual
         if use_multithread:
