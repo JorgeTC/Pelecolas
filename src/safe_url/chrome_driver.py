@@ -5,6 +5,7 @@ import chromedriver_autoinstaller
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver import Chrome
+from selenium.webdriver.chrome.service import Service
 
 from src.aux_res_directory import get_res_folder
 
@@ -14,7 +15,7 @@ DRIVER_PATH = get_res_folder("Readdata", "driver", "chromedriver.exe")
 def create_chrome_instance() -> Chrome:
     # Abro una instancia de Chrome
     # Lo creo con un conjunto de opciones para no emitir errores por consola
-    return webdriver.Chrome(DRIVER_PATH,
+    return webdriver.Chrome(service=Service(DRIVER_PATH),
                             options=get_driver_option())
 
 
