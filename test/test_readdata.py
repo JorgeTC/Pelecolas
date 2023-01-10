@@ -3,7 +3,8 @@ from unittest import mock
 import pytest
 from bs4 import BeautifulSoup
 
-import src.excel.read_watched as rw
+import src.excel.read_watched_imp as rw
+from src.excel.read_watched import read_watched
 from src.excel.film_box import FilmBox
 from src.excel.utils import is_valid
 
@@ -19,21 +20,19 @@ def sasha_total_films() -> int:
 
 
 @pytest.fixture
-def sashas_film_boxes(sasha_id, sasha_total_films) -> list[BeautifulSoup]:
-    pages = list(rw.get_all_boxes(sasha_id, sasha_total_films))
-    return sum(pages, [])
+def sashas_film_boxes(sasha_id, sasha_total_films) -> list[FilmBox]:
+    return list(rw.get_all_boxes(sasha_id, sasha_total_films))
 
 
 def test_read_total_films(sasha_id: int, sasha_total_films: int):
     total_films = rw.get_total_films(sasha_id)
     assert total_films == sasha_total_films
-    pages = list(rw.get_all_boxes(sasha_id, total_films))
-    assert len(pages) == sasha_total_films // 20 + 1
-    assert sum(len(page) for page in pages) == sasha_total_films
+    boxes = list(rw.get_all_boxes(sasha_id, total_films))
+    assert len(boxes) == sasha_total_films
 
 
 def test_from_movie_box(sashas_film_boxes: list[FilmBox]):
-    films = (rw.init_film_from_movie_box(box) for box in sashas_film_boxes)
+    films = (rw.ReadDataWatched.init_film(box) for box in sashas_film_boxes)
     efecto_mariposa = next(film for film in films
                            if film.titulo == 'El efecto mariposa ')
     assert efecto_mariposa.user_note == 2
@@ -50,6 +49,7 @@ def test_read_data_from_box(sashas_film_boxes: list[FilmBox]):
 
 
 @mock.patch.object(is_valid, "__kwdefaults__", {'SET_VALID_FILM': 255})
+@mock.patch.object(rw.ReadDataWatched.read_watched, "__kwdefaults__", {'use_multithread': True})
 def test_readdata(sasha_id: int, sasha_total_films: int):
-    sasha_films = list(rw.read_watched(sasha_id, use_multithread=True))
+    sasha_films = list(read_watched(sasha_id))
     assert len(sasha_films) == sasha_total_films

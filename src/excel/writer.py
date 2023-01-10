@@ -61,17 +61,13 @@ class Writer:
 
     def write_watched(self, id_user: int):
 
-        # Creo una barra de progreso
-        bar = ProgressBar()
-
         # Inicializo la fila actual en la que estoy escribiendo
         index = 0
+        bar = ProgressBar()
         for film_data, progress in read_watched(id_user):
             self.__write_in_excel(index, film_data)
             index += 1
             bar.update(progress)
-
-        bar.update(1)
 
     def __write_in_excel(self, line: int, film: Pelicula):
 
