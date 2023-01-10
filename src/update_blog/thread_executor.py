@@ -14,15 +14,9 @@ class ThreadExecutor:
 
     def decorate_thread(self, ori_thread: Thread) -> Thread:
         target = ori_thread._target
-        target_decorated = self.queue_when_done(target)
-        args = ori_thread._args
-        kwargs = ori_thread._kwargs
-        name = ori_thread._name
+        ori_thread._target = self.queue_when_done(target)
 
-        return Thread(name=name,
-                      args=args,
-                      kwargs=kwargs,
-                      target=target_decorated)
+        return ori_thread
 
     def execute(self):
         max_executors = min(len(self.threads), self.max_executors)
