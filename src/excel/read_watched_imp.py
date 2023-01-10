@@ -74,8 +74,10 @@ class ReadDataWatched(ReadWatched):
 
     def read_watched_parallel(self) -> None:
         exe = ThreadPoolExecutor(thread_name_prefix="ReadFilm")
+        # Incluso aunque no tenga que leer la película la añado al Executor.
+        # De lo contrario no se incrementaría la barra de progreso
         futures = (exe.submit(read_film, film) if film
-                   else exe.submit(self.noop, film)
+                   else exe.submit(lambda *_: None, film)
                    for film in self.valid_film_list)
         for future in futures:
             future.add_done_callback(self.add_to_queue)
@@ -94,10 +96,6 @@ class ReadDataWatched(ReadWatched):
 
         # Devuelvo la instancia
         return instance
-
-    @staticmethod
-    def noop(_: None) -> None:
-        return None
 
 
 class ReadDirectorsWatched(ReadWatched):
