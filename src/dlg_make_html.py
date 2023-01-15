@@ -43,7 +43,7 @@ class DlgHtml:
             if not self.__interpretate_director(FA.get_url()):
                 return
 
-        self.data.año = Input(self.ASK_YEAR)
+        self.data.año = int(Input(self.ASK_YEAR))
         self.data.duracion = Input(self.ASK_DURATION)
 
     def __interpretate_director(self, suggested_url: str) -> bool:

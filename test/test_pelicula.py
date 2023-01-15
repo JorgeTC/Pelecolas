@@ -1,6 +1,6 @@
 import pytest
 
-from src.pelicula import Pelicula, read_avg_note_from_page
+from src.pelicula import Pelicula
 
 
 @pytest.fixture
@@ -45,8 +45,8 @@ def test_scrap_country(film: Pelicula):
 
 def test_scrap_year(film: Pelicula):
     film.get_año()
-    assert isinstance(film.año, str)
-    assert film.año == '1994'
+    assert isinstance(film.año, int)
+    assert film.año == 1994
 
 
 def test_scrap_director(film: Pelicula):
@@ -89,12 +89,12 @@ def test_not_rescrap_know_data():
     film.director = 'Wrong director'
     film.get_director()
     assert film.director == 'Wrong director'
-    assert film.parsed_page is None
+    assert film.film_page is None
 
 
 def test_scrap_note(film: Pelicula):
     film.get_nota_FA()
-    note_in_page = read_avg_note_from_page(film.parsed_page)
+    note_in_page = film.film_page.get_avg_note()
     assert film.nota_FA == pytest.approx(note_in_page, 0.1)
 
 
@@ -108,7 +108,7 @@ def test_scrap_without_note(film_without_note: Pelicula):
     film_without_note.get_nota_FA()
 
     # Compruebo que la página no tenga en efecto nota media
-    assert read_avg_note_from_page(film_without_note.parsed_page) == 0
+    assert film_without_note.film_page.get_avg_note() == 0
 
     assert film_without_note.nota_FA == 0
 
@@ -135,9 +135,9 @@ def test_scrap_without_duration(film_without_length: Pelicula):
     film_without_length.get_duracion()
     assert film_without_length.duracion == 0
 
-    film_without_length.parsed_page = None
+    film_without_length.film_page = None
     film_without_length.get_duracion()
-    assert film_without_length.parsed_page is None
+    assert film_without_length.film_page is None
 
 
 def test_scrap_prop_aprobados(film: Pelicula):

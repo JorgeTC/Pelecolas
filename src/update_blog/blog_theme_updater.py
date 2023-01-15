@@ -158,7 +158,7 @@ def download_film_data(film: Pelicula):
 def parse_film_data(film: Pelicula, blog_scraper: BlogScraper):
     # Leo en las notas ocultas del html los datos
     film.director = blog_scraper.get_hidden_data(BlogHiddenData.DIRECTOR)
-    film.año = blog_scraper.get_hidden_data(BlogHiddenData.YEAR)
-    film.duracion = blog_scraper.get_hidden_data(BlogHiddenData.DURATION)
+    film.año = int(blog_scraper.get_hidden_data(BlogHiddenData.YEAR))
+    film.duracion = int(blog_scraper.get_hidden_data(BlogHiddenData.DURATION))
     film.pais = blog_scraper.get_hidden_data(BlogHiddenData.COUNTRY)
     film.url_image = blog_scraper.get_hidden_data(BlogHiddenData.IMAGE)
