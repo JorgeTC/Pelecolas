@@ -70,7 +70,7 @@ class ReadDataWatched(ReadWatched):
         if use_multithread:
             self.read_watched_parallel()
         else:
-            ReadWatched.read_watched()
+            ReadWatched.read_watched(self)
 
     def read_watched_parallel(self) -> None:
         exe = ThreadPoolExecutor(thread_name_prefix="ReadFilm")
