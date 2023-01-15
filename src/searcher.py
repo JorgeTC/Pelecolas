@@ -26,11 +26,11 @@ class Searcher:
 
     def __init__(self, to_search: str):
         # Separo en la cadena introducida el título y el año
-        self.año, self.title = split_title_year(to_search)
+        year, self.title = split_title_year(to_search)
 
         # Si ha encontrado un año, lo convierto a entero
         try:
-            self.año = int(self.año)
+            self.año = int(year)
         except ValueError:
             self.año = 0
 
