@@ -50,6 +50,15 @@ def test_read_data_from_box(sashas_film_boxes: list[FilmBox]):
 
 @mock.patch.object(is_valid, "__kwdefaults__", {'SET_VALID_FILM': 255})
 @mock.patch.object(rw.ReadDataWatched.read_watched, "__kwdefaults__", {'use_multithread': True})
-def test_readdata(sasha_id: int, sasha_total_films: int):
+def test_readdata_parallel(sasha_id: int, sasha_total_films: int):
     sasha_films = list(read_watched(sasha_id))
     assert len(sasha_films) == sasha_total_films
+
+
+@mock.patch.object(is_valid, "__kwdefaults__", {'SET_VALID_FILM': 255})
+@mock.patch.object(rw.ReadDataWatched.read_watched, "__kwdefaults__", {'use_multithread': False})
+def test_readdata_series(sasha_id: int):
+    watched_in_series = read_watched(sasha_id)
+    film, proportion = next(watched_in_series)
+    assert film is not None
+    assert proportion != 0
