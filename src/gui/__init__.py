@@ -11,7 +11,7 @@ consumer.start()
 
 
 def join_GUI():
-    GUI.add_event(None, None)
+    GUI.close_gui()
     consumer.join()
 
 
