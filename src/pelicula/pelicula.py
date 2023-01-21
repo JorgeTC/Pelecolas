@@ -2,7 +2,6 @@ import math
 import re
 from functools import wraps
 
-from src.url_FA import URL_FILM_ID
 from src.pelicula.film_page import FilmPage
 
 
@@ -70,6 +69,9 @@ def scrap_from_values(att: str):
         # compruebo que la lista de valores esté calculada.
         return scrap_data(att)(check_votes(att)(fn))
     return decorator
+
+
+URL_FILM_ID = "https://www.filmaffinity.com/es/film{}.html".format
 
 
 class Pelicula:

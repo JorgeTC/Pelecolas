@@ -4,10 +4,9 @@ from openpyxl.cell import Cell
 from openpyxl.styles import Alignment, Font
 from openpyxl.worksheet import worksheet
 
-import src.url_FA as url_FA
 from src.excel.read_sample import read_sample
 from src.excel.read_watched import read_data
-from src.pelicula import Pelicula
+from src.pelicula import URL_FILM_ID, Pelicula
 from src.progress_bar import ProgressBar
 
 
@@ -162,6 +161,6 @@ class Writer:
         elif (col == ExcelColumns.Id):
             # Añado un hipervínculo a su página
             cell.style = 'Hyperlink'
-            cell.hyperlink = url_FA.URL_FILM_ID(id)
+            cell.hyperlink = URL_FILM_ID(id)
             # Fuerzo el formato como texto
             cell.number_format = '@'
