@@ -1,11 +1,12 @@
 import enum
 
+from openpyxl.cell import Cell
 from openpyxl.styles import Alignment, Font
 from openpyxl.worksheet import worksheet
 
 import src.url_FA as url_FA
 from src.excel.read_sample import read_sample
-from src.excel.read_watched import read_watched
+from src.excel.read_watched import read_data
 from src.pelicula import Pelicula
 from src.progress_bar import ProgressBar
 
@@ -64,7 +65,7 @@ class Writer:
         # Inicializo la fila actual en la que estoy escribiendo
         index = 0
         bar = ProgressBar()
-        for film_data, progress in read_watched(id_user):
+        for film_data, progress in read_data(id_user):
             self.__write_in_excel(index, film_data)
             index += 1
             bar.update(progress)
@@ -125,7 +126,7 @@ class Writer:
     def __set_cell_value(self, line: int, col: ExcelColumns, value, *, id=0):
 
         # Obtengo un objeto celda
-        cell = self.ws.cell(row=line, column=col)
+        cell: Cell = self.ws.cell(row=line, column=col)
         # Le asigno el valor
         cell.value = value
 

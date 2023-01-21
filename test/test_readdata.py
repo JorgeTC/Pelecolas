@@ -1,11 +1,11 @@
 from unittest import mock
 
 import pytest
-from bs4 import BeautifulSoup
 
-import src.excel.read_watched_imp as rw
-from src.excel.read_watched import read_watched
+import src.excel.read_watched.read_watched as rw
 from src.excel.film_box import FilmBox
+from src.excel.read_watched import read_data
+from src.excel.read_watched.read_data_watched import ReadDataWatched
 from src.excel.utils import is_valid
 
 
@@ -32,7 +32,7 @@ def test_read_total_films(sasha_id: int, sasha_total_films: int):
 
 
 def test_from_movie_box(sashas_film_boxes: list[FilmBox]):
-    films = (rw.ReadDataWatched.init_film(box) for box in sashas_film_boxes)
+    films = (ReadDataWatched.init_film(box) for box in sashas_film_boxes)
     efecto_mariposa = next(film for film in films
                            if film.titulo == 'El efecto mariposa ')
     assert efecto_mariposa.user_note == 2
@@ -49,16 +49,16 @@ def test_read_data_from_box(sashas_film_boxes: list[FilmBox]):
 
 
 @mock.patch.object(is_valid, "__kwdefaults__", {'SET_VALID_FILM': 255})
-@mock.patch.object(rw.ReadDataWatched.read_watched, "__kwdefaults__", {'use_multithread': True})
+@mock.patch.object(ReadDataWatched.read_watched, "__kwdefaults__", {'use_multithread': True})
 def test_readdata_parallel(sasha_id: int, sasha_total_films: int):
-    sasha_films = list(read_watched(sasha_id))
+    sasha_films = list(read_data(sasha_id))
     assert len(sasha_films) == sasha_total_films
 
 
 @mock.patch.object(is_valid, "__kwdefaults__", {'SET_VALID_FILM': 255})
-@mock.patch.object(rw.ReadDataWatched.read_watched, "__kwdefaults__", {'use_multithread': False})
+@mock.patch.object(ReadDataWatched.read_watched, "__kwdefaults__", {'use_multithread': False})
 def test_readdata_series(sasha_id: int):
-    watched_in_series = read_watched(sasha_id)
+    watched_in_series = read_data(sasha_id)
     film, proportion = next(watched_in_series)
     assert film is not None
     assert proportion != 0
