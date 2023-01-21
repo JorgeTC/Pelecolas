@@ -1,4 +1,4 @@
-from concurrent.futures import Future, ThreadPoolExecutor
+from concurrent.futures import Future
 from math import ceil
 from queue import Queue
 from threading import Thread
@@ -7,7 +7,6 @@ from typing import Iterable
 from bs4 import BeautifulSoup
 
 import src.url_FA as url_FA
-from src.config import Config, Param, Section
 from src.excel.film_box import FilmBox
 from src.excel.utils import is_valid, read_film
 from src.pelicula import Pelicula
@@ -59,57 +58,6 @@ class ReadWatched:
     @staticmethod
     def init_film(box: FilmBox) -> Pelicula:
         raise NotImplementedError
-
-
-class ReadDataWatched(ReadWatched):
-    def __init__(self, user_id: int) -> None:
-        ReadWatched.__init__(self, user_id)
-
-    def read_watched(self, *,
-                     use_multithread=Config.get_bool(Section.READDATA, Param.PARALLELIZE)):
-        if use_multithread:
-            self.read_watched_parallel()
-        else:
-            ReadWatched.read_watched(self)
-
-    def read_watched_parallel(self) -> None:
-        exe = ThreadPoolExecutor(thread_name_prefix="ReadFilm")
-        # Incluso aunque no tenga que leer la película la añado al Executor.
-        # De lo contrario no se incrementaría la barra de progreso
-        futures = (exe.submit(read_film, film) if film
-                   else exe.submit(lambda *_: None, film)
-                   for film in self.valid_film_list)
-        for future in futures:
-            future.add_done_callback(self.add_to_queue)
-        exe.shutdown(wait=True)
-        self.results.put(None)
-
-    @staticmethod
-    def init_film(movie_box: FilmBox) -> Pelicula:
-        instance = Pelicula()
-
-        # Guardo los valores que conozco por la información introducida
-        instance.titulo = movie_box.get_title()
-        instance.user_note = movie_box.get_user_note()
-        instance.id = movie_box.get_id()
-        instance.url_FA = url_FA.URL_FILM_ID(instance.id)
-
-        # Devuelvo la instancia
-        return instance
-
-
-class ReadDirectorsWatched(ReadWatched):
-    def __init__(self, user_id: int) -> None:
-        ReadWatched.__init__(self, user_id)
-
-    @staticmethod
-    def init_film(movie_box: FilmBox) -> Pelicula:
-        instance = Pelicula()
-
-        instance.directors = movie_box.get_directors()
-        instance.titulo = movie_box.get_title()
-
-        return instance
 
 
 def get_total_films(id_user: int) -> int:
