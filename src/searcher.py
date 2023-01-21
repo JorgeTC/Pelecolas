@@ -3,7 +3,6 @@ import urllib.parse
 
 from bs4 import BeautifulSoup
 
-import src.url_FA as url_FA
 from src.aux_title_str import split_title_year
 from src.pelicula import Pelicula
 from src.safe_url import safe_get_url
@@ -20,6 +19,9 @@ class SearchResult(enum.IntEnum):
 # Mensajes para emitir por consola
 SZ_ONLY_ONE_FILM = "Se ha encontrado una única película llamada {}.".format
 SZ_ONLY_ONE_FILM_YEAR = "Se ha encontrado una única película llamada {} del año {}".format
+
+# Link para buscar una película
+URL_SEARCH = "https://www.filmaffinity.com/es/search.php?stype=title&stext={}".format
 
 
 class Searcher:
@@ -182,7 +184,7 @@ def get_search_url(title) -> str:
     title_for_url = title_for_url.replace(" ", "+")
 
     # Devuelvo la dirección de búsqueda
-    return url_FA.URL_SEARCH(title_for_url)
+    return URL_SEARCH(title_for_url)
 
 
 def get_redirected_url(parsed_page: BeautifulSoup) -> str:

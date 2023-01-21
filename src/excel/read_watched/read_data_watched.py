@@ -1,10 +1,9 @@
-from concurrent.futures import  ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor
 
-import src.url_FA as url_FA
 from src.config import Config, Param, Section
 from src.excel.film_box import FilmBox
 from src.excel.utils import read_film
-from src.pelicula import Pelicula
+from src.pelicula import URL_FILM_ID, Pelicula
 
 from .read_watched import ReadWatched
 
@@ -40,7 +39,7 @@ class ReadDataWatched(ReadWatched):
         instance.titulo = movie_box.get_title()
         instance.user_note = movie_box.get_user_note()
         instance.id = movie_box.get_id()
-        instance.url_FA = url_FA.URL_FILM_ID(instance.id)
+        instance.url_FA = URL_FILM_ID(instance.id)
 
         # Devuelvo la instancia
         return instance

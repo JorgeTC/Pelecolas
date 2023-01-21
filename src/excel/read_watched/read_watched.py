@@ -6,7 +6,6 @@ from typing import Iterable
 
 from bs4 import BeautifulSoup
 
-import src.url_FA as url_FA
 from src.excel.film_box import FilmBox
 from src.excel.utils import is_valid, read_film
 from src.pelicula import Pelicula
@@ -60,9 +59,13 @@ class ReadWatched:
         raise NotImplementedError
 
 
+# Link para acceder a cada página de un usuario
+URL_USER_PAGE = 'https://www.filmaffinity.com/es/userratings.php?user_id={}&p={}&orderby=4'.format
+
+
 def get_total_films(id_user: int) -> int:
 
-    url = url_FA.URL_USER_PAGE(id_user, 1)
+    url = URL_USER_PAGE(id_user, 1)
     resp = safe_get_url(url)
     # Guardo la página ya parseada
     soup_page = BeautifulSoup(resp.text, 'lxml')
@@ -77,7 +80,7 @@ def get_total_films(id_user: int) -> int:
 
 def get_all_boxes(user_id: int, total_films: int) -> Iterable[FilmBox]:
     n_pages = ceil(total_films / 20)
-    url_pages = (url_FA.URL_USER_PAGE(user_id, i + 1)
+    url_pages = (URL_USER_PAGE(user_id, i + 1)
                  for i in range(n_pages))
 
     # Itero todas las páginas del actual usuario
