@@ -1,5 +1,5 @@
 import __init__
-from src.dlg_bool import YesNo
+from src.gui import YesNo
 from src.html import html
 
 
