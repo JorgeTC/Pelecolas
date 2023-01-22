@@ -3,7 +3,7 @@ import csv
 import __init__
 from src.config import Config, Param, Section
 from src.excel.read_watched import read_directors
-from src.progress_bar import ProgressBar
+from src.gui import ProgressBar
 from src.usuario import Usuario
 
 
