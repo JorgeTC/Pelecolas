@@ -7,7 +7,7 @@ from openpyxl.worksheet import worksheet
 from src.excel.read_sample import read_sample
 from src.excel.read_watched import read_data
 from src.pelicula import URL_FILM_ID, Pelicula
-from src.progress_bar import ProgressBar
+from src.gui import ProgressBar
 
 
 class ExcelColumns(int, enum.Enum):
