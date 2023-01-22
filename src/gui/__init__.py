@@ -1,5 +1,6 @@
 from threading import Thread
 
+from src.gui.dlg_bool import YesNo
 from src.gui.dlg_scroll_base import DlgScrollBase
 from src.gui.gui import GUI
 from src.gui.input import Input
@@ -15,4 +16,4 @@ def join_GUI():
     consumer.join()
 
 
-__all__ = [GUI, join_GUI, Log, Input, DlgScrollBase, ProgressBar]
+__all__ = [GUI, join_GUI, Log, Input, DlgScrollBase, ProgressBar, YesNo]
