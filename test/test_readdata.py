@@ -4,7 +4,7 @@ import pytest
 
 import src.excel.read_watched.read_watched as rw
 from src.excel.film_box import FilmBox
-from src.excel.read_watched import read_data
+from src.excel.read_watched import read_data, read_directors
 from src.excel.read_watched.read_data_watched import ReadDataWatched
 from src.excel.utils import is_valid
 
@@ -62,3 +62,11 @@ def test_readdata_series(sasha_id: int):
     film, proportion = next(watched_in_series)
     assert film is not None
     assert proportion != 0
+
+
+@mock.patch.object(is_valid, "__kwdefaults__", {'SET_VALID_FILM': 255})
+def test_read_directors(sasha_id: int, sasha_total_films: int):
+    watched = list(read_directors(sasha_id))
+    assert len(watched) == sasha_total_films
+    proportion = watched[-1][1]
+    assert proportion == 1

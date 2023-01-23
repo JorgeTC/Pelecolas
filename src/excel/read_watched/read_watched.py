@@ -7,7 +7,7 @@ from typing import Iterable
 from bs4 import BeautifulSoup
 
 from src.excel.film_box import FilmBox
-from src.excel.utils import is_valid, read_film
+from src.excel.utils import is_valid
 from src.pelicula import Pelicula
 from src.safe_url import safe_get_url
 
@@ -40,7 +40,7 @@ class ReadWatched:
         for self.index, film in enumerate(self.valid_film_list):
             # Si la película no es None, la leo
             if film is not None:
-                self.results.put(read_film(film))
+                self.results.put(self.read_film(film))
 
         # Añado un None para saber cuándo he acabado la iteración
         self.results.put(None)
@@ -57,6 +57,10 @@ class ReadWatched:
     @staticmethod
     def init_film(box: FilmBox) -> Pelicula:
         raise NotImplementedError
+
+    @staticmethod
+    def read_film(film: Pelicula) -> Pelicula:
+        return film
 
 
 # Link para acceder a cada página de un usuario

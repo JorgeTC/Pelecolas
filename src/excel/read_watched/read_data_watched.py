@@ -43,3 +43,7 @@ class ReadDataWatched(ReadWatched):
 
         # Devuelvo la instancia
         return instance
+
+    @staticmethod
+    def read_film(film: Pelicula) -> Pelicula:
+        return read_film(film)
