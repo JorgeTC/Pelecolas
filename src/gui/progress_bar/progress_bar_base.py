@@ -1,8 +1,8 @@
+import sys
 
 from src.gui.gui import ConsoleEvent
 
 from .timer import Timer
-import sys
 
 
 class ProgressBarBase(ConsoleEvent):
@@ -22,7 +22,6 @@ class ProgressBarBase(ConsoleEvent):
             self.progress * 100,
             self.__timer.remains(self.progress))
         sys.stdout.write(text)
-        sys.stdout.flush()
 
     def update(self):
         ConsoleEvent.execute_if_main_thread(self)
