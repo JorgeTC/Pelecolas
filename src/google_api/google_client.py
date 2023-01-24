@@ -1,3 +1,4 @@
+from functools import partial
 from multiprocessing import Lock
 from queue import Queue
 from typing import Any
@@ -6,15 +7,21 @@ from googleapiclient.discovery import HttpRequest
 
 
 class QueuedRequest(HttpRequest):
-    def __init__(self, request: HttpRequest) -> None:
-        self.request = request
+    def __new__(cls, request: HttpRequest) -> HttpRequest:
+        # Modifico el objeto y lo devuelvo
+        cls.__init__(request)
+        return request
 
+    def __init__(self) -> None:
         # Creo un locker que liberaré cuando tenga la respuesta
         self.locker = Lock()
         self.locker.acquire()
 
         # Variable para la respuesta de la request
         self.result: Any = None
+
+        # Actualizo su método execute
+        self.execute = partial(QueuedRequest.execute, self)
 
     def execute(self) -> Any:
         # Ejecuto la request
@@ -24,11 +31,6 @@ class QueuedRequest(HttpRequest):
 
         # Devuelvo lo que me ha dado el método execute de la clase base
         return self.result
-
-    def __getattr__(self, attr):
-        # Cuando quiera acceder a un atributo de la clase base,
-        # lo saco de la instancia que tengo guardada.
-        return getattr(self.request, attr)
 
 
 class GoogleClient:
