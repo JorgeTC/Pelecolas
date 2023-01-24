@@ -1,8 +1,8 @@
+import sys
 
 from src.gui.gui import ConsoleEvent
 
 from .timer import Timer
-import sys
 
 
 class ProgressBarBase(ConsoleEvent):
