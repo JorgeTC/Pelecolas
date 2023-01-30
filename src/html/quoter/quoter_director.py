@@ -4,10 +4,10 @@ from dataclasses import dataclass
 from typing import Iterable
 
 from src.aux_res_directory import get_res_folder
-from src.blog_csv_mgr import CSV_COLUMN
 from src.config import Config, Param, Section
 from src.gui import YesNo
 
+from ..blog_csv_mgr import CSV_COLUMN
 from .quoter_base import QuoterBase, insert_string_in_position
 
 

@@ -1,5 +1,6 @@
 from unittest import mock
-from src.blog_csv_mgr import BlogCsvMgr
+
+from src.html.blog_csv_mgr import BlogCsvMgr
 
 
 def test_write_csv():
