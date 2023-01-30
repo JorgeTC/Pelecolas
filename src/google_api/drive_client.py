@@ -1,8 +1,9 @@
 from googleapiclient.discovery import HttpRequest, Resource
 from googleapiclient.http import MediaFileUpload
-from src.google_api.google_api_mgr import get_google_service
-from src.google_api.google_client import GoogleClient
-from src.thread_safe_property import thread_safe_cache
+
+from .google_api_mgr import get_google_service
+from .google_client import GoogleClient
+from .thread_safe_property import thread_safe_cache
 
 
 @thread_safe_cache
