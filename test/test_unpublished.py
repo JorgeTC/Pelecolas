@@ -1,7 +1,8 @@
 import pytest
+
 from src.aux_res_directory import get_test_res_folder
 from src.blog_csv_mgr import BlogCsvMgr
-from src.dlg_make_html import filter_list_from_csv
+from src.html.dlg_make_html import filter_list_from_csv
 
 
 @pytest.fixture

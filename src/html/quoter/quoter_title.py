@@ -3,7 +3,8 @@ from dataclasses import dataclass
 import src.word as Word
 from src.aux_title_str import trim_year
 from src.blog_csv_mgr import CSV_COLUMN
-from src.quoter.quoter_base import QuoterBase, find, insert_string_in_position
+
+from .quoter_base import QuoterBase, find, insert_string_in_position
 
 
 @dataclass
