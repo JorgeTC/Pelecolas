@@ -1,14 +1,13 @@
 {
     "version": "0.2.0",
     "configurations": [
-
         {
             "name": "test",
             "type": "python",
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "justMyCode": true
+            "justMyCode": false
         },
         {
             "name": "Read data",
@@ -16,7 +15,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/mains/main_read_data.py",
             "console": "integratedTerminal",
-            "justMyCode": true
+            "justMyCode": false
         },
         {
             "name": "Contar peliculas",
@@ -24,7 +23,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/mains/main_contar_criticas.py",
             "console": "integratedTerminal",
-            "justMyCode": true
+            "justMyCode": false
         },
         {
             "name": "Write html",
@@ -32,7 +31,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/mains/main_make_html.py",
             "console": "integratedTerminal",
-            "justMyCode": true
+            "justMyCode": false
         },
         {
             "name": "Post html",
@@ -40,7 +39,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/mains/main_publish_post.py",
             "console": "integratedTerminal",
-            "justMyCode": true
+            "justMyCode": false
         },
         {
             "name": "Make and post",
@@ -48,7 +47,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/mains/main_make_and_publish.py",
             "console": "integratedTerminal",
-            "justMyCode": true
+            "justMyCode": false
         },
         {
             "name": "Write pdf",
@@ -56,7 +55,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/mains/main_make_pdf.py",
             "console": "integratedTerminal",
-            "justMyCode": true
+            "justMyCode": false
         },
         {
             "name": "Update all posts",
@@ -64,7 +63,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/mains/main_update_all_posts.py",
             "console": "integratedTerminal",
-            "justMyCode": true
+            "justMyCode": false
         },
         {
             "name": "Update post",
@@ -72,7 +71,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/mains/main_update_post.py",
             "console": "integratedTerminal",
-            "justMyCode": true
+            "justMyCode": false
         },
         {
             "name": "Read sample",
@@ -80,7 +79,15 @@
             "request": "launch",
             "program": "${workspaceFolder}/mains/main_read_sample.py",
             "console": "integratedTerminal",
-            "justMyCode": true
-        }
+            "justMyCode": false
+        },
+        {
+            "name": "Read directors",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/mains/main_map_directors.py",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
     ]
 }
