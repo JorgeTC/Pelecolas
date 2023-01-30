@@ -1,5 +1,5 @@
-from src.quoter.quoter_director import QuoterDirector
-from src.quoter.quoter_title import QuoterTitle
+from .quoter_director import QuoterDirector
+from .quoter_title import QuoterTitle
 
 
 class Quoter:

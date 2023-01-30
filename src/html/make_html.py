@@ -5,10 +5,11 @@ from docx.text.paragraph import Paragraph
 
 from src.aux_res_directory import get_res_folder
 from src.config import Config, Param, Section
-from src.dlg_make_html import DlgHtml
 from src.pelicula import Pelicula
-from src.quoter import Quoter
 from src.word import WordReader
+
+from .dlg_make_html import DlgHtml
+from .quoter import Quoter
 
 SZ_INVALID_CHAR = "\/:*?<>|"
 SZ_HTML_COMMENT = "\n<!-- {} -->\n".format
