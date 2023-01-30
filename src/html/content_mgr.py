@@ -4,11 +4,12 @@ from pathlib import Path
 from bs4 import BeautifulSoup
 
 from src.aux_title_str import trim_year
-from src.config import Config, Param, Section
-from src.gui import DlgScrollBase
-from src.html.make_html import SZ_HTML_FILE
 from src.blog_scraper import BlogHiddenData
+from src.config import Config, Param, Section
 from src.google_api import Post
+from src.gui import DlgScrollBase
+
+from .make_html import SZ_HTML_FILE
 
 
 def get_title_from_html(html_path: Path) -> str:
@@ -49,4 +50,4 @@ class ContentMgr:
 
     @classmethod
     def available_titles(cls) -> list[str]:
-        return [get_title_from_html(i) for i in list(cls.DIR.glob('*.html'))]
+        return [get_title_from_html(i) for i in cls.DIR.glob('*.html')]

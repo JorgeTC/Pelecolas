@@ -1,4 +1,4 @@
-from src.blog_csv_mgr import BlogCsvMgr
+from ..blog_csv_mgr import BlogCsvMgr
 
 
 class QuoterBase:

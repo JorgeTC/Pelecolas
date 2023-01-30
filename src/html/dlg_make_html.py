@@ -1,11 +1,12 @@
 from src.aux_title_str import split_title_year, trim_year
-from src.blog_csv_mgr import CSV_COLUMN, BlogCsvMgr
 from src.config import Config, Param, Section
 from src.dlg_scroll_titles import DlgScrollTitles
 from src.google_api import Poster
 from src.gui import Input
 from src.pelicula import URL_FILM_ID, Pelicula
 from src.searcher import Searcher
+
+from .blog_csv_mgr import CSV_COLUMN, BlogCsvMgr
 
 
 class DlgHtml:
