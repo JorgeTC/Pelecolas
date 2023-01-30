@@ -6,10 +6,10 @@ from googleapiclient.discovery import Resource
 from oauth2client import client
 
 from src.config import Config, Param, Section
-from src.google_api.api_dataclasses import Blog, Post
-from src.google_api.google_api_mgr import get_google_service
-from src.google_api.google_client import GoogleClient
 
+from .api_dataclasses import Blog, Post
+from .google_api_mgr import get_google_service
+from .google_client import GoogleClient
 from .thread_safe_property import thread_safe_cache
 
 BLOG_ID = Config.get_value(Section.POST, Param.BLOG_ID)

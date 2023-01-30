@@ -3,10 +3,10 @@ from typing import Iterable
 
 from googleapiclient.http import MediaFileUpload
 
-import src.google_api.drive_client as Client
 from src.config import Config, Param, Section
-from src.google_api.api_dataclasses import DriveFile
 
+from . import drive_client as Client
+from .api_dataclasses import DriveFile
 from .thread_safe_property import thread_safe_cache
 
 TYPE_FOLDER = 'application/vnd.google-apps.folder'
