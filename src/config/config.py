@@ -4,7 +4,8 @@ from functools import partial
 from pathlib import Path
 
 from src.aux_res_directory import get_res_folder
-from src.dlg_config import DlgConfig
+
+from .dlg_config import DlgConfig
 
 SZ_FILE = "General.ini"
 
@@ -29,7 +30,7 @@ class Param(str, enum.Enum):
     DEFAULT_USER = "Mem_user_FA"
     OUTPUT_EXCEL = "Path_output_excel"
     SAMPLE_OUTPUT = "Name_sample_output_file"
-    PARALLELIZE  = "Parallelize"
+    PARALLELIZE = "Parallelize"
     # Count films
     ADD_YEAR = "Add_year"
     ADD_INDEX = "Add_index"
@@ -64,8 +65,6 @@ class Config:
     # Dirección del ini
     sz_path = get_res_folder(SZ_FILE)
     config.read(sz_path, encoding="utf-8")
-
-    dlg_config = DlgConfig(config)
 
     add_def_value = partial(add_default_value, config)
     # Configuraciones para html
@@ -150,7 +149,7 @@ class Config:
     def set_value(cls, section: Section, param: Param, value) -> None:
         # Me espero que se introduzca un valor en una sección que existe
         if param not in cls.config[section]:
-            assert(f"{param} no pertenece a la sección {section}.")
+            assert (f"{param} no pertenece a la sección {section}.")
 
         # Lo cambio en el objeto
         cls.config.set(section, param, str(value))
@@ -160,7 +159,8 @@ class Config:
 
     @classmethod
     def run_dlg(cls):
-        cls.dlg_config.run()
+        dlg_config = DlgConfig(cls.config)
+        dlg_config.run()
 
 
 def manage_config():
