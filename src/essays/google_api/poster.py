@@ -4,9 +4,9 @@ from typing import Iterable
 from dateutil import tz
 from oauth2client import client
 
-from src.aux_title_str import DMY, date_from_DMY, date_from_YMD, time_from_str
 from src.config import Config, Param, Section
 
+from ..aux_title_str import DMY, date_from_DMY, date_from_YMD, time_from_str
 from . import blog_client as Client
 from .api_dataclasses import Post
 from .blog_client import PostStatus

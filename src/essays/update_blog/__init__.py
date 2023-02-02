@@ -1,7 +1,7 @@
-from src.google_api import Post, join
-from src.update_blog.blog_theme_updater import (BlogThemeUpdater,
-                                                PostThemeUpdater,
-                                                exist_repeated_posts)
+from ..google_api import Post, join
+from .blog_theme_updater import (BlogThemeUpdater,
+                                 PostThemeUpdater,
+                                 exist_repeated_posts)
 
 exist_repeated_posts()
 

@@ -1,7 +1,8 @@
 from unittest import mock
 
 import pytest
-from src.list_title_mgr import TitleMgr
+
+from src.essays.list_title_mgr import TitleMgr
 
 
 @pytest.fixture

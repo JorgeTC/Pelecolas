@@ -3,12 +3,12 @@ from pathlib import Path
 
 from bs4 import BeautifulSoup
 
-from src.aux_title_str import trim_year
-from src.blog_scraper import BlogHiddenData
 from src.config import Config, Param, Section
-from src.google_api import Post
 from src.gui import DlgScrollBase
 
+from ..aux_title_str import trim_year
+from ..blog_scraper import BlogHiddenData
+from ..google_api import Post
 from .make_html import SZ_HTML_FILE
 
 

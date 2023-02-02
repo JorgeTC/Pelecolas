@@ -3,8 +3,8 @@ import threading
 import pythoncom
 
 import __init__
-from src.google_api import Drive, join
-from src.word import PDFWriter
+from src.essays.google_api import Drive, join
+from src.essays.word import PDFWriter
 
 
 def create_PDF():

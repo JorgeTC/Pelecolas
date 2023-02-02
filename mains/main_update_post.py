@@ -1,5 +1,5 @@
 import __init__
-import src.update_blog as UpdateBlog
+import src.essays.update_blog as UpdateBlog
 
 
 def main():

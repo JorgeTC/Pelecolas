@@ -1,7 +1,7 @@
 import pytest
 
 from src.aux_res_directory import get_test_res_folder
-from src.html.quoter import Quoter
+from src.essays.html.quoter import Quoter
 
 
 def get_file_content(file_name: str) -> str:

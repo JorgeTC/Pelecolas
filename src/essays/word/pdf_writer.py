@@ -5,7 +5,8 @@ import docx2pdf
 from PyPDF2 import PdfFileMerger
 
 from src.config import Config, Param, Section
-from src.word.word_folder_mgr import WordFolderMgr
+
+from .word_folder_mgr import WordFolderMgr
 
 
 def get_pdf_files(docx_folder: Path, docx_list: list[Path]) -> list[Path]:

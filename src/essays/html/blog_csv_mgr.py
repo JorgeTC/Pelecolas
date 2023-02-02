@@ -5,9 +5,10 @@ from datetime import datetime
 from typing import Iterable
 
 from src.aux_res_directory import get_res_folder
-from src.blog_scraper import BlogScraper, BlogHiddenData
 from src.config import Config, Param, Section
-from src.google_api import Post, Poster
+
+from ..blog_scraper import BlogHiddenData, BlogScraper
+from ..google_api import Post, Poster
 
 
 class CSV_COLUMN(int, enum.Enum):

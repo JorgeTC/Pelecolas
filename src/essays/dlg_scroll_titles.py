@@ -1,5 +1,6 @@
 from src.gui import DlgScrollBase
-from src.list_title_mgr import TitleMgr
+
+from .list_title_mgr import TitleMgr
 
 
 class DlgScrollTitles(DlgScrollBase):

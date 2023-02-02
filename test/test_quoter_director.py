@@ -3,7 +3,7 @@ from unittest import mock
 import pytest
 
 from src.aux_res_directory import get_test_res_folder
-from src.html.quoter import Quoter, QuoterDirector
+from src.essays.html.quoter import Quoter, QuoterDirector
 
 
 def get_file_content(file_name: str) -> str:

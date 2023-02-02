@@ -1,5 +1,5 @@
 import __init__
-from src.word import WordReader
+from src.essays.word import WordReader
 
 
 def main():

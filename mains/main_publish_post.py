@@ -1,6 +1,6 @@
 import __init__
-from src.google_api import Poster, join
-from src.html import ContentMgr
+from src.essays.google_api import Poster, join
+from src.essays import ContentMgr
 
 
 def main():
