@@ -1,6 +1,6 @@
 import __init__
 from src.config import Config, Param, Section
-from src.excel import ExcelMgr, Writer
+from src.scrap_fa import ExcelMgr, Writer
 
 
 def main():

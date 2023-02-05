@@ -2,11 +2,11 @@ from unittest import mock
 
 import pytest
 
-import src.excel.read_watched.read_watched as rw
-from src.excel.film_box import FilmBox
-from src.excel.read_watched import read_data, read_directors
-from src.excel.read_watched.read_data_watched import ReadDataWatched
-from src.excel.utils import is_valid
+import src.scrap_fa.excel.read_watched.read_watched as rw
+from src.scrap_fa.excel.film_box import FilmBox
+from src.scrap_fa.excel.read_watched import read_data, read_directors
+from src.scrap_fa.excel.read_watched.read_data_watched import ReadDataWatched
+from src.scrap_fa.excel.utils import is_valid
 
 
 @pytest.fixture

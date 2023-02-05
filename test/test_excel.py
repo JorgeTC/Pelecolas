@@ -1,7 +1,7 @@
 from unittest import mock
 
-from src.excel.utils import is_valid
 from src.pelicula import Pelicula
+from src.scrap_fa.excel.utils import is_valid
 
 
 @mock.patch.object(is_valid, "__kwdefaults__", {'SET_VALID_FILM': 1})

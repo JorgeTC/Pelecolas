@@ -2,9 +2,8 @@ import csv
 
 import __init__
 from src.config import Config, Param, Section
-from src.excel.read_watched import read_directors
 from src.gui import ProgressBar
-from src.usuario import Usuario
+from src.scrap_fa import ReadWatched, Usuario
 
 
 def write_in_file(directors: dict[str, tuple[int, list[float]]], user_name: str):
@@ -31,7 +30,7 @@ def main():
     bar = ProgressBar()
 
     directors: dict[str, tuple[int, list[float]]] = {}
-    for film, progress in read_directors(usuario.id):
+    for film, progress in ReadWatched.read_directors(usuario.id):
         for director in film.directors:
             if director not in directors:
                 directors[director] = [1, [film.user_note]]

@@ -1,6 +1,5 @@
 import __init__
-from src.excel import ExcelMgr, Writer
-from src.usuario import Usuario
+from src.scrap_fa import ExcelMgr, Usuario, Writer
 
 
 def main():
