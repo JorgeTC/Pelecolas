@@ -1,4 +1,4 @@
-from src.excel.excel_mgr import ExcelMgr
-from src.excel.writer import Writer
+from .excel_mgr import ExcelMgr
+from .writer import Writer
 
 __all__ = [ExcelMgr, Writer]

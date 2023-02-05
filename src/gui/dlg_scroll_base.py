@@ -6,7 +6,8 @@ from typing import Callable
 import keyboard
 
 from src.aux_console import is_console_on_focus
-from src.gui.gui import ConsoleEvent
+
+from .gui import ConsoleEvent
 
 
 class DlgScrollBase(ConsoleEvent):

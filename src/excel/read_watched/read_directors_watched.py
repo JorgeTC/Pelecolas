@@ -1,6 +1,6 @@
-from src.excel.film_box import FilmBox
 from src.pelicula import Pelicula
 
+from ..film_box import FilmBox
 from .read_watched import ReadWatched
 
 

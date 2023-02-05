@@ -2,7 +2,7 @@ import math
 import re
 from functools import wraps
 
-from src.pelicula.film_page import FilmPage
+from .film_page import FilmPage
 
 
 def get_id_from_url(url: str) -> int:

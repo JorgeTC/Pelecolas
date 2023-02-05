@@ -1,10 +1,10 @@
 from threading import Thread, current_thread
 
-import src.essays.google_api as GoogleApi
 import src.gui as GUI
 from src.config import Config, Param, Section
 from src.pelicula import Pelicula
 
+from .. import google_api as GoogleApi
 from ..blog_scraper import BlogHiddenData, BlogScraper
 from ..dlg_scroll_titles import DlgScrollTitles
 from ..google_api import Post, Poster

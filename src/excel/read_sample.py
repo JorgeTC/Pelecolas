@@ -3,8 +3,9 @@ from random import randint
 from typing import Iterable, Optional
 
 from src.config import Config, Param, Section
-from src.excel.utils import is_valid, read_film
 from src.pelicula import Pelicula
+
+from .utils import is_valid, read_film
 
 
 class RandomFilmId:

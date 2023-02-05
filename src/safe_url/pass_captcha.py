@@ -7,7 +7,7 @@ from requests.models import Response
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 
-from src.safe_url.chrome_driver import get_chrome_instance
+from .chrome_driver import get_chrome_instance
 
 # Variable para saber si estoy intentando resolver el captcha
 stopped = Lock()
