@@ -1,6 +1,6 @@
 import __init__
+from src.essays.html import html
 from src.gui import YesNo
-from src.html import html
 
 
 def main():

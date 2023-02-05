@@ -1,7 +1,6 @@
 import sys
 
-from src.gui.gui import ConsoleEvent
-
+from ..gui import ConsoleEvent
 from .timer import Timer
 
 

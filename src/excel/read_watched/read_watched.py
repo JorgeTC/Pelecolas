@@ -6,10 +6,11 @@ from typing import Iterable
 
 from bs4 import BeautifulSoup
 
-from src.excel.film_box import FilmBox
-from src.excel.utils import is_valid
 from src.pelicula import Pelicula
 from src.safe_url import safe_get_url
+
+from ..film_box import FilmBox
+from ..utils import is_valid
 
 
 class ReadWatched:

@@ -1,5 +1,5 @@
+from src.essays.searcher import Searcher
 from src.pelicula import get_id_from_url
-from src.searcher import Searcher
 
 
 def test_unique_film():

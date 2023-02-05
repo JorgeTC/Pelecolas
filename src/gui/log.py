@@ -1,4 +1,4 @@
-from src.gui.gui import ConsoleEvent
+from .gui import ConsoleEvent
 
 def Log(message: str):
     CLog(message)

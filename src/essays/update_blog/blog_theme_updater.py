@@ -1,15 +1,16 @@
 from threading import Thread, current_thread
 
-import src.google_api as GoogleApi
 import src.gui as GUI
-from src.blog_scraper import BlogHiddenData, BlogScraper
 from src.config import Config, Param, Section
-from src.dlg_scroll_titles import DlgScrollTitles
-from src.google_api import Post, Poster
-from src.html import ContentMgr, html
 from src.pelicula import Pelicula
-from src.searcher import Searcher
-from src.update_blog.thread_executor import ThreadExecutor
+
+from .. import google_api as GoogleApi
+from ..blog_scraper import BlogHiddenData, BlogScraper
+from ..dlg_scroll_titles import DlgScrollTitles
+from ..google_api import Post, Poster
+from ..html import ContentMgr, html
+from ..searcher import Searcher
+from .thread_executor import ThreadExecutor
 
 
 class PostThemeUpdater:

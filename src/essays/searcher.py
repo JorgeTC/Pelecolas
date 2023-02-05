@@ -3,9 +3,10 @@ import urllib.parse
 
 from bs4 import BeautifulSoup
 
-from src.aux_title_str import split_title_year
 from src.pelicula import Pelicula
 from src.safe_url import safe_get_url
+
+from .aux_title_str import split_title_year
 
 
 class SearchResult(enum.IntEnum):

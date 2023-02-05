@@ -1,8 +1,7 @@
-
 import requests
 from requests.models import Response
 
-from src.safe_url.pass_captcha import PassCaptcha
+from .pass_captcha import PassCaptcha
 
 
 def safe_get_url(url: str) -> Response:

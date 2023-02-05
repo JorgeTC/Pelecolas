@@ -1,10 +1,10 @@
 from concurrent.futures import ThreadPoolExecutor
 
 from src.config import Config, Param, Section
-from src.excel.film_box import FilmBox
-from src.excel.utils import read_film
 from src.pelicula import URL_FILM_ID, Pelicula
 
+from ..film_box import FilmBox
+from ..utils import read_film
 from .read_watched import ReadWatched
 
 

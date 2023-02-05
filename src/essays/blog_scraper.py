@@ -2,9 +2,9 @@ from enum import StrEnum
 
 from bs4 import BeautifulSoup
 
-from src.google_api import Post
-from src.list_title_mgr import TitleMgr
-from src.word import LIST_TITLES
+from .google_api import Post
+from .list_title_mgr import TitleMgr
+from .word import LIST_TITLES
 
 
 class BlogHiddenData(StrEnum):

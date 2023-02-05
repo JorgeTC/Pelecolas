@@ -1,7 +1,7 @@
 import __init__
-from src.google_api import Poster
+from src.essays.google_api import Poster
+from src.essays.html import ContentMgr, html
 from src.gui import YesNo
-from src.html import ContentMgr, html
 
 
 def main():
