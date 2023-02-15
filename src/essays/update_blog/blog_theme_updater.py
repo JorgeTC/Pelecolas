@@ -23,7 +23,8 @@ class PostThemeUpdater:
     FA_URL_FROM_HIDDEN_DATA: bool = Config.get_bool(
         Section.POST, Param.FA_URL_FROM_HIDDEN_DATA)
 
-    CHECK_IMAGE_URL = True
+    CHECK_IMAGE_URL: bool = Config.get_bool(
+        Section.POST, Param.CHECK_IMAGE_URL)
 
     @classmethod
     def select_post_to_update(self):
