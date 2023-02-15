@@ -1,5 +1,7 @@
 from threading import Thread, current_thread
 
+import requests
+
 import src.gui as GUI
 from src.config import Config, Param, Section
 from src.pelicula import Pelicula
@@ -20,6 +22,8 @@ class PostThemeUpdater:
 
     FA_URL_FROM_HIDDEN_DATA: bool = Config.get_bool(
         Section.POST, Param.FA_URL_FROM_HIDDEN_DATA)
+
+    CHECK_IMAGE_URL = True
 
     @classmethod
     def select_post_to_update(self):
@@ -71,6 +75,9 @@ class PostThemeUpdater:
                 return False
         else:
             parse_film_data(film_data, blog_scraper)
+            # Solo tiene sentido que compruebe su url si he cogido el dato del html
+            if cls.CHECK_IMAGE_URL:
+                update_image_url(film_data)
 
         # Restituyo el nombre que tenía en Word
         film_data.titulo = title
@@ -88,6 +95,17 @@ class PostThemeUpdater:
         document.delete_file()
 
         return True
+
+
+def update_image_url(film_data: Pelicula):
+    # Compruebo que la url de la imagen exista
+    image_response = requests.get(film_data.url_image)
+    if image_response.ok:
+        return
+
+    # Si no existe, borro el dato y pido al objeto que lo busque en FA
+    film_data.url_image = None
+    film_data.get_image_url()
 
 
 class BlogThemeUpdater:
