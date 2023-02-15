@@ -43,6 +43,7 @@ class Param(str, enum.Enum):
     AS_DRAFT = "As_draft"
     FA_URL_FROM_HIDDEN_DATA = "Trust_FilmAffinity_url"
     GET_DATA_FROM_FA = "Download_film_data"
+    CHECK_IMAGE_URL = "Check_image_url"
     # Drive
     FOLDER_ID = "Drive_folder_to_update_id"
     PDF_PATH = "Pdf_folder"
@@ -93,6 +94,7 @@ class Config:
     add_def_value(Section.POST, Param.AS_DRAFT, False)
     add_def_value(Section.POST, Param.FA_URL_FROM_HIDDEN_DATA, True)
     add_def_value(Section.POST, Param.GET_DATA_FROM_FA, False)
+    add_def_value(Section.POST, Param.CHECK_IMAGE_URL, True)
     # Configuraciones para actualizar drive
     add_def_value(Section.DRIVE, Param.FOLDER_ID,
                   '13UbwzbjVFQ8e_UaNalqm_iMihjBDBvtm')
