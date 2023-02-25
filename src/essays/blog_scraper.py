@@ -1,6 +1,7 @@
 from enum import StrEnum
 
 from bs4 import BeautifulSoup
+from docx.text.paragraph import Paragraph
 
 from .google_api import Post
 from .list_title_mgr import TitleMgr
@@ -78,15 +79,40 @@ def find_title_by_content(parsed_post: BeautifulSoup) -> str:
 
     # Itero los títulos y me fijo en el párrafo
     for title in LIST_TITLES:
-        current_title_parr = next(WordReader.iter_review(title))
-        if first_parr == current_title_parr.text:
+        parr_text = review_first_parr(title)
+
+        if first_parr == parr_text:
             return title
 
     return ""
 
 
+def review_first_parr(title: str) -> str:
+    # Obtengo el primer párrafo
+    current_title_parr: Paragraph = next(WordReader.iter_review(title))
+    # Lo convierto a texto consecutivo
+    parr_text = ''.join(run.text for run in current_title_parr.runs)
+    # Retiro el título antes de los dos puntos
+    parr_text = parr_text[len(title):]
+    parr_text = parr_text.lstrip(": ")
+
+    return parr_text
+
+
 def first_parr_in_plain_text(parsed_post: BeautifulSoup) -> str:
 
     # Convierto el primer párrafo a texto plano
-    first_parr = parsed_post.find('p', {'class': 'regular-parr'})
-    return first_parr.attrs[0]
+    first_parr = parsed_post.find('p',
+                                  {'class': ['regular-parr', 'quoted-parr']})
+
+    # Obtengo solo el texto
+    all_text: list[str] = first_parr.findAll(text=True)
+    # Elimino la sangría del inicio del párrafo
+    all_text[0] = all_text[0].lstrip()
+    # Elimino el último salto de línea del final del párrafo
+    all_text[-1] = all_text[-1].rstrip()
+    text = ''.join(all_text)
+    # Sustituyo los saltos de línea
+    text = text.replace("\n", " ")
+
+    return text
