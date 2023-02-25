@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 
 from .google_api import Post
 from .list_title_mgr import TitleMgr
-from .word import LIST_TITLES
+from .word import LIST_TITLES, WordReader
 
 
 class BlogHiddenData(StrEnum):
@@ -51,6 +51,11 @@ class BlogScraper:
         if cls.TITLE_MGR.is_title_in_list(name):
             return cls.TITLE_MGR.exact_key_without_dlg(name)
 
+        # Intento encontrar una reseña cuyo primer párrafo
+        # sea idéntico al primer párrafo del texto
+        if name := find_title_by_content(parsed):
+            return name
+
         return ""
 
     def __init__(self, post: Post):
@@ -65,3 +70,23 @@ class BlogScraper:
 
     def get_title(self) -> str:
         return self.get_name_from_post(self.post)
+
+
+def find_title_by_content(parsed_post: BeautifulSoup) -> str:
+
+    first_parr = first_parr_in_plain_text(parsed_post)
+
+    # Itero los títulos y me fijo en el párrafo
+    for title in LIST_TITLES:
+        current_title_parr = next(WordReader.iter_review(title))
+        if first_parr == current_title_parr.text:
+            return title
+
+    return ""
+
+
+def first_parr_in_plain_text(parsed_post: BeautifulSoup) -> str:
+
+    # Convierto el primer párrafo a texto plano
+    first_parr = parsed_post.find('p', {'class': 'regular-parr'})
+    return first_parr.attrs[0]
