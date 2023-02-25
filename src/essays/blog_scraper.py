@@ -1,7 +1,7 @@
 from enum import StrEnum
+from typing import Generator
 
 from bs4 import BeautifulSoup
-from docx.text.paragraph import Paragraph
 
 from .google_api import Post
 from .list_title_mgr import TitleMgr
@@ -75,44 +75,72 @@ class BlogScraper:
 
 def find_title_by_content(parsed_post: BeautifulSoup) -> str:
 
-    first_parr = first_parr_in_plain_text(parsed_post)
+    # Variable de títulos posibles
+    candidates_titles = LIST_TITLES
 
-    # Itero los títulos y me fijo en el párrafo
-    for title in LIST_TITLES:
-        parr_text = review_first_parr(title)
+    # Comparo párrafos hasta que sólo haya un título cuya reseña coincida
+    for i, post_parr in enumerate(parrs_in_plain_text(parsed_post)):
+        # Candidatos después de haber comparado el i-ésimo párrafo
+        filtered_candidates = []
 
-        if first_parr == parr_text:
-            return title
+        # Itero todos los posibles títulos
+        for title in candidates_titles:
+            word_parr_text = review_in_plain_text(title, i)
+            # Coinciden, por tanto puede ser el título que busco
+            if post_parr == word_parr_text:
+                filtered_candidates.append(title)
 
+        # Si no he encontrado coincidencia, no puedo sugerir ningún título
+        if not filtered_candidates:
+            return ""
+        # Sólo hay una coincidencia, sugiero ese título
+        elif len(filtered_candidates) == 1:
+            return filtered_candidates[0]
+
+        # Me quedo con los candidatos
+        candidates_titles = filtered_candidates
+
+    # Se ha llegado al improbable caso en el que hay dos reseñas con los mismos párrafos
     return ""
 
 
-def review_first_parr(title: str) -> str:
-    # Obtengo el primer párrafo
-    current_title_parr: Paragraph = next(WordReader.iter_review(title))
-    # Lo convierto a texto consecutivo
-    parr_text = ''.join(run.text for run in current_title_parr.runs)
-    # Retiro el título antes de los dos puntos
-    parr_text = parr_text[len(title):]
-    parr_text = parr_text.lstrip(": ")
+def review_in_plain_text(title: str, index_parr: int) -> str:
+    # Itero hasta el párrafo cuyo índice coincide con el necesario
+    for i, current_title_parr in enumerate(WordReader.iter_review(title)):
+        if i < index_parr:
+            continue
 
-    return parr_text
+        # Lo convierto a texto consecutivo
+        parr_text = ''.join(run.text for run in current_title_parr.runs)
+        # Retiro el título antes de los dos puntos
+        if i == 0:
+            parr_text = parr_text[len(title):]
+            parr_text = parr_text.lstrip(": ")
+
+        return parr_text
+
+    # He introducido un índice demasiado grande
+    return ""
 
 
-def first_parr_in_plain_text(parsed_post: BeautifulSoup) -> str:
+def parrs_in_plain_text(parsed_post: BeautifulSoup) -> Generator[str, None, None]:
+
+    args_find_parr = ['p',
+                      {'class': ['regular-parr', 'quoted-parr']}]
 
     # Convierto el primer párrafo a texto plano
-    first_parr = parsed_post.find('p',
-                                  {'class': ['regular-parr', 'quoted-parr']})
+    parr = parsed_post.find(args_find_parr)
 
-    # Obtengo solo el texto
-    all_text: list[str] = first_parr.findAll(text=True)
-    # Elimino la sangría del inicio del párrafo
-    all_text[0] = all_text[0].lstrip()
-    # Elimino el último salto de línea del final del párrafo
-    all_text[-1] = all_text[-1].rstrip()
-    text = ''.join(all_text)
-    # Sustituyo los saltos de línea
-    text = text.replace("\n", " ")
+    while parr is not None:
+        # Obtengo solo el texto
+        all_text: list[str] = parr.findAll(text=True)
+        # Elimino la sangría del inicio del párrafo
+        all_text[0] = all_text[0].lstrip()
+        # Elimino el último salto de línea del final del párrafo
+        all_text[-1] = all_text[-1].rstrip()
+        text = ''.join(all_text)
+        # Sustituyo los saltos de línea
+        text = text.replace("\n", " ")
 
-    return text
+        yield text
+        parr = parr.find_next(args_find_parr)
