@@ -1,4 +1,4 @@
-from .make_html import html
+from .make_html import Html
 from .content_mgr import ContentMgr
 
-__all__ = [html, ContentMgr]
+__all__ = [Html, ContentMgr]
