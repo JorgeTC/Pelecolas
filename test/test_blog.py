@@ -1,5 +1,7 @@
+import inspect
 from contextlib import contextmanager
 from pathlib import Path
+from typing import Callable, Iterator
 from unittest import mock
 
 import requests
@@ -74,6 +76,22 @@ def set_word_folder(word_folder: Path):
         WordReader.PARAGRAPHS = original_paragraphs
 
 
+@contextmanager
+def mock_without_replace(to_mock: Callable) -> Iterator[mock.MagicMock]:
+
+    # Compongo la ruta de importación
+    function_path = to_mock.__name__
+    definition_path = Path(inspect.getfile(to_mock))
+    while definition_path.stem != 'src':
+        function_path = definition_path.stem + "." + function_path
+        definition_path = definition_path.parent
+    function_path = "src." + function_path
+
+    # Devuelvo la función con su implementación
+    with mock.patch(function_path, side_effect=to_mock) as function_mock:
+        yield function_mock
+
+
 def test_essay_name_changed():
     res_folder = get_test_res_folder("word", "name_changed")
     old_name_folder = res_folder / "old_name"
@@ -87,8 +105,7 @@ def test_essay_name_changed():
         old_name_film.titulo = old_name
         old_name_film.id = 169177
         writer = Html(old_name_film)
-        add_post_link_path = 'src.essays.html.quoter.quoter_title.add_post_link'
-        with mock.patch(add_post_link_path, side_effect=add_post_link) as quote_title:
+        with mock_without_replace(add_post_link) as quote_title:
             writer.write_html()
             # Compruebo que se haya añadido la cita
             assert quote_title.called
@@ -110,8 +127,7 @@ def test_essay_name_changed():
         # Actualizo la lista de títulos
         with mock.patch.object(BlogScraper, 'TITLE_MGR', TitleMgr(WordReader.TITULOS.keys())):
             assert len(BlogScraper.TITLE_MGR.TITLES) == 1
-            add_post_link_path = 'src.essays.blog_scraper.find_title_by_content'
-            with mock.patch(add_post_link_path, side_effect=find_title_by_content) as title_by_content:
+            with mock_without_replace(find_title_by_content) as title_by_content:
                 # Compruebo que el nombre sea el nuevo
                 assert new_name == BlogScraper.get_name_from_post(essay)
                 assert title_by_content.called
