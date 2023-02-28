@@ -40,7 +40,7 @@ SZ_HTML_QUOTE_PARAGRAPH = get_res_html_format("quote_paragraph.html")
 SZ_HTML_HIDDEN_DATA = get_res_html_format("hidden_data.html")
 
 
-class html:
+class Html:
 
     HTML_OUTPUT_FOLDER = Config.get_folder_path(
         Section.HTML, Param.OUTPUT_PATH_HTML)
@@ -167,24 +167,33 @@ def get_labels(film: Pelicula) -> str:
     sz_labels = ""
     # Cronológicas
     # Siglo
-    if (int(film.año) < 2000):
-        siglo = "Siglo XX"
-    else:
-        siglo = "Siglo XXI"
-    sz_labels += siglo + ", "
-    # Década
-    decade = int(film.año) - int(film.año) % 10
-    decade = str(decade) + "'s"
-    sz_labels += decade + ", "
-    # Año
-    year = str(film.año)
-    sz_labels += year + ", "
+    try:
+        if (int(film.año) < 2000):
+            siglo = "Siglo XX"
+        else:
+            siglo = "Siglo XXI"
+        sz_labels += siglo + ", "
+        # Década
+        decade = int(film.año) - int(film.año) % 10
+        decade = str(decade) + "'s"
+        sz_labels += decade + ", "
+        # Año
+        year = str(film.año)
+        sz_labels += year + ", "
+    except TypeError:
+        pass
 
     # Director
-    sz_labels += film.director + ", "
+    try:
+        sz_labels += film.director + ", "
+    except TypeError:
+        pass
 
     # País
-    sz_labels += film.pais + ", "
+    try:
+        sz_labels += film.pais + ", "
+    except TypeError:
+        pass
 
     # Devuelvo la lista de etiquetas
     return sz_labels
@@ -251,8 +260,3 @@ def parr_to_html(paragraph: Paragraph) -> str:
         parr_text += "</i>"
 
     return parr_text
-
-
-if __name__ == "__main__":
-    Documento = html()
-    Documento.write_html()

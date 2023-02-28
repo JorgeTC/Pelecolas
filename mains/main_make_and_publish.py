@@ -1,6 +1,6 @@
 import __init__
 from src.essays.google_api import Poster
-from src.essays.html import ContentMgr, html
+from src.essays.html import ContentMgr, Html
 from src.gui import YesNo
 
 
@@ -11,7 +11,7 @@ def main():
     b_otra = True
     while b_otra:
         # Objeto que escribe el html
-        Documento = html()
+        Documento = Html()
         # Genero el html
         Documento.write_html()
 

@@ -1,5 +1,5 @@
 import __init__
-from src.essays.html import html
+from src.essays.html import Html
 from src.gui import YesNo
 
 
@@ -10,7 +10,7 @@ def main():
     b_otra = True
     while b_otra:
         # Objeto que escribe el html
-        Documento = html()
+        Documento = Html()
         # Genero el html
         Documento.write_html()
 

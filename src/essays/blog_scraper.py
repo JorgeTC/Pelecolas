@@ -76,7 +76,7 @@ class BlogScraper:
 def find_title_by_content(parsed_post: BeautifulSoup) -> str:
 
     # Variable de títulos posibles
-    candidates_titles = LIST_TITLES
+    candidates_titles = BlogScraper.TITLE_MGR.TITLES
 
     # Comparo párrafos hasta que sólo haya un título cuya reseña coincida
     for i, post_parr in enumerate(parrs_in_plain_text(parsed_post)):
@@ -133,7 +133,7 @@ def parrs_in_plain_text(parsed_post: BeautifulSoup) -> Generator[str, None, None
 
     while parr is not None:
         # Obtengo solo el texto
-        all_text: list[str] = parr.findAll(text=True)
+        all_text: list[str] = parr.findAll(string=True)
         # Elimino la sangría del inicio del párrafo
         all_text[0] = all_text[0].lstrip()
         # Elimino el último salto de línea del final del párrafo

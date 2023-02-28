@@ -10,7 +10,7 @@ from .. import google_api as GoogleApi
 from ..blog_scraper import BlogHiddenData, BlogScraper
 from ..dlg_scroll_titles import DlgScrollTitles
 from ..google_api import Post, Poster
-from ..html import ContentMgr, html
+from ..html import ContentMgr, Html
 from ..searcher import Searcher
 from .thread_executor import ThreadExecutor
 
@@ -84,7 +84,7 @@ class PostThemeUpdater:
         film_data.titulo = title
 
         # Escribo el archivo html
-        document = html(film_data)
+        document = Html(film_data)
         document.write_html()
         # Extraigo el texto del documento html
         # El resto de datos del post deben quedar intactos
