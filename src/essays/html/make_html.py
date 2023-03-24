@@ -1,5 +1,7 @@
 import os
 import re
+from contextlib import suppress
+from io import StringIO
 from typing import TextIO
 
 from docx.text.paragraph import Paragraph
@@ -161,40 +163,28 @@ class Html:
 
 
 def get_labels(film: Pelicula) -> str:
-    # Calcula una string con todas las etiquetas estándar que lleva una reseña
-    sz_labels = ""
+    # Calcula una lista con todas las etiquetas estándar que lleva una reseña
+    labels = []
     # Cronológicas
-    # Siglo
-    try:
-        if (int(film.año) < 2000):
-            siglo = "Siglo XX"
-        else:
-            siglo = "Siglo XXI"
-        sz_labels += siglo + ", "
+    with suppress(TypeError):
+        # Siglo
+        labels.append("Siglo XX" if int(film.año) < 2000 else "Siglo XXI")
         # Década
         decade = int(film.año) - int(film.año) % 10
-        decade = str(decade) + "'s"
-        sz_labels += decade + ", "
+        labels.append(f"{decade}'s")
         # Año
-        year = str(film.año)
-        sz_labels += year + ", "
-    except TypeError:
-        pass
+        labels.append(film.año)
 
     # Director
-    try:
-        sz_labels += film.director + ", "
-    except TypeError:
-        pass
+    if film.director:
+        labels.append(film.director)
 
     # País
-    try:
-        sz_labels += film.pais + ", "
-    except TypeError:
-        pass
+    if film.pais:
+        labels.append(film.pais)
 
     # Devuelvo la lista de etiquetas
-    return sz_labels
+    return ", ".join(label for label in labels if label)
 
 
 def is_quote_parr(text: str) -> bool:
