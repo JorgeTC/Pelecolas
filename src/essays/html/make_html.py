@@ -228,7 +228,7 @@ def is_all_italic(text: str) -> bool:
 
 def parr_to_html(paragraph: Paragraph) -> str:
     # Inicializo el párrafo
-    parr_text = ""
+    parr_text = StringIO()
 
     # Conservo las cursivas
     # Si hay dos cursivas consecutivas las quiero unir como una sola
@@ -242,19 +242,19 @@ def parr_to_html(paragraph: Paragraph) -> str:
 
         # Acabo de entrar a una cursiva, abro i
         if b_curr_it and not b_prev_it:
-            parr_text += "<i>"
+            parr_text.write("<i>")
         # Acabo de salir de una cursiva, cierro i
         if not b_curr_it and b_prev_it:
-            parr_text += "</i>"
+            parr_text.write("</i>")
 
         # Añado el texto
-        parr_text += run.text
+        parr_text.write(run.text)
 
         # Actualizo la itálica del párrafo anterior
         b_prev_it = b_curr_it
 
     # Si he terminado el bucle, es posible que me haya dejado la última itálica sin cerrar
     if b_prev_it:
-        parr_text += "</i>"
+        parr_text.write("</i>")
 
-    return parr_text
+    return parr_text.getvalue()
