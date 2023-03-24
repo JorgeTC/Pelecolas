@@ -1,12 +1,11 @@
 from dataclasses import dataclass
-from typing import Any
 
 
 class ApiDataclass:
 
-    def __init__(self, **dict: dict[str, Any]) -> None:
+    def __init__(self, **args) -> None:
         for param in self.__slots__:
-            setattr(self, param, dict.get(param))
+            setattr(self, param, args.get(param))
 
 
 @dataclass(slots=True, init=False)
@@ -16,9 +15,9 @@ class Post(ApiDataclass):
     content: str
     published: str
     updated: str
-    kind: str = "blogger#post"
     id: str
     labels: str
+    kind: str = "blogger#post"
 
 
 @dataclass(slots=True, init=False)
@@ -31,6 +30,6 @@ class DriveFile(ApiDataclass):
 @dataclass(slots=True, init=False)
 class Blog(ApiDataclass):
     id: str
-    kind: str = "blogger#blog"
     name: str
     url: str
+    kind: str = "blogger#blog"
