@@ -17,7 +17,7 @@ class ExcelMgr:
         # Abro el archivo excel
         self.wb = load_workbook(Plantilla)
         # Abro la primera de las hojas, es la única en la que escribo
-        self.ws: Worksheet = self.wb[self.wb.sheetnames[0]]
+        self.ws: Worksheet = self.wb.worksheets[0]
 
         # Construyo el nombre con el que voy a guardar el excel
         self.ExcelName = self.SZ_FILE_NAME(usuario)
