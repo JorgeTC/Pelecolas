@@ -8,7 +8,8 @@ from src.essays.html.quoter import Quoter, QuoterDirector
 
 def get_file_content(file_name: str) -> str:
     res_file_path = get_test_res_folder("quoter_director", file_name)
-    return open(res_file_path, encoding='utf-8').read()
+    with open(res_file_path, encoding='utf-8') as f:
+        return f.read()
 
 
 def mock_ask_confirmation(return_value: bool):

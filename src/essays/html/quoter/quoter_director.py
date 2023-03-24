@@ -32,7 +32,8 @@ def load_trust_directors() -> set[str]:
     # Cargo los directores del archivo
     path = get_res_folder("Make_html", "Trust_directors.txt")
     if path.is_file():
-        directors.update(open(path, encoding="utf-8").read().splitlines())
+        with open(path, encoding="utf-8") as file_directors:
+            directors.update(file_directors.read().splitlines())
 
     # Guardo de nuevo el archivo
     with open(path, 'w', encoding="utf-8") as f:

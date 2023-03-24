@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Iterator
+from typing import Iterator, TextIO
 
 import docx
 from docx.text.paragraph import Paragraph
@@ -163,8 +163,12 @@ class WordReader:
                    b_year: bool = Config.get_bool(Section.COUNT_FILMS, Param.ADD_YEAR)) -> None:
 
         # Abro el documento txt para escribirlo
-        titulos_doc = open(output_path / "Titulos de reseñas.txt", "w",
-                           encoding='utf-8')
+        with open(output_path / "Titulos de reseñas.txt", "w",
+                  encoding='utf-8') as titles_doc:
+            cls.write_file_list(titles_doc, b_index, b_year)
+
+    @classmethod
+    def write_file_list(cls, titles_doc: TextIO, write_index: bool, write_year: bool):
 
         next_years = iter(cls.YEARS_PARR.keys())
         # Cojo el primero de los años que hay que iterar
@@ -175,21 +179,18 @@ class WordReader:
             # Escritura del año
             # Compruebo que el título actual esté en una posición superior a donde inicia el siguiente año.
             # No me espero el caso de igualdad ya que ese párrafo corresponde al título del Word: peliculas.
-            if b_year and cls.TITULOS[titulo] > cls.YEARS_PARR[next_year]:
+            if write_year and cls.TITULOS[titulo] > cls.YEARS_PARR[next_year]:
                 # Escribo el año en el documento
-                titulos_doc.write("***" + str(next_year) + "***\n")
+                titles_doc.write(f"***{next_year}***\n")
                 # Avanzo al siguiente año
                 past_year = next_year
                 next_year = next(next_years, past_year)
                 # Si es el último año, dejo de escribir años
                 if next_year == past_year:
-                    b_year = False
+                    write_year = False
 
             # Si tengo que añadir el índice cojo el número y añado un espacio
-            if b_index:
-                titulos_doc.write(f"{index + 1} ")
+            if write_index:
+                titles_doc.write(f"{index + 1} ")
 
-            titulos_doc.write(f"{titulo}\n")
-
-        # cierro el documento
-        titulos_doc.close()
+            titles_doc.write(f"{titulo}\n")

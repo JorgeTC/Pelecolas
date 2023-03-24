@@ -1,5 +1,6 @@
 import os
 import re
+from typing import TextIO
 
 from docx.text.paragraph import Paragraph
 
@@ -22,16 +23,11 @@ def get_res_html_format(sz_file):
     # Función para leer los formatos del html
 
     # Abro el archivo html que haya pasado por parámetro
-    html_file = open(get_res_folder("Make_html", sz_file))
-    # Obtengo la string entera
-    sz_file_content = html_file.read()
-    # Cierro el archivo que he leído
-    html_file.close()
-    # Creo un puntero a la función para rellenar la string apropiadamente
-    formater = sz_file_content.format
-
-    # Devuelvo la función
-    return formater
+    with open(get_res_folder("Make_html", sz_file)) as html_file:
+        # Obtengo la string entera
+        sz_file_content = html_file.read()
+    # Devuelvo la función para rellenar la string apropiadamente
+    return sz_file_content.format
 
 
 SZ_HTML_HEADER = get_res_html_format("header.html")
@@ -104,17 +100,19 @@ class Html:
         # Compongo el nombre completo del archivo
         self.sz_file_name = SZ_HTML_FILE(self.sz_file_name)
         # Abro el archivo en modo escritura
-        html_file = open(self.HTML_OUTPUT_FOLDER / self.sz_file_name,
-                         mode="w", encoding="utf-8")
+        with open(self.HTML_OUTPUT_FOLDER / self.sz_file_name,
+                  mode="w", encoding="utf-8") as html_file:
+            self.fill_html_file(html_file)
 
+    def fill_html_file(self, html_file: TextIO):
         # Escribo el título de la película en mayúsculas.
         html_file.write(SZ_HTML_TITLE(self.data.titulo.upper()))
 
         # Escribo el estilo css si así me lo indica el ini
         if Config.get_bool(Section.HTML, Param.ADD_STYLE):
             html_file.write("<style>\n")
-            html_file.write(
-                open(get_res_folder("Make_html", "template.css")).read())
+            with open(get_res_folder("Make_html", "template.css")) as css_code:
+                html_file.write(css_code.read())
             html_file.write("</style>\n")
 
         # Escribo el encabezado
@@ -138,10 +136,12 @@ class Html:
         html_file.write(SZ_HTML_BREAK_LINE)
         html_file.write("\n<footer>")
         html_file.write(SZ_HTML_COMMENT('Botón follow'))
-        html_follow = open(get_res_folder("Make_html", "follow.html")).read()
+        with open(get_res_folder("Make_html", "follow.html")) as follow_code:
+            html_follow = follow_code.read()
         html_file.write(html_follow)
         html_file.write(SZ_HTML_COMMENT('Botón compartir'))
-        html_share = open(get_res_folder("Make_html", "share.html")).read()
+        with open(get_res_folder("Make_html", "share.html")) as share_code:
+            html_share = share_code.read()
         html_file.write(html_share)
 
         # Escribo los datos ocultos
@@ -154,8 +154,6 @@ class Html:
                                             duration=self.data.duracion,
                                             link_image=self.data.url_image))
         html_file.write("\n</footer>")
-
-        html_file.close()
 
     def delete_file(self):
         # Elimino el último html que he escrito
