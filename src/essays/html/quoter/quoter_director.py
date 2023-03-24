@@ -64,9 +64,6 @@ class QuoterDirector:
         self.__quoted_directors: set[str] = set()
         self.__personajes: set[str] = set()
 
-        # Cuántas preguntas he hecho para la película actual
-        self.questions_counter = 0
-
     def quote_directors(self, text: str) -> str:
         # Inicio una lista para buscar apariciones de los directores en el texto
         ini_director_pos: list[DirectorCitation] = []
@@ -130,7 +127,6 @@ class QuoterDirector:
         if nombre in self.TRUST_DIRECTORS:
             return True
         # En caso contrario, pregunto
-        self.questions_counter += 1
         pregunta = f"¿Es {nombre} una cita de {director}? "
         question = YesNo(pregunta)
         ans = question.get_ans()
