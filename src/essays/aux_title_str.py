@@ -37,7 +37,7 @@ RE_TIME = re.compile(r"([0-1]?[0-9]|2[0-3])(\.|-|/|:)"
 
 def date_from_YMD(string: str) -> date:
     if not (match := RE_DATE_YMD.match(string)):
-        return None
+        raise ValueError
 
     return str_to_date(day=match.group(5),
                        month=match.group(3),
@@ -46,7 +46,7 @@ def date_from_YMD(string: str) -> date:
 
 def date_from_DMY(string: str) -> date:
     if not (match := RE_DATE_DMY.match(string)):
-        return None
+        raise ValueError
 
     return str_to_date(day=match.group(1),
                        month=match.group(3),
@@ -55,7 +55,7 @@ def date_from_DMY(string: str) -> date:
 
 def time_from_str(string: str) -> time:
     if not (match := RE_TIME.match(string)):
-        return None
+        raise ValueError
 
     return time(int(match.group(1)),
                 int(match.group(3)))
