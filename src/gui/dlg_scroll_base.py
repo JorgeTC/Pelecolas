@@ -67,6 +67,7 @@ class DlgScrollBase(ConsoleEvent):
 
         return self.sz_ans
 
+    @staticmethod
     def hotkey_method(fn: Callable[['DlgScrollBase'], None]):
         @wraps(fn)
         def wrap(self: 'DlgScrollBase'):
