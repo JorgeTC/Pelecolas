@@ -1,3 +1,4 @@
+from io import StringIO
 from pathlib import Path
 from typing import Iterator, TextIO
 
@@ -13,16 +14,16 @@ SEPARATOR_YEAR = " - "
 
 def get_bold_title(paragraph: Paragraph) -> str:
     # Obtengo el primer fragamento de texto que esté en negrita.
-    titulo = ""
+    titulo = StringIO()
 
     for run in paragraph.runs:
         # Conservo las negritas
         if not run.bold:
             # he llegado al final del título
             break
-        titulo += run.text
+        titulo.write(run.text)
 
-    return titulo
+    return titulo.getvalue()
 
 
 def get_title(paragraph: Paragraph) -> str:
