@@ -58,7 +58,7 @@ def is_break_line(text: str) -> bool:
     return False
 
 
-def init_paragraphs(year_parr: dict[str, int], paragraphs: list[Paragraph]):
+def init_paragraphs(year_parr: dict[int, int], paragraphs: list[Paragraph]):
     # Itero todos los docx que he encontrado
     for word in WordFolderMgr.SZ_ALL_DOCX:
         # Obtengo el año actual
@@ -127,7 +127,7 @@ class WordReader:
     # Me guardo sólo los párrafos, es lo que voy a iterar más adelante
     PARAGRAPHS: list[Paragraph] = []
     # Guardo a qué párrafo corresponde cada año
-    YEARS_PARR: dict[str, int] = {}
+    YEARS_PARR: dict[int, int] = {}
     init_paragraphs(YEARS_PARR, PARAGRAPHS)
     # Lista con todos los títulos que encuentre.
     TITULOS: dict[str, int] = {}
