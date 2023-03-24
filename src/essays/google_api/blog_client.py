@@ -75,7 +75,7 @@ class PostStatus(str, Enum):
     SOFT_TRASHED = 'SOFT_TRASHED'
 
 
-def list_posts(min_date: str, status: PostStatus, page_token: str) -> tuple[dict[str, Any], str]:
+def list_posts(min_date: str, status: PostStatus, page_token: str) -> tuple[list[dict[str, Any]], str]:
     list_operation = POSTS().list(blogId=BLOG_ID,
                                   status=status.value,
                                   startDate=min_date,
