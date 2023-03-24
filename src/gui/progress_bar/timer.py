@@ -7,7 +7,7 @@ class Timer:
 
     def remains(self, done: float) -> str:
         if done == 0:
-            return
+            return ""
         now = time()
         left = (1 - done) * (now - self.start) / done
         sec = int(left)

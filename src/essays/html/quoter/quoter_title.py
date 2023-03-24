@@ -25,7 +25,7 @@ class QuoterTitle:
         fin_comillas_pos = find(text, QuoterBase.FIN_QUOTE_CHAR)
         if len(ini_comillas_pos) != len(fin_comillas_pos):
             assert ("Comillas impares, no se citará este párrafo")
-            return
+            return text
 
         # Construyo una lista con todas las posibles citas
         posible_titles = [FilmCitation(begin=i,

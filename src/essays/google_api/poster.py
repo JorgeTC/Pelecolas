@@ -117,7 +117,7 @@ def date_to_str(date: date | datetime, *,
         return datetime(date.year, date.month, date.day,
                         tzinfo=TIME_ZONE).isoformat()
     except:
-        return ""
+        raise ValueError
 
 
 def get_automatic_date() -> date:
