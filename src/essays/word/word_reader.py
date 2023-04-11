@@ -1,5 +1,6 @@
 from io import StringIO
 from pathlib import Path
+from itertools import takewhile
 from typing import Iterator, TextIO
 
 import docx
@@ -16,11 +17,8 @@ def get_bold_title(paragraph: Paragraph) -> str:
     # Obtengo el primer fragamento de texto que esté en negrita.
     titulo = StringIO()
 
-    for run in paragraph.runs:
-        # Conservo las negritas
-        if not run.bold:
-            # he llegado al final del título
-            break
+    # Conservo las negritas
+    for run in takewhile(lambda run: run.bold, paragraph.runs):
         titulo.write(run.text)
 
     return titulo.getvalue()
