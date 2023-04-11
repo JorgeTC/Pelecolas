@@ -1,5 +1,5 @@
 from .excel import ExcelMgr, Writer
 from .excel import read_watched as ReadWatched
-from .usuario import Usuario
+from .user_fa import UserFA
 
-__all__ = [ReadWatched, ExcelMgr, Writer, Usuario]
+__all__ = [ReadWatched, ExcelMgr, Writer, UserFA]

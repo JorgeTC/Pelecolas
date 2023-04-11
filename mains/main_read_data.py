@@ -1,12 +1,12 @@
 import __init__
-from src.scrap_fa import ExcelMgr, Usuario, Writer
+from src.scrap_fa import ExcelMgr, UserFA, Writer
 
 
 def main():
 
-    usuario = Usuario.ask_user()
+    usuario = UserFA.ask_user()
 
-    ex_doc = ExcelMgr(usuario.nombre)
+    ex_doc = ExcelMgr(usuario.name)
 
     writer = Writer(ex_doc.get_worksheet())
     writer.write_watched(usuario.id)
