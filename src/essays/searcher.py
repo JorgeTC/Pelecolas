@@ -11,10 +11,9 @@ from .aux_title_str import split_title_year
 
 class SearchResult(enum.IntEnum):
     '''Determinar qué se ha encontrado al buscar la película en FA'''
-    ENCONTRADA = enum.auto()
-    VARIOS_RESULTADOS = enum.auto()
-    NO_ENCONTRADA = enum.auto()
-    ERROR = enum.auto()
+    FOUND = enum.auto()
+    SEVERAL_RESULTS = enum.auto()
+    NOT_FOUND = enum.auto()
 
 
 # Mensajes para emitir por consola
@@ -56,7 +55,7 @@ class Searcher:
     def __search_boxes(self) -> list[Pelicula]:
 
         # Sólo tengo un listado de películas encontradas cuando tenga muchos resultados.
-        if self.__estado != SearchResult.VARIOS_RESULTADOS:
+        if self.__estado != SearchResult.SEVERAL_RESULTS:
             return []
 
         # Caja donde están todos los resultados
@@ -90,19 +89,19 @@ class Searcher:
         return lista_peliculas
 
     def encontrada(self) -> bool:
-        return self.__estado == SearchResult.ENCONTRADA
+        return self.__estado == SearchResult.FOUND
 
     def resultados(self) -> bool:
         # Comprobar si hay esperanza de encontrar la ficha
-        return self.__estado == SearchResult.ENCONTRADA or self.__estado == SearchResult.VARIOS_RESULTADOS
+        return self.__estado == SearchResult.FOUND or self.__estado == SearchResult.SEVERAL_RESULTS
 
     def get_url(self) -> str:
         # Una vez hechas todas las consideraciones,
         # me devuelve la ficha de la película que ha encontrado.
-        if self.__estado == SearchResult.ENCONTRADA:
+        if self.__estado == SearchResult.FOUND:
             return self.film_url
 
-        if self.__estado == SearchResult.VARIOS_RESULTADOS:
+        if self.__estado == SearchResult.SEVERAL_RESULTS:
             lista_peliculas = self.__search_boxes()
             self.film_url = self.__elegir_url(lista_peliculas)
             return self.film_url
@@ -145,16 +144,16 @@ class Searcher:
             return
 
         # He encontrado la película
-        if self.__estado == SearchResult.ENCONTRADA:
+        if self.__estado == SearchResult.FOUND:
             print(SZ_ONLY_ONE_FILM(self.title))
             return
 
         # Tengo varias películas
-        # if self.__estado == VARIOS_RESULTADOS:
-        # Llamo al cálculo de self.film_url
-        self.get_url()
-        if self.film_url:
-            print(SZ_ONLY_ONE_FILM_YEAR(self.title, self.__coincidente.año))
+        if self.__estado == SearchResult.SEVERAL_RESULTS:
+            # Llamo al cálculo de self.film_url
+            self.get_url()
+            if self.film_url:
+                print(SZ_ONLY_ONE_FILM_YEAR(self.title, self.__coincidente.año))
 
 
 def clarify_case(film_url: str) -> SearchResult:
@@ -166,13 +165,13 @@ def clarify_case(film_url: str) -> SearchResult:
 
     # El mejor de los casos, he encontrado la película
     if stage.find('film') >= 0:
-        return SearchResult.ENCONTRADA
+        return SearchResult.FOUND
     if stage.find('advsearch') >= 0:
-        return SearchResult.NO_ENCONTRADA
+        return SearchResult.NOT_FOUND
     if stage.find('search') >= 0:
-        return SearchResult.VARIOS_RESULTADOS
+        return SearchResult.SEVERAL_RESULTS
 
-    return SearchResult.ERROR
+    raise ValueError
 
 
 def get_search_url(title) -> str:
