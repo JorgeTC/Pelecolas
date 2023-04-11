@@ -164,7 +164,7 @@ class Html:
 
 def get_labels(film: Pelicula) -> str:
     # Calcula una lista con todas las etiquetas estándar que lleva una reseña
-    labels = []
+    labels: list[str] = []
     # Cronológicas
     with suppress(TypeError):
         # Siglo
@@ -173,7 +173,7 @@ def get_labels(film: Pelicula) -> str:
         decade = int(film.año) - int(film.año) % 10
         labels.append(f"{decade}'s")
         # Año
-        labels.append(film.año)
+        labels.append(str(film.año))
 
     # Director
     if film.director:
