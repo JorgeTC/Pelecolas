@@ -28,7 +28,7 @@ def test_quote_title_without_dlg(TarantinoParr: str):
     parr = quoter.quote_parr(TarantinoParr)
 
     # Compruebo que haya citado a Tarantino
-    assert "Quentin Tarantino" in quoter.get_quoted_directors()
+    assert "Quentin Tarantino" in quoter.quoted_directors
 
     sentences = TarantinoParr.split(".")
     # Compruebo que se haya citado la primera aparición
@@ -49,7 +49,7 @@ def test_not_quote_same_director(TarantinoParr: str):
     quoted_parr = quoter.quote_parr(TarantinoParr)
 
     # Compruebo que no haya citado a Tarantino
-    assert "Quentin Tarantino" not in quoter.get_quoted_directors()
+    assert "Quentin Tarantino" not in quoter.quoted_directors
 
     # Compruebo que no se haya modificado el texto
     assert quoted_parr == TarantinoParr
@@ -70,7 +70,7 @@ def test_quote_director_with_dlg(Bergman: str):
         assert mock_confirmation.call_count == 1
 
     # Como el usuario ha contestado que sí, se comprueba que se haya hecho la cita
-    assert "Ingmar Bergman" in quoter.get_quoted_directors()
+    assert "Ingmar Bergman" in quoter.quoted_directors
     assert quoted_parr != Bergman
 
 
@@ -84,7 +84,7 @@ def test_not_quote_director_with_dlg(Bergman: str):
         assert mock_confirmation.call_count == 1
 
     # Como el usuario ha contestado que no, se comprueba que se haya hecho la cita
-    assert "Ingmar Bergman" not in quoter.get_quoted_directors()
+    assert "Ingmar Bergman" not in quoter.quoted_directors
     assert quoted_parr == Bergman
 
 
@@ -103,7 +103,7 @@ def test_director_more_than_one_word_not_complete_name(vonTrier: str):
         assert mock_confirmation.call_count == 0
 
     # Compruebo que se haya hecho la citación
-    assert "Lars von Trier" in quoter.get_quoted_directors()
+    assert "Lars von Trier" in quoter.quoted_directors
     assert quoted_parr != vonTrier
 
 
@@ -140,7 +140,7 @@ def test_lemma(SpecialLemma: str):
 
     # Compruebo que se haya citado a los Coen
     quoted_directors = {"Joel Coen"}
-    assert quoted_directors == quoter.get_quoted_directors()
+    assert quoted_directors == quoter.quoted_directors
     # El resto de frases no pueden haber cambiado
     ori_sentences = SpecialLemma.split(". ")
     quoted_sentences = quoted_parr.split(". ")
@@ -212,7 +212,7 @@ def test_recognize_name_with_apostrophe(Apostrophe: str):
         quoted_parr = quoter.quote_parr(Apostrophe)
         assert is_to_be_asked("O'Connolly", mock_input)
 
-    assert "Jim O'Connolly" in quoter.get_quoted_directors()
+    assert "Jim O'Connolly" in quoter.quoted_directors
     assert quoted_parr != Apostrophe
 
 
@@ -230,7 +230,7 @@ def test_parragraph_starts_with_not_complete_name(Bunuel: str):
         quoted_parr = quoter.quote_parr(Bunuel)
         assert is_to_be_asked("Buñuel", mock_input)
 
-    assert "Luis Buñuel" in quoter.get_quoted_directors()
+    assert "Luis Buñuel" in quoter.quoted_directors
     assert quoted_parr != Bunuel
 
 
@@ -248,7 +248,7 @@ def test_lower_name_starts_upper(DeLaIglesia: str):
         quoted_parr = quoter.quote_parr(DeLaIglesia)
         assert is_to_be_asked("De la Iglesia", mock_input)
 
-    assert "Álex de la Iglesia" in quoter.get_quoted_directors()
+    assert "Álex de la Iglesia" in quoter.quoted_directors
     assert quoted_parr != DeLaIglesia
 
 
@@ -266,5 +266,5 @@ def test_quote_shorter_than_word(DeHecho: str):
         quoted_parr = quoter.quote_parr(DeHecho)
         assert mock_input.call_count == 0
 
-    assert not quoter.get_quoted_directors()
+    assert not quoter.quoted_directors
     assert quoted_parr == DeHecho

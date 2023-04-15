@@ -17,7 +17,7 @@ class QuoterTitle:
 
     def __init__(self, titulo: str) -> None:
         self.titulo = titulo
-        self.__titles: set[str] = set()
+        self._quoted_titles: set[str] = set()
 
     def quote_titles(self, text: str) -> str:
         # Cuento cuántas comillas hay
@@ -42,13 +42,13 @@ class QuoterTitle:
             # Guardo el título como viene escrito en el CSV
             title_in_csv = QuoterBase.CSV_CONTENT[row][CSV_COLUMN.TITLE]
             # Si la película ya está citada, no la cito otra vez
-            if title_in_csv in self.__titles:
+            if title_in_csv in self._quoted_titles:
                 continue
             # Si la cita es la película actual, no añado link
             if title_in_csv == self.titulo:
                 continue
             # Guardo este título como ya citado
-            self.__titles.add(title_in_csv)
+            self._quoted_titles.add(title_in_csv)
             text = add_post_link(text, title, row)
 
         return text

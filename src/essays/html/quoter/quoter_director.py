@@ -19,8 +19,8 @@ class DirectorCitation:
 
 def load_trust_directors() -> set[str]:
     # Leo si el ini me pide nuevos directores
-    new_directors = Config.get_value(Section.HTML, Param.YES_ALWAYS_DIR)
-    new_directors = new_directors.split(",")
+    new_directors_config = Config.get_value(Section.HTML, Param.YES_ALWAYS_DIR)
+    new_directors = new_directors_config.split(",")
     # Elimino espacios innecesarios
     new_directors = [director.strip() for director in new_directors]
     # Evito guardar cadenas vacías
@@ -61,8 +61,8 @@ class QuoterDirector:
         self.director = director
 
         # Guardo las citaciones que vaya sugiriendo
-        self.__quoted_directors: set[str] = set()
-        self.__personajes: set[str] = set()
+        self._quoted_directors: set[str] = set()
+        self._personajes: set[str] = set()
 
     def quote_directors(self, text: str) -> str:
         # Inicio una lista para buscar apariciones de los directores en el texto
@@ -79,18 +79,18 @@ class QuoterDirector:
 
         return text
 
-    def __quote_word(self, text: str, it_position: int, it_word: str) -> DirectorCitation:
+    def __quote_word(self, text: str, it_position: int, it_word: str) -> DirectorCitation | None:
 
         # Inicializo una lista con los personajes que se vayan a preguntar
         personajes_preguntados: set[str] = set()
 
         # Variable de retorno
-        citation: DirectorCitation = None
+        citation: DirectorCitation | None = None
 
         # Recorro todos los directores buscando la palabra que tengo
         for director in self.ALL_DIRECTORS:
             # No quiero citar dos veces el mismo director
-            if director in self.__quoted_directors:
+            if director in self._quoted_directors:
                 continue
             # No quiero citar al director actual
             if director == self.director:
@@ -100,7 +100,7 @@ class QuoterDirector:
             if not word:
                 continue
             # Si ya he preguntado por este nombre paso al siguiente
-            if word in self.__personajes:
+            if word in self._personajes:
                 continue
             personajes_preguntados.add(word)
             # Pido confirmación al usuario de la cita
@@ -110,11 +110,11 @@ class QuoterDirector:
                                         director=director,
                                         length=len(word))
             # Lo guardo como director ya citado
-            self.__quoted_directors.add(director)
+            self._quoted_directors.add(director)
             break
 
         # Actualizo el conjunto de nombres ya preguntados
-        self.__personajes.update(personajes_preguntados)
+        self._personajes.update(personajes_preguntados)
 
         # Devuelvo la posible citación
         return citation

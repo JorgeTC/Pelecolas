@@ -13,9 +13,11 @@ class Quoter:
         text = self.quoter_director.quote_directors(text)
         return text
 
-    def get_quoted_directors(self) -> set[str]:
-        return self.quoter_director._QuoterDirector__quoted_directors
+    @property
+    def quoted_directors(self) -> set[str]:
+        return self.quoter_director._quoted_directors
 
-    def get_quoted_titles(self) -> set[str]:
-        return self.quoter_title._QuoterTitle__quoted_title
+    @property
+    def quoted_titles(self) -> set[str]:
+        return self.quoter_title._quoted_titles
 
