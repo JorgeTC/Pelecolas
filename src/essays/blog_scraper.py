@@ -27,7 +27,7 @@ class BlogScraper:
     TITLE_MGR = TitleMgr(LIST_TITLES)
 
     @classmethod
-    def get_name_from_post(cls, post: Post, parsed: BeautifulSoup = None) -> str:
+    def get_name_from_post(cls, post: Post, parsed: BeautifulSoup | None = None) -> str:
         ''' Dado un post del blog, devuelve el nombre con el que aparece en el Word'''
 
         name = post.title

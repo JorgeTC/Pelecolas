@@ -67,7 +67,7 @@ class Drive:
 
 def iter_folder(folder_id: str) -> Iterable[DriveFile]:
     # Token para poder hacer varias peticiones
-    page_token: str = None
+    page_token: str | None = None
     while True:
         # Pido los archivos que tengan como carpeta parent la que he introducido
         files, page_token = Client.list_files(folder_id, page_token)

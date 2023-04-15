@@ -2,6 +2,7 @@ import csv
 import enum
 import os
 from datetime import datetime
+from pathlib import Path
 from typing import Iterable
 
 from src.aux_res_directory import get_res_folder
@@ -63,22 +64,22 @@ class BlogCsvMgr:
         return len(new_posts) > 0
 
     @classmethod
-    def open_to_read(cls, csv_path: str = SZ_CSV_FILE) -> list[list[str]]:
+    def open_to_read(cls, csv_path: Path | str = SZ_CSV_FILE) -> list[list[str]]:
         with open(csv_path, encoding=cls.ENCODING) as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=",")
             # Convierto lo leído en listas
             # Es una lista que contiene cada linea expresada como lista
-            csv_reader = list(csv_reader)
+            csv_read = list(csv_reader)
 
         try:
             # Devuelvo la lista sin la primera fila, que tiene los encabezados
-            return csv_reader[1:]
+            return csv_read[1:]
         except IndexError:
             return []
 
     @classmethod
     def write(cls, header: Iterable[str], rows: Iterable[Iterable[str]],
-              csv_path: str = SZ_CSV_FILE) -> None:
+              csv_path: str | Path = SZ_CSV_FILE) -> None:
         with open(csv_path, 'w', encoding=cls.ENCODING, newline='') as csv_file:
             csv_writer = csv.writer(csv_file)
             csv_writer.writerow(header)

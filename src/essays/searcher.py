@@ -107,7 +107,7 @@ def clarify_case(film_url: str) -> SearchResult:
     raise ValueError
 
 
-def choose_film_result(target_title: str, target_year: int, film_results: list[Pelicula]) -> Pelicula | None:
+def choose_film_result(target_title: str, target_year: int, film_results: Iterator[Pelicula]) -> Pelicula | None:
     # Tengo una lista de películas con sus años, miro cuál de ellas me sirve más
 
     # Guardo todas las que sean coincidentes, me espero que sólo sea una

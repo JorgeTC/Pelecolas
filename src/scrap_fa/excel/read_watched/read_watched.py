@@ -16,7 +16,7 @@ from ..utils import is_valid
 class ReadWatched:
     def __init__(self, user_id: int) -> None:
         self.user_id = user_id
-        self.results: Queue[Pelicula] = Queue()
+        self.results: Queue[Pelicula | None] = Queue()
         self.total_films = get_total_films(self.user_id)
         self.box_list = get_all_boxes(self.user_id, self.total_films)
         self.index = -1

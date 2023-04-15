@@ -171,7 +171,7 @@ class WordReader:
 
         next_years = iter(cls.YEARS_PARR.keys())
         # Cojo el primero de los años que hay que iterar
-        next_year = next(next_years, None)
+        next_year = next(next_years)
 
         for index, titulo in enumerate(cls.TITULOS):
 

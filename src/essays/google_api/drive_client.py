@@ -30,7 +30,7 @@ def get_item(item_id: str):
     return GoogleClient.execute_and_wait(get_operation)
 
 
-def list_files(folder_id: str, page_token: str) -> tuple[list[dict[str, str | bool]], str]:
+def list_files(folder_id: str, page_token: str | None) -> tuple[list[dict[str, str | bool]], str | None]:
     list_operation: HttpRequest = FILES().list(q=f"'{folder_id}' in parents",
                                                spaces='drive',
                                                fields='nextPageToken, files(id, name, trashed)',
