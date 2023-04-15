@@ -1,5 +1,5 @@
 from enum import StrEnum
-from typing import Generator
+from typing import Iterator
 
 from bs4 import BeautifulSoup
 
@@ -123,17 +123,12 @@ def review_in_plain_text(title: str, index_parr: int) -> str:
     return ""
 
 
-def parrs_in_plain_text(parsed_post: BeautifulSoup) -> Generator[str, None, None]:
-
-    args_find_parr = ['p',
-                      {'class': ['regular-parr', 'quoted-parr']}]
+def parrs_in_plain_text(parsed_post: BeautifulSoup) -> Iterator[str]:
 
     # Convierto el primer párrafo a texto plano
-    parr = parsed_post.find(args_find_parr)
-
-    while parr is not None:
+    for parr in iter_BeautifulSoup(parsed_post, 'p', class_ = ['regular-parr', 'quoted-parr']):
         # Obtengo solo el texto
-        all_text: list[str] = parr.findAll(string=True)
+        all_text: list[str] = parr.find_all(string=True)
         # Elimino la sangría del inicio del párrafo
         all_text[0] = all_text[0].lstrip()
         # Elimino el último salto de línea del final del párrafo
@@ -143,4 +138,9 @@ def parrs_in_plain_text(parsed_post: BeautifulSoup) -> Generator[str, None, None
         text = text.replace("\n", " ")
 
         yield text
-        parr = parr.find_next(args_find_parr)
+
+def iter_BeautifulSoup(parsed_page: BeautifulSoup, /, *args, **kwargs) -> Iterator[BeautifulSoup]:
+    found = parsed_page.find(*args, **kwargs)
+    while found is not None:
+        yield found
+        found = found.find_next(*args, **kwargs)
