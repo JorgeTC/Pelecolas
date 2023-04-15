@@ -54,18 +54,10 @@ class Html:
         # quiero de ella su titulo, año, duración, y director
         self.data = Pelicula() if film is None else film
 
-    def ask_for_data(self):
-        # Diálogo para pedir los datos necesarios para crear el html
-        # Necesito darle una lista de todos los títulos que tengo en el word
-        dlg = DlgHtml(WordReader.list_titles())
-        # Llamo al diálogo para que pida por la consola los datos que necesito
-        dlg.ask_for_data()
-        self.data = dlg.data
-
     def __get_text(self):
         # Si no tengo los datos de la película, los pido
         if not self.data.titulo:
-            self.ask_for_data()
+            self.data = ask_for_data()
 
         # Preparo el citador con los datos de la película actual
         citas = Quoter(self.data.titulo, self.data.director)
@@ -248,3 +240,12 @@ def parr_to_html(paragraph: Paragraph) -> str:
         parr_text.write("</i>")
 
     return parr_text.getvalue()
+
+
+def ask_for_data() -> Pelicula:
+    # Diálogo para pedir los datos necesarios para crear el html
+    # Necesito darle una lista de todos los títulos que tengo en el word
+    dlg = DlgHtml(WordReader.list_titles())
+    # Llamo al diálogo para que pida por la consola los datos que necesito
+    dlg.ask_for_data()
+    return dlg.data
