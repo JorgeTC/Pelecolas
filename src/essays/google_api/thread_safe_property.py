@@ -1,21 +1,24 @@
-from functools import wraps
+from functools import update_wrapper
 from threading import Lock
+from typing import Any, Callable, TypeVar
 
 
-def thread_safe_cache(fun):
+class thread_safe_cache:
+    RT = TypeVar('RT')
 
-    val_cached = None
-    locker = Lock()
+    def __init__(self, fun: Callable[[Any], RT]):
+        self.val_cached = None
+        self.locker = Lock()
+        self.fun = fun
+        update_wrapper(self, fun)
 
-    @wraps(fun)
-    def get_value(*args, **kwarg):
-        nonlocal val_cached
+    def __call__(self, *args, **kwarg) -> RT:
+
         # Si el valor ya se ha calculado lo devuelvo
-        if val_cached is not None:
-            return val_cached
+        if self.val_cached is not None:
+            return self.val_cached
 
-        with locker:
-            if val_cached is None:
-                val_cached = fun(*args, **kwarg)
-        return val_cached
-    return get_value
+        with self.locker:
+            if self.val_cached is None:
+                self.val_cached = self.fun(*args, **kwarg)
+        return self.val_cached
