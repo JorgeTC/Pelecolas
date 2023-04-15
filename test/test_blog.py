@@ -1,3 +1,4 @@
+import os
 from contextlib import contextmanager
 from pathlib import Path
 from test.mock_non_substitution import mock_function_without_replace
@@ -114,3 +115,14 @@ def test_essay_name_changed():
                 # Compruebo que el nombre sea el nuevo
                 assert new_name == BlogScraper.get_name_from_post(essay)
                 assert title_by_content.called
+
+
+@mock.patch.object(Html, "HTML_OUTPUT_FOLDER", get_test_res_folder("dump"))
+def test_make_html():
+    signals = Pelicula.from_id(490014)
+    signals.titulo = 'Señales'
+    document = Html()
+    with mock.patch('src.essays.html.make_html.ask_for_data', return_value=signals):
+        document.write_html()
+    assert (document.HTML_OUTPUT_FOLDER / document.sz_file_name).is_file()
+    os.remove(document.HTML_OUTPUT_FOLDER / document.sz_file_name)
