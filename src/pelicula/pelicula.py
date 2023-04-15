@@ -1,6 +1,9 @@
 import math
 import re
 from functools import wraps
+from typing import Callable
+
+from autoslot import assignments_to_self
 
 from .film_page import FilmPage
 
@@ -12,63 +15,69 @@ def get_id_from_url(url: str) -> int:
     return int(str_id)
 
 
-def scrap_data(att: str):
+def assignment_to_self(method: Callable) -> str:
+    # Miro los atributos de self que se han escrito dentro del método
+    assignments = assignments_to_self(method)
+    # Necesito que haya exactamente uno
+    if len(assignments) != 1:
+        raise AttributeError
+    # Devuvlo el único atributo que se ha modificado dentro del método
+    return assignments.pop()
+
+
+def scrap_data(fn: Callable[['Pelicula'], None], attr: str | None = None):
     '''
     Decorador para obtener datos parseados de la página.
     Comprueba que no se haya ya leído el dato para evitar redundancia.
     Comprueba antes de buscar en la página que ya esté parseada.
     '''
-    def decorator(fn):
-        @wraps(fn)
-        def wrp(self: 'Pelicula', *args, **kwarg):
-            # Si ya tengo guardado el dato que se me pide, no busco nada más
-            if getattr(self, att) is not None:
-                return
+    attr = attr or assignment_to_self(fn)
+    @wraps(fn)
+    def wrp(self: 'Pelicula'):
+        # Si ya tengo guardado el dato que se me pide, no busco nada más
+        if getattr(self, attr) is not None:
+            return
 
-            # Antes de obtener el dato me aseguro de que la página haya sido parseada
-            if not self.film_page:
-                self.get_parsed_page()
+        # Antes de obtener el dato me aseguro de que la página haya sido parseada
+        if not self.film_page:
+            self.get_parsed_page()
 
-            fn(self, *args, **kwarg)
-        return wrp
-    return decorator
-
-
-def check_votes(att: str):
-    '''
-    Decorador para obtener cálculos de las votaciones.
-    Comprueba que ya tenga los votos
-    '''
-    def decorator(fn):
-        @wraps(fn)
-        def wrp(self: 'Pelicula', *args, **kwarg):
-            # Compruebo que haya leído los votos de la película
-            if self.values is None:
-                self.get_values()
-
-            # Si a pesar de haberlos buscado no he conseguido los votos, no puedo saber su nota
-            # por lo tanto no puedo calcular el atributo actual
-            if not self.values:
-                setattr(self, att, 0)
-                return
-
-            # Tengo los datos que necesito para calcular el atributo en cuestión
-            fn(self, *args, **kwarg)
-        return wrp
-    return decorator
+        fn(self)
+    return wrp
 
 
-def scrap_from_values(att: str):
+
+def check_votes(fn: Callable[['Pelicula'], None], attr: str | None = None):
+    attr = attr or assignment_to_self(fn)
+    @wraps(fn)
+    def wrp(self: 'Pelicula'):
+        # Compruebo que haya leído los votos de la película
+        if self.values is None:
+            self.get_values()
+
+        # Si a pesar de haberlos buscado no he conseguido los votos, no puedo saber su nota
+        # por lo tanto no puedo calcular el atributo actual
+        if not self.values:
+            setattr(self, attr, 0)
+            return
+
+        # Tengo los datos que necesito para calcular el atributo en cuestión
+        fn(self)
+    return wrp
+
+
+def scrap_from_values(fn: Callable[['Pelicula'], None]):
     '''
     Concatena el decorador para no calcular un atributo dos veces
     y el decorador para comprobar que se tienen los valores
     '''
-    def decorator(fn):
-        # Aplico primero el decorador para evitar calcular el atributo dos veces.
-        # Una vez que sé que tengo que estoy obligado a calcular el atributo,
-        # compruebo que la lista de valores esté calculada.
-        return scrap_data(att)(check_votes(att)(fn))
-    return decorator
+    # Tengo que obtener attr en este punto porque scrap_data no recibirá la función original.
+    # Leerá check_votes, donde no encontrará la asignación que busca
+    attr = assignment_to_self(fn)
+    # Aplico primero el decorador para evitar calcular el atributo dos veces.
+    # Una vez que sé que tengo que estoy obligado a calcular el atributo,
+    # compruebo que la lista de valores esté calculada.
+    return scrap_data(check_votes(fn, attr), attr)
 
 
 URL_FILM_ID = "https://www.filmaffinity.com/es/film{}.html".format
@@ -77,21 +86,21 @@ URL_FILM_ID = "https://www.filmaffinity.com/es/film{}.html".format
 class Pelicula:
     def __init__(self):
 
-        self.titulo: str = None
-        self.user_note: int = None
-        self.id: int = None
-        self.url_FA: str = None
-        self.url_image: str = None
-        self.film_page: FilmPage = None
-        self.nota_FA: float = None
-        self.votantes_FA: int = None
-        self.desvest_FA: float = None
-        self.prop_aprobados: float = None
-        self.values: list[int] = None
-        self.duracion: int = None
-        self.directors: list[str] = None
-        self.año: int = None
-        self.pais: str = None
+        self.titulo: str | None = None
+        self.user_note: int | None = None
+        self.id: int | None = None
+        self.url_FA: str | None = None
+        self.url_image: str | None = None
+        self.film_page: FilmPage | None = None
+        self.nota_FA: float | None = None
+        self.votantes_FA: int | None = None
+        self.desvest_FA: float | None = None
+        self.prop_aprobados: float | None = None
+        self.values: list[int] | None = None
+        self.duracion: int | None = None
+        self.directors: list[str] | None = None
+        self.año: int | None = None
+        self.pais: str | None = None
 
     @classmethod
     def from_id(cls, id: int) -> 'Pelicula':
@@ -117,7 +126,7 @@ class Pelicula:
         # Devuelvo la instancia
         return instance
 
-    @scrap_from_values('nota_FA')
+    @scrap_from_values
     def get_nota_FA(self):
         self.nota_FA = 0
         # Multiplico la nota por la cantidad de gente que la ha dado
@@ -126,42 +135,42 @@ class Pelicula:
         # Divido entre el número total
         self.nota_FA /= sum(self.values)
 
-    @scrap_data('votantes_FA')
+    @scrap_data
     def get_votantes_FA(self):
         self.votantes_FA = self.film_page.get_votantes_FA()
 
-    @scrap_data('duracion')
+    @scrap_data
     def get_duracion(self):
         self.duracion = self.film_page.get_duracion()
 
-    @scrap_data('pais')
+    @scrap_data
     def get_country(self):
         self.pais = self.film_page.get_country()
 
-    @scrap_data('titulo')
+    @scrap_data
     def get_title(self):
         self.titulo = self.film_page.get_title()
 
     def get_parsed_page(self):
         self.film_page = FilmPage(self.url_FA)
 
-    @scrap_data('directors')
+    @scrap_data
     def get_director(self):
         self.directors = self.film_page.get_director()
 
-    @scrap_data('año')
+    @scrap_data
     def get_año(self):
         self.año = self.film_page.get_año()
 
-    @scrap_data('values')
+    @scrap_data
     def get_values(self):
         self.values = self.film_page.get_values()
 
-    @scrap_data('url_image')
+    @scrap_data
     def get_image_url(self):
         self.url_image = self.film_page.get_image_url()
 
-    @scrap_from_values('desvest_FA')
+    @scrap_from_values
     def get_desvest(self):
 
         # Me aseguro que se haya tratado de calcular la nota
@@ -179,7 +188,7 @@ class Pelicula:
         # Doy el valor a la variable miembro, lo convierto a desviación típica
         self.desvest_FA = math.sqrt(varianza)
 
-    @scrap_from_values('prop_aprobados')
+    @scrap_from_values
     def get_prop_aprobados(self):
         # Cuento cuántos votos positivos hay
         positives = sum(self.values[5:])
