@@ -76,7 +76,7 @@ def get_total_films(id_user: int) -> int:
     soup_page = BeautifulSoup(resp.text, 'lxml')
 
     # me espero que haya un único "value-box active-tab"
-    mydivs = soup_page.find("a", {"class": "value-box active-tab"})
+    mydivs = soup_page.find("a", class_ = "value-box active-tab")
     stringNumber = str(mydivs.contents[3].contents[1])
     # Elimino el punto de los millares
     stringNumber = stringNumber.replace('.', '')
@@ -101,4 +101,4 @@ def list_boxes(url: str) -> Iterable[FilmBox]:
     soup_page = BeautifulSoup(resp.text, 'lxml')
     # Leo todas las películas que haya en ella
     return (FilmBox(parsed_box) for parsed_box in
-            soup_page.findAll("div", {"class": "user-ratings-movie"}))
+            soup_page.findAll("div", class_ = "user-ratings-movie"))
