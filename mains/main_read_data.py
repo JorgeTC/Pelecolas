@@ -4,12 +4,12 @@ from src.scrap_fa import ExcelMgr, UserFA, Writer
 
 def main():
 
-    usuario = UserFA.ask_user()
+    user = UserFA.ask_user()
 
-    ex_doc = ExcelMgr(usuario.name)
+    ex_doc = ExcelMgr(user.name)
 
     writer = Writer(ex_doc.get_worksheet())
-    writer.write_watched(usuario.id)
+    writer.write_watched(user.id)
 
     ex_doc.save_wb()
 

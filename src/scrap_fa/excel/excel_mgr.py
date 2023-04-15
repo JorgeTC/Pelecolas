@@ -10,17 +10,17 @@ class ExcelMgr:
     SZ_FILE_NAME = 'Sintaxis - {}.xlsx'.format
     SZ_TEMPLATE_NAME = 'Plantilla.xlsx'
 
-    def __init__(self, usuario: str):
+    def __init__(self, user: str):
         # Abro la carpeta donde está la plantilla
-        Plantilla = get_res_folder("Readdata", self.SZ_TEMPLATE_NAME)
+        template_path = get_res_folder("Readdata", self.SZ_TEMPLATE_NAME)
 
         # Abro el archivo excel
-        self.wb = load_workbook(Plantilla)
+        self.wb = load_workbook(template_path)
         # Abro la primera de las hojas, es la única en la que escribo
         self.ws: Worksheet = self.wb.worksheets[0]
 
         # Construyo el nombre con el que voy a guardar el excel
-        self.ExcelName = self.SZ_FILE_NAME(usuario)
+        self.ExcelName = self.SZ_FILE_NAME(user)
 
         # Cargo la carpeta donde se guardará
         self.output_path = Config.get_folder_path(
