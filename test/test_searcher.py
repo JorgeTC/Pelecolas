@@ -1,5 +1,5 @@
 from itertools import pairwise
-from test.mock_non_substitution import mock_generator_without_replace
+from test.mocks_non_substitution import mock_generator_without_replace
 
 from src.essays.searcher import Searcher, search_boxes
 from src.pelicula import get_id_from_url

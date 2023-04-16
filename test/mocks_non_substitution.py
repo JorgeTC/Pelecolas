@@ -5,16 +5,57 @@ from typing import Any, Callable, Iterator, TypeVar
 from unittest import mock
 from unittest.mock import MagicMock
 
+from src.config import Config, Param, Section
+
 
 def import_path(function: Callable) -> str:
     # Compongo la ruta de importación
-    function_path = function.__name__
+    function_path = function.__qualname__
     definition_path = Path(inspect.getfile(function))
     while definition_path.stem != 'src':
         function_path = definition_path.stem + "." + function_path
         definition_path = definition_path.parent
     function_path = "src." + function_path
     return function_path
+
+
+@contextmanager
+def mock_without_replace(to_mock: Callable) -> Iterator[mock.MagicMock]:
+
+    # Compongo la ruta de importación
+    function_path = import_path(to_mock)
+
+    # Devuelvo la función con su implementación
+    with mock.patch(function_path, side_effect=to_mock) as function_mock:
+        yield function_mock
+
+
+@contextmanager
+def mock_config(config_fn: Callable, section: Section, param: Param, value) -> Iterator[mock.MagicMock]:
+
+    # Compongo la ruta de importación
+    function_path = import_path(config_fn)
+
+    def side_effect(arg_section: Section, arg_param: Param):
+        if arg_section == section and arg_param == param:
+            return value
+        return config_fn(arg_section, arg_param)
+
+    # Devuelvo la función con su implementación
+    with mock.patch(function_path, side_effect=side_effect) as mock_fn:
+        yield mock_fn
+
+
+@contextmanager
+def mock_config_get_bool(section: Section, param: Param, value: bool) -> Iterator[mock.MagicMock]:
+    with mock_config(Config.get_bool, section, param, value) as mock_fn:
+        yield mock_fn
+
+
+@contextmanager
+def mock_config_get_value(section: Section, param: Param, value: bool) -> Iterator[mock.MagicMock]:
+    with mock_config(Config.get_value, section, param, value) as mock_fn:
+        yield mock_fn
 
 
 MockReturn = TypeVar('MockReturn')
@@ -37,6 +78,7 @@ def mock_function_without_replace(to_mock: Callable[[Any], MockReturn]) -> Itera
     function_path = import_path(to_mock)
 
     return_values: list[MockReturn] = []
+
     def side_effect(*args, **kwargs) -> MockReturn:
         value = to_mock(*args, **kwargs)
         return_values.append(value)
@@ -64,6 +106,7 @@ def mock_generator_without_replace(to_mock: Callable[[Any], Iterator[MockReturn]
     function_path = import_path(to_mock)
 
     return_values: list[list[MockReturn]] = []
+
     def side_effect(*args, **kwargs) -> MockReturn:
         return_values.append([])
         for value in to_mock(*args, **kwargs):

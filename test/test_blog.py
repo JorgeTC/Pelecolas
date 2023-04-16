@@ -1,13 +1,19 @@
+import filecmp
 import os
+import test.mocks_non_substitution as mocks_ns
 from contextlib import contextmanager
+from datetime import datetime
 from pathlib import Path
-from test.mock_non_substitution import mock_function_without_replace
 from unittest import mock
 
+import pytest
 import requests
 
 from src.aux_res_directory import get_test_res_folder
+from src.config import Param, Section
+from src.essays.aux_title_str import date_from_YMD
 from src.essays.blog_scraper import BlogScraper, find_title_by_content
+from src.essays.google_api import Poster
 from src.essays.html import Html
 from src.essays.html.content_mgr import ContentMgr
 from src.essays.html.quoter.quoter_title import add_post_link
@@ -89,7 +95,7 @@ def test_essay_name_changed():
         old_name_film.titulo = old_name
         old_name_film.id = 169177
         writer = Html(old_name_film)
-        with mock_function_without_replace(add_post_link) as quote_title:
+        with mocks_ns.mock_without_replace(add_post_link) as quote_title:
             writer.write_html()
             # Compruebo que se haya añadido la cita
             assert quote_title.called
@@ -111,18 +117,60 @@ def test_essay_name_changed():
         # Actualizo la lista de títulos
         with mock.patch.object(BlogScraper, 'TITLE_MGR', TitleMgr(WordReader.TITULOS.keys())):
             assert len(BlogScraper.TITLE_MGR.TITLES) == 1
-            with mock_function_without_replace(find_title_by_content) as title_by_content:
+            with mocks_ns.mock_without_replace(find_title_by_content) as title_by_content:
                 # Compruebo que el nombre sea el nuevo
                 assert new_name == BlogScraper.get_name_from_post(essay)
                 assert title_by_content.called
 
 
+@pytest.fixture
+def signals() -> Pelicula:
+    film_signals = Pelicula.from_id(490014)
+    film_signals.titulo = 'Señales'
+    film_signals.director = 'M. Night Shyamalan'
+    film_signals.año = 2002
+    film_signals.duracion = 106
+    film_signals.pais = 'Estados Unidos'
+    film_signals.url_image = 'https://pics.filmaffinity.com/signs-888503123-large.jpg'
+    return film_signals
+
+
 @mock.patch.object(Html, "HTML_OUTPUT_FOLDER", get_test_res_folder("dump"))
-def test_make_html():
-    signals = Pelicula.from_id(490014)
-    signals.titulo = 'Señales'
+def test_make_html(signals):
     document = Html()
     with mock.patch('src.essays.html.make_html.ask_for_data', return_value=signals):
         document.write_html()
-    assert (document.HTML_OUTPUT_FOLDER / document.sz_file_name).is_file()
-    os.remove(document.HTML_OUTPUT_FOLDER / document.sz_file_name)
+    created_file = document.HTML_OUTPUT_FOLDER / document.sz_file_name
+    assert created_file.is_file()
+    reference_file = get_test_res_folder('html', 'Reseña Señales.html')
+    assert reference_file.is_file()
+    assert filecmp.cmp(created_file, reference_file)
+    os.remove(created_file)
+
+
+def delete_last_draft():
+    if not (draft_posts := Poster.get_draft_from_date(datetime.today())):
+        raise FileNotFoundError
+    draft_posts.sort(key=lambda post: date_from_YMD(post.published))
+    last_post = draft_posts[-1]
+    Poster.delete_post(last_post)
+
+
+@mock.patch.object(Html, "HTML_OUTPUT_FOLDER", get_test_res_folder("dump"))
+@mock.patch.object(ContentMgr, "DIR", get_test_res_folder("dump"))
+def test_post_html():
+    reference_file = get_test_res_folder('html', 'Reseña Señales.html')
+    assert reference_file.is_file()
+
+    # Leo el html escrito y extraigo los datos necesarios para hacer la publicación
+    post_data = ContentMgr.extract_html(reference_file)
+
+    try:
+        # Hago la publicación en borrador y cojo fecha automática
+        with (mocks_ns.mock_config_get_bool(Section.POST, Param.AS_DRAFT, True),
+              mocks_ns.mock_config_get_value(Section.POST, Param.DATE, 'auto')):
+            Poster.add_post(title=post_data.title,
+                            content=post_data.content,
+                            labels=post_data.labels)
+    finally:
+        delete_last_draft()

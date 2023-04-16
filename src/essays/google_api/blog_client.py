@@ -70,6 +70,12 @@ def update_post(post: Post) -> None:
     GoogleClient.execute(update_operation)
 
 
+def delete_post(post: Post) -> None:
+    delete_operation = POSTS().delete(blogId=BLOG_ID,
+                                      postId=post.id)
+    GoogleClient.execute(delete_operation)
+
+
 class PostStatus(str, Enum):
     LIVE = 'LIVE'
     DRAFT = 'DRAFT'
