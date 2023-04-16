@@ -152,7 +152,9 @@ def get_automatic_date() -> date:
 def get_publish_datatime() -> str:
     # Obtengo qué día tengo que publicar la reseña
     sz_date = Config.get_value(Section.POST, Param.DATE)
-    if not (publish_date := date_from_DMY(sz_date)):
+    try:
+        publish_date = date_from_DMY(sz_date)
+    except ValueError:
         # Si no consigo interpretarlo como fecha, le doy la fecha automática
         publish_date = get_automatic_date()
 
