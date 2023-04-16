@@ -25,20 +25,20 @@ class ConsoleEvent(metaclass=ABCMeta):
 
 class GUI:
     # Todos los hilos (distintos de main) que quieren acceder a la interfaz
-    THREADS_QUEUE = Queue()
+    THREADS_QUEUE: Queue[str | None] = Queue()
     # Cola con todos los eventos de consola
-    INTERFACE_QUEUE: dict[str, Queue] = {}
+    INTERFACE_QUEUE: dict[str | None, Queue] = {}
 
     @classmethod
-    def add_event(cls, current_thread: Thread, event: ConsoleEvent):
-        thread_name: str = getattr(current_thread, 'name', None)
+    def add_event(cls, current_thread: Thread | None, event: ConsoleEvent | None):
+        thread_name = current_thread.name if current_thread is not None else None
         # Si el hilo introducido ya tiene más eventos encolados, añado uno más
         if thread_name in cls.INTERFACE_QUEUE:
             queue = cls.INTERFACE_QUEUE[thread_name]
         else:
             # El hilo actual no tiene eventos introducidos.
             # Añado el hilo al diccionario
-            queue: Queue = cls.INTERFACE_QUEUE.setdefault(
+            queue = cls.INTERFACE_QUEUE.setdefault(
                 thread_name, Queue())
             # Añado el hilo a la cola de hilos
             cls.THREADS_QUEUE.put(thread_name)
@@ -62,7 +62,7 @@ class GUI:
     def run(cls):
         while True:
             # Obtengo un hilo para agotar todos sus eventos
-            thread_name: str = cls.THREADS_QUEUE.get()
+            thread_name = cls.THREADS_QUEUE.get()
             if thread_name is None:
                 return
             # Accedo a su cola de eventos

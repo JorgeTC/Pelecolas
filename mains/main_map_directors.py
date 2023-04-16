@@ -3,7 +3,7 @@ import csv
 import __init__
 from src.config import Config, Param, Section
 from src.gui import ProgressBar
-from src.scrap_fa import ReadWatched, Usuario
+from src.scrap_fa import ReadWatched, UserFA
 
 
 def write_in_file(directors: dict[str, tuple[int, list[float]]], user_name: str):
@@ -24,13 +24,13 @@ def write_in_file(directors: dict[str, tuple[int, list[float]]], user_name: str)
 
 
 def main():
-    usuario = Usuario.ask_user()
+    user = UserFA.ask_user()
 
     # Creo una barra de progreso
     bar = ProgressBar()
 
     directors: dict[str, tuple[int, list[float]]] = {}
-    for film, progress in ReadWatched.read_directors(usuario.id):
+    for film, progress in ReadWatched.read_directors(user.id):
         for director in film.directors:
             if director not in directors:
                 directors[director] = [1, [film.user_note]]
@@ -39,7 +39,7 @@ def main():
                 directors[director][1].append(film.user_note)
         bar.update(progress)
 
-    write_in_file(directors, usuario.nombre)
+    write_in_file(directors, user.name)
 
 
 if __name__ == '__main__':

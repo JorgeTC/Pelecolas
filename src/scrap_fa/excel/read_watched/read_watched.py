@@ -16,7 +16,7 @@ from ..utils import is_valid
 class ReadWatched:
     def __init__(self, user_id: int) -> None:
         self.user_id = user_id
-        self.results: Queue[Pelicula] = Queue()
+        self.results: Queue[Pelicula | None] = Queue()
         self.total_films = get_total_films(self.user_id)
         self.box_list = get_all_boxes(self.user_id, self.total_films)
         self.index = -1
@@ -76,7 +76,7 @@ def get_total_films(id_user: int) -> int:
     soup_page = BeautifulSoup(resp.text, 'lxml')
 
     # me espero que haya un único "value-box active-tab"
-    mydivs = soup_page.find("a", {"class": "value-box active-tab"})
+    mydivs = soup_page.find("a", class_ = "value-box active-tab")
     stringNumber = str(mydivs.contents[3].contents[1])
     # Elimino el punto de los millares
     stringNumber = stringNumber.replace('.', '')
@@ -101,4 +101,4 @@ def list_boxes(url: str) -> Iterable[FilmBox]:
     soup_page = BeautifulSoup(resp.text, 'lxml')
     # Leo todas las películas que haya en ella
     return (FilmBox(parsed_box) for parsed_box in
-            soup_page.findAll("div", {"class": "user-ratings-movie"}))
+            soup_page.findAll("div", class_ = "user-ratings-movie"))

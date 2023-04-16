@@ -36,7 +36,7 @@ class QueuedRequest(HttpRequest):
 class GoogleClient:
 
     # Cola de requests por ejecutar
-    REQUESTS_QUEUE = Queue()
+    REQUESTS_QUEUE: Queue[HttpRequest | None] = Queue()
 
     # Historial de todas las request
     requests_ans: dict[str, Any] = {}
@@ -59,7 +59,7 @@ class GoogleClient:
     @classmethod
     def run_queue(cls):
         while True:
-            request: HttpRequest = cls.REQUESTS_QUEUE.get()
+            request = cls.REQUESTS_QUEUE.get()
             if request is None:
                 return
 

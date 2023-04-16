@@ -1,3 +1,5 @@
+from typing import Iterable, TypeVar
+
 from src.config import Config, Param, Section
 from src.gui import Input
 from src.pelicula import URL_FILM_ID, Pelicula
@@ -100,7 +102,7 @@ def unpublished(ls_titles: list[str]) -> list[str]:
     return filter_list_from_csv(ls_titles, csv)
 
 
-def filter_list_from_csv(titles: list[str], csv: list[list[str]]):
+def filter_list_from_csv(titles: list[str], csv: list[list[str] | tuple[str]]) -> list[str]:
     # Obtengo la lista de títulos,
     # por si están entrecomillados, quito las comillas
     published = (row[0].strip("\"") for row in csv)
@@ -133,9 +135,12 @@ def filter_list_from_csv(titles: list[str], csv: list[list[str]]):
     return unpublished_titles
 
 
-def all_indices_in_list(ls, el) -> list[int]:
+ItemsType = TypeVar('ItemsType')
+
+
+def all_indices_in_list(ls: list[ItemsType], el: ItemsType) -> Iterable[int]:
     '''
     Dado un elemento, lo busco en una lista.
     Devuelvo las posiciones de la lista que contengan al elemento
     '''
-    return [i for i, ltr in enumerate(ls) if ltr == el]
+    return (i for i, ltr in enumerate(ls) if ltr == el)

@@ -43,7 +43,7 @@ class Html:
     HTML_OUTPUT_FOLDER = Config.get_folder_path(
         Section.HTML, Param.OUTPUT_PATH_HTML)
 
-    def __init__(self, film: Pelicula = None):
+    def __init__(self, film: Pelicula | None = None):
 
         # Variable para el nombre del archivo
         self.sz_file_name = ""

@@ -101,7 +101,7 @@ class Poster:
 
 def iter_posts(start_date: str, post_status: PostStatus) -> Iterable[Post]:
     # Token para poder hacer varias peticiones
-    page_token: str = None
+    page_token: str | None = None
     while True:
         # Pido los archivos que tengan como carpeta parent la que he introducido
         posts, page_token = Client.list_posts(

@@ -26,7 +26,7 @@ class FilmBox:
     def get_country(self) -> str:
         return self.film_box.contents[1].contents[1].contents[3].contents[1].contents[2].attrs['alt']
 
-    def get_directors(self) -> str:
+    def get_directors(self) -> list[str]:
         try:
             directors = self.film_box.contents[1].contents[1].contents[3].contents[5].contents[1].contents
         except IndexError:

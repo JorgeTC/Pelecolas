@@ -22,9 +22,11 @@ def get_blog_and_api(service: Resource, blog_id: str) -> tuple[Blog, Resource]:
 
         # Obtengo el blog que está indicado
         my_blogs = get_blogs_of_user()
-        right_blog = next(
-            (blog for blog in my_blogs['items'] if blog['id'] == blog_id), None)
-        right_blog = Blog(**right_blog)
+        dict_right_blog = next(
+            (blog for blog in my_blogs if blog['id'] == blog_id), None)
+        if dict_right_blog is None:
+            raise ValueError
+        right_blog = Blog(**dict_right_blog)
 
         return right_blog, post_api
 
@@ -49,9 +51,9 @@ def POSTS():
     return posts
 
 
-def get_blogs_of_user() -> dict:
+def get_blogs_of_user() -> list[dict[str, Any]]:
     list_operation = BLOGS().listByUser(userId='self')
-    return GoogleClient.execute_and_wait(list_operation)
+    return GoogleClient.execute_and_wait(list_operation)['items']
 
 
 def insert_post(post: Post, draft: bool) -> None:
@@ -81,7 +83,7 @@ class PostStatus(str, Enum):
     SOFT_TRASHED = 'SOFT_TRASHED'
 
 
-def list_posts(min_date: str, status: PostStatus, page_token: str) -> tuple[list[dict[str, Any]], str]:
+def list_posts(min_date: str, status: PostStatus, page_token: str) -> tuple[list[dict[str, Any]], str | None]:
     list_operation = POSTS().list(blogId=BLOG_ID,
                                   status=status.value,
                                   startDate=min_date,
