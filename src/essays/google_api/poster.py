@@ -67,6 +67,10 @@ class Poster:
         Client.update_post(new_post)
 
     @classmethod
+    def delete_post(cls, post: Post):
+        Client.delete_post(post)
+
+    @classmethod
     def get_published_from_date(cls, min_date: date | datetime) -> list[Post]:
 
         # Las fechas deben estar introducidas en formato date
@@ -77,12 +81,22 @@ class Poster:
         return [post for post in iter_posts(min_date, PostStatus.LIVE)]
 
     @classmethod
+    def get_draft_from_date(cls, min_date: date | datetime) -> list[Post]:
+
+        # Las fechas deben estar introducidas en formato date
+        # Las convierto a cadena
+        min_date = date_to_str(min_date)
+
+        # Pido los blogs desde entonces
+        return list(iter_posts(min_date, PostStatus.DRAFT))
+
+    @classmethod
     def get_scheduled(cls) -> list[Post]:
         # Hago una lista de todos los posts programados a partir de hoy
         today = datetime.today()
         start_date = date_to_str(today)
 
-        return [post for post in iter_posts(start_date, PostStatus.SCHEDULED)]
+        return list(iter_posts(start_date, PostStatus.SCHEDULED))
 
 
 def iter_posts(start_date: str, post_status: PostStatus) -> Iterable[Post]:
@@ -152,7 +166,9 @@ def get_automatic_date() -> date:
 def get_publish_datatime() -> str:
     # Obtengo qué día tengo que publicar la reseña
     sz_date = Config.get_value(Section.POST, Param.DATE)
-    if not (publish_date := date_from_DMY(sz_date)):
+    try:
+        publish_date = date_from_DMY(sz_date)
+    except ValueError:
         # Si no consigo interpretarlo como fecha, le doy la fecha automática
         publish_date = get_automatic_date()
 
