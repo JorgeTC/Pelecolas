@@ -123,11 +123,14 @@ def choose_film_result(target_title: str, target_year: int, film_results: Iterat
         return None
 
 
-def get_search_url(title) -> str:
+def get_search_url(title: str) -> str:
+    # El buscador de FilmAffinity no reconoce los cierres de interrogación
+    title_for_url = title.replace("?", "")
+
     # Convierto los caracteres no alfanuméricpos en hexadecimal
     # No puedo convertir los espacios:
     # FilmAffinity convierte los espacios en +.
-    title_for_url = urllib.parse.quote(title, safe=" ")
+    title_for_url = urllib.parse.quote(title_for_url, safe=" ")
 
     # Cambio los espacios para poder tener una sola url
     title_for_url = title_for_url.replace(" ", "+")
