@@ -22,6 +22,7 @@ from src.essays.update_blog.blog_theme_updater import update_image_url
 from src.essays.word.word_folder_mgr import WordFolderMgr, get_files
 from src.essays.word.word_reader import (WordReader, init_paragraphs,
                                          init_titles)
+from src.essays.html.make_html import ask_for_data
 from src.pelicula import Pelicula
 
 
@@ -138,7 +139,7 @@ def signals() -> Pelicula:
 @mock.patch.object(Html, "HTML_OUTPUT_FOLDER", get_test_res_folder("dump"))
 def test_make_html(signals):
     document = Html()
-    with mock.patch('src.essays.html.make_html.ask_for_data', return_value=signals):
+    with mock.patch(mocks_ns.import_path(ask_for_data), return_value=signals):
         document.write_html()
     created_file = document.HTML_OUTPUT_FOLDER / document.sz_file_name
     assert created_file.is_file()
