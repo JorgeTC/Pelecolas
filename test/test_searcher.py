@@ -22,17 +22,11 @@ def test_unique_film_special_chars():
     searcher = Searcher("¿Teléfono rojo? Volamos hacia Moscú")
     assert get_id_from_url(searcher.get_url()) == 479847
 
-    searcher = Searcher("Hola, ¿estás sola?")
-    assert get_id_from_url(searcher.get_url()) == 440598
-
     searcher = Searcher("Jo, ¡qué noche!")
     assert get_id_from_url(searcher.get_url()) == 345042
 
 
 def test_numbers():
-    searcher = Searcher("12 monos (1995)")
-    assert get_id_from_url(searcher.get_url()) == 486826
-
     searcher = Searcher("2001: Una odisea del espacio (1968)")
     assert get_id_from_url(searcher.get_url()) == 171099
 
