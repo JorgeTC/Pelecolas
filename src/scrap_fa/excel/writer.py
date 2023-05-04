@@ -120,7 +120,7 @@ def write_in_excel(worksheet: Worksheet, line: int, film: Pelicula):
 
 
 def set_cell_value(worksheet: Worksheet, line: int, col: ExcelColumns, value: Any,
-                   *, film_id: int | None = 0):
+                   *, film_id: int | None = None):
 
     # Obtengo un objeto celda
     cell: Cell = worksheet.cell(row=line, column=col)
