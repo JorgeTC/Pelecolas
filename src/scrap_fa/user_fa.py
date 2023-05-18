@@ -20,14 +20,12 @@ class UserFA:
     DEFAULT_USER = Config.get_value(Section.READDATA, Param.DEFAULT_USER)
     IDS = load_users_id()
 
-    def __init__(self, nombre: str = None, id: int = None):
-        self.name: str = nombre
+    def __init__(self, name: str, id: int):
+        self.name: str = name
         self.id: int = id
 
     @classmethod
     def ask_user(cls) -> 'UserFA':
-
-        instance = UserFA()
 
         asker = DlgScrollBase(question=cls.SZ_QUESTION(cls.DEFAULT_USER),
                               options=list(cls.IDS.keys()),
@@ -35,12 +33,12 @@ class UserFA:
         # Pido el nombre del usuario cuyos datos se quieren importar
         name = asker.get_ans()
         # Si no se ha introducido nada por teclado, utilizo el nombre default.
-        instance.name = name or cls.DEFAULT_USER
+        name = name or cls.DEFAULT_USER
 
         # Sé que el diálogo me ha dado un usuario válido, estará en el diccionario
-        instance.id = cls.IDS[instance.name]
+        user_id = cls.IDS[name]
 
         # Guardo la última elección del usuario en el ini
-        Config.set_value(Section.READDATA, Param.DEFAULT_USER, instance.name)
+        Config.set_value(Section.READDATA, Param.DEFAULT_USER, name)
 
-        return instance
+        return UserFA(name, user_id)
