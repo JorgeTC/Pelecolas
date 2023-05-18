@@ -52,41 +52,14 @@ class Html:
 
         # Objeto Pelicula para guardar los datos que necesito para escribir el html
         # quiero de ella su titulo, año, duración, y director
-        self.data = Pelicula() if film is None else film
-
-    def __get_text(self):
-        # Si no tengo los datos de la película, los pido
-        if not self.data.titulo:
-            self.data = ask_for_data()
-
-        # Preparo el citador con los datos de la película actual
-        citas = Quoter(self.data.titulo, self.data.director)
-
-        # Empiezo a recorrer los párrafos desde el que sé que inicia la crítica que busco
-        for paragraph in WordReader.iter_review(self.data.titulo):
-            # Convierto el contenido del párrafo a html
-            parr_text = parr_to_html(paragraph)
-
-            if not self.parrafos_critica:
-                # Si es el primer párrafo, elimino el título
-                parr_text = parr_text[len(self.data.titulo):]
-                parr_text = parr_text.lstrip(": ")
-
-            # Añado las citas a otras reseñas
-            parr_text = citas.quote_parr(parr_text)
-
-            # Añado saltos de línea para un html más legible
-            parr_text = re.sub(r"([.!?…>:]) ", r"\1\n", parr_text)
-            # Añado el texto a la lista de párrafos
-            self.parrafos_critica.append(parr_text)
-
-        if not self.parrafos_critica:
-            assert ("No ha sido posible encontrar la reseña.")
-        return self.parrafos_critica
+        self.data = film
 
     def write_html(self):
+        # Si no tengo los datos de la película, los pido
+        if self.data is None:
+            self.data = ask_for_data()
 
-        self.__get_text()
+        paragraphs = get_text(self.data)
 
         # Limpio el titulo de la película por si tiene caracteres no válidos para un archivo de Windows
         self.sz_file_name = "".join(i for i in str(self.data.titulo)
@@ -96,62 +69,91 @@ class Html:
         # Abro el archivo en modo escritura
         with open(self.HTML_OUTPUT_FOLDER / self.sz_file_name,
                   mode="w", encoding="utf-8") as html_file:
-            self.fill_html_file(html_file)
-
-    def fill_html_file(self, html_file: TextIO):
-        # Escribo el título de la película en mayúsculas.
-        html_file.write(SZ_HTML_TITLE(self.data.titulo.upper()))
-
-        # Escribo el estilo css si así me lo indica el ini
-        if Config.get_bool(Section.HTML, Param.ADD_STYLE):
-            html_file.write("<style>\n")
-            with open(get_res_folder("Make_html", "template.css")) as css_code:
-                html_file.write(css_code.read())
-            html_file.write("</style>\n")
-
-        # Escribo el encabezado
-        html_file.write(SZ_HTML_COMMENT('Encabezado'))
-        html_file.write(SZ_HTML_HEADER(director=self.data.director,
-                                       year=self.data.año,
-                                       duration=self.data.duracion,
-                                       image_url=self.data.url_image))
-
-        # Iteramos los párrafos
-        html_file.write(SZ_HTML_COMMENT('Párrafos'))
-        html_file.write('<section class="review-body">\n')
-        for parrafo in self.parrafos_critica:
-            if is_quote_parr(parrafo):
-                html_file.write(SZ_HTML_QUOTE_PARAGRAPH(parrafo))
-            else:
-                html_file.write(SZ_HTML_PARAGRAPH(parrafo))
-        html_file.write('</section>\n')
-
-        # Escribo los botones de Twitter
-        html_file.write(SZ_HTML_BREAK_LINE)
-        html_file.write("\n<footer>")
-        html_file.write(SZ_HTML_COMMENT('Botón follow'))
-        with open(get_res_folder("Make_html", "follow.html")) as follow_code:
-            html_follow = follow_code.read()
-        html_file.write(html_follow)
-        html_file.write(SZ_HTML_COMMENT('Botón compartir'))
-        with open(get_res_folder("Make_html", "share.html")) as share_code:
-            html_share = share_code.read()
-        html_file.write(html_share)
-
-        # Escribo los datos ocultos
-        html_file.write(SZ_HTML_HIDDEN_DATA(year=self.data.año,
-                                            director=self.data.director,
-                                            country=self.data.pais,
-                                            link_fa=self.data.url_FA,
-                                            film_title=self.data.titulo,
-                                            labels=get_labels(self.data),
-                                            duration=self.data.duracion,
-                                            link_image=self.data.url_image))
-        html_file.write("\n</footer>")
+            fill_html_file(html_file, self.data, paragraphs)
 
     def delete_file(self):
         # Elimino el último html que he escrito
         os.remove(self.HTML_OUTPUT_FOLDER / self.sz_file_name)
+
+
+def fill_html_file(html_file: TextIO, film_data: Pelicula, paragraphs: list[str]):
+    # Escribo el título de la película en mayúsculas.
+    html_file.write(SZ_HTML_TITLE(film_data.titulo.upper()))
+
+    # Escribo el estilo css si así me lo indica el ini
+    if Config.get_bool(Section.HTML, Param.ADD_STYLE):
+        html_file.write("<style>\n")
+        with open(get_res_folder("Make_html", "template.css")) as css_code:
+            html_file.write(css_code.read())
+        html_file.write("</style>\n")
+
+    # Escribo el encabezado
+    html_file.write(SZ_HTML_COMMENT('Encabezado'))
+    html_file.write(SZ_HTML_HEADER(director=film_data.director,
+                                   year=film_data.año,
+                                   duration=film_data.duracion,
+                                   image_url=film_data.url_image))
+
+    # Iteramos los párrafos
+    html_file.write(SZ_HTML_COMMENT('Párrafos'))
+    html_file.write('<section class="review-body">\n')
+    for parrafo in paragraphs:
+        if is_quote_parr(parrafo):
+            html_file.write(SZ_HTML_QUOTE_PARAGRAPH(parrafo))
+        else:
+            html_file.write(SZ_HTML_PARAGRAPH(parrafo))
+    html_file.write('</section>\n')
+
+    # Escribo los botones de Twitter
+    html_file.write(SZ_HTML_BREAK_LINE)
+    html_file.write("\n<footer>")
+    html_file.write(SZ_HTML_COMMENT('Botón follow'))
+    with open(get_res_folder("Make_html", "follow.html")) as follow_code:
+        html_follow = follow_code.read()
+    html_file.write(html_follow)
+    html_file.write(SZ_HTML_COMMENT('Botón compartir'))
+    with open(get_res_folder("Make_html", "share.html")) as share_code:
+        html_share = share_code.read()
+    html_file.write(html_share)
+
+    # Escribo los datos ocultos
+    html_file.write(SZ_HTML_HIDDEN_DATA(year=film_data.año,
+                                        director=film_data.director,
+                                        country=film_data.pais,
+                                        link_fa=film_data.url_FA,
+                                        film_title=film_data.titulo,
+                                        labels=get_labels(film_data),
+                                        duration=film_data.duracion,
+                                        link_image=film_data.url_image))
+    html_file.write("\n</footer>")
+
+
+def get_text(film_data: Pelicula) -> list[str]:
+    paragraphs = []
+    # Preparo el citador con los datos de la película actual
+    citas = Quoter(film_data.titulo, film_data.director)
+
+    # Empiezo a recorrer los párrafos desde el que sé que inicia la crítica que busco
+    for paragraph in WordReader.iter_review(film_data.titulo):
+        # Convierto el contenido del párrafo a html
+        parr_text = parr_to_html(paragraph)
+
+        if not paragraphs:
+            # Si es el primer párrafo, elimino el título
+            parr_text = parr_text[len(film_data.titulo):]
+            parr_text = parr_text.lstrip(": ")
+
+        # Añado las citas a otras reseñas
+        parr_text = citas.quote_parr(parr_text)
+
+        # Añado saltos de línea para un html más legible
+        parr_text = re.sub(r"([.!?…>:]) ", r"\1\n", parr_text)
+        # Añado el texto a la lista de párrafos
+        paragraphs.append(parr_text)
+
+    if not paragraphs:
+        assert ("No ha sido posible encontrar la reseña.")
+    return paragraphs
 
 
 def get_labels(film: Pelicula) -> str:
