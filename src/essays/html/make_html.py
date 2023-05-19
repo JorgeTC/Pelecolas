@@ -14,28 +14,28 @@ from ..word import WordReader
 from .dlg_make_html import DlgHtml
 from .quoter import Quoter
 
-SZ_INVALID_CHAR = "\\/:*?<>|"
-SZ_HTML_COMMENT = "\n<!-- {} -->\n".format
-SZ_HTML_TITLE = "<!-- \n{}\n -->\n".format
-SZ_HTML_BREAK_LINE = "\n<br>"
-SZ_HTML_FILE = "Reseña {}.html".format
+INVALID_CHAR = "\\/:*?<>|"
+HTML_COMMENT = "\n<!-- {} -->\n".format
+HTML_TITLE = "<!-- \n{}\n -->\n".format
+HTML_BREAK_LINE = "\n<br>"
+HTML_FILE = "Reseña {}.html".format
 
 
-def get_res_html_format(sz_file):
+def get_res_html_format(file_name: str):
     # Función para leer los formatos del html
 
     # Abro el archivo html que haya pasado por parámetro
-    with open(get_res_folder("Make_html", sz_file)) as html_file:
+    with open(get_res_folder("Make_html", file_name)) as html_file:
         # Obtengo la string entera
-        sz_file_content = html_file.read()
+        file_content = html_file.read()
     # Devuelvo la función para rellenar la string apropiadamente
-    return sz_file_content.format
+    return file_content.format
 
 
-SZ_HTML_HEADER = get_res_html_format("header.html")
-SZ_HTML_PARAGRAPH = get_res_html_format("paragraph.html")
-SZ_HTML_QUOTE_PARAGRAPH = get_res_html_format("quote_paragraph.html")
-SZ_HTML_HIDDEN_DATA = get_res_html_format("hidden_data.html")
+HTML_HEADER = get_res_html_format("header.html")
+HTML_PARAGRAPH = get_res_html_format("paragraph.html")
+HTML_QUOTE_PARAGRAPH = get_res_html_format("quote_paragraph.html")
+HTML_HIDDEN_DATA = get_res_html_format("hidden_data.html")
 
 
 class Html:
@@ -46,9 +46,7 @@ class Html:
     def __init__(self, film: Pelicula | None = None):
 
         # Variable para el nombre del archivo
-        self.sz_file_name = ""
-        # Creo una lista para guardar el texto de la crítica con el formato html
-        self.parrafos_critica: list[str] = []
+        self.file_name = ""
 
         # Objeto Pelicula para guardar los datos que necesito para escribir el html
         # quiero de ella su titulo, año, duración, y director
@@ -65,23 +63,23 @@ class Html:
             raise KeyError(f"No se ha encontrado el texto para {self.data.titulo}") from e
 
         # Limpio el titulo de la película por si tiene caracteres no válidos para un archivo de Windows
-        self.sz_file_name = "".join(i for i in str(self.data.titulo)
-                                    if i not in SZ_INVALID_CHAR)
+        self.file_name = "".join(i for i in str(self.data.titulo)
+                                 if i not in INVALID_CHAR)
         # Compongo el nombre completo del archivo
-        self.sz_file_name = SZ_HTML_FILE(self.sz_file_name)
+        self.file_name = HTML_FILE(self.file_name)
         # Abro el archivo en modo escritura
-        with open(self.HTML_OUTPUT_FOLDER / self.sz_file_name,
+        with open(self.HTML_OUTPUT_FOLDER / self.file_name,
                   mode="w", encoding="utf-8") as html_file:
             fill_html_file(html_file, self.data, paragraphs)
 
     def delete_file(self):
         # Elimino el último html que he escrito
-        os.remove(self.HTML_OUTPUT_FOLDER / self.sz_file_name)
+        os.remove(self.HTML_OUTPUT_FOLDER / self.file_name)
 
 
 def fill_html_file(html_file: TextIO, film_data: Pelicula, paragraphs: list[str]):
     # Escribo el título de la película en mayúsculas.
-    html_file.write(SZ_HTML_TITLE(film_data.titulo.upper()))
+    html_file.write(HTML_TITLE(film_data.titulo.upper()))
 
     # Escribo el estilo css si así me lo indica el ini
     if Config.get_bool(Section.HTML, Param.ADD_STYLE):
@@ -91,43 +89,43 @@ def fill_html_file(html_file: TextIO, film_data: Pelicula, paragraphs: list[str]
         html_file.write("</style>\n")
 
     # Escribo el encabezado
-    html_file.write(SZ_HTML_COMMENT('Encabezado'))
-    html_file.write(SZ_HTML_HEADER(director=film_data.director,
-                                   year=film_data.año,
-                                   duration=film_data.duracion,
-                                   image_url=film_data.url_image))
+    html_file.write(HTML_COMMENT('Encabezado'))
+    html_file.write(HTML_HEADER(director=film_data.director,
+                                year=film_data.año,
+                                duration=film_data.duracion,
+                                image_url=film_data.url_image))
 
     # Iteramos los párrafos
-    html_file.write(SZ_HTML_COMMENT('Párrafos'))
+    html_file.write(HTML_COMMENT('Párrafos'))
     html_file.write('<section class="review-body">\n')
     for parrafo in paragraphs:
         if is_quote_parr(parrafo):
-            html_file.write(SZ_HTML_QUOTE_PARAGRAPH(parrafo))
+            html_file.write(HTML_QUOTE_PARAGRAPH(parrafo))
         else:
-            html_file.write(SZ_HTML_PARAGRAPH(parrafo))
+            html_file.write(HTML_PARAGRAPH(parrafo))
     html_file.write('</section>\n')
 
     # Escribo los botones de Twitter
-    html_file.write(SZ_HTML_BREAK_LINE)
+    html_file.write(HTML_BREAK_LINE)
     html_file.write("\n<footer>")
-    html_file.write(SZ_HTML_COMMENT('Botón follow'))
+    html_file.write(HTML_COMMENT('Botón follow'))
     with open(get_res_folder("Make_html", "follow.html")) as follow_code:
         html_follow = follow_code.read()
     html_file.write(html_follow)
-    html_file.write(SZ_HTML_COMMENT('Botón compartir'))
+    html_file.write(HTML_COMMENT('Botón compartir'))
     with open(get_res_folder("Make_html", "share.html")) as share_code:
         html_share = share_code.read()
     html_file.write(html_share)
 
     # Escribo los datos ocultos
-    html_file.write(SZ_HTML_HIDDEN_DATA(year=film_data.año,
-                                        director=film_data.director,
-                                        country=film_data.pais,
-                                        link_fa=film_data.url_FA,
-                                        film_title=film_data.titulo,
-                                        labels=get_labels(film_data),
-                                        duration=film_data.duracion,
-                                        link_image=film_data.url_image))
+    html_file.write(HTML_HIDDEN_DATA(year=film_data.año,
+                                     director=film_data.director,
+                                     country=film_data.pais,
+                                     link_fa=film_data.url_FA,
+                                     film_title=film_data.titulo,
+                                     labels=get_labels(film_data),
+                                     duration=film_data.duracion,
+                                     link_image=film_data.url_image))
     html_file.write("\n</footer>")
 
 

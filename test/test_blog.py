@@ -102,7 +102,7 @@ def test_essay_name_changed():
             assert quote_title.called
 
     # Compruebo que el archivo exista
-    assert (writer.HTML_OUTPUT_FOLDER / writer.sz_file_name).is_file()
+    assert (writer.HTML_OUTPUT_FOLDER / writer.file_name).is_file()
 
     # Actualizo el objeto WordReader
     new_name_folder = res_folder / "new_name"
@@ -113,7 +113,7 @@ def test_essay_name_changed():
         # Si los nombres fueran iguales, no estaría testeando nada
         assert old_name != new_name
 
-        essay = ContentMgr.extract_html(writer.sz_file_name)
+        essay = ContentMgr.extract_html(writer.file_name)
 
         # Actualizo la lista de títulos
         with mock.patch.object(BlogScraper, 'TITLE_MGR', TitleMgr(WordReader.TITULOS.keys())):
@@ -141,7 +141,7 @@ def test_make_html(signals):
     document = Html()
     with mock.patch(mocks_ns.import_path(ask_for_data), return_value=signals):
         document.write_html()
-    created_file = document.HTML_OUTPUT_FOLDER / document.sz_file_name
+    created_file = document.HTML_OUTPUT_FOLDER / document.file_name
     assert created_file.is_file()
     reference_file = get_test_res_folder('html', 'Reseña Señales.html')
     assert reference_file.is_file()
