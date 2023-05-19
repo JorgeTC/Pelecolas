@@ -157,6 +157,8 @@ def set_cell_value(worksheet: Worksheet, line: int, col: ExcelColumns, value: An
         cell.number_format = '0.00'
     # Nombre de la película con un hipervínculo
     elif col == ExcelColumns.Id:
+        if film_id is None:
+            raise ValueError
         # Añado un hipervínculo a su página
         cell.style = 'Hyperlink'
         cell.hyperlink = URL_FILM_ID(film_id)
