@@ -88,7 +88,7 @@ class PostThemeUpdater:
         document.write_html()
         # Extraigo el texto del documento html
         # El resto de datos del post deben quedar intactos
-        post_info = ContentMgr.extract_html(document.sz_file_name)
+        post_info = ContentMgr.extract_html(document.file_name)
         post.content = post_info.content
         # Subo el nuevo post
         Poster.update_post(post)

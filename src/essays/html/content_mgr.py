@@ -9,7 +9,7 @@ from src.gui import DlgScrollBase
 from ..aux_title_str import trim_year
 from ..blog_scraper import BlogHiddenData
 from ..google_api import Post
-from .make_html import SZ_HTML_FILE
+from .make_html import HTML_FILE
 
 
 def get_title_from_html(html_path: Path) -> str:
@@ -46,7 +46,7 @@ class ContentMgr:
                             options=cls.available_titles())
         choice = dlg.get_ans()
         # Teniendo el título, extraigo los datos del html
-        return cls.extract_html(SZ_HTML_FILE(choice))
+        return cls.extract_html(HTML_FILE(choice))
 
     @classmethod
     def available_titles(cls) -> list[str]:

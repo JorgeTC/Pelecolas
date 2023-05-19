@@ -1,3 +1,4 @@
+from contextlib import suppress
 from enum import StrEnum
 from typing import Iterator
 
@@ -32,8 +33,8 @@ class BlogScraper:
 
         name = post.title
         # Si el nombre que tiene en el word no es el normal, es que tiene un año
-        if cls.TITLE_MGR.is_title_in_list(name):
-            return cls.TITLE_MGR.exact_key_without_dlg(name)
+        with suppress(StopIteration):
+            return cls.TITLE_MGR.exact_key(name, print_titles=False, no_except=False)
 
         # Parseo el contenido
         if parsed is None:
@@ -41,16 +42,16 @@ class BlogScraper:
 
         # Tomo el nombre que está escrito en los datos ocultos
         name = BlogHiddenData.TITLE.get(parsed)
-        if cls.TITLE_MGR.is_title_in_list(name):
-            return cls.TITLE_MGR.exact_key_without_dlg(name)
+        with suppress(StopIteration):
+            return cls.TITLE_MGR.exact_key(name, print_titles=False, no_except=False)
 
         # El nombre que viene en el html no es correcto,
         # pruebo a componer un nuevo nombre con el título y el año
         year = BlogHiddenData.YEAR.get(parsed)
         name = f'{name} ({year})'
 
-        if cls.TITLE_MGR.is_title_in_list(name):
-            return cls.TITLE_MGR.exact_key_without_dlg(name)
+        with suppress(StopIteration):
+            return cls.TITLE_MGR.exact_key(name, print_titles=False, no_except=False)
 
         # Intento encontrar una reseña cuyo primer párrafo
         # sea idéntico al primer párrafo del texto
@@ -76,7 +77,7 @@ class BlogScraper:
 def find_title_by_content(parsed_post: BeautifulSoup) -> str:
 
     # Variable de títulos posibles
-    candidates_titles = BlogScraper.TITLE_MGR.TITLES
+    candidates_titles = BlogScraper.TITLE_MGR.list_titles()
 
     # Comparo párrafos hasta que sólo haya un título cuya reseña coincida
     for i, post_parr in enumerate(parrs_in_plain_text(parsed_post)):
@@ -126,7 +127,7 @@ def review_in_plain_text(title: str, index_parr: int) -> str:
 def parrs_in_plain_text(parsed_post: BeautifulSoup) -> Iterator[str]:
 
     # Convierto el primer párrafo a texto plano
-    for parr in iter_BeautifulSoup(parsed_post, 'p', class_ = ['regular-parr', 'quoted-parr']):
+    for parr in iter_BeautifulSoup(parsed_post, 'p', class_=['regular-parr', 'quoted-parr']):
         # Obtengo solo el texto
         all_text: list[str] = parr.find_all(string=True)
         # Elimino la sangría del inicio del párrafo
@@ -138,6 +139,7 @@ def parrs_in_plain_text(parsed_post: BeautifulSoup) -> Iterator[str]:
         text = text.replace("\n", " ")
 
         yield text
+
 
 def iter_BeautifulSoup(parsed_page: BeautifulSoup, /, *args, **kwargs) -> Iterator[BeautifulSoup]:
     found = parsed_page.find(*args, **kwargs)
