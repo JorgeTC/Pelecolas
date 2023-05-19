@@ -139,9 +139,7 @@ class WordReader:
     @classmethod
     def iter_review(cls, title: str) -> Iterator[Paragraph]:
         # Obtengo la posición donde empieza la reseña que busco
-        first_parr: int = cls.TITULOS.get(title, -1)
-        if first_parr == -1:
-            return
+        first_parr = cls.TITULOS[title]
 
         # Voy devolviendo los párrafos de la reseña
         for paragraph in cls.PARAGRAPHS[first_parr:]:

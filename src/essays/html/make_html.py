@@ -59,7 +59,10 @@ class Html:
         if self.data is None:
             self.data = ask_for_data()
 
-        paragraphs = get_text(self.data)
+        try:
+            paragraphs = get_text(self.data)
+        except KeyError as e:
+            raise KeyError(f"No se ha encontrado el texto para {self.data.titulo}") from e
 
         # Limpio el titulo de la película por si tiene caracteres no válidos para un archivo de Windows
         self.sz_file_name = "".join(i for i in str(self.data.titulo)
