@@ -117,7 +117,7 @@ def test_essay_name_changed():
 
         # Actualizo la lista de títulos
         with mock.patch.object(BlogScraper, 'TITLE_MGR', TitleMgr(WordReader.TITULOS.keys())):
-            assert len(BlogScraper.TITLE_MGR.TITLES) == 1
+            assert len(BlogScraper.TITLE_MGR.titles) == 1
             with mocks_ns.mock_without_replace(find_title_by_content) as title_by_content:
                 # Compruebo que el nombre sea el nuevo
                 assert new_name == BlogScraper.get_name_from_post(essay)
