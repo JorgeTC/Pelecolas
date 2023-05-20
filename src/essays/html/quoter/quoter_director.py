@@ -128,9 +128,7 @@ class QuoterDirector:
             return True
         # En caso contrario, pregunto
         pregunta = f"¿Es {nombre} una cita de {director}? "
-        question = YesNo(pregunta)
-        ans = question.get_ans()
-        return bool(ans)
+        return YesNo(pregunta).get_ans()
 
 
 def split_words(text: str) -> Iterable[tuple[int, str]]:
