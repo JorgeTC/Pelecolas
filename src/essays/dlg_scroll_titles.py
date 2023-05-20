@@ -20,7 +20,6 @@ class DlgScrollTitles(DlgScrollBase):
             # Al llamar a input es cuando me espero que se utilicen las flechas
             self.sz_ans = input(self.sz_question)
             self.sz_options = self.quisiste_decir.suggestions(self.sz_ans)
-            self.n_options = len(self.sz_options)
             # Se ha introducido un título, compruebo que sea correcto
             self.sz_ans = self.quisiste_decir.exact_key(self.sz_ans)
 

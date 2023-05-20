@@ -22,7 +22,6 @@ class DlgScrollBase(ConsoleEvent):
         self.sz_question = question
         # Opciones sobre las que hacer scroll
         self.sz_options = [] if options is None else options
-        self.n_options = len(self.sz_options)
 
         # Si después del último elemento de la iteración se mostrará una string vacía
         self.SCROLL_EMPTY_OPTION = empty_option
@@ -89,7 +88,7 @@ class DlgScrollBase(ConsoleEvent):
 
     def __scroll(self, iter_fun: Callable[[int], int]):
         # si no tengo ninguna sugerencia, no puedo recorrer nada
-        if not self.n_options:
+        if not self.sz_options:
             return
 
         clear_written()
@@ -110,7 +109,7 @@ class DlgScrollBase(ConsoleEvent):
 
     def __next_index(self, current_index: int) -> int:
         # Compruebo si puedo aumentar mi posición en la lista
-        if current_index < self.n_options - 1:
+        if current_index < len(self.options) - 1:
             # Puedo aumentar en la lista
             return current_index + 1
         else:
@@ -122,7 +121,7 @@ class DlgScrollBase(ConsoleEvent):
         # Compruebo si el índice es demasiado bajo (-1 o 0)
         if current_index <= self.min_index:
             # Le doy la última posición en la lista
-            return self.n_options - 1
+            return len(self.options) - 1
         else:
             # Puedo bajar una posición en la lista
             return current_index - 1
