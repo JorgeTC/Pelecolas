@@ -109,7 +109,7 @@ class DlgScrollBase(ConsoleEvent):
 
     def __next_index(self, current_index: int) -> int:
         # Compruebo si puedo aumentar mi posición en la lista
-        if current_index < len(self.options) - 1:
+        if current_index + 1 < len(self.options):
             # Puedo aumentar en la lista
             return current_index + 1
         else:
