@@ -19,10 +19,9 @@ class DlgScrollBase(ConsoleEvent):
         ConsoleEvent.__init__(self)
 
         # Pregunta que voy a mostrar en pantalla
-        self.sz_question = question
+        self.question = question
         # Opciones sobre las que hacer scroll
-        self.sz_options = [] if options is None else options
-        self.n_options = len(self.sz_options)
+        self.options = [] if options is None else options
 
         # Si después del último elemento de la iteración se mostrará una string vacía
         self.SCROLL_EMPTY_OPTION = empty_option
@@ -31,7 +30,7 @@ class DlgScrollBase(ConsoleEvent):
         # Si tolero una respuesta vacía
         self.ALLOW_EMPTY_ANS = empty_ans
         # Variable para guardar la respuesta
-        self.sz_ans = ""
+        self.ans = ""
 
         # Índice que me dice cuál ha sido la última opción escrita
         self.curr_index = self.min_index
@@ -52,20 +51,20 @@ class DlgScrollBase(ConsoleEvent):
         return ans
 
     def get_ans_body(self) -> str:
-        self.sz_ans = ""
+        self.ans = ""
         # Función para sobrescribir.
         # Es la que hace la petición efectiva de un elemento de la lista
-        while not self.sz_ans:
+        while not self.ans:
             # Inicializo las variables antes de llamar a input
             self.curr_index = self.min_index
             # Al llamar a input es cuando me espero que se utilicen las flechas
-            self.sz_ans = input(self.sz_question)
-            if not self.sz_ans and self.ALLOW_EMPTY_ANS:
-                return self.sz_ans
+            self.ans = input(self.question)
+            if not self.ans and self.ALLOW_EMPTY_ANS:
+                return self.ans
             # Se ha introducido un título, compruebo que sea correcto
-            self.sz_ans = self.sz_ans if self.sz_ans in self.sz_options else ''
+            self.ans = self.ans if self.ans in self.options else ''
 
-        return self.sz_ans
+        return self.ans
 
     @staticmethod
     def hotkey_method(fn: Callable[['DlgScrollBase'], None]):
@@ -89,7 +88,7 @@ class DlgScrollBase(ConsoleEvent):
 
     def __scroll(self, iter_fun: Callable[[int], int]):
         # si no tengo ninguna sugerencia, no puedo recorrer nada
-        if not self.n_options:
+        if not self.options:
             return
 
         clear_written()
@@ -97,7 +96,7 @@ class DlgScrollBase(ConsoleEvent):
 
         # Si el índice corresponde a un elemento de la lista, lo escribo
         if (self.curr_index != -1):
-            curr_suggested = self.sz_options[self.curr_index]
+            curr_suggested = self.options[self.curr_index]
             keyboard.write(curr_suggested)
 
     @hotkey_method
@@ -110,7 +109,7 @@ class DlgScrollBase(ConsoleEvent):
 
     def __next_index(self, current_index: int) -> int:
         # Compruebo si puedo aumentar mi posición en la lista
-        if current_index < self.n_options - 1:
+        if current_index + 1 < len(self.options):
             # Puedo aumentar en la lista
             return current_index + 1
         else:
@@ -122,7 +121,7 @@ class DlgScrollBase(ConsoleEvent):
         # Compruebo si el índice es demasiado bajo (-1 o 0)
         if current_index <= self.min_index:
             # Le doy la última posición en la lista
-            return self.n_options - 1
+            return len(self.options) - 1
         else:
             # Puedo bajar una posición en la lista
             return current_index - 1
@@ -130,7 +129,7 @@ class DlgScrollBase(ConsoleEvent):
     def get_ans(self):
         ConsoleEvent.execute_if_main_thread(self)
         with self.locker:
-            return self.sz_ans
+            return self.ans
 
 
 def clear_written():
