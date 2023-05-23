@@ -61,9 +61,9 @@ def test_not_quote_twice_same_title(Johnny: str):
     sentences = Johnny.split(".")
 
     # Compruebo que se haya citado la segunda vez
-    assert quoted_parr.find(sentences[1]) == -1
+    assert sentences[1] not in quoted_parr
     # Compruebo que no se haya citado la primera
-    assert quoted_parr.find(sentences[0]) > -1
+    assert sentences[0] in quoted_parr
 
 
 @pytest.fixture

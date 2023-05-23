@@ -25,7 +25,7 @@ class FilmPage:
             # Elimino el punto de los millares
             voters_str = voters_str.replace('.', '')
             return int(voters_str)
-        except:
+        except (KeyError, AttributeError, TypeError):
             # caso en el que no hay suficientes votantes
             return 0
 
@@ -36,7 +36,7 @@ class FilmPage:
             str_duracion = l.find(itemprop="duration").contents[0]
             str_duracion = re.search(r'(\d+) +min.', str_duracion).group(1)
             return int(str_duracion)
-        except:
+        except (KeyError, AttributeError, TypeError):
             # caso en el que no está escrita la duración
             return 0
 
@@ -44,7 +44,7 @@ class FilmPage:
         try:
             return self.parsed_page.find(
                 id="country-img").contents[0].attrs['alt']
-        except:
+        except (KeyError, AttributeError):
             return ""
 
     def get_title(self) -> str:

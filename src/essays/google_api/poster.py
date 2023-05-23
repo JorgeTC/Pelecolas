@@ -130,7 +130,7 @@ def date_to_str(date: date | datetime, *,
         # Caso en el que no esté especificada la hora
         return datetime(date.year, date.month, date.day,
                         tzinfo=TIME_ZONE).isoformat()
-    except:
+    except Exception:
         raise ValueError
 
 

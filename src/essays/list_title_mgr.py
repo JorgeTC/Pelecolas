@@ -1,5 +1,4 @@
 import re
-from dataclasses import dataclass
 
 
 def make_unwanted_chars() -> dict[int, int | None]:
@@ -25,17 +24,16 @@ def normalize_string(string: str, *, UNWANTED_CHARS=make_unwanted_chars()) -> st
     return string
 
 
-@dataclass
 class TitleEntry:
-    title: str
-    lower: str
-    normalized: str
+    def __init__(self, title: str):
+        self.title = title
+        self.lower = title.lower()
+        self.normalized = normalize_string(title)
 
 
 class TitleMgr:
     def __init__(self, title_list: list[str]):
-        self.titles = [TitleEntry(title, title.lower(), normalize_string(title))
-                       for title in title_list]
+        self.titles = [TitleEntry(title) for title in title_list]
 
     def is_title_in_list(self, titulo: str) -> bool:
         try:

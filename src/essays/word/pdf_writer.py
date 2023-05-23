@@ -14,7 +14,7 @@ def get_pdf_files(docx_folder: Path, docx_list: list[Path]) -> list[Path]:
     # Aún no existen los pdf.
     # Recorro los docx que existen, los que voy a convertir a pdf.
     # Genero el nombre que tendrá el pdf resultante de cada uno de ellos
-    return [docx_folder / (file.stem + ".pdf")
+    return [docx_folder / f"{file.stem}.pdf"
             for file in docx_list]
 
 

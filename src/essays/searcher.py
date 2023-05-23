@@ -97,11 +97,11 @@ def clarify_case(film_url: str) -> SearchResult:
     stage = film_url[32:]
 
     # El mejor de los casos, he encontrado la película
-    if stage.find('film') >= 0:
+    if 'film' in stage:
         return SearchResult.FOUND
-    if stage.find('advsearch') >= 0:
+    if 'advsearch' in stage:
         return SearchResult.NOT_FOUND
-    if stage.find('search') >= 0:
+    if 'search' in stage:
         return SearchResult.SEVERAL_RESULTS
 
     raise ValueError

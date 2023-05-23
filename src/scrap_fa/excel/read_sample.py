@@ -64,7 +64,7 @@ def read_film_if_valid(film: Pelicula) -> Optional[Pelicula]:
     # Es válida, devuelvo la película con los datos rellenos
     try:
         return read_film(film)
-    except:
+    except Exception:
         return None
 
 
@@ -79,7 +79,7 @@ def has_valid_id(film: Pelicula) -> bool:
     # Obtengo el título de la película...
     try:
         film.get_title()
-    except:
+    except Exception:
         return False
     # ...para comprobar si es válido
     if not is_valid(film):
