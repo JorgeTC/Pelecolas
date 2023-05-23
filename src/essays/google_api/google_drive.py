@@ -25,13 +25,13 @@ class Drive:
     @classmethod
     def update_docx_files(cls):
         docx_files = [path for path in cls.FILES_IN_DRIVE()
-                      if path.name.find('.docx') >= 0]
+                      if '.docx' in path.name]
         cls.update_files(docx_files)
 
     @classmethod
     def update_pdf_files(cls):
         pdf_files = [path for path in cls.FILES_IN_DRIVE()
-                     if path.name.find('.pdf') >= 0]
+                     if '.pdf' in path.name]
         cls.update_files(pdf_files)
 
     @classmethod
@@ -86,10 +86,10 @@ def get_path_from_drive_file(file: DriveFile, *,
                              DOCX_FOLDER=Config.get_folder_path(
                                  Section.COUNT_FILMS, Param.WORD_FOLDER)) -> Path:
 
-    if file.name.find('.docx') >= 0:
+    if '.docx' in file.name:
         # Caso en el que sea un word
         return DOCX_FOLDER / file.name
-    elif file.name.find('.pdf') >= 0:
+    elif '.pdf' in file.name:
         # Caso en el que sea el pdf
         return PDF_FOLDER / file.name
 

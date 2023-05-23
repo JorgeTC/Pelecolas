@@ -32,9 +32,9 @@ def test_quote_title_without_dlg(TarantinoParr: str):
 
     sentences = TarantinoParr.split(".")
     # Compruebo que se haya citado la primera aparición
-    assert parr.find(sentences[0]) == -1
+    assert sentences[0] not in parr
     # Compruebo que no se ha citado la segunda aparición
-    assert parr.find(sentences[1]) > -1
+    assert sentences[1] in parr
 
     # Paso el mismo párrafo.
     # No quiero que ahora cite a Tarantino

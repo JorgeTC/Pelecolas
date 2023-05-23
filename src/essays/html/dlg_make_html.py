@@ -63,7 +63,7 @@ class DlgHtml:
             url = URL_FILM_ID(self.data.director)
             return not self.__get_data_from_FA(url)
 
-        if self.data.director.find("filmaffinity") >= 0:
+        if "filmaffinity" in self.data.director:
             # Se ha introducido directamente la url
             return not self.__get_data_from_FA(self.data.director)
 
