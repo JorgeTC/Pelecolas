@@ -12,11 +12,11 @@ def import_path(function: Callable) -> str:
     # Compongo la ruta de importación
     function_path = function.__qualname__
     definition_path = Path(inspect.getfile(function))
-    while definition_path.stem != 'src':
-        function_path = definition_path.stem + "." + function_path
-        definition_path = definition_path.parent
-    function_path = "src." + function_path
-    return function_path
+    definition_path = definition_path.with_suffix("")
+    src_path = next(parent for parent in definition_path.parents
+                    if parent.name == 'src')
+    relative_definition = definition_path.relative_to(src_path.parent)
+    return ".".join((*relative_definition.parts, function_path))
 
 
 @contextmanager
