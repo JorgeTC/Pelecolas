@@ -55,10 +55,10 @@ class BlogScraper:
 
         # Intento encontrar una reseña cuyo primer párrafo
         # sea idéntico al primer párrafo del texto
-        if name := find_title_by_content(parsed):
-            return name
+        with suppress(ValueError):
+            return find_title_by_content(parsed)
 
-        return ""
+        raise ValueError
 
     def __init__(self, post: Post):
         self.post = post
@@ -93,7 +93,7 @@ def find_title_by_content(parsed_post: BeautifulSoup) -> str:
 
         # Si no he encontrado coincidencia, no puedo sugerir ningún título
         if not filtered_candidates:
-            return ""
+            raise ValueError
         # Sólo hay una coincidencia, sugiero ese título
         elif len(filtered_candidates) == 1:
             return filtered_candidates[0]
@@ -102,7 +102,7 @@ def find_title_by_content(parsed_post: BeautifulSoup) -> str:
         candidates_titles = filtered_candidates
 
     # Se ha llegado al improbable caso en el que hay dos reseñas con los mismos párrafos
-    return ""
+    raise ValueError
 
 
 def review_in_plain_text(title: str, index_parr: int) -> str:
@@ -121,7 +121,7 @@ def review_in_plain_text(title: str, index_parr: int) -> str:
         return parr_text
 
     # He introducido un índice demasiado grande
-    return ""
+    raise IndexError
 
 
 def parrs_in_plain_text(parsed_post: BeautifulSoup) -> Iterator[str]:

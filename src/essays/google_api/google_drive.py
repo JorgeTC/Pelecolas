@@ -93,4 +93,4 @@ def get_path_from_drive_file(file: DriveFile, *,
         # Caso en el que sea el pdf
         return PDF_FOLDER / file.name
 
-    return Path()
+    raise ValueError
