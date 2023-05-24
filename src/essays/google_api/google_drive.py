@@ -1,3 +1,4 @@
+from functools import cache
 from pathlib import Path
 from typing import Iterable
 
@@ -7,7 +8,6 @@ from src.config import Config, Param, Section
 
 from . import drive_client as Client
 from .api_dataclasses import DriveFile
-from .thread_safe_property import thread_safe_cache
 
 TYPE_FOLDER = 'application/vnd.google-apps.folder'
 
@@ -47,7 +47,7 @@ class Drive:
             Client.update_file(file.id, media_body)
 
     @classmethod
-    @thread_safe_cache
+    @cache
     def FILES_IN_DRIVE(cls) -> list[DriveFile]:
         # Lista de todos los archivos que están subidos a Google Drive
         return cls.get_files_in_folder(cls.FOLDER_ID)
