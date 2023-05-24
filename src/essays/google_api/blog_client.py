@@ -1,5 +1,6 @@
 from dataclasses import asdict
 from enum import Enum
+from functools import cache
 from typing import Any
 
 from googleapiclient.discovery import Resource
@@ -10,7 +11,6 @@ from src.config import Config, Param, Section
 from .api_dataclasses import Blog, Post
 from .google_api_mgr import get_google_service
 from .google_client import GoogleClient
-from .thread_safe_property import thread_safe_cache
 
 BLOG_ID = Config.get_value(Section.POST, Param.BLOG_ID)
 
@@ -35,17 +35,17 @@ def get_blog_and_api(service: Resource, blog_id: str) -> tuple[Blog, Resource]:
         return None, None
 
 
-@thread_safe_cache
+@cache
 def SERVICE():
     return get_google_service('blogger')
 
 
-@thread_safe_cache
+@cache
 def BLOGS():
     return SERVICE().blogs()
 
 
-@thread_safe_cache
+@cache
 def POSTS():
     blog, posts = get_blog_and_api(SERVICE(), BLOG_ID)
     return posts
