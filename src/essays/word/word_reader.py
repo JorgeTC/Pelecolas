@@ -50,7 +50,7 @@ def is_break_line(text: str) -> bool:
     text = text.strip()
 
     # Compruebo que contenga un salto de linea
-    if text in ('', "\t", "\n"):
+    if text in {'', "\t", "\n"}:
         return True
 
     # Es un párrafo y no un salto de línea
