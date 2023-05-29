@@ -140,8 +140,8 @@ def set_cell_value(worksheet: Worksheet, line: int, col: ExcelColumns, value: An
     elif col == ExcelColumns.Mia_ruido:
         cell.number_format = '0.0'
     # Nota de FA más el ruido
-    elif col in (ExcelColumns.FA,
-                 ExcelColumns.FA_ruido):
+    elif col in {ExcelColumns.FA,
+                 ExcelColumns.FA_ruido}:
         cell.number_format = '0.00'
     # Varianza de los votos en FA
     elif col == ExcelColumns.Varianza_FA:
@@ -150,10 +150,10 @@ def set_cell_value(worksheet: Worksheet, line: int, col: ExcelColumns, value: An
     elif col == ExcelColumns.Prop_aprobados_FA:
         cell.number_format = '0.00%'
     # reescala
-    elif col in (ExcelColumns.Mia_rees,
+    elif col in {ExcelColumns.Mia_rees,
                  ExcelColumns.FA_rees,
                  ExcelColumns.Diferencia,
-                 ExcelColumns.Diferencia_abs):
+                 ExcelColumns.Diferencia_abs}:
         cell.number_format = '0.00'
     # Nombre de la película con un hipervínculo
     elif col == ExcelColumns.Id:
