@@ -78,39 +78,37 @@ def find_title_by_content(parsed_post: BeautifulSoup) -> str:
 
     # Variable de títulos posibles
     candidates_titles = BlogScraper.TITLE_MGR.list_titles()
+    # Iteradores para todas las reseñas
+    candidates_texts = {title: review_in_plain_text(title)
+                        for title in candidates_titles}
 
     # Comparo párrafos hasta que sólo haya un título cuya reseña coincida
-    for i, post_parr in enumerate(parrs_in_plain_text(parsed_post)):
-        # Candidatos después de haber comparado el i-ésimo párrafo
-        filtered_candidates = []
-
-        # Itero todos los posibles títulos
-        for title in candidates_titles:
-            word_parr_text = review_in_plain_text(title, i)
-            # Coinciden, por tanto puede ser el título que busco
-            if post_parr == word_parr_text:
-                filtered_candidates.append(title)
+    for post_parr in parrs_in_plain_text(parsed_post):
+        candidates_texts = filter_candidates(post_parr, candidates_texts)
 
         # Si no he encontrado coincidencia, no puedo sugerir ningún título
-        if not filtered_candidates:
+        if not candidates_texts:
             raise ValueError
         # Sólo hay una coincidencia, sugiero ese título
-        elif len(filtered_candidates) == 1:
-            return filtered_candidates[0]
-
-        # Me quedo con los candidatos
-        candidates_titles = filtered_candidates
+        elif len(candidates_texts) == 1:
+            return next(iter(candidates_texts))
 
     # Se ha llegado al improbable caso en el que hay dos reseñas con los mismos párrafos
     raise ValueError
 
 
-def review_in_plain_text(title: str, index_parr: int) -> str:
+def filter_candidates(paragraph: str, candidates: dict[str, Iterator[str]]) -> dict[str, Iterator[str]]:
+    # Títulos cuyo párrafo i-ésimo coincide con el párrafo introducido
+    filtered_candidates = [title for title, iter_text in candidates.items()
+                           if paragraph == next(iter_text, None)]
+
+    # Devuelvo el diccionario con sólo los títulos que me sirven
+    return {title: candidates[title] for title in filtered_candidates}
+
+
+def review_in_plain_text(title: str) -> Iterator[str]:
     # Itero hasta el párrafo cuyo índice coincide con el necesario
     for i, current_title_parr in enumerate(WordReader.iter_review(title)):
-        if i < index_parr:
-            continue
-
         # Lo convierto a texto consecutivo
         parr_text = ''.join(run.text for run in current_title_parr.runs)
         # Retiro el título antes de los dos puntos
@@ -118,10 +116,7 @@ def review_in_plain_text(title: str, index_parr: int) -> str:
             parr_text = parr_text[len(title):]
             parr_text = parr_text.lstrip(": ")
 
-        return parr_text
-
-    # He introducido un índice demasiado grande
-    raise IndexError
+        yield parr_text
 
 
 def parrs_in_plain_text(parsed_post: BeautifulSoup) -> Iterator[str]:
