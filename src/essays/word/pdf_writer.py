@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 import docx2pdf
-from PyPDF2 import PdfFileMerger
+from pypdf import PdfMerger
 
 from src.config import Config, Param, Section
 
@@ -34,7 +34,7 @@ class PDFWriter:
     def join_pdf(cls):
 
         # Creo un objeto para unir pdf
-        merger = PdfFileMerger()
+        merger = PdfMerger()
         # Le doy todos los que necesita añadir
         for pdf in cls.SZ_ALL_PDF:
             merger.append(str(pdf))
