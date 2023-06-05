@@ -14,7 +14,7 @@ from ..word import WordReader
 from .dlg_make_html import DlgHtml
 from .quoter import Quoter
 
-INVALID_CHAR = "\\/:*?<>|"
+INVALID_CHAR = set("\\/:*?<>|")
 HTML_COMMENT = "\n<!-- {} -->\n".format
 HTML_TITLE = "<!-- \n{}\n -->\n".format
 HTML_BREAK_LINE = "\n<br>"
