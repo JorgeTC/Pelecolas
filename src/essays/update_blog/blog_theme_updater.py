@@ -49,9 +49,6 @@ class PostThemeUpdater:
 
         # A partir del post busco cuál es su nombre en el Word
         title = blog_scraper.get_title()
-        # Si no encuentro su nombre en el Word, salgo
-        if not title:
-            return False
 
         # Obtengo la url de la película
         if cls.FA_URL_FROM_HIDDEN_DATA:
@@ -70,10 +67,7 @@ class PostThemeUpdater:
         # Normalmente tengo todos los datos necesarios dentro del html.
         # Si me faltara alguno, indico que hay que descargar la página de FA
         if cls.DOWNLOAD_DATA:
-            try:
-                download_film_data(film_data)
-            except ValueError:
-                return False
+            download_film_data(film_data)
         else:
             parse_film_data(film_data, blog_scraper)
             # Solo tiene sentido que compruebe su url si he cogido el dato del html
@@ -94,8 +88,6 @@ class PostThemeUpdater:
         Poster.update_post(post)
         # Elimino el archivo html
         document.delete_file()
-
-        return True
 
 
 def update_image_url(film_data: Pelicula):
@@ -132,7 +124,9 @@ class BlogThemeUpdater:
         # Imprimo el nombre de la película actual
         GUI.Log(f"Actualizando {post.title}")
 
-        if not PostThemeUpdater.update_post(post):
+        try:
+            PostThemeUpdater.update_post(post)
+        except Exception:
             GUI.Log(f"Error con la película {post.title}")
 
         self.progress_bar.update()
