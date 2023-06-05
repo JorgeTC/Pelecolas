@@ -66,13 +66,8 @@ def set_word_folder(word_folder: Path):
     original_paragraphs = WordReader.PARAGRAPHS
 
     # Escribo los valores con la actual carpeta de Word
-    with mock.patch.object(WordFolderMgr, "SZ_ALL_DOCX", get_files(word_folder)):
-        WordReader.TITULOS = {}
-        WordReader.YEARS_PARR = {}
-        WordReader.PARAGRAPHS = []
-        init_paragraphs(WordReader.YEARS_PARR, WordReader.PARAGRAPHS)
-        init_titles(WordReader.HEADER, WordReader.PARAGRAPHS,
-                    WordReader.TITULOS)
+    WordReader.PARAGRAPHS, WordReader.YEARS_PARR = init_paragraphs(get_files(word_folder))
+    WordReader.TITULOS = init_titles(WordReader.HEADER, WordReader.PARAGRAPHS)
 
     try:
         yield

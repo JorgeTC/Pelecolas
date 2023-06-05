@@ -1,6 +1,7 @@
+import re
 from io import StringIO
-from pathlib import Path
 from itertools import takewhile
+from pathlib import Path
 from typing import Iterator, TextIO
 
 import docx
@@ -10,7 +11,7 @@ from src.config import Config, Param, Section
 
 from .word_folder_mgr import WordFolderMgr
 
-SEPARATOR_YEAR = " - "
+DOCUMENT_NAME = re.compile(r"(?P<header>.*) - (?P<year>\d{4})")
 
 
 def get_bold_title(paragraph: Paragraph) -> str:
@@ -57,19 +58,23 @@ def is_break_line(text: str) -> bool:
     return False
 
 
-def init_paragraphs(year_parr: dict[int, int], paragraphs: list[Paragraph]):
+def init_paragraphs(word_documents: list[Path]):
+    year_parr: dict[int, int] = {}
+    paragraphs: list[Paragraph] = []
     # Itero todos los docx que he encontrado
-    for word in WordFolderMgr.SZ_ALL_DOCX:
+    for word in word_documents:
         # Obtengo el año actual
         try:
-            year = int(word.stem.split(SEPARATOR_YEAR)[1])
-        except IndexError:
+            year = int(DOCUMENT_NAME.search(word.stem).group('year'))
+        except (AttributeError, TypeError):
             year = 2017
         # Guardo en qué párrafo empieza el año actual
         year_parr[year] = len(paragraphs)
         # Añado los párrafos del docx actual
         # Evito añadir el primero, donde está el título del documento
         paragraphs.extend(docx.Document(word).paragraphs[1:])
+
+    return paragraphs, year_parr
 
 
 def has_next_parr_title(text: str, header: str) -> bool:
@@ -103,7 +108,9 @@ def append_title(paragraph: Paragraph, index: int, titulos: dict[str, int]) -> b
     return True
 
 
-def init_titles(header: str, paragraphs: list[Paragraph], titulos: dict[str, int]) -> None:
+def init_titles(header: str, paragraphs: list[Paragraph]) -> dict[str, int]:
+    titulos: dict[str, int] = {}
+
     # inicializo la variable.
     # No quiero buscar desde el principio porque sé que encontraré el título del documento.
     search_title = False
@@ -119,18 +126,18 @@ def init_titles(header: str, paragraphs: list[Paragraph], titulos: dict[str, int
             # Si no he añadido nada, sigo buscando.
             search_title = not append_title(paragraph, i, titulos)
 
+    return titulos
+
 
 class WordReader:
     # Me quedo con el nombre del archivo sin la extensión.
-    HEADER = str(WordFolderMgr.SZ_ALL_DOCX[0].stem).split(SEPARATOR_YEAR)[0]
+    HEADER = DOCUMENT_NAME.search(
+        WordFolderMgr.SZ_ALL_DOCX[0].stem).group('header')
     # Me guardo sólo los párrafos, es lo que voy a iterar más adelante
-    PARAGRAPHS: list[Paragraph] = []
     # Guardo a qué párrafo corresponde cada año
-    YEARS_PARR: dict[int, int] = {}
-    init_paragraphs(YEARS_PARR, PARAGRAPHS)
+    PARAGRAPHS, YEARS_PARR = init_paragraphs(WordFolderMgr.SZ_ALL_DOCX)
     # Lista con todos los títulos que encuentre.
-    TITULOS: dict[str, int] = {}
-    init_titles(HEADER, PARAGRAPHS, TITULOS)
+    TITULOS = init_titles(HEADER, PARAGRAPHS)
 
     @classmethod
     def list_titles(self) -> list[str]:
