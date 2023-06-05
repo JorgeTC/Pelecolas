@@ -53,7 +53,7 @@ class Searcher:
 
     def has_results(self) -> bool:
         # Comprobar si hay esperanza de encontrar la ficha
-        return self.__estado in (SearchResult.FOUND, SearchResult.SEVERAL_RESULTS)
+        return self.__estado in {SearchResult.FOUND, SearchResult.SEVERAL_RESULTS}
 
     def get_url(self) -> str:
         if self.__estado == SearchResult.SEVERAL_RESULTS:
