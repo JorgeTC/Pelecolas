@@ -120,7 +120,7 @@ class Pelicula:
         instance = cls()
 
         # Guardo los valores que conozco por la información introducida
-        instance.url_FA = str(urlFA)
+        instance.url_FA = urlFA
         instance.id = get_id_from_url(instance.url_FA)
 
         # Devuelvo la instancia

@@ -63,7 +63,7 @@ class Html:
             raise KeyError(f"No se ha encontrado el texto para {self.data.titulo}") from e
 
         # Limpio el titulo de la película por si tiene caracteres no válidos para un archivo de Windows
-        self.file_name = "".join(i for i in str(self.data.titulo)
+        self.file_name = "".join(i for i in self.data.titulo
                                  if i not in INVALID_CHAR)
         # Compongo el nombre completo del archivo
         self.file_name = HTML_FILE(self.file_name)

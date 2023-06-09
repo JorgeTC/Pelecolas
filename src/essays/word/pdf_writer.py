@@ -28,7 +28,7 @@ class PDFWriter:
         WordFolderMgr.delete_temp_files()
 
         # Convierto todo a pdf
-        docx2pdf.convert(str(WordFolderMgr.WORD_FOLDER))
+        docx2pdf.convert(WordFolderMgr.WORD_FOLDER)
 
     @classmethod
     def join_pdf(cls):
@@ -37,11 +37,11 @@ class PDFWriter:
         merger = PdfMerger()
         # Le doy todos los que necesita añadir
         for pdf in cls.SZ_ALL_PDF:
-            merger.append(str(pdf))
+            merger.append(pdf)
 
         # Le doy la carpeta y el nombre del pdf
-        merger.write(str(Config.get_folder_path(
-            Section.DRIVE, Param.PDF_PATH) / "Reseñas.pdf"))
+        merger.write(Config.get_folder_path(
+            Section.DRIVE, Param.PDF_PATH) / "Reseñas.pdf")
         merger.close()
 
     @classmethod
