@@ -1,3 +1,4 @@
+from contextlib import suppress
 from dataclasses import dataclass
 
 from ... import word as Word
@@ -28,16 +29,16 @@ class QuoterTitle:
             return text
 
         # Construyo una lista con todas las posibles citas
-        posible_titles = [FilmCitation(begin=i,
-                                       end=j,
-                                       title=text[i + 1:j])
-                          for i, j in zip(ini_comillas_pos, fin_comillas_pos)]
+        posible_titles = [FilmCitation(begin=begin,
+                                       end=end,
+                                       title=text[begin + 1:end])
+                          for begin, end in zip(ini_comillas_pos, fin_comillas_pos)]
 
-        while posible_titles:
-            title = posible_titles.pop()
-            row = find_row_in_csv(title.title)
+        for title in reversed(posible_titles):
+            try:
+                row = find_row_in_csv(title.title)
             # La película no está indexada
-            if row < 0:
+            except ValueError:
                 continue
             # Guardo el título como viene escrito en el CSV
             title_in_csv = QuoterBase.CSV_CONTENT[row][CSV_COLUMN.TITLE]
@@ -73,17 +74,18 @@ def add_post_link(text: str, citation: FilmCitation, row: int) -> str:
 
 
 def row_in_csv(title: str) -> int:
-    return next((index
-                 for index, row in enumerate(QuoterBase.CSV_CONTENT)
-                 if title.lower() == row[CSV_COLUMN.TITLE].lower().strip("\"")),
-                -1)
+    try:
+        return next(index
+                    for index, row in enumerate(QuoterBase.CSV_CONTENT)
+                    if title.lower() == row[CSV_COLUMN.TITLE].lower().strip("\""))
+    except StopIteration:
+        raise ValueError
 
 
 def find_row_in_csv(title: str) -> int:
-    # Busco la fila del csv con coincidencia exacta
-    exact_match = row_in_csv(title)
-    if exact_match >= 0:
-        return exact_match
+    with suppress(ValueError):
+        # Busco la fila del csv con coincidencia exacta
+        return row_in_csv(title)
 
     # Busco cuántos títulos del Word coinciden salvo el año
     matches_but_year = [word_title
@@ -91,5 +93,5 @@ def find_row_in_csv(title: str) -> int:
                         if title.lower() == trim_year(word_title.lower())]
     # Si la coincidencia es única, miro que lo que he encontrado esté presente en el CSV
     if len(matches_but_year) != 1:
-        return -1
+        raise ValueError
     return row_in_csv(matches_but_year[0])
