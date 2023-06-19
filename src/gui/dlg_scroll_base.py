@@ -79,10 +79,9 @@ class DlgScrollBase(ConsoleEvent):
                 return
 
             # Inicio la ejecución de esta hotkey, evito que se ejecuten otras
-            self.keyboard_listen.acquire()
-            fn(self)
-            # Ya he terminado la función, vuelvo a escuchar al teclado
-            self.keyboard_listen.release()
+            # Cuando termine la función, vuelvo a escuchar al teclado
+            with self.keyboard_listen:
+                fn(self)
 
         return wrap
 
