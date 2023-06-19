@@ -144,9 +144,6 @@ def get_redirected_url(parsed_page: BeautifulSoup) -> str:
 
 
 def search_boxes(parsed_page: BeautifulSoup) -> Iterator[Pelicula]:
-
-    curr_year = 0
-
     # Itero las cajas de resultados
     for found_box in iter_BeautifulSoup(parsed_page, 'div', class_='se-it'):
         # Leo el año
