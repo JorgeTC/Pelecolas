@@ -1,7 +1,7 @@
 from pathlib import Path
 
 
-def get_res_folder(*args: str) -> Path:
+def get_res_folder(*rel_path: str) -> Path:
     # Carpeta src
     path_file = Path(__file__).parent
     # Carpeta del proyecto
@@ -9,13 +9,12 @@ def get_res_folder(*args: str) -> Path:
     # Carpeta res
     path_file = path_file / "res"
     # Subdirectorio indicado por el usuario
-    for subdir in args:
-        path_file = path_file / subdir
+    path_file = path_file.joinpath(*rel_path)
 
     return path_file
 
 
-def get_test_res_folder(*args: str) -> Path:
+def get_test_res_folder(*rel_path: str) -> Path:
     # Carpeta src
     path_file = Path(__file__).parent
     # Carpeta del proyecto
@@ -25,7 +24,6 @@ def get_test_res_folder(*args: str) -> Path:
     # Carpeta res
     path_file = path_file / "res"
     # Subdirectorio indicado por el usuario
-    for subdir in args:
-        path_file = path_file / subdir
+    path_file = path_file.joinpath(*rel_path)
 
     return path_file
