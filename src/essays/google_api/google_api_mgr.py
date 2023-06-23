@@ -1,3 +1,7 @@
+from enum import StrEnum
+from pathlib import Path
+from typing import Iterable
+
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -11,14 +15,10 @@ CREDENTIALS_PATH = get_res_folder("blog_credentials", "client_secrets.json")
 TOKEN_PATH = get_res_folder("blog_credentials", "token.json")
 
 
-def get_credentials() -> Credentials:
-    # Defino los servicios de Google que voy a manejar
-    SCOPES = tuple(f"https://www.googleapis.com/auth/{service}"
-                   for service in ('blogger', 'drive'))
-
+def get_credentials(credentials_path: Path, token_path: Path, scopes: Iterable[str]) -> Credentials:
     # Si existe el archivo, puedo generar credenciales
-    creds = (Credentials.from_authorized_user_file(TOKEN_PATH, SCOPES)
-             if TOKEN_PATH.is_file() else None)
+    creds = (Credentials.from_authorized_user_file(token_path, scopes)
+             if token_path.is_file() else None)
 
     # No he obtenido credenciales válidas
     if not creds or not creds.valid:
@@ -28,15 +28,27 @@ def get_credentials() -> Credentials:
         # No puedo refrescar, debo generarlo de nuevo
         else:
             flow = InstalledAppFlow.from_client_secrets_file(
-                CREDENTIALS_PATH, SCOPES)
+                credentials_path, scopes)
             creds = flow.run_local_server(port=0)
 
         # Actualizo el archivo con el token de acceso
-        with open(TOKEN_PATH, 'w') as token:
+        with open(token_path, 'w') as token:
             token.write(creds.to_json())
 
     return creds
 
 
-def get_google_service(api_type: str) -> Resource:
-    return build(api_type, 'v3', credentials=get_credentials())
+class GoogleService(StrEnum):
+    BLOGGER = 'blogger'
+    DRIVE = 'drive'
+
+
+def get_google_service(api_type: GoogleService,
+                       credentials_path=CREDENTIALS_PATH, token_path=TOKEN_PATH) -> Resource:
+    # Defino los servicios de Google que voy a manejar
+    SCOPES = tuple(f"https://www.googleapis.com/auth/{service}"
+                   for service in GoogleService)
+
+    credentials = get_credentials(credentials_path, token_path, SCOPES)
+
+    return build(api_type, 'v3', credentials=credentials)

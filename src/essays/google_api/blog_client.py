@@ -9,7 +9,7 @@ from oauth2client import client
 from src.config import Config, Param, Section
 
 from .api_dataclasses import Blog, Post
-from .google_api_mgr import get_google_service
+from .google_api_mgr import get_google_service, GoogleService
 from .google_client import GoogleClient
 
 BLOG_ID = Config.get_value(Section.POST, Param.BLOG_ID)
@@ -37,7 +37,7 @@ def get_blog_and_api(service: Resource, blog_id: str) -> tuple[Blog, Resource]:
 
 @cache
 def SERVICE():
-    return get_google_service('blogger')
+    return get_google_service(GoogleService.BLOGGER)
 
 
 @cache
