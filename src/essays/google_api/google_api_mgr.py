@@ -23,10 +23,10 @@ def get_credentials(credentials_path: Path, token_path: Path, scopes: Iterable[s
     # No he obtenido credenciales válidas
     if not creds or not creds.valid:
         # Si las puedo refrescar, lo hago
-        if creds and creds.expired and creds.refresh_token:
+        try:
             creds.refresh(Request())
         # No puedo refrescar, debo generarlo de nuevo
-        else:
+        except Exception:
             flow = InstalledAppFlow.from_client_secrets_file(
                 credentials_path, scopes)
             creds = flow.run_local_server(port=0)
