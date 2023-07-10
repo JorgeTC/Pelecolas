@@ -13,11 +13,12 @@ General.ini
 */Make_html/Trust_directors.txt
 # Resultado de medición de tiempo de ejecución
 */Debug_time/time_log.csv
-client_secrets.json
 # Resultado de medir el código cubierto por pytest
 .coverage
 
 # Credenciales para usar la API de Google
+client_secrets.json
+token.json
 *.dat
 # Driver de Chrome
 chromedriver.exe

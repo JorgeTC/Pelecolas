@@ -3,13 +3,13 @@ from functools import cache
 from googleapiclient.discovery import HttpRequest, Resource
 from googleapiclient.http import MediaFileUpload
 
-from .google_api_mgr import get_google_service
+from .google_api_mgr import get_google_service, GoogleService
 from .google_client import GoogleClient
 
 
 @cache
 def SERVICE() -> Resource:
-    return get_google_service('drive')
+    return get_google_service(GoogleService.DRIVE)
 
 
 @cache
