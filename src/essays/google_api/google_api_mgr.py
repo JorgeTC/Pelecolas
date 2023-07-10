@@ -27,9 +27,11 @@ def get_credentials(credentials_path: Path, token_path: Path, scopes: Iterable[s
             creds.refresh(Request())
         # No puedo refrescar, debo generarlo de nuevo
         except Exception:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                credentials_path, scopes)
-            creds = flow.run_local_server(port=0)
+            flow = InstalledAppFlow.from_client_secrets_file(credentials_path,
+                                                             scopes)
+            creds = flow.run_local_server(port=0,
+                                          authorization_prompt_message="Abriendo navegador para autorizar la app.",
+                                          success_message="Autorización completada con éxito.")
 
         # Actualizo el archivo con el token de acceso
         with open(token_path, 'w') as token:
