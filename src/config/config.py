@@ -13,7 +13,7 @@ SZ_FILE = "General.ini"
 class Section(str, enum.Enum):
     HTML = "HTML"
     READDATA = "READDATA"
-    COUNT_FILMS = "CONTAR"
+    COUNT_FILMS = "COUNT_FILMS"
     POST = "POST"
     DRIVE = "DRIVE"
 
