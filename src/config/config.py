@@ -166,12 +166,6 @@ class Config:
 
 
 def manage_config():
-    # Importo los módulos de windows para comprobar el teclado
-    import win32api
-    import win32con
-
-    # Comrpuebo si la tecla control está apretada
-    if win32api.GetAsyncKeyState(win32con.VK_CONTROL) & 0x8000 > 0:
-        # Abro el diálogo
-        Config.run_dlg()
-        Config.save_config()
+    # Abro el diálogo
+    Config.run_dlg()
+    Config.save_config()
