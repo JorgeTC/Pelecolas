@@ -26,3 +26,4 @@ chromedriver.exe
 
 # Carpeta de entorno virtual
 venv
+.venv
