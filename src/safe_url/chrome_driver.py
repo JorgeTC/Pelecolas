@@ -1,7 +1,5 @@
-import os
 from pathlib import Path
 
-import chromedriver_autoinstaller
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver import Chrome
@@ -35,7 +33,7 @@ def get_chrome_instance() -> Chrome:
 def get_driver_option() -> webdriver.ChromeOptions:
     # Opciones para el driver de Chrome
     driver_option = webdriver.ChromeOptions()
-    driver_option.add_argument('--headless')
+    driver_option.headless = True
     driver_option.add_experimental_option(
         'excludeSwitches', ['enable-logging'])
 
@@ -43,6 +41,8 @@ def get_driver_option() -> webdriver.ChromeOptions:
 
 
 def update_chrome_driver():
+    import chromedriver_autoinstaller
+
     # Descargo el nuevo driver
     str_path_new_driver = chromedriver_autoinstaller.install(
         path=DRIVER_PATH.parent)
@@ -52,11 +52,12 @@ def update_chrome_driver():
 
     # Elimino el antiguo driver
     if DRIVER_PATH.is_file():
-        os.remove(DRIVER_PATH)
+        DRIVER_PATH.unlink()
     # Coloco el nuevo en la ruta que le corresponde
-    os.rename(src=str_path_new_driver, dst=DRIVER_PATH)
+    path_new_driver = Path(str_path_new_driver)
+    path_new_driver.rename(DRIVER_PATH)
 
     # Elimino la carpeta que ha creado
-    path_new_driver = Path(str_path_new_driver).parent
-    if DRIVER_PATH.parent == path_new_driver.parent:
-        os.rmdir(path_new_driver)
+    dir_new_driver = path_new_driver.parent
+    if DRIVER_PATH.parent == dir_new_driver.parent:
+        dir_new_driver.rmdir()
