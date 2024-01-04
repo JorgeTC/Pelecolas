@@ -1,4 +1,3 @@
-import os
 import platform
 from pathlib import Path
 
@@ -19,8 +18,8 @@ def get_pdf_files(docx_folder: Path, docx_list: list[Path]) -> list[Path]:
 
 
 class PDFWriter:
-    SZ_ALL_PDF: list[Path] = get_pdf_files(
-        WordFolderMgr.WORD_FOLDER, WordFolderMgr.SZ_ALL_DOCX)
+    ALL_PDF: list[Path] = get_pdf_files(WordFolderMgr.WORD_FOLDER,
+                                        WordFolderMgr.SZ_ALL_DOCX)
 
     @classmethod
     def convert_all_word(cls):
@@ -37,23 +36,22 @@ class PDFWriter:
 
     @classmethod
     def join_pdf(cls):
-
+        pdf_dir = Config.get_folder_path(Section.DRIVE,
+                                         Param.PDF_PATH)
         # Creo un objeto para unir pdf
-        merger = PdfMerger()
-        # Le doy todos los que necesita añadir
-        for pdf in cls.SZ_ALL_PDF:
-            merger.append(pdf)
+        with PdfMerger() as merger:
+            # Le doy todos los que necesita añadir
+            for pdf in cls.ALL_PDF:
+                merger.append(pdf)
 
-        # Le doy la carpeta y el nombre del pdf
-        merger.write(Config.get_folder_path(
-            Section.DRIVE, Param.PDF_PATH) / "Reseñas.pdf")
-        merger.close()
+            # Le doy la carpeta y el nombre del pdf
+            merger.write(pdf_dir / "Reseñas.pdf")
 
     @classmethod
     def clear_temp_pdf(cls):
         # Elimino los archivos pdf temporales que había escrito
-        for file in cls.SZ_ALL_PDF:
-            os.remove(file)
+        for file in cls.ALL_PDF:
+            file.unlink()
 
     @classmethod
     def win_convert_all_word(cls):
