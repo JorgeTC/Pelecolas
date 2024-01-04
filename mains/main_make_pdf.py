@@ -1,6 +1,5 @@
+import platform
 import threading
-
-import pythoncom
 
 import __init__
 from src.essays.google_api import Drive, join
@@ -10,7 +9,9 @@ from src.essays.word import PDFWriter
 def create_PDF():
 
     # Inicialización necesaria para poder abrir Word con multithreading
-    pythoncom.CoInitialize()
+    if platform.system() == 'Windows':
+        import pythoncom
+        pythoncom.CoInitialize()
 
     # Convierto cada word a un pdf
     PDFWriter.convert_all_word()

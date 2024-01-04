@@ -1,7 +1,6 @@
-import os
+import platform
 from pathlib import Path
 
-import docx2pdf
 from pypdf import PdfMerger
 
 from src.config import Config, Param, Section
@@ -19,8 +18,8 @@ def get_pdf_files(docx_folder: Path, docx_list: list[Path]) -> list[Path]:
 
 
 class PDFWriter:
-    SZ_ALL_PDF: list[Path] = get_pdf_files(
-        WordFolderMgr.WORD_FOLDER, WordFolderMgr.SZ_ALL_DOCX)
+    ALL_PDF: list[Path] = get_pdf_files(WordFolderMgr.WORD_FOLDER,
+                                        WordFolderMgr.SZ_ALL_DOCX)
 
     @classmethod
     def convert_all_word(cls):
@@ -28,24 +27,47 @@ class PDFWriter:
         WordFolderMgr.delete_temp_files()
 
         # Convierto todo a pdf
-        docx2pdf.convert(WordFolderMgr.WORD_FOLDER)
+        if platform.system() == 'Windows':
+            cls.win_convert_all_word()
+        elif platform.system() == 'Linux':
+            cls.linux_convert_all_word()
+        else:
+            raise NotImplementedError
 
     @classmethod
     def join_pdf(cls):
-
+        pdf_dir = Config.get_folder_path(Section.DRIVE,
+                                         Param.PDF_PATH)
         # Creo un objeto para unir pdf
-        merger = PdfMerger()
-        # Le doy todos los que necesita añadir
-        for pdf in cls.SZ_ALL_PDF:
-            merger.append(pdf)
+        with PdfMerger() as merger:
+            # Le doy todos los que necesita añadir
+            for pdf in cls.ALL_PDF:
+                merger.append(pdf)
 
-        # Le doy la carpeta y el nombre del pdf
-        merger.write(Config.get_folder_path(
-            Section.DRIVE, Param.PDF_PATH) / "Reseñas.pdf")
-        merger.close()
+            # Le doy la carpeta y el nombre del pdf
+            merger.write(pdf_dir / "Reseñas.pdf")
 
     @classmethod
     def clear_temp_pdf(cls):
         # Elimino los archivos pdf temporales que había escrito
-        for file in cls.SZ_ALL_PDF:
-            os.remove(file)
+        for file in cls.ALL_PDF:
+            file.unlink()
+
+    @classmethod
+    def win_convert_all_word(cls):
+        import docx2pdf
+        docx2pdf.convert(WordFolderMgr.WORD_FOLDER)
+
+    @classmethod
+    def linux_convert_all_word(cls):
+        for docx in WordFolderMgr.SZ_ALL_DOCX:
+            cls.libreoffice_convert_file(docx,
+                                         'pdf', WordFolderMgr.WORD_FOLDER)
+
+    @classmethod
+    def libreoffice_convert_file(cls, input_file: Path, target_format: str, dest_folder: Path):
+        import subprocess
+        subprocess.check_output(['libreoffice',
+                                 '--convert-to', target_format,
+                                 '--outdir', dest_folder,
+                                 input_file])
