@@ -8,6 +8,7 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 
 from .chrome_driver import get_chrome_instance
+from .firefox_driver import get_firefox_instance
 
 # Variable para saber si estoy intentando resolver el captcha
 stopped = Lock()
@@ -45,7 +46,7 @@ def solve_captcha(url: str) -> None:
 
 
 def automatically_solve_captcha(url: str) -> None:
-    driver = get_chrome_instance()
+    driver = get_firefox_instance()
     # Entro a la dirección que ha dado error
     driver.get(url)
     # Espero a que se haya cargado el botón que quiero clicar
