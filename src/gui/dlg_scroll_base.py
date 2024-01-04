@@ -1,11 +1,6 @@
-import sys
 from functools import wraps
 from threading import Lock
 from typing import Callable
-
-import keyboard
-
-from src.aux_console import is_console_on_focus
 
 from .gui import ConsoleEvent
 
@@ -36,14 +31,7 @@ class DlgScrollBase(ConsoleEvent):
         self.curr_index = self.min_index
 
     def execute(self) -> str:
-        # Doy a las flechas las funciones para hacer scroll
-        keyboard.add_hotkey('up arrow', self.__scroll_up)
-        keyboard.add_hotkey('down arrow', self.__scroll_down)
-
         ans = self.get_ans_body()
-
-        # Cancelo la funcionalidad de las hotkeys
-        keyboard.unhook_all()
 
         # Indico que ya he conseguido la respuesta
         self.locker.release()
@@ -70,10 +58,6 @@ class DlgScrollBase(ConsoleEvent):
     def hotkey_method(fn: Callable[['DlgScrollBase'], None]):
         @wraps(fn)
         def wrap(self: 'DlgScrollBase'):
-            # Compruebo que la consola tenga el foco
-            if not is_console_on_focus():
-                return
-
             # Compruebo que no se esté ejecutando otra hotkey
             if self.keyboard_listen.locked():
                 return
@@ -96,7 +80,6 @@ class DlgScrollBase(ConsoleEvent):
         # Si el índice corresponde a un elemento de la lista, lo escribo
         if (self.curr_index != -1):
             curr_suggested = self.options[self.curr_index]
-            keyboard.write(curr_suggested)
 
     @hotkey_method
     def __scroll_up(self) -> None:
@@ -132,8 +115,4 @@ class DlgScrollBase(ConsoleEvent):
 
 
 def clear_written():
-    # Al pulsar las teclas, también se está navegando entre los últimos inputs de teclado
-    # Hago que se expliciten en la consola para poder borrarlos
-    sys.stdout.flush()
-    # Borro lo que haya escrito para que no lo detecte el input
-    keyboard.send('esc')
+    ...
