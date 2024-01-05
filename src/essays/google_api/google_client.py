@@ -1,13 +1,13 @@
 from functools import partial
 from multiprocessing import Lock
 from queue import Queue
-from typing import Any
+from typing import Any, Self
 
 from googleapiclient.discovery import HttpRequest
 
 
 class QueuedRequest(HttpRequest):
-    def __new__(cls, request: HttpRequest) -> HttpRequest:
+    def __new__(cls, request: HttpRequest) -> Self:
         # Modifico el objeto y lo devuelvo
         cls.__init__(request)
         return request
