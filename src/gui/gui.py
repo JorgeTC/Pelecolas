@@ -27,7 +27,7 @@ class GUI:
     # Todos los hilos (distintos de main) que quieren acceder a la interfaz
     THREADS_QUEUE: Queue[str | None] = Queue()
     # Cola con todos los eventos de consola
-    INTERFACE_QUEUE: dict[str | None, Queue] = {}
+    INTERFACE_QUEUE: dict[str | None, Queue[ConsoleEvent | None]] = {}
 
     @classmethod
     def add_event(cls, current_thread: Thread | None, event: ConsoleEvent | None):
