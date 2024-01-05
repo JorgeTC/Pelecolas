@@ -171,6 +171,6 @@ def get_publish_datatime() -> str:
         publish_date = date_from_DMY(sz_date)
     except ValueError:
         # Si no consigo interpretarlo como fecha, le doy la fecha automática
-        publish_date = get_automatic_date()
+        publish_date = get_automatic_date(time)
 
     return date_to_str(datetime.combine(publish_date, time))
