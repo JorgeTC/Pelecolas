@@ -1,7 +1,7 @@
 import csv
-import enum
 import os
 from datetime import datetime
+from enum import IntEnum, auto
 from pathlib import Path
 from typing import Iterable
 
@@ -12,11 +12,15 @@ from ..blog_scraper import BlogHiddenData, BlogScraper
 from ..google_api import Post, Poster
 
 
-class CSV_COLUMN(int, enum.Enum):
-    TITLE = 0
-    LINK = enum.auto()
-    DIRECTOR = enum.auto()
-    YEAR = enum.auto()
+class CSV_COLUMN(IntEnum):
+    @staticmethod
+    def _generate_next_value_(name, start, count, last_values):
+        return IntEnum._generate_next_value_(name, 0, count, last_values)
+
+    TITLE = auto()
+    LINK = auto()
+    DIRECTOR = auto()
+    YEAR = auto()
 
 
 class BlogCsvMgr:

@@ -71,8 +71,8 @@ class FilmPage:
         return [max(value, 0) for value in values]
 
     def get_image_url(self):
-        return self.parsed_page.find(
-            "meta", property="og:image")['content']
+        return self.parsed_page.find("meta",
+                                     property="og:image")['content']
 
     def get_avg_note(self) -> float:
         search_avg = self.parsed_page.find(id="movie-rat-avg")

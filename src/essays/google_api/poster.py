@@ -104,8 +104,8 @@ def iter_posts(start_date: str, post_status: PostStatus) -> Iterable[Post]:
     page_token: str | None = None
     while True:
         # Pido los archivos que tengan como carpeta parent la que he introducido
-        posts, page_token = Client.list_posts(
-            start_date, post_status, page_token)
+        posts, page_token = Client.list_posts(start_date, post_status,
+                                              page_token)
 
         # Itero lo que me ha dado la api en esta petición
         for post in posts:
@@ -149,18 +149,12 @@ def get_automatic_date() -> date:
     next_friday = today + timedelta(days=days_till_next_friday)
 
     # Avanzo por los viernes hasta encontrar uno que esté disponible
-    found = ""
-    while not found:
-        # Convierto a string
-        str_next_friday = str(next_friday)
-        # Si no se encuentra entre las fechas con reseña, he encontrado un viernes disponible
-        if str_next_friday not in dates:
-            found = str_next_friday
+    while (str_next_friday := str(next_friday)) in dates:
         # Avanzo al siguiente viernes
         next_friday = next_friday + timedelta(days=7)
 
     # Devuelvo la fecha encontrada como fecha
-    return date_from_YMD(found)
+    return date_from_YMD(str_next_friday)
 
 
 def get_publish_datatime() -> str:

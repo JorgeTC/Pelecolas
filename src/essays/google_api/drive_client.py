@@ -19,9 +19,8 @@ def FILES() -> Resource:
 
 def update_file(file_id: str, media_body: MediaFileUpload) -> None:
     # Defino la acción de actualización
-    update_operation: HttpRequest = FILES().update(
-        fileId=file_id,
-        media_body=media_body)
+    update_operation: HttpRequest = FILES().update(fileId=file_id,
+                                                   media_body=media_body)
     GoogleClient.execute(update_operation)
 
 

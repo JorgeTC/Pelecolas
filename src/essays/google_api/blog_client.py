@@ -4,7 +4,6 @@ from functools import cache
 from typing import Any
 
 from googleapiclient.discovery import Resource
-from oauth2client import client
 
 from src.config import Config, Param, Section
 

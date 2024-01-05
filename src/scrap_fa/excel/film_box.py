@@ -19,8 +19,8 @@ class FilmBox:
         return int(self.film_box.contents[1].contents[1].attrs['data-movie-id'])
 
     def get_year(self) -> int:
-        str_year = str(
-            self.film_box.contents[1].contents[1].contents[3].contents[1].contents[1])
+        year = self.film_box.contents[1].contents[1].contents[3].contents[1].contents[1]
+        str_year = str(year)
         return int(re.search(r"(\d{4})", str_year).group(1))
 
     def get_country(self) -> str:

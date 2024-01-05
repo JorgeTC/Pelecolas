@@ -131,8 +131,8 @@ def init_titles(header: str, paragraphs: list[Paragraph]) -> dict[str, int]:
 
 class WordReader:
     # Me quedo con el nombre del archivo sin la extensión.
-    HEADER = DOCUMENT_NAME.search(
-        WordFolderMgr.SZ_ALL_DOCX[0].stem).group('header')
+    HEADER = re.search(DOCUMENT_NAME,
+                       WordFolderMgr.SZ_ALL_DOCX[0].stem).group('header')
     # Me guardo sólo los párrafos, es lo que voy a iterar más adelante
     # Guardo a qué párrafo corresponde cada año
     PARAGRAPHS, YEARS_PARR = init_paragraphs(WordFolderMgr.SZ_ALL_DOCX)
@@ -160,16 +160,16 @@ class WordReader:
 
     @classmethod
     def write_list(cls, *,
-                   output_path: Path = Config.get_folder_path(
-                       Section.COUNT_FILMS, Param.TITLE_LIST_PATH),
-                   b_index: bool = Config.get_bool(
-                       Section.COUNT_FILMS, Param.ADD_INDEX),
-                   b_year: bool = Config.get_bool(Section.COUNT_FILMS, Param.ADD_YEAR)) -> None:
+                   output_path: Path = Config.get_folder_path(Section.COUNT_FILMS,
+                                                              Param.TITLE_LIST_PATH),
+                   write_index: bool = Config.get_bool(Section.COUNT_FILMS,
+                                                       Param.ADD_INDEX),
+                   write_year: bool = Config.get_bool(Section.COUNT_FILMS, Param.ADD_YEAR)) -> None:
 
         # Abro el documento txt para escribirlo
         with open(output_path / "Titulos de reseñas.txt", "w",
                   encoding='utf-8') as titles_doc:
-            cls.write_file_list(titles_doc, b_index, b_year)
+            cls.write_file_list(titles_doc, write_index, write_year)
 
     @classmethod
     def write_file_list(cls, titles_doc: TextIO, write_index: bool, write_year: bool):
@@ -187,10 +187,10 @@ class WordReader:
                 # Escribo el año en el documento
                 titles_doc.write(f"***{next_year}***\n")
                 # Avanzo al siguiente año
-                past_year = next_year
-                next_year = next(next_years, past_year)
+                try:
+                    next_year = next(next_years)
                 # Si es el último año, dejo de escribir años
-                if next_year == past_year:
+                except StopIteration:
                     write_year = False
 
             # Si tengo que añadir el índice cojo el número y añado un espacio

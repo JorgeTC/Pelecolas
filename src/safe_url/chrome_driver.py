@@ -34,8 +34,8 @@ def get_driver_option() -> webdriver.ChromeOptions:
     # Opciones para el driver de Chrome
     driver_option = webdriver.ChromeOptions()
     driver_option.headless = True
-    driver_option.add_experimental_option(
-        'excludeSwitches', ['enable-logging'])
+    driver_option.add_experimental_option('excludeSwitches',
+                                          ['enable-logging'])
 
     return driver_option
 

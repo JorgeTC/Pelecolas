@@ -81,10 +81,10 @@ def iter_folder(folder_id: str) -> Iterable[DriveFile]:
 
 
 def get_path_from_drive_file(file: DriveFile, *,
-                             PDF_FOLDER=Config.get_folder_path(
-                                 Section.DRIVE, Param.PDF_PATH),
-                             DOCX_FOLDER=Config.get_folder_path(
-                                 Section.COUNT_FILMS, Param.WORD_FOLDER)) -> Path:
+                             PDF_FOLDER=Config.get_folder_path(Section.DRIVE,
+                                                               Param.PDF_PATH),
+                             DOCX_FOLDER=Config.get_folder_path(Section.COUNT_FILMS,
+                                                                Param.WORD_FOLDER)) -> Path:
 
     if '.docx' in file.name:
         # Caso en el que sea un word

@@ -57,18 +57,18 @@ class QuoterTitle:
 
 def add_post_link(text: str, citation: FilmCitation, row: int) -> str:
     # Construyo el html para el enlace
-    ini_link = QuoterBase.OPEN_LINK(
-        QuoterBase.CSV_CONTENT[row][CSV_COLUMN.LINK])
+    url = QuoterBase.CSV_CONTENT[row][CSV_COLUMN.LINK]
+    ini_link = QuoterBase.OPEN_LINK(url)
 
     # Escribo el cierre del link
     position = citation.end
-    text = insert_string_in_position(
-        text, QuoterBase.CLOSE_LINK, position)
+    text = insert_string_in_position(text, QuoterBase.CLOSE_LINK,
+                                     position)
 
     # Escribo el inicio del link
     position = citation.begin + 1
-    text = insert_string_in_position(
-        text, ini_link, position)
+    text = insert_string_in_position(text, ini_link,
+                                     position)
 
     return text
 

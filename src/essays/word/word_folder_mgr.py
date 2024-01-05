@@ -18,8 +18,8 @@ def get_files(word_folder: Path) -> list[Path]:
 
 class WordFolderMgr:
     # Carpeta donde guardo los word
-    WORD_FOLDER = Config.get_folder_path(
-        Section.COUNT_FILMS, Param.WORD_FOLDER)
+    WORD_FOLDER = Config.get_folder_path(Section.COUNT_FILMS,
+                                         Param.WORD_FOLDER)
     # Lista de todos los documentos
     SZ_ALL_DOCX: list[Path] = get_files(WORD_FOLDER)
 
