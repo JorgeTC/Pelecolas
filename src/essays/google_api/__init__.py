@@ -10,7 +10,7 @@ consumer = Thread(target=GoogleClient.run_queue, daemon=True, name="Google_Daemo
 consumer.start()
 
 def join():
-    GoogleClient.REQUESTS_QUEUE.put(None)
+    GoogleClient.close_queue()
     consumer.join()
 
 __all__ = [Poster, Drive,

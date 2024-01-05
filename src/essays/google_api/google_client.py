@@ -1,3 +1,4 @@
+from enum import Enum, auto
 from functools import partial
 from multiprocessing import Lock
 from queue import Queue
@@ -33,6 +34,10 @@ class QueuedRequest(HttpRequest):
         return self.result
 
 
+class RequestsQueue(Enum):
+    DONE = auto()
+
+
 class GoogleClient:
 
     # Cola de requests por ejecutar
@@ -58,12 +63,12 @@ class GoogleClient:
 
     @classmethod
     def run_queue(cls):
-        while True:
-            request = cls.REQUESTS_QUEUE.get()
-            if request is None:
-                return
-
+        while (request := cls.REQUESTS_QUEUE.get()) is not RequestsQueue.DONE:
             # Ejecuto la request y la guardo en el historial
             cls.requests_ans[request.uri] = request.execute()
             # Indico que he acabado con la última request sacada de la cola
             cls.REQUESTS_QUEUE.task_done()
+
+    @classmethod
+    def close_queue(cls):
+        cls.REQUESTS_QUEUE.put(RequestsQueue.DONE)
