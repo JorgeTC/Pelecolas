@@ -23,7 +23,7 @@ class ReadDataWatched(ReadWatched):
         exe = ThreadPoolExecutor(thread_name_prefix="ReadFilm")
         # Incluso aunque no tenga que leer la película la añado al Executor.
         # De lo contrario no se incrementaría la barra de progreso
-        futures = (exe.submit(read_film, film) if film
+        futures = (exe.submit(read_film, film) if film is not None
                    else exe.submit(lambda *_: None, film)
                    for film in self.valid_film_list)
         for future in futures:
