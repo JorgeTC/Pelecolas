@@ -1,4 +1,4 @@
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, time
 from typing import Iterable
 
 from dateutil import tz
@@ -134,7 +134,7 @@ def date_to_str(date: date | datetime, *,
         raise ValueError
 
 
-def get_automatic_date() -> date:
+def get_automatic_date(post_time: time) -> date:
 
     scheduled = Poster.get_scheduled()
 
@@ -146,6 +146,9 @@ def get_automatic_date() -> date:
     today = datetime.today().date()
     week_day = today.weekday()
     days_till_next_friday = (4 - week_day) % 7
+    if days_till_next_friday == 0:
+        if datetime.today().time() < post_time:
+            days_till_next_friday = 7
     next_friday = today + timedelta(days=days_till_next_friday)
 
     # Avanzo por los viernes hasta encontrar uno que esté disponible
@@ -158,6 +161,10 @@ def get_automatic_date() -> date:
 
 
 def get_publish_datatime() -> str:
+    # Obtengo a qué hora tengo que publicar la reseña
+    sz_time = Config.get_value(Section.POST, Param.TIME)
+    time = time_from_str(sz_time)
+
     # Obtengo qué día tengo que publicar la reseña
     sz_date = Config.get_value(Section.POST, Param.DATE)
     try:
@@ -165,9 +172,5 @@ def get_publish_datatime() -> str:
     except ValueError:
         # Si no consigo interpretarlo como fecha, le doy la fecha automática
         publish_date = get_automatic_date()
-
-    # Obtengo a qué hora tengo que publicar la reseña
-    sz_time = Config.get_value(Section.POST, Param.TIME)
-    time = time_from_str(sz_time)
 
     return date_to_str(datetime.combine(publish_date, time))
