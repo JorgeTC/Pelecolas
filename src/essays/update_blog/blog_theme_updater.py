@@ -17,14 +17,14 @@ from .thread_executor import ThreadExecutor
 
 class PostThemeUpdater:
 
-    DOWNLOAD_DATA: bool = Config.get_bool(
-        Section.POST, Param.GET_DATA_FROM_FA)
+    DOWNLOAD_DATA: bool = Config.get_bool(Section.POST,
+                                          Param.GET_DATA_FROM_FA)
 
-    FA_URL_FROM_HIDDEN_DATA: bool = Config.get_bool(
-        Section.POST, Param.FA_URL_FROM_HIDDEN_DATA)
+    FA_URL_FROM_HIDDEN_DATA: bool = Config.get_bool(Section.POST,
+                                                    Param.FA_URL_FROM_HIDDEN_DATA)
 
-    CHECK_IMAGE_URL: bool = Config.get_bool(
-        Section.POST, Param.CHECK_IMAGE_URL)
+    CHECK_IMAGE_URL: bool = Config.get_bool(Section.POST,
+                                            Param.CHECK_IMAGE_URL)
 
     @classmethod
     def select_post_to_update(self):
@@ -59,8 +59,8 @@ class PostThemeUpdater:
             # Hago una búsqueda del título en FilmAffinity
             if not (url_fa := Searcher(title).get_url()):
                 # Si no encuentro la url, la pido al usuario
-                url_fa = GUI.Input(
-                    f"Necesito url de FilmAffinity de {title}. ")
+                url_fa = GUI.Input(f"Necesito url de FilmAffinity de "
+                                   f"{title}. ")
 
         # Creo un objeto a partir de la url de FA
         film_data = Pelicula.from_fa_url(url_fa)

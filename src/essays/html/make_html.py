@@ -40,8 +40,8 @@ HTML_HIDDEN_DATA = get_res_html_format("hidden_data.html")
 
 class Html:
 
-    HTML_OUTPUT_FOLDER = Config.get_folder_path(
-        Section.HTML, Param.OUTPUT_PATH_HTML)
+    HTML_OUTPUT_FOLDER = Config.get_folder_path(Section.HTML,
+                                                Param.OUTPUT_PATH_HTML)
 
     def __init__(self, film: Pelicula | None = None):
 
@@ -60,7 +60,8 @@ class Html:
         try:
             paragraphs = get_text(self.data)
         except KeyError as e:
-            raise KeyError(f"No se ha encontrado el texto para {self.data.titulo}") from e
+            raise KeyError(f"No se ha encontrado el texto para "
+                           f"{self.data.titulo}") from e
 
         # Limpio el titulo de la película por si tiene caracteres no válidos para un archivo de Windows
         self.file_name = "".join(i for i in self.data.titulo

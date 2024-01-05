@@ -95,8 +95,9 @@ class QuoterDirector:
             # No quiero citar al director actual
             if director == self.director:
                 continue
-            position, word = complete_quote(
-                text, it_position, it_word, director)
+            position, word = complete_quote(text,
+                                            it_position, it_word,
+                                            director)
             if not word:
                 continue
             # Si ya he preguntado por este nombre paso al siguiente
@@ -272,8 +273,8 @@ def equals(text: str, surname: str) -> bool:
 
 def add_director_link(text: str, cit: DirectorCitation) -> str:
     # Escribo el cierre del hipervínculo
-    text = insert_string_in_position(
-        text, QuoterBase.CLOSE_LINK, cit.position + cit.length)
+    text = insert_string_in_position(text, QuoterBase.CLOSE_LINK,
+                                     cit.position + cit.length)
 
     # Construyo el link
     dir = urllib.parse.quote(cit.director)
@@ -281,7 +282,7 @@ def add_director_link(text: str, cit: DirectorCitation) -> str:
     # Construyo el html para el enlace
     ini_link = QuoterBase.OPEN_LINK(link)
     # Escribo el inicio del hipervínculo
-    text = insert_string_in_position(
-        text, ini_link, cit.position)
+    text = insert_string_in_position(text, ini_link,
+                                     cit.position)
 
     return text

@@ -1,13 +1,14 @@
+from enum import Enum, auto
 from functools import partial
 from multiprocessing import Lock
 from queue import Queue
-from typing import Any
+from typing import Any, Self
 
 from googleapiclient.discovery import HttpRequest
 
 
 class QueuedRequest(HttpRequest):
-    def __new__(cls, request: HttpRequest) -> HttpRequest:
+    def __new__(cls, request: HttpRequest) -> Self:
         # Modifico el objeto y lo devuelvo
         cls.__init__(request)
         return request
@@ -31,6 +32,10 @@ class QueuedRequest(HttpRequest):
 
         # Devuelvo lo que me ha dado el método execute de la clase base
         return self.result
+
+
+class RequestsQueue(Enum):
+    DONE = auto()
 
 
 class GoogleClient:
@@ -58,12 +63,12 @@ class GoogleClient:
 
     @classmethod
     def run_queue(cls):
-        while True:
-            request = cls.REQUESTS_QUEUE.get()
-            if request is None:
-                return
-
+        while (request := cls.REQUESTS_QUEUE.get()) is not RequestsQueue.DONE:
             # Ejecuto la request y la guardo en el historial
             cls.requests_ans[request.uri] = request.execute()
             # Indico que he acabado con la última request sacada de la cola
             cls.REQUESTS_QUEUE.task_done()
+
+    @classmethod
+    def close_queue(cls):
+        cls.REQUESTS_QUEUE.put(RequestsQueue.DONE)

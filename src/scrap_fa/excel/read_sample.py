@@ -44,8 +44,8 @@ def read_sample(*,
 
         # Itero las películas en mi página actual
         if use_multithread:
-            iter_film_data = executor.map(
-                read_film_if_valid, film_list)
+            iter_film_data = executor.map(read_film_if_valid,
+                                          film_list)
         else:
             iter_film_data = (read_film_if_valid(film)
                               for film in film_list)

@@ -16,13 +16,14 @@ from src.essays.blog_scraper import BlogScraper, find_title_by_content
 from src.essays.google_api import Poster
 from src.essays.html import Html
 from src.essays.html.content_mgr import ContentMgr
+from src.essays.html.make_html import ask_for_data
+from src.essays.html.quoter import QuoterDirector
 from src.essays.html.quoter.quoter_title import add_post_link
 from src.essays.list_title_mgr import TitleMgr
 from src.essays.update_blog.blog_theme_updater import update_image_url
 from src.essays.word.word_folder_mgr import WordFolderMgr, get_files
 from src.essays.word.word_reader import (WordReader, init_paragraphs,
                                          init_titles)
-from src.essays.html.make_html import ask_for_data
 from src.pelicula import Pelicula
 
 
@@ -78,6 +79,7 @@ def set_word_folder(word_folder: Path):
         WordReader.PARAGRAPHS = original_paragraphs
 
 
+@mock.patch.object(QuoterDirector, "TRUST_DIRECTORS", {"Tarantino"})
 def test_essay_name_changed():
     res_folder = get_test_res_folder("word", "name_changed")
     old_name_folder = res_folder / "old_name"

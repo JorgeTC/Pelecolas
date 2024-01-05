@@ -23,8 +23,8 @@ class Profiler:
 
             cls.end_time = datetime.now()
             elapsed_time = cls.end_time - start_time
-            cls.fun_runtimes.setdefault(
-                method.__name__, []).append(elapsed_time)
+            cls.fun_runtimes.setdefault(method.__name__,
+                                        []).append(elapsed_time)
 
             return result
         # Decorated method
