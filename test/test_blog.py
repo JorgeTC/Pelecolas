@@ -1,9 +1,8 @@
 import filecmp
 import os
 import test.mocks_non_substitution as mocks_ns
-from contextlib import contextmanager
+import test.mocks_word_folder as mocks_w
 from datetime import datetime
-from pathlib import Path
 from unittest import mock
 
 import pytest
@@ -21,9 +20,7 @@ from src.essays.html.quoter import QuoterDirector
 from src.essays.html.quoter.quoter_title import add_post_link
 from src.essays.list_title_mgr import TitleMgr
 from src.essays.update_blog.blog_theme_updater import update_image_url
-from src.essays.word.word_folder_mgr import WordFolderMgr, get_files
-from src.essays.word.word_reader import (WordReader, init_paragraphs,
-                                         init_titles)
+from src.essays.word.word_reader import WordReader
 from src.pelicula import Pelicula
 
 
@@ -58,33 +55,12 @@ def test_not_update_image_url():
     assert ostatni_etap.film_page is None
 
 
-@contextmanager
-def set_word_folder(word_folder: Path):
-
-    # Guardo los valores que tendré que reestablecer
-    original_titles = WordReader.TITULOS
-    original_year_parrs = WordReader.YEARS_PARR
-    original_paragraphs = WordReader.PARAGRAPHS
-
-    # Escribo los valores con la actual carpeta de Word
-    WordReader.PARAGRAPHS, WordReader.YEARS_PARR = init_paragraphs(get_files(word_folder))
-    WordReader.TITULOS = init_titles(WordReader.HEADER, WordReader.PARAGRAPHS)
-
-    try:
-        yield
-    finally:
-        # Devuelvo el valor original
-        WordReader.TITULOS = original_titles
-        WordReader.YEARS_PARR = original_year_parrs
-        WordReader.PARAGRAPHS = original_paragraphs
-
-
 @mock.patch.object(QuoterDirector, "TRUST_DIRECTORS", {"Tarantino"})
 def test_essay_name_changed():
     res_folder = get_test_res_folder("word", "name_changed")
     old_name_folder = res_folder / "old_name"
     # Establezco los valores necesarios para escribir el html que nos interesa
-    with set_word_folder(old_name_folder):
+    with mocks_w.set_word_folder(old_name_folder):
         old_name = "Érase una vez… en Hollywood"
         assert (old_name in WordReader.TITULOS)
 
@@ -103,7 +79,7 @@ def test_essay_name_changed():
 
     # Actualizo el objeto WordReader
     new_name_folder = res_folder / "new_name"
-    with set_word_folder(new_name_folder):
+    with mocks_w.set_word_folder(new_name_folder):
         new_name = "Érase una vez en… Hollywood"
         assert (new_name in WordReader.TITULOS)
         assert (old_name not in WordReader.TITULOS)
