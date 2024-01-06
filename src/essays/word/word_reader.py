@@ -198,3 +198,18 @@ class WordReader:
                 titles_doc.write(f"{index + 1} ")
 
             titles_doc.write(f"{titulo}\n")
+
+    @classmethod
+    def find_year(cls, title_to_search: str) -> int:
+        parr_index = WordReader.TITULOS[title_to_search]
+
+        previous_years = takewhile(lambda dict_pair: dict_pair[1] <= parr_index,
+                                   WordReader.YEARS_PARR.items())
+        last_year, _ = last_element(previous_years)
+        return last_year
+
+
+def last_element(iterable):
+    for element in iterable:
+        pass
+    return element

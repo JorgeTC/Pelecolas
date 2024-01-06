@@ -12,6 +12,7 @@ def get_files(word_folder: Path) -> list[Path]:
     all_files = [x for x in all_files if x.suffix.lower() == ".docx"]
     # Descarto los archivos temporales
     all_files = [x for x in all_files if x.stem[:2] != "~$"]
+    all_files.sort()
 
     return all_files
 
