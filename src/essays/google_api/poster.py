@@ -78,7 +78,7 @@ class Poster:
         min_date = date_to_str(min_date)
 
         # Pido los blogs desde entonces
-        return [post for post in iter_posts(min_date, PostStatus.LIVE)]
+        return list(iter_posts(min_date, PostStatus.LIVE))
 
     @classmethod
     def get_draft_from_date(cls, min_date: date | datetime) -> list[Post]:
