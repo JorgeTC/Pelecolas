@@ -1,3 +1,4 @@
+import random
 import re
 
 
@@ -76,7 +77,12 @@ class TitleMgr:
         return exact_title
 
     def suggestions(self, title: str) -> list[str]:
+        # If user asks for a random option, provide it
+        if (title == '--r'):
+            return [random.choice(self.titles).title]
+
         title = normalize_string(title)
+
         return [entry_title.title
                 for entry_title in self.titles
                 if title in entry_title.normalized or entry_title.normalized in title]
