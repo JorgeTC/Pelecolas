@@ -1,6 +1,6 @@
 import re
 from io import StringIO
-from itertools import takewhile
+from itertools import chain, islice, takewhile
 from pathlib import Path
 from typing import Iterator, TextIO
 
@@ -207,6 +207,36 @@ class WordReader:
                                    WordReader.YEARS_PARR.items())
         last_year, _ = last_element(previous_years)
         return last_year
+
+    @classmethod
+    def count_each_year(cls) -> dict[int, int]:
+
+        # Guardo todos los párrafos que son el comienzo de una reseña
+        title_indices_set = set(cls.TITULOS.values())
+
+        # Creo el diccionario donde cuento cuántas reseñas tiene cada año
+        titles_count_by_year = {}
+
+        # Genero una lista con los ragos correspodientes a cada año
+        start_indices = cls.YEARS_PARR.values()
+        end_indices = chain(islice(cls.YEARS_PARR.values(), 1, None),
+                            [len(cls.PARAGRAPHS)])
+        ranges_list = [range(start_index, next_start_index)
+                       for start_index, next_start_index in zip(start_indices, end_indices)]
+        ranges_by_year = {year: year_range
+                          for year, year_range in zip(cls.YEARS_PARR, ranges_list)}
+
+        # Itero todos los años con el rango de párrafos que le corresponde
+        for year, year_range in ranges_by_year.items():
+            # Obtengo todos los párrafos de este año que son inicio de título
+            title_indices_for_year = set(year_range) & title_indices_set
+            # los cuento
+            title_count = len(title_indices_for_year)
+
+            # Guardo el resultado en el diccionario
+            titles_count_by_year[year] = title_count
+
+        return titles_count_by_year
 
 
 def last_element(iterable):
