@@ -3,7 +3,7 @@
     "configurations": [
         {
             "name": "test",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
@@ -11,7 +11,7 @@
         },
         {
             "name": "Read data",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/mains/main_read_data.py",
             "console": "integratedTerminal",
@@ -19,7 +19,7 @@
         },
         {
             "name": "Contar peliculas",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/mains/main_contar_criticas.py",
             "console": "integratedTerminal",
@@ -27,7 +27,7 @@
         },
         {
             "name": "Write html",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/mains/main_make_html.py",
             "console": "integratedTerminal",
@@ -35,7 +35,7 @@
         },
         {
             "name": "Post html",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/mains/main_publish_post.py",
             "console": "integratedTerminal",
@@ -43,7 +43,7 @@
         },
         {
             "name": "Make and post",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/mains/main_make_and_publish.py",
             "console": "integratedTerminal",
@@ -51,7 +51,7 @@
         },
         {
             "name": "Write pdf",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/mains/main_make_pdf.py",
             "console": "integratedTerminal",
@@ -59,7 +59,7 @@
         },
         {
             "name": "Update all posts",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/mains/main_update_all_posts.py",
             "console": "integratedTerminal",
@@ -67,7 +67,7 @@
         },
         {
             "name": "Update post",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/mains/main_update_post.py",
             "console": "integratedTerminal",
@@ -75,7 +75,7 @@
         },
         {
             "name": "Read sample",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/mains/main_read_sample.py",
             "console": "integratedTerminal",
@@ -83,9 +83,17 @@
         },
         {
             "name": "Read directors",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/mains/main_map_directors.py",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "Find year",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/mains/main_find_year_for_title.py",
             "console": "integratedTerminal",
             "justMyCode": false
         },
