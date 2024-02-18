@@ -6,6 +6,7 @@ from typing import Iterator, TextIO
 
 import docx
 from docx.text.paragraph import Paragraph
+from docx.text.run import Run
 
 from src.config import Config, Param, Section
 
@@ -14,12 +15,27 @@ from .word_folder_mgr import WordFolderMgr
 DOCUMENT_NAME = re.compile(r"(?P<header>.*) - (?P<year>\d{4})")
 
 
+class IllFormedBold(ValueError):
+    '''Raise when cannot tell whether a paragraph starts by bold or not.'''
+
+
+def is_run_bold(index: int, run: Run) -> bool:
+    # Si el inicio de párrafo no tiene indicado el estado de la negrita,
+    # lo considero un error
+    if run.bold == None and index == 0:
+        error_msg = f"Could not resolve bold status for: {run.text}"
+        raise IllFormedBold(error_msg)
+
+    return bool(run.bold)
+
+
 def get_bold_title(paragraph: Paragraph) -> str:
     # Obtengo el primer fragamento de texto que esté en negrita.
     titulo = StringIO()
 
     # Conservo las negritas
-    for run in takewhile(lambda run: run.bold, paragraph.runs):
+    indexed_runs = enumerate(paragraph.runs)
+    for _, run in takewhile(lambda i_run: is_run_bold(*i_run), indexed_runs):
         titulo.write(run.text)
 
     return titulo.getvalue()
@@ -91,7 +107,12 @@ def has_next_parr_title(text: str, header: str) -> bool:
 
 def append_title(paragraph: Paragraph, index: int, titulos: dict[str, int]) -> bool:
     # Leo el posible título de este párrafo.
-    titulo = get_title(paragraph)
+    try:
+        titulo = get_title(paragraph)
+    except IllFormedBold:
+        print(f"No pude determinar si '{paragraph.text}' contiene un título")
+        return False
+
     # Si no se ha encontrado título, no es el inicio de una crítica.
     if not titulo:
         # No he conseguido añadir nada.
