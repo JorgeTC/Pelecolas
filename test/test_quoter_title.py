@@ -85,3 +85,16 @@ def test_exactly_but_year_self(Joker: str):
 
     # Compruebo que se no haya añadido la cita
     assert quoted_parr == Joker
+
+
+@pytest.fixture
+def LeTrou() -> str:
+    return get_file_content("no_year_in_word.txt")
+
+
+def test_no_year_in_word(LeTrou: str):
+    quoter = Quoter("La evasión", "")
+    quoted_parr = quoter.quote_parr(LeTrou)
+
+    # Compruebo que se haya añadido la cita
+    assert quoted_parr != LeTrou

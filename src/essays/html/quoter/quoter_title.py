@@ -2,7 +2,7 @@ from contextlib import suppress
 from dataclasses import dataclass
 
 from ... import word as Word
-from ...aux_title_str import trim_year
+from ...aux_title_str import trim_year, split_title_year
 from ..blog_csv_mgr import CSV_COLUMN
 from .quoter_base import QuoterBase, find, insert_string_in_position
 
@@ -82,12 +82,8 @@ def row_in_csv(title: str) -> int:
         raise ValueError
 
 
-def find_row_in_csv(title: str) -> int:
-    with suppress(ValueError):
-        # Busco la fila del csv con coincidencia exacta
-        return row_in_csv(title)
-
-    # Busco cuántos títulos del Word coinciden salvo el año
+def row_in_csv_year_insensitive(title: str) -> int:
+    # Comparo los títulos del word quitándoles el año
     matches_but_year = [word_title
                         for word_title in Word.LIST_TITLES
                         if title.lower() == trim_year(word_title.lower())]
@@ -95,3 +91,29 @@ def find_row_in_csv(title: str) -> int:
     if len(matches_but_year) != 1:
         raise ValueError
     return row_in_csv(matches_but_year[0])
+
+
+def row_in_csv_missing_year_in_word(title: str, year: str) -> int:
+    # Hago la búsqueda sin atender al año
+    row_index = row_in_csv_year_insensitive(title)
+
+    # Compruebo que el título coincidente sea del año correcto
+    year_in_csv = QuoterBase.CSV_CONTENT[row_index][CSV_COLUMN.YEAR]
+    if year != year_in_csv:
+        raise ValueError
+    return row_index
+
+
+def find_row_in_csv(title: str) -> int:
+    with suppress(ValueError):
+        # Busco la fila del csv con coincidencia exacta
+        return row_in_csv(title)
+
+    # Compruebo si el año ha sido la causa por la que no he encontrado el título
+    year, only_title = split_title_year(title)
+    if not year:
+        # Si el título no incluye año, busco si existe una película cuyo título coincida
+        return row_in_csv_year_insensitive(only_title)
+    else:
+        # Si el título no incluye año, busco si existe una película de ese año cuyo título coincida
+        return row_in_csv_missing_year_in_word(only_title, year)
