@@ -19,16 +19,16 @@ class FilmBox:
         return int(self.film_box.contents[1].contents[1].attrs['data-movie-id'])
 
     def get_year(self) -> int:
-        year = self.film_box.contents[1].contents[1].contents[3].contents[1].contents[1]
+        year = self.film_box.contents[1].contents[1].contents[3].contents[3].contents[2].contents[0]
         str_year = str(year)
         return int(re.search(r"(\d{4})", str_year).group(1))
 
     def get_country(self) -> str:
-        return self.film_box.contents[1].contents[1].contents[3].contents[1].contents[2].attrs['alt']
+        return self.film_box.contents[1].contents[1].contents[3].contents[3].contents[1].attrs['alt']
 
     def get_directors(self) -> list[str]:
         try:
-            directors = self.film_box.contents[1].contents[1].contents[3].contents[5].contents[1].contents
+            directors = self.film_box.contents[1].contents[1].contents[3].contents[7].contents[1].contents
         except IndexError:
             return []
         return [director.contents[0].contents[0]

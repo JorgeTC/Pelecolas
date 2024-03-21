@@ -34,14 +34,14 @@ def test_read_total_films(sasha_id: int, sasha_total_films: int):
 def test_from_movie_box(sashas_film_boxes: list[FilmBox]):
     films = (ReadDataWatched.init_film(box) for box in sashas_film_boxes)
     efecto_mariposa = next(film for film in films
-                           if film.titulo == 'El efecto mariposa ')
+                           if film.titulo == 'El efecto mariposa')
     assert efecto_mariposa.user_note == 2
     assert efecto_mariposa.id == 235464
 
 
 def test_read_data_from_box(sashas_film_boxes: list[FilmBox]):
     efecto_mariposa = next(box for box in sashas_film_boxes
-                           if box.get_title() == 'El efecto mariposa ')
+                           if box.get_title() == 'El efecto mariposa')
     assert efecto_mariposa.get_directors() == [
         'Eric Bress', 'J. Mackye Gruber']
     assert efecto_mariposa.get_country() == 'Estados Unidos'

@@ -6,12 +6,12 @@ from src.pelicula import get_id_from_url
 
 
 def test_unique_film():
-    searcher = Searcher("Casablanca")
-    assert get_id_from_url(searcher.get_url()) == 165208
+    searcher = Searcher("Mi tío Jacinto")
+    assert get_id_from_url(searcher.get_url()) == 736750
 
 
 def test_unique_film_wrong_year():
-    searcher = Searcher("Casablanca (1200)")
+    searcher = Searcher("Mi tío Jacinto (1200)")
     assert searcher.get_url() == ""
 
 
@@ -46,9 +46,10 @@ def test_more_then_one_with_year():
     assert searcher.has_results()
     assert get_id_from_url(searcher.get_url()) == 858945
 
+    # Hay dos películas llamadas "La caza" del año 2015
     searcher = Searcher("La caza (2015)")
     assert searcher.has_results()
-    assert get_id_from_url(searcher.get_url()) == 670127
+    assert searcher.get_url() == ""
 
 
 def test_not_found():

@@ -62,6 +62,12 @@ class Searcher:
             return self.film_url if coincident is not None else ""
 
         if self.__estado == SearchResult.FOUND:
+            # Si tenemos año, comprobamos que la película encontrada sea del año correcto
+            if self.año:
+                film = Pelicula.from_fa_url(self.film_url)
+                film.get_año()
+                if film.año != self.año:
+                    return ""
             return self.film_url
 
         # No he sido capaz de encontrar nada
