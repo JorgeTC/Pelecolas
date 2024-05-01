@@ -2,6 +2,7 @@ import filecmp
 import os
 import test.mocks_non_substitution as mocks_ns
 import test.mocks_word_folder as mocks_w
+from contextlib import contextmanager
 from datetime import datetime
 from unittest import mock
 
@@ -130,6 +131,17 @@ def delete_last_draft():
     Poster.delete_post(last_post)
 
 
+@contextmanager
+def temp_draft_post():
+    try:
+        # Hago la publicación en borrador y cojo fecha automática
+        with (mocks_ns.mock_config_get_bool(Section.POST, Param.AS_DRAFT, True),
+              mocks_ns.mock_config_get_value(Section.POST, Param.DATE, 'auto')):
+            yield None
+    finally:
+        delete_last_draft()
+
+
 @mock.patch.object(Html, "HTML_OUTPUT_FOLDER", get_test_res_folder("dump"))
 @mock.patch.object(ContentMgr, "DIR", get_test_res_folder("dump"))
 def test_post_html():
@@ -139,12 +151,7 @@ def test_post_html():
     # Leo el html escrito y extraigo los datos necesarios para hacer la publicación
     post_data = ContentMgr.extract_html(reference_file)
 
-    try:
-        # Hago la publicación en borrador y cojo fecha automática
-        with (mocks_ns.mock_config_get_bool(Section.POST, Param.AS_DRAFT, True),
-              mocks_ns.mock_config_get_value(Section.POST, Param.DATE, 'auto')):
-            Poster.add_post(title=post_data.title,
-                            content=post_data.content,
-                            labels=post_data.labels)
-    finally:
-        delete_last_draft()
+    with temp_draft_post():
+        Poster.add_post(title=post_data.title,
+                        content=post_data.content,
+                        labels=post_data.labels)
