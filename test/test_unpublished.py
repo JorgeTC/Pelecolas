@@ -1,12 +1,12 @@
 import pytest
 
 from src.aux_res_directory import get_test_res_folder
-from src.essays.html.blog_csv_mgr import BlogCsvMgr
+from src.essays.html.blog_csv_mgr import BlogCsvMgr, BlogCsvRow
 from src.essays.html.dlg_make_html import filter_list_from_csv
 
 
 @pytest.fixture
-def csv_list() -> list[list[str]]:
+def csv_list() -> list[BlogCsvRow]:
     return BlogCsvMgr.open_to_read(get_test_res_folder('csv_test.csv'))
 
 
@@ -21,7 +21,7 @@ def title_list() -> list[str]:
             "La caza"]
 
 
-def test_filter(title_list: list[str], csv_list: list[list[str]]):
+def test_filter(title_list: list[str], csv_list: list[BlogCsvRow]):
     filtered_list = filter_list_from_csv(title_list, csv_list)
 
     # No se elimine si el año no coincide con el del csv

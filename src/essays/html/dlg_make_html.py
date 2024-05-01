@@ -8,7 +8,7 @@ from ..aux_title_str import split_title_year, trim_year
 from ..dlg_scroll_titles import DlgScrollTitles
 from ..google_api import Poster
 from ..searcher import Searcher
-from .blog_csv_mgr import CSV_COLUMN, BlogCsvMgr
+from .blog_csv_mgr import BlogCsvMgr, BlogCsvRow
 
 
 class DlgHtml:
@@ -102,10 +102,10 @@ def unpublished(ls_titles: list[str]) -> list[str]:
     return filter_list_from_csv(ls_titles, csv)
 
 
-def filter_list_from_csv(titles: list[str], csv: list[list[str] | tuple[str]]) -> list[str]:
+def filter_list_from_csv(titles: list[str], csv: list[BlogCsvRow]) -> list[str]:
     # Obtengo la lista de títulos,
     # por si están entrecomillados, quito las comillas
-    published = (row[0].strip("\"") for row in csv)
+    published = (row.title.strip("\"") for row in csv)
     # quito los posibles años entre paréntesis
     published = (trim_year(title) for title in published)
     published = [title.lower() for title in published]
@@ -122,7 +122,7 @@ def filter_list_from_csv(titles: list[str], csv: list[list[str] | tuple[str]]) -
             # Compruebo que el año sea correcto.
             # Esta comprobación la hacemos para los casos en los que un título
             # se haya añadido al Word sin año y posteriormente se haya añadido el año.
-            if not any(candidato_año == csv[ocurr][CSV_COLUMN.YEAR]
+            if not any(candidato_año == csv[ocurr].year
                        for ocurr in indices):
                 # Añado el título con las mayúsculas originales
                 unpublished_titles.append(title)

@@ -1,9 +1,8 @@
 import csv
 import os
 from datetime import datetime
-from enum import IntEnum, auto
 from pathlib import Path
-from typing import Iterable
+from typing import Iterable, NamedTuple
 
 from src.aux_res_directory import get_res_folder
 from src.config import Config, Param, Section
@@ -12,15 +11,11 @@ from ..blog_scraper import BlogHiddenData, BlogScraper
 from ..google_api import Post, Poster
 
 
-class CSV_COLUMN(IntEnum):
-    @staticmethod
-    def _generate_next_value_(name, start, count, last_values):
-        return IntEnum._generate_next_value_(name, 0, count, last_values)
-
-    TITLE = auto()
-    LINK = auto()
-    DIRECTOR = auto()
-    YEAR = auto()
+class BlogCsvRow(NamedTuple):
+    title: str
+    link: str
+    director: str
+    year: str
 
 
 class BlogCsvMgr:
@@ -68,16 +63,16 @@ class BlogCsvMgr:
         return len(new_posts) > 0
 
     @classmethod
-    def open_to_read(cls, csv_path: Path | str = SZ_CSV_FILE) -> list[list[str]]:
+    def open_to_read(cls, csv_path: Path | str = SZ_CSV_FILE) -> list[BlogCsvRow]:
         with open(csv_path, encoding=cls.ENCODING) as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=",")
             # Convierto lo leído en listas
             # Es una lista que contiene cada linea expresada como lista
-            csv_read = list(csv_reader)
+            csv_data = [BlogCsvRow(*csv_row) for csv_row in csv_reader]
 
         try:
             # Devuelvo la lista sin la primera fila, que tiene los encabezados
-            return csv_read[1:]
+            return csv_data[1:]
         except IndexError:
             return []
 
@@ -90,7 +85,7 @@ class BlogCsvMgr:
             csv_writer.writerows(rows)
 
     @classmethod
-    def get_csv_row_from_post(cls, post: Post) -> tuple[str, str, str, str]:
+    def get_csv_row_from_post(cls, post: Post) -> BlogCsvRow:
         # Construyo un objeto para extraer datos del Post
         scraper = BlogScraper(post)
 
@@ -101,7 +96,7 @@ class BlogCsvMgr:
         year = scraper.get_hidden_data(BlogHiddenData.YEAR)
 
         # Devuelvo los datos en el orden correspondiente
-        return title, link, director, year
+        return BlogCsvRow(title, link, director, year)
 
     @classmethod
     def write_csv(cls):

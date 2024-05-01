@@ -1,17 +1,14 @@
 import urllib.parse
-from dataclasses import dataclass
-from typing import Iterable
+from typing import Iterable, NamedTuple
 
 from src.aux_res_directory import get_res_folder
 from src.config import Config, Param, Section
 from src.gui import YesNo
 
-from ..blog_csv_mgr import CSV_COLUMN
 from .quoter_base import QuoterBase, insert_string_in_position
 
 
-@dataclass
-class DirectorCitation:
+class DirectorCitation(NamedTuple):
     position: int
     director: str
     length: int
@@ -49,7 +46,7 @@ def load_trust_directors() -> set[str]:
 class QuoterDirector:
 
     # Registro de todos los directores reseñados
-    ALL_DIRECTORS = {row[CSV_COLUMN.DIRECTOR]
+    ALL_DIRECTORS = {row.director
                      for row in QuoterBase.CSV_CONTENT}
 
     # Lista de apellidos que siempre que aparezcan se referirán al director
