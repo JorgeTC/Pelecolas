@@ -1,9 +1,11 @@
+from threading import Thread
+
 from ..google_api import Post, join
-from .blog_theme_updater import (BlogThemeUpdater,
-                                 PostThemeUpdater,
+from .blog_theme_updater import (BlogThemeUpdater, PostThemeUpdater,
                                  exist_repeated_posts)
 
-exist_repeated_posts()
+Thread(target=exist_repeated_posts,
+       name="Check no repeated posts").start()
 
 
 def select_post_to_update() -> Post:
