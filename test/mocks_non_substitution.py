@@ -107,7 +107,7 @@ def mock_generator_without_replace(to_mock: Callable[[Any], Iterator[MockReturn]
 
     return_values: list[list[MockReturn]] = []
 
-    def side_effect(*args, **kwargs) -> MockReturn:
+    def side_effect(*args, **kwargs) -> Iterator[MockReturn]:
         return_values.append([])
         for value in to_mock(*args, **kwargs):
             return_values[-1].append(value)
