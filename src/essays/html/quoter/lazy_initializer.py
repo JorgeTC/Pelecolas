@@ -14,7 +14,8 @@ class LazyInitializer:
         self.initializer: Callable[[Any], StoredValue] = initializer
 
         Thread(target=self.initialize,
-               name=self.initializer.__name__).start()
+               name=self.initializer.__name__,
+               daemon=True).start()
 
     def initialize(self):
         self.value = self.initializer()

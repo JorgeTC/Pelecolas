@@ -5,7 +5,8 @@ from .blog_theme_updater import (BlogThemeUpdater, PostThemeUpdater,
                                  exist_repeated_posts)
 
 Thread(target=exist_repeated_posts,
-       name="Check no repeated posts").start()
+       name="Check no repeated posts",
+       daemon=True).start()
 
 
 def select_post_to_update() -> Post:
