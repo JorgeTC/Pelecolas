@@ -1,7 +1,7 @@
 import inspect
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, Callable, Iterator, TypeVar
+from typing import Callable, Generic, Iterator, TypeVar
 from unittest import mock
 from unittest.mock import MagicMock
 
@@ -61,7 +61,7 @@ def mock_config_get_value(section: Section, param: Param, value: bool) -> Iterat
 MockReturn = TypeVar('MockReturn')
 
 
-class NonSubstitutionFunctionMock(MagicMock):
+class NonSubstitutionFunctionMock(MagicMock, Generic[MockReturn]):
     def __new__(cls, mock: MagicMock, return_values: list[MockReturn]) -> 'NonSubstitutionFunctionMock':
         # Modifico el objeto y lo devuelvo
         cls.__init__(mock, return_values)
@@ -71,25 +71,30 @@ class NonSubstitutionFunctionMock(MagicMock):
         self.return_values = return_values
 
 
-@contextmanager
-def mock_function_without_replace(to_mock: Callable[[Any], MockReturn]) -> Iterator[NonSubstitutionFunctionMock]:
+class MockFunctionWithoutReplace(Generic[MockReturn]):
+    def __init__(self, to_mock: Callable[..., MockReturn]):
+        # Compongo la ruta de importación
+        self.function_path = import_path(to_mock)
 
-    # Compongo la ruta de importación
-    function_path = import_path(to_mock)
+        self.return_values: list[MockReturn] = []
 
-    return_values: list[MockReturn] = []
+        def side_effect(*args, **kwargs) -> MockReturn:
+            value = to_mock(*args, **kwargs)
+            self.return_values.append(value)
+            return value
 
-    def side_effect(*args, **kwargs) -> MockReturn:
-        value = to_mock(*args, **kwargs)
-        return_values.append(value)
-        return value
+        self.patch = mock.patch(self.function_path, side_effect=side_effect)
 
-    # Devuelvo la función con su implementación
-    with mock.patch(function_path, side_effect=side_effect) as function_mock:
-        yield NonSubstitutionFunctionMock(function_mock, return_values)
+    def __enter__(self) -> NonSubstitutionFunctionMock[MockReturn]:
+        function_mock = self.patch.__enter__()
+        return NonSubstitutionFunctionMock(function_mock,
+                                           self.return_values)
+
+    def __exit__(self, *exec_info):
+        self.patch.__exit__(*exec_info)
 
 
-class NonSubstitutionGeneratorMock(MagicMock):
+class NonSubstitutionGeneratorMock(MagicMock, Generic[MockReturn]):
     def __new__(cls, mock: MagicMock, return_values: list[list[MockReturn]]) -> 'NonSubstitutionGeneratorMock':
         # Modifico el objeto y lo devuelvo
         cls.__init__(mock, return_values)
@@ -99,20 +104,26 @@ class NonSubstitutionGeneratorMock(MagicMock):
         self.return_values = return_values
 
 
-@contextmanager
-def mock_generator_without_replace(to_mock: Callable[[Any], Iterator[MockReturn]]) -> Iterator[NonSubstitutionGeneratorMock]:
+class MockGeneratorWithoutReplace(Generic[MockReturn]):
+    def __init__(self, to_mock: Callable[..., Iterator[MockReturn]]):
 
-    # Compongo la ruta de importación
-    function_path = import_path(to_mock)
+        # Compongo la ruta de importación
+        self.function_path = import_path(to_mock)
 
-    return_values: list[list[MockReturn]] = []
+        self.return_values: list[list[MockReturn]] = []
 
-    def side_effect(*args, **kwargs) -> Iterator[MockReturn]:
-        return_values.append([])
-        for value in to_mock(*args, **kwargs):
-            return_values[-1].append(value)
-            yield value
+        def side_effect(*args, **kwargs) -> Iterator[MockReturn]:
+            self.return_values.append([])
+            for value in to_mock(*args, **kwargs):
+                self.return_values[-1].append(value)
+                yield value
 
-    # Devuelvo la función con su implementación
-    with mock.patch(function_path, side_effect=side_effect) as function_mock:
-        yield NonSubstitutionGeneratorMock(function_mock, return_values)
+        self.patch = mock.patch(self.function_path, side_effect=side_effect)
+
+    def __enter__(self) -> NonSubstitutionGeneratorMock[MockReturn]:
+        function_mock = self.patch.__enter__()
+        return NonSubstitutionGeneratorMock(function_mock,
+                                            self.return_values)
+
+    def __exit__(self, *exec_info):
+        self.patch.__exit__(*exec_info)

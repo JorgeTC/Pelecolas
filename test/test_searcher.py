@@ -1,5 +1,5 @@
 from itertools import pairwise
-from test.mocks_non_substitution import mock_generator_without_replace
+from test.mocks_non_substitution import MockGeneratorWithoutReplace
 
 from src.essays.searcher import Searcher, search_boxes
 from src.pelicula import get_id_from_url
@@ -68,11 +68,12 @@ def test_not_found_same_year():
     searcher = Searcher("Pinocho (1000)")
     assert searcher.has_results()
 
-    with mock_generator_without_replace(search_boxes) as mock_search_boxes:
+    with MockGeneratorWithoutReplace(search_boxes) as mock_search_boxes:
         assert searcher.get_url() == ""
         assert mock_search_boxes.call_count == 1
-        assert any(film.año == next_film.año for film,
-                   next_film in pairwise(mock_search_boxes.return_values[-1]))
+        assert any(film.año == next_film.año
+                   for film, next_film
+                   in pairwise(mock_search_boxes.return_values[-1]))
 
 
 def test_two_results_in_same_year():
