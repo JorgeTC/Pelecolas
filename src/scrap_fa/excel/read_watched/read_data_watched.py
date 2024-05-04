@@ -41,6 +41,7 @@ class ReadDataWatched(ReadWatched):
         instance.id = movie_box.get_id()
         instance.url_FA = URL_FILM_ID(instance.id)
         instance.FA_type = movie_box.get_FA_type()
+        instance.año = movie_box.get_year()
 
         # Devuelvo la instancia
         return instance
