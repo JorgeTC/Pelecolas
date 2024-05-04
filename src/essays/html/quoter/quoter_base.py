@@ -1,4 +1,5 @@
 from ..blog_csv_mgr import BlogCsvMgr
+from .async_initializer import AsyncInitializer
 
 
 class QuoterBase:
@@ -9,12 +10,7 @@ class QuoterBase:
     CLOSE_LINK = "</a>"
     LINK_LABEL = "https://pelecolas.blogspot.com/search/label/{}".format
 
-    # Compruebo si tengo un csv actualizado.
-    # En caso contrario, lo escribo
-    if BlogCsvMgr.is_needed():
-        BlogCsvMgr.write_csv()
-    # Lector de csv
-    CSV_CONTENT = BlogCsvMgr.open_to_read()
+    csv_content = AsyncInitializer(BlogCsvMgr.get_updated_csv_content)
 
 
 def find(s: str, ch: str) -> list[int]:

@@ -108,3 +108,12 @@ class BlogCsvMgr:
         extracted_data = (cls.get_csv_row_from_post(post) for post in posted)
 
         cls.write(cls.HEADER_CSV, extracted_data)
+
+    @classmethod
+    def get_updated_csv_content(cls) -> list[BlogCsvRow]:
+        # Compruebo si tengo un csv actualizado.
+        # En caso contrario, lo escribo
+        if cls.is_needed():
+            cls.write_csv()
+        # Lector de csv
+        return cls.open_to_read()

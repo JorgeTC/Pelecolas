@@ -5,6 +5,7 @@ from src.aux_res_directory import get_res_folder
 from src.config import Config, Param, Section
 from src.gui import YesNo
 
+from .async_initializer import AsyncInitializer
 from .quoter_base import QuoterBase, insert_string_in_position
 
 
@@ -43,11 +44,15 @@ def load_trust_directors() -> set[str]:
     return directors
 
 
+def init_all_directors():
+    csv_rows = QuoterBase.csv_content.get()
+    return {row.director for row in csv_rows}
+
+
 class QuoterDirector:
 
     # Registro de todos los directores reseñados
-    ALL_DIRECTORS = {row.director
-                     for row in QuoterBase.CSV_CONTENT}
+    ALL_DIRECTORS = AsyncInitializer(init_all_directors)
 
     # Lista de apellidos que siempre que aparezcan se referirán al director
     TRUST_DIRECTORS = load_trust_directors()
@@ -85,7 +90,7 @@ class QuoterDirector:
         citation: DirectorCitation | None = None
 
         # Recorro todos los directores buscando la palabra que tengo
-        for director in self.ALL_DIRECTORS:
+        for director in self.ALL_DIRECTORS.get():
             # No quiero citar dos veces el mismo director
             if director in self._quoted_directors:
                 continue

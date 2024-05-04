@@ -39,7 +39,7 @@ class QuoterTitle:
             except ValueError:
                 continue
             # Guardo el título como viene escrito en el CSV
-            title_in_csv = QuoterBase.CSV_CONTENT[row].title
+            title_in_csv = QuoterBase.csv_content.get()[row].title
             # Si la película ya está citada, no la cito otra vez
             if title_in_csv in self._quoted_titles:
                 continue
@@ -55,7 +55,7 @@ class QuoterTitle:
 
 def add_post_link(text: str, citation: FilmCitation, row: int) -> str:
     # Construyo el html para el enlace
-    url = QuoterBase.CSV_CONTENT[row].link
+    url = QuoterBase.csv_content.get()[row].link
     ini_link = QuoterBase.OPEN_LINK(url)
 
     # Escribo el cierre del link
@@ -74,7 +74,7 @@ def add_post_link(text: str, citation: FilmCitation, row: int) -> str:
 def row_in_csv(title: str) -> int:
     try:
         return next(index
-                    for index, row in enumerate(QuoterBase.CSV_CONTENT)
+                    for index, row in enumerate(QuoterBase.csv_content.get())
                     if title.lower() == row.title.lower().strip("\""))
     except StopIteration:
         raise ValueError
@@ -96,7 +96,7 @@ def row_in_csv_missing_year_in_word(title: str, year: str) -> int:
     row_index = row_in_csv_year_insensitive(title)
 
     # Compruebo que el título coincidente sea del año correcto
-    year_in_csv = QuoterBase.CSV_CONTENT[row_index].year
+    year_in_csv = QuoterBase.csv_content.get()[row_index].year
     if year != year_in_csv:
         raise ValueError
     return row_index
