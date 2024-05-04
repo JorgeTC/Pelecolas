@@ -4,7 +4,7 @@ from typing import Callable, Generic, TypeVar
 StoredValue = TypeVar('StoredValue')
 
 
-class LazyInitializer(Generic[StoredValue]):
+class AsyncInitializer(Generic[StoredValue]):
 
     def __init__(self, initializer: Callable[[], StoredValue]):
         # Variable lenta de calcular y cuya inicialización se arranca en este constructor
@@ -13,7 +13,7 @@ class LazyInitializer(Generic[StoredValue]):
         self.initializer = initializer
 
         # Guardo el hilo que está realizando la inicialización para
-        # poder esperar a que termine su ejecuación antes de devolver el valor.
+        # poder esperar a que termine su ejecución antes de devolver el valor.
         # Daemon porque no quiero que el cierre del programa espere a que termine la inicialización:
         # si estoy cerrando el programa ya no necesito el valor que está calculando
         self.init_thread = Thread(target=self.initialize,
@@ -30,7 +30,7 @@ class LazyInitializer(Generic[StoredValue]):
         try:
             self.value = self.initializer()
         except Exception as e:
-            # Guardo la excepción. N la lanzo ahora, la lanzaré cuando se me pida el valor
+            # Guardo la excepción. No la lanzo ahora, la lanzaré cuando se me pida el valor
             self.exception = e
 
     def get(self) -> StoredValue:

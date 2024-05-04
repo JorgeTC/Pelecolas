@@ -5,9 +5,8 @@ from src.aux_res_directory import get_res_folder
 from src.config import Config, Param, Section
 from src.gui import YesNo
 
+from .async_initializer import AsyncInitializer
 from .quoter_base import QuoterBase, insert_string_in_position
-from .lazy_initializer import LazyInitializer
-from ..blog_csv_mgr import BlogCsvRow
 
 
 class DirectorCitation(NamedTuple):
@@ -53,7 +52,7 @@ def init_all_directors():
 class QuoterDirector:
 
     # Registro de todos los directores reseñados
-    ALL_DIRECTORS = LazyInitializer(init_all_directors)
+    ALL_DIRECTORS = AsyncInitializer(init_all_directors)
 
     # Lista de apellidos que siempre que aparezcan se referirán al director
     TRUST_DIRECTORS = load_trust_directors()

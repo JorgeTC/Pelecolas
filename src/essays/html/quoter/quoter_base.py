@@ -1,5 +1,5 @@
 from ..blog_csv_mgr import BlogCsvMgr
-from .lazy_initializer import LazyInitializer
+from .async_initializer import AsyncInitializer
 
 
 class QuoterBase:
@@ -10,7 +10,7 @@ class QuoterBase:
     CLOSE_LINK = "</a>"
     LINK_LABEL = "https://pelecolas.blogspot.com/search/label/{}".format
 
-    csv_content = LazyInitializer(BlogCsvMgr.get_updated_csv_content)
+    csv_content = AsyncInitializer(BlogCsvMgr.get_updated_csv_content)
 
 
 def find(s: str, ch: str) -> list[int]:
