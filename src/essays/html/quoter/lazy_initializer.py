@@ -1,26 +1,45 @@
-from threading import Thread, Lock
-from typing import Callable, Any, TypeVar
-
+from threading import Thread
+from typing import Callable, Generic, TypeVar
 
 StoredValue = TypeVar('StoredValue')
-class LazyInitializer:
 
-    def __init__(self, initializer: Callable[[Any], StoredValue]):
-        self.initializing_lock = Lock()
-        self.initializing_lock.acquire()
 
-        self.value: StoredValue = None
+class LazyInitializer(Generic[StoredValue]):
 
-        self.initializer: Callable[[Any], StoredValue] = initializer
+    def __init__(self, initializer: Callable[[], StoredValue]):
+        # Variable lenta de calcular y cuya inicialización se arranca en este constructor
+        self.value: StoredValue | None = None
+        # Función que inicializará el objeto que necesito
+        self.initializer = initializer
 
-        Thread(target=self.initialize,
-               name=self.initializer.__name__,
-               daemon=True).start()
+        # Guardo el hilo que está realizando la inicialización para
+        # poder esperar a que termine su ejecuación antes de devolver el valor.
+        # Daemon porque no quiero que el cierre del programa espere a que termine la inicialización:
+        # si estoy cerrando el programa ya no necesito el valor que está calculando
+        self.init_thread = Thread(target=self.initialize,
+                                  name=self.initializer.__name__,
+                                  daemon=True)
+        # Inicio la ejecución
+        self.init_thread.start()
+
+        # Atributo para guardar las excepciones que surjan durante la inicialización.
+        # No quiero que salten en el hilo de inicialización, sino cuando se me solicite el resultado.
+        self.exception: Exception | None = None
 
     def initialize(self):
-        self.value = self.initializer()
-        self.initializing_lock.release()
+        try:
+            self.value = self.initializer()
+        except Exception as e:
+            # Guardo la excepción. N la lanzo ahora, la lanzaré cuando se me pida el valor
+            self.exception = e
 
     def get(self) -> StoredValue:
-        with self.initializing_lock:
-            return self.value
+        # Antes de devolver nada, espero a que termine la inicialización
+        self.init_thread.join()
+
+        # Si la inicialización ha ido mal, no devuelvo el valor: lanzo la excepción
+        if self.exception:
+            raise self.exception
+
+        # La variable ha sido inicializada: la devuelvo
+        return self.value

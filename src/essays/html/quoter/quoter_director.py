@@ -46,7 +46,7 @@ def load_trust_directors() -> set[str]:
 
 
 def init_all_directors():
-    csv_rows: list[BlogCsvRow] = QuoterBase.csv_content.get()
+    csv_rows = QuoterBase.csv_content.get()
     return {row.director for row in csv_rows}
 
 
