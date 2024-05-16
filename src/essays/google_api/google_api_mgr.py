@@ -1,5 +1,6 @@
 from enum import StrEnum
 from pathlib import Path
+from threading import Lock
 from typing import Iterable
 
 from google.auth.transport.requests import Request
@@ -15,27 +16,41 @@ CREDENTIALS_PATH = get_res_folder("blog_credentials", "client_secrets.json")
 TOKEN_PATH = get_res_folder("blog_credentials", "token.json")
 
 
+refreshing_lock = Lock()
+
+
+def refreshed_credentials(creds: Credentials | None, credentials_path: Path, token_path: Path, scopes: Iterable[str]) -> Credentials:
+    # Si las credenciales ya son válidas, las devuelvo
+    if creds and creds.valid:
+        return creds
+
+    # Si las puedo refrescar, lo hago
+    try:
+        creds.refresh(Request())
+    # No puedo refrescar, debo generarlo de nuevo
+    except Exception:
+        flow = InstalledAppFlow.from_client_secrets_file(credentials_path,
+                                                         scopes)
+        creds = flow.run_local_server(port=0,
+                                      authorization_prompt_message="Abriendo navegador para autorizar la app.",
+                                      success_message="Autorización completada con éxito.")
+
+    # Actualizo el archivo con el token de acceso
+    with open(token_path, 'w') as token:
+        token.write(creds.to_json())
+
+    return creds
+
+
 def get_credentials(credentials_path: Path, token_path: Path, scopes: Iterable[str]) -> Credentials:
     # Si existe el archivo, puedo generar credenciales
     creds = (Credentials.from_authorized_user_file(token_path, scopes)
              if token_path.is_file() else None)
 
     # No he obtenido credenciales válidas
-    if not creds or not creds.valid:
-        # Si las puedo refrescar, lo hago
-        try:
-            creds.refresh(Request())
-        # No puedo refrescar, debo generarlo de nuevo
-        except Exception:
-            flow = InstalledAppFlow.from_client_secrets_file(credentials_path,
-                                                             scopes)
-            creds = flow.run_local_server(port=0,
-                                          authorization_prompt_message="Abriendo navegador para autorizar la app.",
-                                          success_message="Autorización completada con éxito.")
-
-        # Actualizo el archivo con el token de acceso
-        with open(token_path, 'w') as token:
-            token.write(creds.to_json())
+    with refreshing_lock:
+        creds = refreshed_credentials(creds, credentials_path,
+                                      token_path, scopes)
 
     return creds
 
