@@ -19,8 +19,13 @@ class FilmBox:
         return int(self.film_box.contents[1].contents[1].attrs['data-movie-id'])
 
     def get_year(self) -> int:
-        year = self.film_box.contents[1].contents[1].contents[3].contents[3].contents[2].contents[0]
-        str_year = str(year)
+        # Accedo a la parte que es común en todas las cajas
+        info_container: BeautifulSoup = self.film_box.contents[1].contents[1].contents[3]
+        # En este punto la estructura del html cambia en función de si la película tiene los tags animación, cortometraje...
+        # Por eso debo hacer una búsqueda
+        under_title_info = info_container.find(name='div', class_='d-flex')
+        year_cont = under_title_info.find(name='span', class_='mc-year')
+        str_year = str(year_cont.contents[0])
         return int(re.search(r"(\d{4})", str_year).group(1))
 
     def get_country(self) -> str:
