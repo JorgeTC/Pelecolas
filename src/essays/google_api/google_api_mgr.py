@@ -48,9 +48,8 @@ def get_credentials(credentials_path: Path, token_path: Path, scopes: Iterable[s
              if token_path.is_file() else None)
 
     # No he obtenido credenciales válidas
-    with refreshing_lock:
-        creds = refreshed_credentials(creds, credentials_path,
-                                      token_path, scopes)
+    creds = refreshed_credentials(creds, credentials_path,
+                                  token_path, scopes)
 
     return creds
 
@@ -66,6 +65,7 @@ def get_google_service(api_type: GoogleService,
     SCOPES = tuple(f"https://www.googleapis.com/auth/{service}"
                    for service in GoogleService)
 
-    credentials = get_credentials(credentials_path, token_path, SCOPES)
+    with refreshing_lock:
+        credentials = get_credentials(credentials_path, token_path, SCOPES)
 
     return build(api_type, 'v3', credentials=credentials)

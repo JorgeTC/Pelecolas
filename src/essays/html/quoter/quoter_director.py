@@ -5,7 +5,7 @@ from src.aux_res_directory import get_res_folder
 from src.config import Config, Param, Section
 from src.gui import YesNo
 
-from .async_initializer import AsyncInitializer
+from ...async_initializer import AsyncInitializer
 from .quoter_base import QuoterBase, insert_string_in_position
 
 

@@ -72,9 +72,10 @@ def add_post_link(text: str, citation: FilmCitation, row: int) -> str:
 
 
 def row_in_csv(title: str) -> int:
+    csv_content = QuoterBase.csv_content.get()
     try:
         return next(index
-                    for index, row in enumerate(QuoterBase.csv_content.get())
+                    for index, row in enumerate(csv_content)
                     if title.lower() == row.title.lower().strip("\""))
     except StopIteration:
         raise ValueError
