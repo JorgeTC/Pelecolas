@@ -1,5 +1,5 @@
+from ...async_initializer import AsyncInitializer
 from ..blog_csv_mgr import BlogCsvMgr
-from .async_initializer import AsyncInitializer
 
 
 class QuoterBase:
