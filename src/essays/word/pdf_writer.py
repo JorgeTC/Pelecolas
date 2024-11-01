@@ -1,7 +1,7 @@
 import platform
 from pathlib import Path
 
-from pypdf import PdfMerger
+from pypdf import PdfWriter
 
 from src.config import Config, Param, Section
 
@@ -39,7 +39,7 @@ class PDFWriter:
         pdf_dir = Config.get_folder_path(Section.DRIVE,
                                          Param.PDF_PATH)
         # Creo un objeto para unir pdf
-        with PdfMerger() as merger:
+        with PdfWriter() as merger:
             # Le doy todos los que necesita añadir
             for pdf in cls.ALL_PDF:
                 merger.append(pdf)
