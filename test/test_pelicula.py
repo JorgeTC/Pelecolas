@@ -35,7 +35,7 @@ def test_wrong_id():
 def test_scrap_title():
     jaws = Pelicula.from_id(242422)
     jaws.get_title()
-    assert jaws.titulo == 'Tiburón '
+    assert jaws.titulo == 'Tiburón'
 
 
 def test_scrap_country(film: Pelicula):
