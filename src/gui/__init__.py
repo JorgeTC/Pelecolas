@@ -1,7 +1,7 @@
 from threading import Thread
 
 from .dlg_bool import YesNo
-from .dlg_scroll_base import DlgScrollBase
+from .dlg_scroll_base import DlgCompleter, DlgScrollBase, ScrollCompleter
 from .gui import GUI
 from .input import Input
 from .log import Log
@@ -16,4 +16,5 @@ def join_GUI():
     consumer.join()
 
 
-__all__ = [GUI, join_GUI, Log, Input, DlgScrollBase, ProgressBar, YesNo]
+__all__ = [GUI, join_GUI, Log, Input, DlgScrollBase,
+           ScrollCompleter, DlgCompleter, ProgressBar, YesNo]

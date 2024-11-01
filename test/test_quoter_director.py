@@ -21,6 +21,10 @@ def TarantinoParr() -> str:
     return get_file_content("twice_same_director.txt")
 
 
+# Función que devolverá Sí o No según lo que haya escrito el usuario en consola
+confirmation_path = "src.gui.DlgScrollBase.get_ans"
+
+
 def patch_QuoterDirector(all_directors: set[str], trust_directors: set[str]):
 
     def decorator(fn):
@@ -80,7 +84,7 @@ def Bergman() -> str:
 def test_quote_director_with_dlg(Bergman: str):
     quoter = Quoter("", "")
     # Compruebo que se haya preguntado al usuario por Bergman
-    with mock.patch('builtins.input', return_value="Sí") as mock_confirmation:
+    with mock.patch(confirmation_path, return_value="Sí") as mock_confirmation:
         quoted_parr = quoter.quote_parr(Bergman)
         assert mock_confirmation.call_count == 1
 
@@ -93,7 +97,7 @@ def test_quote_director_with_dlg(Bergman: str):
 def test_not_quote_director_with_dlg(Bergman: str):
     quoter = Quoter("", "")
     # Compruebo que se haya preguntado al usuario por Bergman
-    with mock.patch('builtins.input', return_value="No") as mock_confirmation:
+    with mock.patch(confirmation_path, return_value="No") as mock_confirmation:
         quoted_parr = quoter.quote_parr(Bergman)
         assert mock_confirmation.call_count == 1
 
@@ -111,7 +115,7 @@ def vonTrier() -> str:
 def test_director_more_than_one_word_not_complete_name(vonTrier: str):
     quoter = Quoter("", "")
 
-    with mock.patch('builtins.input', return_value="No") as mock_confirmation:
+    with mock.patch(confirmation_path, return_value="No") as mock_confirmation:
         quoted_parr = quoter.quote_parr(vonTrier)
         assert mock_confirmation.call_count == 0
 
@@ -130,7 +134,7 @@ def test_not_ask_in_title(Plaza: str):
     quoter = Quoter("", "")
 
     # Compruebo que no se pregunte por ningún director
-    with mock.patch('builtins.input', return_value="No") as mock_confirmation:
+    with mock.patch(confirmation_path, return_value="No") as mock_confirmation:
         quoted_parr = quoter.quote_parr(Plaza)
         assert mock_confirmation.call_count == 0
 
@@ -145,7 +149,7 @@ def SpecialLemma() -> str:
 @patch_QuoterDirector({"Joel Coen"}, {"Coen"})
 def test_lemma(SpecialLemma: str):
     quoter = Quoter("", "")
-    with mock.patch('builtins.input', return_value="Sí") as mock_confirmation:
+    with mock.patch(confirmation_path, return_value="Sí") as mock_confirmation:
         quoted_parr = quoter.quote_parr(SpecialLemma)
         assert mock_confirmation.call_count == 0
 

@@ -1,5 +1,3 @@
-from unittest import mock
-
 import pytest
 
 from src.essays.list_title_mgr import TitleMgr
@@ -19,40 +17,27 @@ def quisiste_decir() -> TitleMgr:
 
 def test_exact_key(quisiste_decir: TitleMgr):
     title = "Cantando bajo la lluvia"
-    assert quisiste_decir.exact_key(title, print_titles=False) == title
+    assert quisiste_decir.exact_key(title) == title
 
 
 def test_not_print_when_exact_key(quisiste_decir: TitleMgr):
     title = "Cantando bajo la lluvia"
-    with mock.patch('builtins.print') as mock_print:
-        exact_key = quisiste_decir.exact_key(title)
-        assert mock_print.call_count == 0
+    exact_key = quisiste_decir.exact_key(title)
     assert exact_key == title
 
 
 def test_exact_but_case(quisiste_decir: TitleMgr):
     title = "El topo"
-    with mock.patch('builtins.print') as mock_print:
-        exact_key = quisiste_decir.exact_key(title)
-        assert mock_print.call_count == 0
+    exact_key = quisiste_decir.exact_key(title)
     # Compruebo que haya modificado el título
     assert exact_key != title
     # Pero que sea el mismo título introducido
     assert exact_key.lower() == title.lower()
 
 
-def test_not_print_if_not_suggestions(quisiste_decir: TitleMgr):
-    title = "(1312)"
-    with mock.patch('builtins.print') as mock_print:
-        exact_key = quisiste_decir.exact_key(title)
-        # Compruebo que, como no tiene nada que imprimir no haya impreso nada
-        assert mock_print.call_count == 0
-    assert exact_key == ""
-
-
 def test_not_suggestions(quisiste_decir: TitleMgr):
     title = "(1312)"
-    assert quisiste_decir.exact_key(title, print_titles=False) == ""
+    assert quisiste_decir.exact_key(title) == ""
 
 
 def test_exact_but_accent(quisiste_decir: TitleMgr):
