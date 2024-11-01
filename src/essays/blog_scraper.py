@@ -34,7 +34,7 @@ class BlogScraper:
         name = post.title
         # Si el nombre que tiene en el word no es el normal, es que tiene un año
         with suppress(StopIteration):
-            return cls.TITLE_MGR.exact_key(name, print_titles=False, no_except=False)
+            return cls.TITLE_MGR.exact_key(name, no_except=False)
 
         # Parseo el contenido
         if parsed is None:
@@ -43,7 +43,7 @@ class BlogScraper:
         # Tomo el nombre que está escrito en los datos ocultos
         name = BlogHiddenData.TITLE.get(parsed)
         with suppress(StopIteration):
-            return cls.TITLE_MGR.exact_key(name, print_titles=False, no_except=False)
+            return cls.TITLE_MGR.exact_key(name, no_except=False)
 
         # El nombre que viene en el html no es correcto,
         # pruebo a componer un nuevo nombre con el título y el año
@@ -51,7 +51,7 @@ class BlogScraper:
         name = f'{name} ({year})'
 
         with suppress(StopIteration):
-            return cls.TITLE_MGR.exact_key(name, print_titles=False, no_except=False)
+            return cls.TITLE_MGR.exact_key(name, no_except=False)
 
         # Intento encontrar una reseña cuyo primer párrafo
         # sea idéntico al primer párrafo del texto

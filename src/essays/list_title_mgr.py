@@ -63,13 +63,10 @@ class TitleMgr:
             print(suggestion)
 
     def exact_key(self, title: str, *,
-                  print_titles: bool = True, no_except: bool = True) -> str:
+                  no_except: bool = True) -> str:
         try:
             exact_title = self.find_title_in_list(title)
         except StopIteration as e:
-            if print_titles:
-                self.print_suggestions(title)
-
             if no_except:
                 return ""
             else:
