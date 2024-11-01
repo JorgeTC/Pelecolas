@@ -75,9 +75,9 @@ def get_total_films(id_user: int) -> int:
     # Guardo la página ya parseada
     soup_page = BeautifulSoup(resp.text, 'lxml')
 
-    # me espero que haya un único "value-box active-tab"
-    mydivs = soup_page.find("a", class_ = "value-box active-tab")
-    stringNumber = str(mydivs.contents[3].contents[1])
+    # me espero que haya un único "active-filter"
+    films_count = soup_page.find("div", class_ = "active-filter").find("span", class_="count")
+    stringNumber = str(films_count.text).strip()
     # Elimino el punto de los millares
     stringNumber = stringNumber.replace('.', '')
     return int(stringNumber)
