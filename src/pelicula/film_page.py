@@ -1,11 +1,28 @@
 import re
+from enum import Enum
 from typing import Optional
+
 from bs4 import BeautifulSoup
 
 from src.safe_url import safe_get_url
 
 # Cómo debo buscar la información de las barras
 RATING_BARS_PATTERN = re.compile(r'RatingBars.*?\[(.*?)\]')
+
+
+class FAType(Enum):
+    ANIMATION = "Animación"
+    CONCERT = "Concierto"
+    DOCUMENTAL = "Documental"
+    EPISODE = "Episodio"
+    INTERACTIVE = "Interactivo"
+    MEDIA = "Mediometraje"
+    MUSIC_VIDEO = "Vídeo musical"
+    SHORT_FILM = "Cortometraje"
+    TV_FILM = "TV"
+    TV_MINISERIES = "Miniserie"
+    TV_SERIES = "Serie"
+    TV_SHOW = "Show"
 
 
 class FilmPage:
@@ -39,6 +56,12 @@ class FilmPage:
         except (KeyError, AttributeError, TypeError):
             # caso en el que no está escrita la duración
             return 0
+
+    def get_FA_type(self) -> set[FAType]:
+        types = self.parsed_page.find_all("span", class_="type")
+        types_str = [type_item.text for type_item in types]
+
+        return {FAType(type_str) for type_str in types_str}
 
     def get_country(self) -> str:
         try:

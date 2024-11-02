@@ -1,6 +1,6 @@
 import pytest
 
-from src.pelicula import Pelicula
+from src.pelicula import Pelicula, FAType
 
 
 @pytest.fixture
@@ -148,3 +148,14 @@ def test_scrap_prop_aprobados(film: Pelicula):
 def test_scrap_prop_aprobados_without_note(film_without_note: Pelicula):
     film_without_note.get_prop_aprobados()
     assert film_without_note.prop_aprobados == 0
+
+
+def test_scrap_types_none(film: Pelicula):
+    film.get_FA_type()
+    assert film.FA_type == set()
+
+
+def test_scrap_types():
+    take_on_me = Pelicula.from_id(852164)
+    take_on_me.get_FA_type()
+    assert take_on_me.FA_type == {FAType.ANIMATION, FAType.MUSIC_VIDEO}

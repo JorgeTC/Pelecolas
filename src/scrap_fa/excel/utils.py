@@ -1,7 +1,7 @@
 from enum import IntFlag, auto
 
 from src.config import Config, Param, Section
-from src.pelicula import Pelicula
+from src.pelicula import FAType, Pelicula
 
 
 def read_film(film: Pelicula) -> Pelicula:
@@ -16,12 +16,28 @@ def read_film(film: Pelicula) -> Pelicula:
 
 
 class FilmValid(IntFlag):
+    # Necesito un bit para las películas que no tengan ningún tipo
     FILM = auto()
+
+    # Un bit para cada tipo que recoge FilmAffinity
+    ANIMATION = auto()
+    CONCERT = auto()
+    DOCUMENTAL = auto()
+    EPISODE = auto()
+    INTERACTIVE = auto()
+    MEDIA = auto()
     MUSIC_VIDEO = auto()
-    TV_FILM = auto()
-    TV_SERIES = auto()
-    TV_MINISERIES = auto()
     SHORT_FILM = auto()
+    TV_FILM = auto()
+    TV_MINISERIES = auto()
+    TV_SERIES = auto()
+    TV_SHOW = auto()
+
+
+# Compruebo que FilmValid esté bien definido.
+# Necesito que todos los elementos de FAType tengan su correspondiente
+assert {item.name for item in FilmValid if item.name != "FILM"} ==\
+       {item.name for item in FAType}
 
 
 def is_valid(film: Pelicula, *,
@@ -29,24 +45,11 @@ def is_valid(film: Pelicula, *,
     """
     Busca en el título que sea una película realmente
     """
-    film.get_title()
+    film.get_FA_type()
 
-    # Comprobamos que no tenga ninguno de los sufijos a evitar
-    # Filtro los cortos
-    if "(C)" in film.titulo:
-        return SET_VALID_FILM & FilmValid.SHORT_FILM
-    # Excluyo series de televisión
-    if "(Miniserie de TV)" in film.titulo:
-        return SET_VALID_FILM & FilmValid.TV_MINISERIES
-    if "(Serie de TV)" in film.titulo:
-        return SET_VALID_FILM & FilmValid.TV_SERIES
-    if "(TV)" in film.titulo:
-        # Hay varios tipos de películas aquí.
-        # Algunos son programas de televisión, otros estrenos directos a tele.
-        # Hay también episodios concretos de series.
-        return SET_VALID_FILM & FilmValid.TV_FILM
-    # Filtro los videos musicales
-    if "(Vídeo musical)" in film.titulo:
-        return SET_VALID_FILM & FilmValid.MUSIC_VIDEO
-    # No se ha encontrado sufijo, luego es una película
+    # Itero todos los tipos que tiene
+    for FA_type in film.FA_type:
+        # Compruebo si el tipo invalida la película
+        return FilmValid[FA_type.name] & SET_VALID_FILM
+    # No se ha encontrado ningún tipo, luego es una película
     return SET_VALID_FILM & FilmValid.FILM

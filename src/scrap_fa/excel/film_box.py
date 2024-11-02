@@ -2,6 +2,8 @@ import re
 
 from bs4 import BeautifulSoup
 
+from src.pelicula import FAType
+
 
 class FilmBox:
     '''Funciones para extraer datos de la caja de la película'''
@@ -15,7 +17,8 @@ class FilmBox:
         return text_a.text
 
     def get_user_note(self) -> int:
-        user_vote = self.film_box.find("div", class_="fa-user-rat-box not-me mx-auto")
+        user_vote = self.film_box.find("div",
+                                       class_="fa-user-rat-box not-me mx-auto")
         return int(user_vote.text.strip())
 
     def get_id(self) -> int:
@@ -35,7 +38,8 @@ class FilmBox:
 
     def get_directors(self) -> list[str]:
         try:
-            directors_div = self.film_info.find('div', class_="mt-2 mc-director")
+            directors_div = self.film_info.find('div',
+                                                class_="mt-2 mc-director")
             directors_list: list[BeautifulSoup] = directors_div.find_all('a')
         except IndexError:
             return []
@@ -47,3 +51,9 @@ class FilmBox:
             return self.get_directors()[0]
         except IndexError:
             return ''
+
+    def get_FA_type(self) -> set[FAType]:
+        types = self.film_info.find_all('span', class_="type")
+        types_str = [type_item.text for type_item in types]
+
+        return {FAType(type_str) for type_str in types_str}
