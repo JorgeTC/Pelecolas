@@ -65,7 +65,7 @@ class ReadWatched:
 
 
 # Link para acceder a cada página de un usuario
-URL_USER_PAGE = 'https://www.filmaffinity.com/es/userratings.php?user_id={}&p={}&orderby=4'.format
+URL_USER_PAGE = 'https://www.filmaffinity.com/es/userratings.php?user_id={}&p={}&orderby=4&chv=list'.format
 
 
 def get_total_films(id_user: int) -> int:
@@ -75,9 +75,9 @@ def get_total_films(id_user: int) -> int:
     # Guardo la página ya parseada
     soup_page = BeautifulSoup(resp.text, 'lxml')
 
-    # me espero que haya un único "value-box active-tab"
-    mydivs = soup_page.find("a", class_ = "value-box active-tab")
-    stringNumber = str(mydivs.contents[3].contents[1])
+    # me espero que haya un único "active-filter"
+    films_count = soup_page.find("div", class_ = "active-filter").find("span", class_="count")
+    stringNumber = str(films_count.text).strip()
     # Elimino el punto de los millares
     stringNumber = stringNumber.replace('.', '')
     return int(stringNumber)
@@ -101,4 +101,4 @@ def list_boxes(url: str) -> Iterable[FilmBox]:
     soup_page = BeautifulSoup(resp.text, 'lxml')
     # Leo todas las películas que haya en ella
     return (FilmBox(parsed_box) for parsed_box in
-            soup_page.findAll("div", class_ = "user-ratings-movie"))
+            soup_page.findAll("div", class_="row mb-4"))

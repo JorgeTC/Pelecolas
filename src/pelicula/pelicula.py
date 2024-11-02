@@ -5,7 +5,7 @@ from typing import Callable
 
 from autoslot import assignments_to_self
 
-from .film_page import FilmPage
+from .film_page import FAType, FilmPage
 
 
 def get_id_from_url(url: str) -> int:
@@ -32,6 +32,7 @@ def scrap_data(fn: Callable[['Pelicula'], None], attr: str | None = None):
     Comprueba antes de buscar en la página que ya esté parseada.
     '''
     attr = attr or assignment_to_self(fn)
+
     @wraps(fn)
     def wrp(self: 'Pelicula'):
         # Si ya tengo guardado el dato que se me pide, no busco nada más
@@ -46,9 +47,9 @@ def scrap_data(fn: Callable[['Pelicula'], None], attr: str | None = None):
     return wrp
 
 
-
 def check_votes(fn: Callable[['Pelicula'], None], attr: str | None = None):
     attr = attr or assignment_to_self(fn)
+
     @wraps(fn)
     def wrp(self: 'Pelicula'):
         # Compruebo que haya leído los votos de la película
@@ -101,6 +102,7 @@ class Pelicula:
         self.directors: list[str] | None = None
         self.año: int | None = None
         self.pais: str | None = None
+        self.FA_type: set[FAType] | None = None
 
     @classmethod
     def from_id(cls, id: int) -> 'Pelicula':
@@ -196,6 +198,10 @@ class Pelicula:
         total_votes = sum(self.values)
         # Calculo la proporción
         self.prop_aprobados = positives / total_votes
+
+    @scrap_data
+    def get_FA_type(self):
+        self.FA_type = self.film_page.get_FA_type()
 
     def exists(self) -> bool:
         return self.film_page.exists

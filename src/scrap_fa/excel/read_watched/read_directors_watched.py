@@ -15,5 +15,6 @@ class ReadDirectorsWatched(ReadWatched):
         instance.directors = movie_box.get_directors()
         instance.titulo = movie_box.get_title()
         instance.user_note = movie_box.get_user_note()
+        instance.FA_type = movie_box.get_FA_type()
 
         return instance

@@ -40,6 +40,7 @@ class ReadDataWatched(ReadWatched):
         instance.user_note = movie_box.get_user_note()
         instance.id = movie_box.get_id()
         instance.url_FA = URL_FILM_ID(instance.id)
+        instance.FA_type = movie_box.get_FA_type()
 
         # Devuelvo la instancia
         return instance
