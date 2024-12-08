@@ -5,7 +5,7 @@ from typing import Iterator
 
 from bs4 import BeautifulSoup
 
-from src.pelicula import Pelicula
+from src.pelicula import SearchResultInfoBox, Pelicula
 from src.safe_url import safe_get_url
 
 from .aux_title_str import split_title_year
@@ -152,19 +152,16 @@ def get_redirected_url(parsed_page: BeautifulSoup) -> str:
 def search_boxes(parsed_page: BeautifulSoup) -> Iterator[Pelicula]:
     # Itero las cajas de resultados
     for found_box in iter_BeautifulSoup(parsed_page, 'div', class_='se-it'):
-        # Leo el año
-        curr_year = int(found_box.find('div', class_='ye-w').contents[0])
-
-        # Leo el título y el enlace
-        title_box = found_box.find('div', class_='mc-title')
-        url: str = title_box.contents[0].attrs['href']
-        title: str = str(title_box.contents[0].attrs['title']).strip()
+        # Obtengo la sección que contiene la información sobre la película
+        info_container = found_box.find('div', class_='mc-info-container')
+        # Instancio el objeto que me devuelve los datos de esa caja
+        film_info = SearchResultInfoBox(info_container)
 
         # Devuelvo un objeto Pelicula con la información que tengo
         film = Pelicula()
-        film.titulo = title
-        film.año = curr_year
-        film.url_FA = url
+        film.titulo = film_info.get_title()
+        film.url_FA = film_info.get_FA_url()
+        film.año = film_info.get_year()
         yield film
 
 
