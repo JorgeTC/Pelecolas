@@ -80,3 +80,9 @@ def test_two_results_in_same_year():
     searcher = Searcher("Mean girls")
     assert searcher.has_results()
     assert searcher.get_url() == ""
+
+
+def test_house_error():
+    searcher = Searcher("House (1977)")
+    assert searcher.has_results()
+    assert searcher.get_url() == ""

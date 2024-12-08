@@ -1,8 +1,6 @@
-import re
-
 from bs4 import BeautifulSoup
 
-from src.pelicula import FAType
+from src.pelicula import FAType, UserRatingsInfoBox
 
 
 class FilmBox:
@@ -10,11 +8,10 @@ class FilmBox:
 
     def __init__(self, film_box: BeautifulSoup) -> None:
         self.film_box = film_box
-        self.film_info = film_box.find('div', class_="card-body")
+        self.film_info = UserRatingsInfoBox(film_box.find('div', class_="card-body"))
 
     def get_title(self) -> str:
-        text_a = self.film_info.find('a', class_="d-none d-md-inline-block")
-        return text_a.text
+        return self.film_info.get_title()
 
     def get_user_note(self) -> int:
         user_vote = self.film_box.find("div",
@@ -26,34 +23,16 @@ class FilmBox:
         return int(card.attrs['data-movie-id'])
 
     def get_year(self) -> int:
-        # En este punto la estructura del html cambia en función de si la película tiene los tags animación, cortometraje...
-        # Por eso debo hacer una búsqueda
-        under_title_info = self.film_info.find(name='div', class_='d-flex')
-        year_cont = under_title_info.find(name='span', class_='mc-year')
-        str_year = str(year_cont.contents[0])
-        return int(re.search(r"(\d{4})", str_year).group(1))
+        return self.film_info.get_year()
 
     def get_country(self) -> str:
-        return self.film_info.find('img', class_="nflag").attrs['alt']
+        return self.film_info.get_country()
 
     def get_directors(self) -> list[str]:
-        try:
-            directors_div = self.film_info.find('div',
-                                                class_="mt-2 mc-director")
-            directors_list: list[BeautifulSoup] = directors_div.find_all('a')
-        except IndexError:
-            return []
-        return [director.text
-                for director in directors_list]
+        return self.film_info.get_directors()
 
     def get_director(self) -> str:
-        try:
-            return self.get_directors()[0]
-        except IndexError:
-            return ''
+        return self.film_info.get_director()
 
     def get_FA_type(self) -> set[FAType]:
-        types = self.film_info.find_all('span', class_="type")
-        types_str = [type_item.text for type_item in types]
-
-        return {FAType(type_str) for type_str in types_str}
+        return self.film_info.get_FA_type()
