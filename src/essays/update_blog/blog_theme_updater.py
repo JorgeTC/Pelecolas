@@ -1,10 +1,9 @@
 from threading import Thread, current_thread
 
-import requests
-
 import src.gui as GUI
 from src.config import Config, Param, Section
 from src.pelicula import Pelicula
+from src.safe_url import safe_response
 
 from .. import google_api as GoogleApi
 from ..blog_scraper import BlogHiddenData, BlogScraper
@@ -92,7 +91,7 @@ class PostThemeUpdater:
 
 def update_image_url(film_data: Pelicula):
     # Compruebo que la url de la imagen exista
-    image_response = requests.get(film_data.url_image)
+    image_response = safe_response(film_data.url_image)
     if image_response.ok:
         return
 
