@@ -2,13 +2,13 @@ import time
 import webbrowser
 from multiprocessing import Lock
 
-import requests
 from requests.models import Response
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 
 from .chrome_driver import get_chrome_instance
 from .firefox_driver import get_firefox_instance
+from .http_utils import safe_response
 
 # Variable para saber si estoy intentando resolver el captcha
 stopped = Lock()
@@ -17,15 +17,17 @@ stopped = Lock()
 def PassCaptcha(url: str) -> Response:
     while True:
         # Hago la petición y la devuelvo si no ha saltado el captcha
-        resp = requests.get(url)
+        resp = safe_response(url)
         if resp.status_code != 429:
             return resp
 
         # Bloqueo el acceso a la función para pasar el captcha
         if stopped.acquire(block=False):
             # Estoy en el hilo responsable de pasar el captcha
-            solve_captcha(url)
-            stopped.release()
+            try:
+                solve_captcha(url)
+            finally:
+                stopped.release()
         else:
             # Me quedo esperando a que un hilo haya terminado el captcha
             with stopped:
@@ -36,12 +38,12 @@ def solve_captcha(url: str) -> None:
     # Intento pasar el Captcha de forma automática
     automatically_solve_captcha(url)
 
-    if requests.get(url).status_code == 429:
+    if safe_response(url).status_code == 429:
         # No he conseguido pasar el Captcha, necesito ayuda del usuario
         manually_solve_captcha(url)
 
     # No quiero salir de la función hasta que haya resuelto el captcha
-    while requests.get(url).status_code == 429:
+    while safe_response(url).status_code == 429:
         pass
 
 
