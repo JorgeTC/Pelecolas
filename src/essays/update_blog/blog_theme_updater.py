@@ -1,4 +1,5 @@
-from threading import Thread, current_thread
+from threading import current_thread
+from concurrent.futures import ThreadPoolExecutor
 
 import src.gui as GUI
 from src.config import Config, Param, Section
@@ -11,7 +12,6 @@ from ..dlg_scroll_titles import DlgScrollTitles
 from ..google_api import Post, Poster
 from ..html import ContentMgr, Html
 from ..searcher import Searcher
-from .thread_executor import ThreadExecutor
 
 
 class PostThemeUpdater:
@@ -110,14 +110,15 @@ class BlogThemeUpdater:
         ALL_POSTS = Poster.get_all_posts()
         self.progress_bar = GUI.ProgressBar(len(ALL_POSTS))
 
-        threads = [Thread(target=self.update_and_notify, args=(post,), name=post.title)
-                   for post in ALL_POSTS]
-        ThreadExecutor(threads).execute()
+        with ThreadPoolExecutor() as executor:
+            executor.map(self.update_and_notify, ALL_POSTS)
 
         GUI.join_GUI()
         GoogleApi.join()
 
     def update_and_notify(self, post: Post):
+
+        # Es importante que cada hilo tenga un nombre único para que funcione la GUI con concurrencia
         current_thread().name = post.title
 
         # Imprimo el nombre de la película actual

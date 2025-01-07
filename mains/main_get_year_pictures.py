@@ -1,14 +1,14 @@
 import shutil
-from threading import Thread
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+from threading import current_thread
 
 import requests
 
 import __init__
 import src.gui as GUI
-from src.pelicula import Pelicula
 from src.essays.searcher import Searcher
-from src.essays.update_blog.thread_executor import ThreadExecutor
+from src.pelicula import Pelicula
 
 seen_films = [
     "Con quién viajas",
@@ -93,16 +93,20 @@ seen_films = [
 SZ_INVALID_CHAR = "\/:*?<>|"
 DEST_FOLDER = Path("/home/jorge/Documents/Reseñas/2024pictures")
 
+
 def main():
     print(len(seen_films))
 
-    threads = [Thread(target=download_picture, args=(title,), name=title)
-                   for title in seen_films]
-    ThreadExecutor(threads).execute()
+    with ThreadPoolExecutor() as executor:
+        executor.map(download_picture, seen_films)
+
     GUI.join_GUI()
 
 
 def download_picture(title: str):
+    # Cambio necesario para poder usar la GUI con varios hilos
+    current_thread().name = title
+
     film = Pelicula.from_fa_url(get_url(title))
     film.get_image_url()
     res = requests.get(film.url_image, stream=True)
