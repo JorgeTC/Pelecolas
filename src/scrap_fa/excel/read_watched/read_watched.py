@@ -1,5 +1,6 @@
 from concurrent.futures import Future
-from math import ceil
+from http import HTTPStatus
+from itertools import count
 from queue import Queue
 from threading import Thread
 from typing import Iterable
@@ -76,29 +77,44 @@ def get_total_films(id_user: int) -> int:
     soup_page = BeautifulSoup(resp.text, 'lxml')
 
     # me espero que haya un único "active-filter"
-    films_count = soup_page.find("div", class_ = "active-filter").find("span", class_="count")
+    active_filter = soup_page.find("div", class_="active-filter")
+    films_count = active_filter.find("span", class_="count")
     stringNumber = str(films_count.text).strip()
     # Elimino el punto de los millares
     stringNumber = stringNumber.replace('.', '')
     return int(stringNumber)
 
 
-def get_all_boxes(user_id: int, total_films: int) -> Iterable[FilmBox]:
-    n_pages = ceil(total_films / 20)
-    url_pages = (URL_USER_PAGE(user_id, i + 1)
-                 for i in range(n_pages))
+def yield_all_boxes(user_id: int) -> Iterable[FilmBox]:
+    url_pages = (URL_USER_PAGE(user_id, i + 1) for i in count())
 
     # Itero todas las páginas del actual usuario
-    for page in url_pages:
+    for url_page in url_pages:
+
+        resp = safe_get_url(url_page)
+        # Si la página no se encuentra, es que ya he leído todas
+        if resp.status_code == HTTPStatus.NOT_FOUND:
+            break
+
+        # Guardo la página ya parseada
+        soup_page = BeautifulSoup(resp.text, 'lxml')
         # Itero la página actual
-        for box in list_boxes(page):
-            yield box
+        yield from list_boxes(soup_page)
 
 
-def list_boxes(url: str) -> Iterable[FilmBox]:
-    resp = safe_get_url(url)
-    # Guardo la página ya parseada
-    soup_page = BeautifulSoup(resp.text, 'lxml')
-    # Leo todas las películas que haya en ella
+def get_all_boxes(user_id: int, total_films: int) -> Iterable[FilmBox]:
+    # Devuelve todas las cajas de las películas de un usuario.
+    # Al terminar lanza un error si no se encuentran tantas películas como se esperaban
+
+    for yielded_films, box in enumerate(yield_all_boxes(user_id), start=1):
+        yield box
+
+    if yielded_films != total_films:
+        raise ValueError(f"Se esperaban {total_films} películas "
+                         f"y se han encontrado {yielded_films}")
+
+
+def list_boxes(soup_page: BeautifulSoup) -> Iterable[FilmBox]:
+    # Leo todas las películas que haya en la página, ya parseada
     return (FilmBox(parsed_box) for parsed_box in
             soup_page.findAll("div", class_="row mb-4"))
