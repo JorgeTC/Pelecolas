@@ -1,5 +1,6 @@
 import re
 from enum import Enum
+from http import HTTPStatus
 from typing import Optional
 
 from bs4 import BeautifulSoup
@@ -111,7 +112,7 @@ class FilmPage:
 
 def get_parsed_page(url_FA: str) -> Optional[BeautifulSoup]:
     resp = safe_get_url(url_FA)
-    if resp.status_code == 404:
+    if resp.status_code == HTTPStatus.NOT_FOUND:
         # Si el id no es correcto, no tengo página que parsear
         return None
 

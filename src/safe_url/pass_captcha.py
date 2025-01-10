@@ -1,5 +1,6 @@
 import time
 import webbrowser
+from http import HTTPStatus
 from multiprocessing import Lock
 
 from requests.models import Response
@@ -18,7 +19,7 @@ def PassCaptcha(url: str) -> Response:
     while True:
         # Hago la petición y la devuelvo si no ha saltado el captcha
         resp = safe_response(url)
-        if resp.status_code != 429:
+        if resp.status_code != HTTPStatus.TOO_MANY_REQUESTS:
             return resp
 
         # Bloqueo el acceso a la función para pasar el captcha
@@ -38,12 +39,12 @@ def solve_captcha(url: str) -> None:
     # Intento pasar el Captcha de forma automática
     automatically_solve_captcha(url)
 
-    if safe_response(url).status_code == 429:
+    if safe_response(url).status_code == HTTPStatus.TOO_MANY_REQUESTS:
         # No he conseguido pasar el Captcha, necesito ayuda del usuario
         manually_solve_captcha(url)
 
     # No quiero salir de la función hasta que haya resuelto el captcha
-    while safe_response(url).status_code == 429:
+    while safe_response(url).status_code == HTTPStatus.TOO_MANY_REQUESTS:
         pass
 
 
