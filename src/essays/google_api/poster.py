@@ -1,4 +1,5 @@
-from datetime import date, datetime, timedelta, time
+from calendar import Day
+from datetime import date, datetime, time, timedelta
 from typing import Iterable
 
 from dateutil import tz
@@ -134,41 +135,47 @@ def date_to_str(date: date | datetime, *,
         raise ValueError
 
 
+def fridays_from(today: date, post_time: time):
+
+    current_time = datetime.today().time()
+
+    # Si hoy es viernes, compruebo que aún me quede tiempo para publicar hoy
+    if today.weekday() == Day.FRIDAY and current_time < post_time:
+        next_friday = today
+    else:
+        # Hoy no puedo publicar.
+        # Si además hoy es viernes, quedan 7 días hasta la próxima fecha de publicación.
+        days_till_next_friday = (Day.FRIDAY - today.weekday()) % 7 or 7
+        next_friday = today + timedelta(days=days_till_next_friday)
+
+    while True:
+        yield next_friday
+        next_friday += timedelta(days=7)
+
+
 def get_automatic_date(post_time: time) -> date:
-
+    # Obtengo un set con todas las fechas en las que se van a publicar posts
     scheduled = Poster.get_scheduled()
-
-    # Extraigo todas las fechas que ya tienen asignado un blog
     dates = {str(date_from_YMD(post.published)) for post in scheduled}
 
-    # Busco los viernes disponibles
-    # Voy al próximo viernes
     today = datetime.today().date()
-    week_day = today.weekday()
-    days_till_next_friday = (4 - week_day) % 7
-    if days_till_next_friday == 0:
-        if datetime.today().time() < post_time:
-            days_till_next_friday = 7
-    next_friday = today + timedelta(days=days_till_next_friday)
 
-    # Avanzo por los viernes hasta encontrar uno que esté disponible
-    while (str_next_friday := str(next_friday)) in dates:
-        # Avanzo al siguiente viernes
-        next_friday = next_friday + timedelta(days=7)
-
-    # Devuelvo la fecha encontrada como fecha
-    return date_from_YMD(str_next_friday)
+    # Itero los viernes a partir de hoy
+    for friday in fridays_from(today, post_time):
+        # Si en este viernes no se va a publicar nada, lo elijo como la fecha para publicar
+        if str(friday) not in dates:
+            return date_from_YMD(str(friday))
 
 
 def get_publish_datatime() -> str:
     # Obtengo a qué hora tengo que publicar la reseña
-    sz_time = Config.get_value(Section.POST, Param.TIME)
-    time = time_from_str(sz_time)
+    str_time = Config.get_value(Section.POST, Param.TIME)
+    time = time_from_str(str_time)
 
     # Obtengo qué día tengo que publicar la reseña
-    sz_date = Config.get_value(Section.POST, Param.DATE)
+    str_date = Config.get_value(Section.POST, Param.DATE)
     try:
-        publish_date = date_from_DMY(sz_date)
+        publish_date = date_from_DMY(str_date)
     except ValueError:
         # Si no consigo interpretarlo como fecha, le doy la fecha automática
         publish_date = get_automatic_date(time)
