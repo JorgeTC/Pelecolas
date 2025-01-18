@@ -12,17 +12,17 @@ def film() -> Pelicula:
 
 @pytest.fixture
 def film_without_length() -> Pelicula:
-    maxcotas = Pelicula.from_fa_url(
-        'https://www.filmaffinity.com/es/film309052.html')
+    maxcotas_url = 'https://www.filmaffinity.com/es/film309052.html'
+    maxcotas = Pelicula.from_fa_url(maxcotas_url)
     maxcotas.get_parsed_page()
     return maxcotas
 
 
 @pytest.fixture
 def film_without_note() -> Pelicula:
-    vuelve_a_casa = Pelicula.from_id(148859)
-    vuelve_a_casa.get_parsed_page()
-    return vuelve_a_casa
+    amazonas = Pelicula.from_id(623077)
+    amazonas.get_parsed_page()
+    return amazonas
 
 
 def test_wrong_id():
