@@ -15,17 +15,25 @@ class DirectorCitation(NamedTuple):
     length: int
 
 
-def load_trust_directors() -> set[str]:
+def load_new_trust_directors() -> set[str]:
     # Leo si el ini me pide nuevos directores
     new_directors_config = Config.get_value(Section.HTML, Param.YES_ALWAYS_DIR)
+    # Vacío el parámetro
+    Config.set_value(Section.HTML, Param.YES_ALWAYS_DIR, "")
     new_directors = new_directors_config.split(",")
     # Elimino espacios innecesarios
     new_directors = [director.strip() for director in new_directors]
     # Evito guardar cadenas vacías
     new_directors = [director for director in new_directors if director]
 
+    # Lo devuelvo como un conjunto para evitar repeticiones
+    return set(new_directors)
+
+
+def load_trust_directors() -> set[str]:
+
     # Creo el conjunto de directores
-    directors = set(new_directors)
+    directors = set(load_new_trust_directors())
 
     # Cargo los directores del archivo
     path = get_res_folder("Make_html", "Trust_directors.txt")
@@ -36,9 +44,6 @@ def load_trust_directors() -> set[str]:
     # Guardo de nuevo el archivo
     with open(path, 'w', encoding="utf-8") as f:
         f.write("\n".join(directors))
-
-    # Ya los he añadido, los puedo borrar del ini
-    Config.set_value(Section.HTML, Param.YES_ALWAYS_DIR, "")
 
     # Devuelvo el conjunto
     return directors

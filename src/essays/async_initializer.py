@@ -1,3 +1,4 @@
+from functools import wraps
 from threading import Thread
 from typing import Callable, Generic, TypeVar
 
@@ -43,3 +44,16 @@ class AsyncInitializer(Generic[StoredValue]):
 
         # La variable ha sido inicializada: la devuelvo
         return self.value
+
+
+def async_initializer(func: Callable[[], StoredValue]) -> Callable[[], StoredValue]:
+
+    # Al llamar a este constructor se va a crear un hilo que ejecutará func.
+    # Eso significa que todas las funciones de las que depende func deben estar definidas antes que func
+    initializer = AsyncInitializer(func)
+
+    @wraps(func)
+    def wrapper() -> StoredValue:
+        return initializer.get()
+
+    return wrapper
