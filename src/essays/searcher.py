@@ -148,7 +148,7 @@ def get_redirected_url(parsed_page: BeautifulSoup) -> str:
 
 def search_boxes(parsed_page: BeautifulSoup) -> Iterator[Pelicula]:
     # Itero las cajas de resultados
-    for found_box in iter_BeautifulSoup(parsed_page, 'div', class_='se-it'):
+    for found_box in iter_BeautifulSoup(parsed_page, 'div', class_='item-search'):
         # Obtengo la sección que contiene la información sobre la película
         info_container = found_box.find('div', class_='mc-info-container')
         # Instancio el objeto que me devuelve los datos de esa caja
