@@ -5,7 +5,7 @@ from typing import Iterator
 
 from bs4 import BeautifulSoup
 
-from src.pelicula import SearchResultInfoBox, Pelicula
+from src.pelicula import FilmInfoBox, Pelicula
 from src.safe_url import safe_get_url
 
 from .aux_title_str import split_title_year
@@ -23,7 +23,7 @@ SZ_ONLY_ONE_FILM = "Se ha encontrado una única película llamada {}.".format
 SZ_ONLY_ONE_FILM_YEAR = "Se ha encontrado una única película llamada {} del año {}".format
 
 # Link para buscar una película
-URL_SEARCH = "https://www.filmaffinity.com/es/search.php?stype=title&stext={}".format
+URL_SEARCH = "https://www.filmaffinity.com/es/search.php?stype=title&stext={}&em=1".format
 
 
 class Searcher:
@@ -130,13 +130,10 @@ def choose_film_result(target_title: str, target_year: int, film_results: Iterat
 
 
 def get_search_url(title: str) -> str:
-    # El buscador de FilmAffinity no reconoce los cierres de interrogación
-    title_for_url = title.replace("?", "")
-
     # Convierto los caracteres no alfanuméricpos en hexadecimal
     # No puedo convertir los espacios:
     # FilmAffinity convierte los espacios en +.
-    title_for_url = urllib.parse.quote(title_for_url, safe=" ")
+    title_for_url = urllib.parse.quote(title, safe=" ")
 
     # Cambio los espacios para poder tener una sola url
     title_for_url = title_for_url.replace(" ", "+")
@@ -151,11 +148,11 @@ def get_redirected_url(parsed_page: BeautifulSoup) -> str:
 
 def search_boxes(parsed_page: BeautifulSoup) -> Iterator[Pelicula]:
     # Itero las cajas de resultados
-    for found_box in iter_BeautifulSoup(parsed_page, 'div', class_='se-it'):
+    for found_box in iter_BeautifulSoup(parsed_page, 'div', class_='item-search'):
         # Obtengo la sección que contiene la información sobre la película
         info_container = found_box.find('div', class_='mc-info-container')
         # Instancio el objeto que me devuelve los datos de esa caja
-        film_info = SearchResultInfoBox(info_container)
+        film_info = FilmInfoBox(info_container)
 
         # Devuelvo un objeto Pelicula con la información que tengo
         film = Pelicula()

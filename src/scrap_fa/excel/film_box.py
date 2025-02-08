@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 
-from src.pelicula import FAType, UserRatingsInfoBox
+from src.pelicula import FAType, FilmInfoBox
 
 
 class FilmBox:
@@ -8,7 +8,7 @@ class FilmBox:
 
     def __init__(self, film_box: BeautifulSoup) -> None:
         self.film_box = film_box
-        self.film_info = UserRatingsInfoBox(film_box.find('div', class_="card-body"))
+        self.film_info = FilmInfoBox(film_box.find('div', class_="card-body"))
 
     def get_title(self) -> str:
         return self.film_info.get_title()
