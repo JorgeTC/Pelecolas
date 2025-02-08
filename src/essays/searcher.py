@@ -23,7 +23,7 @@ SZ_ONLY_ONE_FILM = "Se ha encontrado una única película llamada {}.".format
 SZ_ONLY_ONE_FILM_YEAR = "Se ha encontrado una única película llamada {} del año {}".format
 
 # Link para buscar una película
-URL_SEARCH = "https://www.filmaffinity.com/es/search.php?stype=title&stext={}".format
+URL_SEARCH = "https://www.filmaffinity.com/es/search.php?stype=title&stext={}&em=1".format
 
 
 class Searcher:
