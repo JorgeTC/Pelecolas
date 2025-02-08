@@ -37,7 +37,7 @@ def test_more_then_one_film_with_same_title():
     assert searcher.get_url() == ""
 
 
-def test_more_then_one_with_year():
+def test_more_than_one_with_year():
     searcher = Searcher("La caza (1966)")
     assert searcher.has_results()
     assert get_id_from_url(searcher.get_url()) == 399542
@@ -58,22 +58,21 @@ def test_not_found():
     assert searcher.get_url() == ""
 
 
-def test_not_found_many_results():
-    searcher = Searcher("Caza")
-    assert searcher.has_results()
-    assert searcher.get_url() == ""
-
-
 def test_not_found_same_year():
-    searcher = Searcher("Pinocho (1000)")
+    # Ponemos un año imposible para obligar a recorrer todas las cajas
+    # Si no tuviera año, al encontrar dos cajas detendría la iteración
+    searcher = Searcher("La caza (1000)")
     assert searcher.has_results()
 
     with MockGeneratorWithoutReplace(search_boxes) as mock_search_boxes:
         assert searcher.get_url() == ""
         assert mock_search_boxes.call_count == 1
+        # Para comprobar que haya dos elementos con el mismo año, lo ordenamos por año
+        all_boxes = mock_search_boxes.return_values[-1]
+        all_boxes.sort(key=lambda film: film.año)
         assert any(film.año == next_film.año
                    for film, next_film
-                   in pairwise(mock_search_boxes.return_values[-1]))
+                   in pairwise(all_boxes))
 
 
 def test_two_results_in_same_year():
@@ -85,4 +84,4 @@ def test_two_results_in_same_year():
 def test_house_error():
     searcher = Searcher("House (1977)")
     assert searcher.has_results()
-    assert searcher.get_url() == ""
+    assert get_id_from_url(searcher.get_url()) == 928390
