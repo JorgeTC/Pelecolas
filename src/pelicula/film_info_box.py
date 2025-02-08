@@ -15,6 +15,7 @@ class FilmInfoBox:
     Por eso, esta clase es la base y se debe instanciar una de las clases
     que implementan las distintas versiones de `get_title`.
     '''
+
     def __init__(self, film_info: BeautifulSoup) -> None:
         # Guardamos el trozo de HTML que contiene la información de la película
         self.film_info = film_info
@@ -68,22 +69,7 @@ class FilmInfoBox:
         # Si alguna de las etiquetas no estuviera en el enumerado, obtendríamos un error
         return {FAType(type_str) for type_str in types_str}
 
-
-class UserRatingsInfoBox(FilmInfoBox):
-    '''
-    Clase para obtener información de una película en la lista de las vistas por un usuario
-    '''
     def get_title(self) -> str:
-        # Esta caja tiene el mismo campo que usamos en el caso de las búsquedas,
-        # pero el título ahí aparece repetido.
+        # Esta caja tiene el mismo campo título y aparece repetido.
         text_a = self.film_info.find('a', class_="d-none d-md-inline-block")
-        return text_a.text
-
-
-class SearchResultInfoBox(FilmInfoBox):
-    '''
-    Clase para obtener información de una película en la lista de resultados de búsqueda
-    '''
-    def get_title(self) -> str:
-        text_a = self.film_info.find('div', class_='mc-title')
         return text_a.text
