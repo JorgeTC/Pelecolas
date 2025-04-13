@@ -40,16 +40,21 @@ assert {item.name for item in FilmValid if item.name != "FILM"} ==\
        {item.name for item in FAType}
 
 
-def is_valid(film: Pelicula, *,
-             SET_VALID_FILM=Config.get_int(Section.READDATA, Param.FILTER_FA)) -> bool:
+def is_valid(film: Pelicula,
+             SET_VALID_FILM=FilmValid(Config.get_int(Section.READDATA, Param.FILTER_FA))) -> bool:
     """
     Busca en el título que sea una película realmente
     """
     film.get_FA_type()
 
+    if len(film.FA_type) == 0:
+        # No se ha encontrado ningún tipo, luego es una película
+        return bool(SET_VALID_FILM & FilmValid.FILM)
+
     # Itero todos los tipos que tiene
     for FA_type in film.FA_type:
         # Compruebo si el tipo invalida la película
-        return FilmValid[FA_type.name] & SET_VALID_FILM
-    # No se ha encontrado ningún tipo, luego es una película
-    return SET_VALID_FILM & FilmValid.FILM
+        if not FilmValid[FA_type.name] & SET_VALID_FILM:
+            return False
+    # Ninguno de sus tipos me invalida esta película
+    return True
