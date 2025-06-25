@@ -97,5 +97,13 @@
             "console": "integratedTerminal",
             "justMyCode": false
         },
+        {
+            "name": "Write csv",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/mains/main_export_csv.py",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
     ]
 }
