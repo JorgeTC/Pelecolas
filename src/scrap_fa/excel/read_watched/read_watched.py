@@ -66,7 +66,7 @@ class ReadWatched:
 
 
 # Link para acceder a cada página de un usuario
-URL_USER_PAGE = 'https://www.filmaffinity.com/es/userratings.php?user_id={}&p={}&orderby=4&chv=list'.format
+URL_USER_PAGE = 'https://www.filmaffinity.com/us/userratings.php?user_id={}&p={}&orderby=4&chv=list'.format
 
 
 def get_total_films(id_user: int) -> int:
@@ -81,7 +81,7 @@ def get_total_films(id_user: int) -> int:
     films_count = active_filter.find("span", class_="count")
     string_number = str(films_count.text).strip()
     # Elimino el punto de los millares
-    string_number = string_number.replace('.', '')
+    string_number = string_number.replace(',', '')
     return int(string_number)
 
 

@@ -81,7 +81,7 @@ def scrap_from_values(fn: Callable[['Pelicula'], None]):
     return scrap_data(check_votes(fn, attr), attr)
 
 
-URL_FILM_ID = "https://www.filmaffinity.com/es/film{}.html".format
+URL_FILM_ID = "https://www.filmaffinity.com/us/film{}.html".format
 
 
 class Pelicula:

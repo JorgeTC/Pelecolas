@@ -23,9 +23,9 @@ SZ_ONLY_ONE_FILM = "Se ha encontrado una única película llamada {}.".format
 SZ_ONLY_ONE_FILM_YEAR = "Se ha encontrado una única película llamada {} del año {}".format
 
 # Link para buscar una película con coincidencia exacta
-URL_SEARCH_EM = "https://www.filmaffinity.com/es/search.php?stype=title&stext={}&em=1".format
+URL_SEARCH_EM = "https://www.filmaffinity.com/us/search.php?stype=title&stext={}&em=1".format
 # Link para buscar una película con el método clásico
-URL_SEARCH = "https://www.filmaffinity.com/es/search.php?stype=title&stext={}".format
+URL_SEARCH = "https://www.filmaffinity.com/us/search.php?stype=title&stext={}".format
 
 
 def parse_title_and_year(to_search: str) -> tuple[str, int]:

@@ -12,18 +12,18 @@ RATING_BARS_PATTERN = re.compile(r'RatingBars.*?\[(.*?)\]')
 
 
 class FAType(Enum):
-    ANIMATION = "Animación"
-    CONCERT = "Concierto"
-    DOCUMENTAL = "Documental"
-    EPISODE = "Episodio"
-    INTERACTIVE = "Interactivo"
-    MEDIA = "Mediometraje"
-    MUSIC_VIDEO = "Vídeo musical"
-    SHORT_FILM = "Cortometraje"
+    ANIMATION = "animation"
+    CONCERT = "Concert"
+    DOCUMENTAL = "documentary"
+    EPISODE = "episode"
+    INTERACTIVE = "search result interactive"
+    MEDIA = "media"
+    MUSIC_VIDEO = "music video"
+    SHORT_FILM = "short film"
     TV_FILM = "TV"
-    TV_MINISERIES = "Miniserie"
-    TV_SERIES = "Serie"
-    TV_SHOW = "Show"
+    TV_MINISERIES = "miniseries"
+    TV_SERIES = "tv series"
+    TV_SHOW = "search result show"
 
 
 class FilmPage:
