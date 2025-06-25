@@ -22,33 +22,50 @@ class SearchResult(enum.IntEnum):
 SZ_ONLY_ONE_FILM = "Se ha encontrado una única película llamada {}.".format
 SZ_ONLY_ONE_FILM_YEAR = "Se ha encontrado una única película llamada {} del año {}".format
 
-# Link para buscar una película
-URL_SEARCH = "https://www.filmaffinity.com/es/search.php?stype=title&stext={}&em=1".format
+# Link para buscar una película con coincidencia exacta
+URL_SEARCH_EM = "https://www.filmaffinity.com/es/search.php?stype=title&stext={}&em=1".format
+# Link para buscar una película con el método clásico
+URL_SEARCH = "https://www.filmaffinity.com/es/search.php?stype=title&stext={}".format
+
+
+def parse_title_and_year(to_search: str) -> tuple[str, int]:
+    # Separo en la cadena introducida el título y el año
+    year_str, title = split_title_year(to_search)
+
+    # Si ha encontrado un año, lo convierto a entero
+    try:
+        year = int(year_str)
+    except ValueError:
+        year = 0
+
+    return title, year
 
 
 class Searcher:
 
     def __init__(self, to_search: str):
-        # Separo en la cadena introducida el título y el año
-        year, self.title = split_title_year(to_search)
+        # Datos de la película a buscar
+        self.title, self.año = parse_title_and_year(to_search)
 
-        # Si ha encontrado un año, lo convierto a entero
-        try:
-            self.año = int(year)
-        except ValueError:
-            self.año = 0
+        # Realizo la búsqueda inicial
+        self._do_search(self.title)
 
-        # Creo la url para buscar ese título
-        self.search_url = get_search_url(self.title)
+        # Si hay varios resultados, intento búsqueda exacta
+        if self.__estado == SearchResult.SEVERAL_RESULTS:
+            self._do_search(self.title, exact_match=True)
 
-        # Guardo la página de búsqueda parseada.
+    def _do_search(self, title: str, exact_match: bool = False):
+        """Realiza la búsqueda y actualiza los atributos relevantes."""
+        # Creo la url de búsqueda
+        self.search_url = get_search_url(title, exact_match=exact_match)
+        # Guardo la página de búsqueda parseada
         req = safe_get_url(self.search_url)
         self.parsed_page = BeautifulSoup(req.text, 'lxml')
 
         # Ya he hecho la búsqueda.
         # Quiero saber qué se ha conseguido, en qué caso estamos.
-        # Antes de hacer esta distinción, necesito ver si FilmAffinity me ha redirigido.
-        self.film_url = get_redirected_url(self.parsed_page)
+        # Obtengo la dirección después de haber sido redirigido
+        self.film_url = req.url
         self.__estado = clarify_case(self.film_url)
 
     def has_results(self) -> bool:
@@ -129,8 +146,8 @@ def choose_film_result(target_title: str, target_year: int, film_results: Iterat
         return None
 
 
-def get_search_url(title: str) -> str:
-    # Convierto los caracteres no alfanuméricpos en hexadecimal
+def get_search_url(title: str, exact_match=False) -> str:
+    # Convierto los caracteres no alfanuméricos en hexadecimal
     # No puedo convertir los espacios:
     # FilmAffinity convierte los espacios en +.
     title_for_url = urllib.parse.quote(title, safe=" ")
@@ -139,7 +156,10 @@ def get_search_url(title: str) -> str:
     title_for_url = title_for_url.replace(" ", "+")
 
     # Devuelvo la dirección de búsqueda
-    return URL_SEARCH(title_for_url)
+    if exact_match:
+        return URL_SEARCH_EM(title_for_url)
+    else:
+        return URL_SEARCH(title_for_url)
 
 
 def get_redirected_url(parsed_page: BeautifulSoup) -> str:
