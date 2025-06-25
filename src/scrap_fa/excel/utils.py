@@ -6,11 +6,11 @@ from src.pelicula import FAType, Pelicula
 
 def read_film(film: Pelicula) -> Pelicula:
     # Hacemos la parte más lenta, que necesita parsear la página.
-    film.get_nota_FA()
-    film.get_votantes_FA()
-    film.get_duracion()
-    film.get_desvest()
-    film.get_prop_aprobados()
+    # film.get_nota_FA()
+    # film.get_votantes_FA()
+    # film.get_duracion()
+    # film.get_desvest()
+    # film.get_prop_aprobados()
 
     return film
 
@@ -45,6 +45,7 @@ def is_valid(film: Pelicula,
     """
     Busca en el título que sea una película realmente
     """
+    return True
     film.get_FA_type()
 
     if len(film.FA_type) == 0:
