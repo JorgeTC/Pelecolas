@@ -7,7 +7,6 @@ from datetime import datetime
 from unittest import mock
 
 import pytest
-import requests
 
 from src.aux_res_directory import get_test_res_folder
 from src.config import Param, Section
@@ -23,6 +22,7 @@ from src.essays.list_title_mgr import TitleMgr
 from src.essays.update_blog.blog_theme_updater import update_image_url
 from src.essays.word.word_reader import WordReader
 from src.pelicula import Pelicula
+from src.safe_url import safe_response
 
 
 def test_update_image_url():
@@ -32,12 +32,12 @@ def test_update_image_url():
     pacifiction.url_image = old_image_url
 
     # El link no existe
-    assert not requests.get(pacifiction.url_image).ok
+    assert not safe_response(pacifiction.url_image).ok
 
     update_image_url(pacifiction)
 
     # El link existe
-    assert requests.get(pacifiction.url_image).ok
+    assert safe_response(pacifiction.url_image).ok
 
 
 def test_not_update_image_url():
@@ -47,7 +47,7 @@ def test_not_update_image_url():
     ostatni_etap.url_image = current_image_url
 
     # El link existe
-    assert requests.get(ostatni_etap.url_image).ok
+    assert safe_response(ostatni_etap.url_image).ok
 
     update_image_url(ostatni_etap)
     # El link no se ha modificado
