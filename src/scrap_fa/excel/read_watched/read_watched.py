@@ -79,14 +79,20 @@ def get_total_films(id_user: int) -> int:
     # me espero que haya un único "active-filter"
     active_filter = soup_page.find("div", class_="active-filter")
     films_count = active_filter.find("span", class_="count")
-    stringNumber = str(films_count.text).strip()
+    string_number = str(films_count.text).strip()
     # Elimino el punto de los millares
-    stringNumber = stringNumber.replace('.', '')
-    return int(stringNumber)
+    string_number = string_number.replace('.', '')
+    return int(string_number)
 
 
-def yield_all_boxes(user_id: int) -> Iterable[FilmBox]:
-    url_pages = (URL_USER_PAGE(user_id, i + 1) for i in count())
+def count_total_pages(total_films: int) -> int:
+    # Ceil division by the number of elements in each page (50 per page)
+    FILMS_PER_PAGE = 50
+    return (total_films + FILMS_PER_PAGE - 1) // FILMS_PER_PAGE
+
+
+def yield_all_boxes(user_id: int, total_films: int) -> Iterable[FilmBox]:
+    url_pages = (URL_USER_PAGE(user_id, i + 1) for i in range(0, count_total_pages(total_films)))
 
     # Itero todas las páginas del actual usuario
     for url_page in url_pages:
@@ -106,7 +112,7 @@ def get_all_boxes(user_id: int, total_films: int) -> Iterable[FilmBox]:
     # Devuelve todas las cajas de las películas de un usuario.
     # Al terminar lanza un error si no se encuentran tantas películas como se esperaban
 
-    for yielded_films, box in enumerate(yield_all_boxes(user_id), start=1):
+    for yielded_films, box in enumerate(yield_all_boxes(user_id, total_films), start=1):
         yield box
 
     if yielded_films != total_films:
