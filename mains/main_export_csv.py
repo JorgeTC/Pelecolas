@@ -2,21 +2,24 @@ import csv
 
 import __init__
 from src.config import Config, Param, Section
-from src.gui import ProgressBar
 from src.scrap_fa import ReadWatched, UserFA
 from src.pelicula import Pelicula
 
+def make_directors_list(list_directors: list[str]) -> str:
+    return ",".join(list_directors)
 
 def write_in_file(films: list[Pelicula], user_name: str):
     out_folder_path = Config.get_folder_path(Section.READDATA, Param.OUTPUT_EXCEL)
     out_file_path = out_folder_path / f"{user_name}.csv"
 
-    rows = ((film.titulo, film.año, film.user_note/2)
+
+
+    rows = ((film.titulo, make_directors_list(film.directors), film.año, film.user_note/2)
             for film in films)
 
     with open(out_file_path, mode='w', encoding='utf-8', newline='') as csv_file:
         csv_writer = csv.writer(csv_file, delimiter=',')
-        csv_writer.writerow(['Title', 'Year', 'Rating'])
+        csv_writer.writerow(['Title', 'Directors', 'Year', 'Rating'])
         csv_writer.writerows(rows)
 
 
