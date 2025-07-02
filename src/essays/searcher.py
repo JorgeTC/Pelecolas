@@ -1,4 +1,5 @@
 import enum
+import re
 import urllib.parse
 from itertools import islice
 from typing import Iterator
@@ -65,7 +66,7 @@ class Searcher:
         # Ya he hecho la búsqueda.
         # Quiero saber qué se ha conseguido, en qué caso estamos.
         # Obtengo la dirección después de haber sido redirigido
-        self.film_url = req.url
+        self.film_url = req.url.replace("m.filmaffinity.com", "www.filmaffinity.com", 1)
         self.__estado = clarify_case(self.film_url)
 
     def has_results(self) -> bool:
@@ -117,7 +118,12 @@ def clarify_case(film_url: str) -> SearchResult:
     # Ya me han redireccionado
     # Mirando la url puedo distinguir los tres casos.
     # Me quedo con la información inmediatamente posterior al idioma.
-    stage = film_url[32:]
+    match = re.search(r'filmaffinity\.com/[^/]+/([^/]+)', film_url)
+
+    if not match:
+        raise ValueError(f"La url no es válida: {film_url}")
+
+    stage = match.group(1)
 
     # El mejor de los casos, he encontrado la película
     if 'film' in stage:
