@@ -50,8 +50,19 @@ def test_scrap_year(film: Pelicula):
 
 
 def test_scrap_director(film: Pelicula):
+    assert film.film_page.is_desktop_version() == True
     film.get_director()
     assert film.director == 'Quentin Tarantino'
+
+def test_scrap_director_mobile():
+    # Crear el objeto Pelicula a partir de una URL móvil
+    url_mobile = 'https://m.filmaffinity.com/es/film160882.html'
+    film_mobile = Pelicula.from_fa_url(url_mobile)
+    film_mobile.get_parsed_page()
+    # Compruebo que sea versión móvil
+    assert film_mobile.film_page.is_desktop_version() == False
+    film_mobile.get_director()
+    assert film_mobile.director == 'Quentin Tarantino'
 
 
 def test_several_directors():

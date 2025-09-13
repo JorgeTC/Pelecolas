@@ -77,8 +77,10 @@ class FilmPage:
 
     def get_director(self) -> list[str]:
         tag_directors = self.parsed_page.find_all(itemprop="director")
-        return [tag.contents[0].contents[0].contents[0]
-                for tag in tag_directors]
+        directors_name = [tag_director.find(itemprop="name")
+                          for tag_director in tag_directors]
+        return [director_name.text
+                for director_name in directors_name]
 
     def get_values(self) -> list[int]:
         # Recopilo los datos específicos de la varianza:
@@ -104,6 +106,12 @@ class FilmPage:
             return float(search_avg.attrs['content'])
         except AttributeError:
             return 0
+
+    def is_desktop_version(self) -> bool:
+        # Buscar el metadato <meta name="mobile-web-app-capable" content="yes">
+        meta_tag = self.parsed_page.find('meta', attrs={"name":'mobile-web-app-capable'})
+        # Si no existe la etiqueta, o su contenido no es "yes", es versión de escritorio
+        return meta_tag is None or meta_tag.get('content') != 'yes'
 
     @property
     def exists(self):
