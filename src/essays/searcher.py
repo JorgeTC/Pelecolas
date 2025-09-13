@@ -66,7 +66,7 @@ class Searcher:
         # Ya he hecho la búsqueda.
         # Quiero saber qué se ha conseguido, en qué caso estamos.
         # Obtengo la dirección después de haber sido redirigido
-        self.film_url = req.url.replace("m.filmaffinity.com", "www.filmaffinity.com", 1)
+        self.film_url = req.url
         self.__estado = clarify_case(self.film_url)
 
     def has_results(self) -> bool:
