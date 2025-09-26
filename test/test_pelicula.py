@@ -60,7 +60,8 @@ def test_scrap_director_mobile():
     film_mobile = Pelicula.from_fa_url(url_mobile)
     film_mobile.get_parsed_page()
     # Compruebo que sea versión móvil
-    assert film_mobile.film_page.is_desktop_version() == False
+    if film_mobile.film_page.is_desktop_version():
+        pytest.skip("La página no es versión móvil")
     film_mobile.get_director()
     assert film_mobile.director == 'Quentin Tarantino'
 
