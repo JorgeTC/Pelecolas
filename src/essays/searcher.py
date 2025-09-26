@@ -1,4 +1,5 @@
 import enum
+import re
 import urllib.parse
 from itertools import islice
 from typing import Iterator
@@ -117,7 +118,12 @@ def clarify_case(film_url: str) -> SearchResult:
     # Ya me han redireccionado
     # Mirando la url puedo distinguir los tres casos.
     # Me quedo con la información inmediatamente posterior al idioma.
-    stage = film_url[32:]
+    match = re.search(r'filmaffinity\.com/[^/]+/([^/]+)', film_url)
+
+    if not match:
+        raise ValueError(f"La url no es válida: {film_url}")
+
+    stage = match.group(1)
 
     # El mejor de los casos, he encontrado la película
     if 'film' in stage:
