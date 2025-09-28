@@ -5,6 +5,8 @@ __pycache__/
 # Archivo de configuración.
 # Se generará automáticamente si no está disponible
 General.ini
+# Archivo de log
+res/pelecolas.log
 
 # Archivos que genera el código
 # Resultado de haber leído el blog

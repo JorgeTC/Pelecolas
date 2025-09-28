@@ -1,3 +1,4 @@
+import logging
 from typing import Iterable, TypeVar
 
 from src.config import Config, Param, Section
@@ -21,6 +22,7 @@ class DlgHtml:
 
     def __init__(self, title_list: list[str]) -> None:
         if Config.get_bool(Section.HTML, Param.FILTER_PUBLISHED):
+            logging.debug("Filtering title list to exclude already published titles.")
             title_list = unpublished(title_list)
         self.title_list = title_list
 
@@ -53,6 +55,7 @@ class DlgHtml:
         # Caso en el que no se ha introducido nada.
         # Busco la ficha automáticamente.
         if not self.data.director:
+            logging.debug("No director entered, attempting to find film automatically.")
             if suggested_url and self.__get_data_from_FA(suggested_url):
                 # Lo introducido no es un director.
                 # Considero que no necesito más información.

@@ -1,3 +1,4 @@
+import logging
 import os
 from pathlib import Path
 
@@ -36,4 +37,5 @@ class WordFolderMgr:
 
         # Elimino los archivos temporales, no se pueden convertir a pdf
         for temp_file in temp_files:
+            logging.debug(f"Deleting temporary file {temp_file}")
             os.remove(temp_file)

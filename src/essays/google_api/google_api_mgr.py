@@ -1,3 +1,4 @@
+import logging
 from enum import StrEnum
 from pathlib import Path
 from threading import Lock
@@ -37,6 +38,7 @@ def refreshed_credentials(creds: Credentials | None, credentials_path: Path, tok
 
     # Actualizo el archivo con el token de acceso
     with open(token_path, 'w') as token:
+        logging.debug(f"Saving refreshed credentials to {token_path}")
         token.write(creds.to_json())
 
     return creds
@@ -68,4 +70,5 @@ def get_google_service(api_type: GoogleService,
     with refreshing_lock:
         credentials = get_credentials(credentials_path, token_path, SCOPES)
 
+    logging.debug(f"Building Google service for {api_type}")
     return build(api_type, 'v3', credentials=credentials)

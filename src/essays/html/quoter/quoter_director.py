@@ -1,3 +1,4 @@
+import logging
 import urllib.parse
 from typing import Iterable, NamedTuple
 
@@ -15,7 +16,7 @@ class DirectorCitation(NamedTuple):
     length: int
 
 
-def load_trust_directors() -> set[str]:
+def load_new_directors() -> set[str]:
     # Leo si el ini me pide nuevos directores
     new_directors_config = Config.get_value(Section.HTML, Param.YES_ALWAYS_DIR)
     new_directors = new_directors_config.split(",")
@@ -24,12 +25,20 @@ def load_trust_directors() -> set[str]:
     # Evito guardar cadenas vacías
     new_directors = [director for director in new_directors if director]
 
+    if new_directors:
+        logging.debug(f"New directors to always quote loaded from config: {", ".join(new_directors)}")
+
+    # Devuelvo el conjunto de nuevos directores
+    return set(new_directors)
+
+def load_trust_directors() -> set[str]:
     # Creo el conjunto de directores
-    directors = set(new_directors)
+    directors = load_new_directors()
 
     # Cargo los directores del archivo
     path = get_res_folder("Make_html", "Trust_directors.txt")
     if path.is_file():
+        logging.debug(f"Loading trusted directors from {path}")
         with open(path, encoding="utf-8") as file_directors:
             directors.update(file_directors.read().splitlines())
 
@@ -102,6 +111,7 @@ class QuoterDirector:
                                             director)
             if not word:
                 continue
+            logging.debug(f"Possible director quote found: '{word}' for director '{director}'")
             # Si ya he preguntado por este nombre paso al siguiente
             if word in self._personajes:
                 continue

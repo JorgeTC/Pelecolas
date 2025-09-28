@@ -1,5 +1,6 @@
 from threading import Thread
 from typing import Callable, Generic, TypeVar
+import logging
 
 StoredValue = TypeVar('StoredValue')
 
@@ -19,6 +20,7 @@ class AsyncInitializer(Generic[StoredValue]):
         self.init_thread = Thread(target=self.initialize,
                                   name=self.initializer.__name__,
                                   daemon=True)
+        logging.debug(f"Starting async initialization in thread {self.init_thread.name}")
         # Inicio la ejecución
         self.init_thread.start()
 
@@ -30,6 +32,7 @@ class AsyncInitializer(Generic[StoredValue]):
         try:
             self.value = self.initializer()
         except Exception as e:
+            logging.debug(f"Exception caught in thread {self.init_thread.name}: {e}")
             # Guardo la excepción. No la lanzo ahora, la lanzaré cuando se me pida el valor
             self.exception = e
 

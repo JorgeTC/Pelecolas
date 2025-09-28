@@ -1,3 +1,4 @@
+import logging
 from calendar import Day
 from datetime import date, datetime, time, timedelta
 from typing import Iterable
@@ -30,11 +31,12 @@ class Poster:
                     published=str_date)
         # Solo añado las etiquetas si son válidas
         if labels:
-            body.labels = labels
+            body.labels = labels.split(',')
 
         # Miro si la configuración me pide que lo publique como borrador
         bDraft = Config.get_bool(Section.POST, Param.AS_DRAFT)
         try:
+            logging.debug(f"Adding post titled '{title}' scheduled for {str_date} as {'draft' if bDraft else 'live'}.")
             Client.insert_post(body, bDraft)
         except client.AccessTokenRefreshError:
             print('The credentials have been revoked or expired, please re-run'
@@ -78,6 +80,8 @@ class Poster:
         # Las convierto a cadena
         min_date = date_to_str(min_date)
 
+        logging.debug(f"Fetching published posts from {min_date}")
+
         # Pido los blogs desde entonces
         return list(iter_posts(min_date, PostStatus.LIVE))
 
@@ -88,6 +92,8 @@ class Poster:
         # Las convierto a cadena
         min_date = date_to_str(min_date)
 
+        logging.debug(f"Fetching draft posts from {min_date}")
+
         # Pido los blogs desde entonces
         return list(iter_posts(min_date, PostStatus.DRAFT))
 
@@ -96,6 +102,8 @@ class Poster:
         # Hago una lista de todos los posts programados a partir de hoy
         today = datetime.today()
         start_date = date_to_str(today)
+
+        logging.debug(f"Fetching scheduled posts from {start_date}")
 
         return list(iter_posts(start_date, PostStatus.SCHEDULED))
 

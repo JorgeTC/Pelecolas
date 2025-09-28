@@ -1,4 +1,5 @@
 import csv
+import logging
 import os
 from datetime import datetime
 from pathlib import Path
@@ -37,10 +38,12 @@ class BlogCsvMgr:
     def is_needed(cls) -> bool:
         # Si el archivo no existe, hay que crearlo
         if not cls.exists_csv():
+            logging.debug("Generating blog CSV as it does not exist.")
             return True
 
         # Si la configuración fuerza la creación del CSV, hay que crearlo
         if Config.get_bool(Section.HTML, Param.SCRAP_BLOG):
+            logging.debug("Regenerating blog CSV as forced by configuration.")
             # Devuelvo a False, la próxima vez se seguirá el algoritmo habitual
             Config.set_value(Section.HTML, Param.SCRAP_BLOG, False)
             return True
@@ -49,18 +52,14 @@ class BlogCsvMgr:
         with open(cls.SZ_CSV_FILE, encoding=cls.ENCODING) as csv_file_temp:
             csv_reader = csv.reader(csv_file_temp, delimiter=",")
             if len(list(csv_reader)) < 2:
+                logging.debug("Regenerating blog CSV as it is empty.")
                 return True
 
-        # Si entre la última creación del csv y
-        # el momento actual ha pasado un viernes, recalculo el csv
-        secs = os.path.getmtime(cls.SZ_CSV_FILE)
-        date_last_modification = datetime.fromtimestamp(secs)
+        if exist_new_posts_since_last_csv():
+            logging.debug("Regenerating blog CSV as new posts have been published since last generation.")
+            return True
 
-        # Compruebo si se ha publicado algo en el blog
-        # desde la última vez que se hizo el csv
-        new_posts = Poster.get_published_from_date(date_last_modification)
-
-        return len(new_posts) > 0
+        return False
 
     @classmethod
     def open_to_read(cls, csv_path: Path | str = SZ_CSV_FILE) -> list[BlogCsvRow]:
@@ -117,3 +116,16 @@ class BlogCsvMgr:
             cls.write_csv()
         # Lector de csv
         return cls.open_to_read()
+
+
+def exist_new_posts_since_last_csv() -> bool:
+    # Si entre la última creación del csv y
+    # el momento actual ha pasado un viernes, recalculo el csv
+    secs = os.path.getmtime(BlogCsvMgr.SZ_CSV_FILE)
+    date_last_modification = datetime.fromtimestamp(secs)
+
+    # Compruebo si se ha publicado algo en el blog
+    # desde la última vez que se hizo el csv
+    new_posts = Poster.get_published_from_date(date_last_modification)
+
+    return len(new_posts) > 0
