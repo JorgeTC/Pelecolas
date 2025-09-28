@@ -16,7 +16,7 @@ class Post(ApiDataclass):
     published: str
     updated: str
     id: str
-    labels: str
+    labels: list[str]
     kind: str = "blogger#post"
 
 

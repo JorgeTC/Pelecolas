@@ -1,3 +1,4 @@
+import logging
 import math
 import re
 from functools import wraps
@@ -21,7 +22,7 @@ def assignment_to_self(method: Callable) -> str:
     # Necesito que haya exactamente uno
     if len(assignments) != 1:
         raise AttributeError
-    # Devuvlo el único atributo que se ha modificado dentro del método
+    # Devuelvo el único atributo que se ha modificado dentro del método
     return assignments.pop()
 
 
@@ -43,6 +44,8 @@ def scrap_data(fn: Callable[['Pelicula'], None], attr: str | None = None):
         if not self.film_page:
             self.get_parsed_page()
 
+        logging.debug(f"Scraping attribute {attr} from page of film ID {self.id}")
+
         fn(self)
     return wrp
 
@@ -59,6 +62,7 @@ def check_votes(fn: Callable[['Pelicula'], None], attr: str | None = None):
         # Si a pesar de haberlos buscado no he conseguido los votos, no puedo saber su nota
         # por lo tanto no puedo calcular el atributo actual
         if not self.values:
+            logging.debug(f"Cannot compute {attr} because votes are missing for film ID {self.id}")
             setattr(self, attr, 0)
             return
 

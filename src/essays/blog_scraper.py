@@ -1,3 +1,4 @@
+import logging
 from contextlib import suppress
 from enum import StrEnum
 from typing import Iterator
@@ -44,6 +45,7 @@ class BlogScraper:
         name = BlogHiddenData.TITLE.get(parsed)
         with suppress(StopIteration):
             return cls.TITLE_MGR.exact_key(name, no_except=False)
+        logging.debug(f"Post titled '{post.title}' has hidden title '{name}', not found in Word titles list.")
 
         # El nombre que viene en el html no es correcto,
         # pruebo a componer un nuevo nombre con el título y el año
@@ -52,11 +54,13 @@ class BlogScraper:
 
         with suppress(StopIteration):
             return cls.TITLE_MGR.exact_key(name, no_except=False)
+        logging.debug(f"Searching in word the content of post '{post.title}'")
 
         # Intento encontrar una reseña cuyo primer párrafo
         # sea idéntico al primer párrafo del texto
         with suppress(ValueError):
             return find_title_by_content(parsed)
+        logging.debug(f"Content of post '{post.title}' not found in Word titles list.")
 
         raise ValueError
 

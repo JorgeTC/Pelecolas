@@ -1,5 +1,6 @@
 from threading import current_thread
 from concurrent.futures import ThreadPoolExecutor
+import logging
 
 import src.gui as GUI
 from src.config import Config, Param, Section
@@ -152,7 +153,10 @@ def exist_repeated_posts() -> bool:
         titles.add(title)
 
     # Devuelvo si hay más posts que títulos
-    return len(titles) < len(posts)
+    repeated_posts = (len(titles) < len(posts))
+    if repeated_posts:
+        logging.debug(f"Found {len(posts) - len(titles)} repeated posts.")
+    return repeated_posts
 
 
 def download_film_data(film: Pelicula):

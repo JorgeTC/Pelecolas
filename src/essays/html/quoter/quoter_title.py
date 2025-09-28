@@ -1,3 +1,4 @@
+import logging
 from contextlib import suppress
 from typing import NamedTuple
 
@@ -37,14 +38,17 @@ class QuoterTitle:
                 row = find_row_in_csv(title.title)
             # La película no está indexada
             except ValueError:
+                logging.debug(f"Title '{title.title}' not found in CSV during title quotes, skipping.")
                 continue
             # Guardo el título como viene escrito en el CSV
             title_in_csv = QuoterBase.csv_content.get()[row].title
             # Si la película ya está citada, no la cito otra vez
             if title_in_csv in self._quoted_titles:
+                logging.debug(f"Quote not added for '{title.title}' since it is not its first occurrence.")
                 continue
             # Si la cita es la película actual, no añado link
             if title_in_csv == self.titulo:
+                logging.debug(f"Quote in '{title.title}' to itself, skipping.")
                 continue
             # Guardo este título como ya citado
             self._quoted_titles.add(title_in_csv)
@@ -54,6 +58,7 @@ class QuoterTitle:
 
 
 def add_post_link(text: str, citation: FilmCitation, row: int) -> str:
+    logging.debug(f"Adding link to '{citation.title}'")
     # Construyo el html para el enlace
     url = QuoterBase.csv_content.get()[row].link
     ini_link = QuoterBase.OPEN_LINK(url)

@@ -180,7 +180,7 @@ def get_labels(film: Pelicula) -> str:
         labels.append(film.pais)
 
     # Devuelvo la lista de etiquetas
-    return ", ".join(label for label in labels if label)
+    return ",".join(label for label in labels if label)
 
 
 def is_quote_parr(text: str) -> bool:

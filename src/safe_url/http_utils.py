@@ -1,4 +1,5 @@
 import cloudscraper
+import logging
 import requests
 
 # Hemos separado esta función en un solo archivo para asegurarnos
@@ -20,5 +21,6 @@ def safe_response(url: str) -> requests.Response:
     while True:
         try:
             return scraper.get(url)
-        except Exception:
+        except Exception as e:
+            logging.debug(f"Exception caught when requesting url {url}: {e}. Retrying...")
             continue

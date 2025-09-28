@@ -1,3 +1,4 @@
+import logging
 import re
 from io import StringIO
 from itertools import chain, islice, takewhile
@@ -75,6 +76,7 @@ def is_break_line(text: str) -> bool:
 
 
 def init_paragraphs(word_documents: list[Path]):
+    logging.debug(f"Extracting paragraphs from {len(word_documents)} word documents")
     year_parr: dict[int, int] = {}
     paragraphs: list[Paragraph] = []
     # Itero todos los docx que he encontrado
@@ -187,9 +189,10 @@ class WordReader:
                                                        Param.ADD_INDEX),
                    write_year: bool = Config.get_bool(Section.COUNT_FILMS, Param.ADD_YEAR)) -> None:
 
+        txt_path = output_path / "Titulos de reseñas.txt"
+        logging.debug(f"Writing titles list to {txt_path}")
         # Abro el documento txt para escribirlo
-        with open(output_path / "Titulos de reseñas.txt", "w",
-                  encoding='utf-8') as titles_doc:
+        with open(txt_path, "w", encoding='utf-8') as titles_doc:
             cls.write_file_list(titles_doc, write_index, write_year)
 
     @classmethod

@@ -1,3 +1,4 @@
+import logging
 import time
 import webbrowser
 from http import HTTPStatus
@@ -37,6 +38,7 @@ def PassCaptcha(url: str) -> Response:
 
 def solve_captcha(url: str) -> None:
     # Intento pasar el Captcha de forma automática
+    logging.debug(f"Attempting to automatically solve captcha for url: {url}")
     automatically_solve_captcha(url)
 
     if safe_response(url).status_code == HTTPStatus.TOO_MANY_REQUESTS:

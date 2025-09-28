@@ -1,4 +1,5 @@
 import enum
+import logging
 import re
 import urllib.parse
 from itertools import islice
@@ -49,9 +50,11 @@ class Searcher:
         self.title, self.año = parse_title_and_year(to_search)
 
         # Realizo la búsqueda inicial
+        logging.debug(f"Searching for film titled {self.title}")
         self._do_search(self.title)
 
         # Si hay varios resultados, intento búsqueda exacta
+        logging.debug(f"Searching for film exactly titled {self.title}")
         if self.__estado == SearchResult.SEVERAL_RESULTS:
             self._do_search(self.title, exact_match=True)
 
@@ -85,6 +88,7 @@ class Searcher:
                 film = Pelicula.from_fa_url(self.film_url)
                 film.get_año()
                 if film.año != self.año:
+                    logging.debug(f"Found film year {film.año} does not match searched year {self.año}")
                     return ""
             return self.film_url
 

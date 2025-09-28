@@ -8,7 +8,7 @@ def get_firefox_instance() -> Firefox:
 
 
 def get_driver_options() -> FirefoxOptions:
-    # Opciones para el driver de Chrome
+    # Opciones para el driver de Firefox
     driver_option = FirefoxOptions()
     driver_option.headless = True
 

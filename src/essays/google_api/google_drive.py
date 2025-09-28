@@ -1,3 +1,4 @@
+import logging
 from functools import cache
 from pathlib import Path
 from typing import Iterable
@@ -58,6 +59,7 @@ class Drive:
 
     @classmethod
     def get_files_in_folder(cls, sz_folder_id: str) -> list[DriveFile]:
+        logging.debug(f"Fetching files in folder ID: {sz_folder_id}")
         # Devuelvo una lista con todos los archivos no eliminados
         # en la carpeta introducida
         return [file

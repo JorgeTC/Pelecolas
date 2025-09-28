@@ -25,7 +25,7 @@ def get_blog_and_api(service: Resource, blog_id: str) -> tuple[Blog, Resource]:
                                 for blog in my_blogs
                                 if blog['id'] == blog_id))
     except StopIteration:
-        raise ValueError
+        raise ValueError(f"Blog with id {blog_id} not found")
     right_blog = Blog(**dict_right_blog)
 
     return right_blog, post_api
