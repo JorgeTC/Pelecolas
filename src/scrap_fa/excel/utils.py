@@ -33,6 +33,7 @@ class FilmValid(IntFlag):
     TV_SERIES = auto()
     TV_SHOW = auto()
 
+ALL_FILM_VALID = FilmValid(~0)
 
 # Compruebo que FilmValid esté bien definido.
 # Necesito que todos los elementos de FAType tengan su correspondiente

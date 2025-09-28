@@ -1,6 +1,5 @@
 from concurrent.futures import Future
 from http import HTTPStatus
-from itertools import count
 from queue import Queue
 from threading import Thread
 from typing import Iterable

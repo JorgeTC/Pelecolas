@@ -6,7 +6,7 @@ import src.scrap_fa.excel.read_watched.read_watched as rw
 from src.scrap_fa.excel.film_box import FilmBox
 from src.scrap_fa.excel.read_watched import read_data, read_directors
 from src.scrap_fa.excel.read_watched.read_data_watched import ReadDataWatched
-from src.scrap_fa.excel.utils import FilmValid, is_valid
+from src.scrap_fa.excel.utils import FilmValid, is_valid, ALL_FILM_VALID
 
 
 @pytest.fixture
@@ -49,8 +49,8 @@ def test_read_data_from_box(sashas_film_boxes: list[FilmBox]):
 
 
 def all_films_valid():
-    return mock.patch.object(is_valid, "__kwdefaults__",
-                             {'SET_VALID_FILM': sum(FilmValid)})
+    return mock.patch.object(is_valid, "__defaults__",
+                             (ALL_FILM_VALID,))
 
 
 @all_films_valid()
