@@ -1,6 +1,6 @@
 import logging
 
-from googleapiclient.discovery import HttpRequest, Resource
+from googleapiclient.discovery import HttpRequest
 from googleapiclient.http import MediaFileUpload
 
 from ..async_initializer import AsyncInitializer

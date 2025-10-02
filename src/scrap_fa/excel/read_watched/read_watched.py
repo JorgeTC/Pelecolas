@@ -122,4 +122,4 @@ def get_all_boxes(user_id: int, total_films: int) -> Iterable[FilmBox]:
 def list_boxes(soup_page: BeautifulSoup) -> Iterable[FilmBox]:
     # Leo todas las películas que haya en la página, ya parseada
     return (FilmBox(parsed_box) for parsed_box in
-            soup_page.findAll("div", class_="row mb-4"))
+            soup_page.find_all("div", class_="row mb-4"))

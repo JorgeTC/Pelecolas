@@ -4,7 +4,6 @@ from datetime import date, datetime, time, timedelta
 from typing import Iterable
 
 from dateutil import tz
-from oauth2client import client
 
 from src.config import Config, Param, Section
 
@@ -35,13 +34,9 @@ class Poster:
 
         # Miro si la configuración me pide que lo publique como borrador
         bDraft = Config.get_bool(Section.POST, Param.AS_DRAFT)
-        try:
-            logging.debug(f"Adding post titled '{title}' scheduled for {str_date} as {'draft' if bDraft else 'live'}.")
-            Client.insert_post(body, bDraft)
-        except client.AccessTokenRefreshError:
-            print('The credentials have been revoked or expired, please re-run'
-                  'the application to re-authorize')
-            return
+
+        logging.debug(f"Adding post titled '{title}' scheduled for {str_date} as {'draft' if bDraft else 'live'}.")
+        Client.insert_post(body, bDraft)
         # Si no está programada como borrador, aviso al usuario de cuándo se va a publicar la reseña
         if not bDraft:
             print(f"La reseña de {title} "

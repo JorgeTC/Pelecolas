@@ -1,4 +1,5 @@
 import enum
+import logging
 from configparser import ConfigParser
 from functools import partial
 from pathlib import Path
@@ -102,28 +103,42 @@ class Config:
 
     @classmethod
     def save_config(cls):
+        logging.info(f"Saving config file {cls.sz_path}")
         with open(cls.sz_path, 'w', encoding="utf-8") as configfile:
             cls.config.write(configfile)
 
     @classmethod
     def get_value(cls, section: Section, param: Param) -> str:
-        return cls.config[section][param]
+        logging.debug(f"Getting config value {section} {param}")
+        string_value = cls.config[section][param]
+        logging.debug(f"Value read {section} {param}: '{string_value}'")
+        return string_value
 
     @classmethod
     def get_int(cls, section: Section, param: Param) -> int:
-        return cls.config.getint(section, param)
+        logging.debug(f"Getting config int value {section} {param}")
+        int_value = cls.config.getint(section, param)
+        logging.debug(f"Int value read {section} {param}: {int_value}")
+        return int_value
 
     @classmethod
     def get_bool(cls, section: Section, param: Param) -> bool:
-        return cls.config.getboolean(section, param)
+        logging.debug(f"Getting config bool value {section} {param}")
+        bool_value = cls.config.getboolean(section, param)
+        logging.debug(f"Bool value read {section} {param}: {bool_value}")
+        return bool_value
 
     @classmethod
     def get_folder_path(cls, section: Section, param: Param) -> Path:
+        logging.debug(f"Getting config folder path {section} {param}")
+
         # Leo lo que hya escrito en el ini
         ini_data = cls.config[section][param]
+        logging.debug(f"Path read {section} {param}: '{ini_data}'")
 
         # Compruebo que sea una carpeta
         while not Path(ini_data).is_dir():
+            logging.debug(f"Path {section} {param} '{ini_data}' is not a valid directory")
             # Si no es una carpeta válida, la pido al usuario
             ini_data = input(
                 f"Introducir path de la carpeta {section} {param}: ")
@@ -134,11 +149,14 @@ class Config:
 
     @classmethod
     def get_file_path(cls, section: Section, param: Param) -> Path:
+        logging.debug(f"Getting config file path {section} {param}")
         # Leo lo que hya escrito en el ini
         ini_data = cls.config[section][param]
+        logging.debug(f"Path read {section} {param}: '{ini_data}'")
 
         # Compruebo que sea una carpeta
         while not Path(ini_data).is_file():
+            logging.debug(f"Path {section} {param} '{ini_data}' is not a valid file")
             # Si no es una carpeta válida, la pido al usuario
             ini_data = input(
                 f"Introducir path del archivo {section} {param}: ")
@@ -161,6 +179,7 @@ class Config:
 
     @classmethod
     def run_dlg(cls):
+        logging.debug("Opening config dialog")
         dlg_config = DlgConfig(cls.config)
         dlg_config.run()
 
