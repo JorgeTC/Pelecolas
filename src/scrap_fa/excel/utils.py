@@ -1,3 +1,4 @@
+import logging
 from enum import IntFlag, auto
 
 from src.config import Config, Param, Section
@@ -33,6 +34,8 @@ class FilmValid(IntFlag):
     TV_SERIES = auto()
     TV_SHOW = auto()
 
+# Creamos una constante que permite que is_valid devuelva siempre True
+# Usada principalmente en tests o cuando se quiere desactivar el filtrado
 ALL_FILM_VALID = FilmValid(~0)
 
 # Compruebo que FilmValid esté bien definido.
@@ -41,8 +44,31 @@ assert {item.name for item in FilmValid if item.name != "FILM"} ==\
        {item.name for item in FAType}
 
 
+def log_valid_film(valid_film: FilmValid) -> None:
+    # Creo el string para el log
+    log_string = "Valid film types: "
+
+    # Itero todos los tipos y pongo si son válidos o no
+    type_strings = []
+    for film_type in FilmValid:
+        type_value = 1 if film_type & valid_film else 0
+        type_strings.append(f"{film_type.name}={type_value}")
+    log_string += ", ".join(type_strings)
+
+    logging.info(log_string)
+
+
+def load_valid_film() -> FilmValid:
+    valid_film = FilmValid(Config.get_int(Section.READDATA, Param.FILTER_FA))
+
+    # Escribe en el log qué tipos de película son válidos
+    log_valid_film(valid_film)
+
+    return valid_film
+
+
 def is_valid(film: Pelicula,
-             SET_VALID_FILM=FilmValid(Config.get_int(Section.READDATA, Param.FILTER_FA))) -> bool:
+             SET_VALID_FILM=load_valid_film()) -> bool:
     """
     Busca en el título que sea una película realmente
     """

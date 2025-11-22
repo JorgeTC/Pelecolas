@@ -31,6 +31,7 @@ class AsyncInitializer(Generic[StoredValue]):
     def initialize(self):
         try:
             self.value = self.initializer()
+            logging.debug(f"Finalized async initialization in thread {self.init_thread.name}")
         except Exception as e:
             logging.debug(f"Exception caught in thread {self.init_thread.name}: {e}")
             # Guardo la excepción. No la lanzo ahora, la lanzaré cuando se me pida el valor
