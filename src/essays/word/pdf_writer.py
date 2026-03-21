@@ -1,6 +1,6 @@
 import logging
 import platform
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from functools import partial
 from pathlib import Path
 
@@ -75,16 +75,18 @@ class PDFWriter:
 
         # Convert all DOCX files to PDF in parallel
         with ProcessPoolExecutor() as executor:
-            executor.map(convert_func, WordFolderMgr.SZ_ALL_DOCX)
+            futures = [executor.submit(convert_func, f) for f in WordFolderMgr.SZ_ALL_DOCX]
+
             logging.debug("Waiting for al the files to be converted to PDF")
-            executor.shutdown()
+            [f.result() for f in as_completed(futures)]
             logging.debug("All Word have been converted to PDF")
 
     @classmethod
     def libreoffice_convert_file(cls, input_file: Path, target_format: str, dest_folder: Path):
         import subprocess
         logging.debug(f"Writing into {target_format} format {input_file} in dest directory ̣{dest_folder}")
-        subprocess.check_output(['libreoffice',
-                                 '--convert-to', target_format,
-                                 '--outdir', dest_folder,
-                                 input_file])
+        command_output = subprocess.check_output(['libreoffice',
+            '--convert-to', target_format,
+            '--outdir', dest_folder,
+            input_file])
+        logging.debug(f"Finished conversion of {input_file}: {command_output}")
