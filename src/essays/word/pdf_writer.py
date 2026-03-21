@@ -1,5 +1,7 @@
 import logging
 import platform
+from concurrent.futures import ProcessPoolExecutor
+from functools import partial
 from pathlib import Path
 
 from pypdf import PdfWriter
@@ -24,6 +26,7 @@ class PDFWriter:
 
     @classmethod
     def convert_all_word(cls):
+        logging.debug("Converting all words to pdf files")
         # Elimino los archivos temprales
         WordFolderMgr.delete_temp_files()
 
@@ -58,19 +61,29 @@ class PDFWriter:
 
     @classmethod
     def win_convert_all_word(cls):
+        logging.debug("Converting all words to pdf files in Windows platform")
         import docx2pdf
         docx2pdf.convert(WordFolderMgr.WORD_FOLDER)
 
     @classmethod
     def linux_convert_all_word(cls):
-        for docx in WordFolderMgr.SZ_ALL_DOCX:
-            logging.debug(f"Converting {docx} to PDF")
-            cls.libreoffice_convert_file(docx,
-                                         'pdf', WordFolderMgr.WORD_FOLDER)
+        logging.debug("Converting all words to pdf files in Linux platform")
+        # Use partial to fix the target_format and dest_folder arguments
+        convert_func = partial(cls.libreoffice_convert_file,
+                               target_format='pdf',
+                               dest_folder=WordFolderMgr.WORD_FOLDER)
+
+        # Convert all DOCX files to PDF in parallel
+        with ProcessPoolExecutor() as executor:
+            executor.map(convert_func, WordFolderMgr.SZ_ALL_DOCX)
+            logging.debug("Waiting for al the files to be converted to PDF")
+            executor.shutdown()
+            logging.debug("All Word have been converted to PDF")
 
     @classmethod
     def libreoffice_convert_file(cls, input_file: Path, target_format: str, dest_folder: Path):
         import subprocess
+        logging.debug(f"Writing into {target_format} format {input_file} in dest directory ̣{dest_folder}")
         subprocess.check_output(['libreoffice',
                                  '--convert-to', target_format,
                                  '--outdir', dest_folder,
