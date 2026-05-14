@@ -3,8 +3,10 @@ from src.scrap_fa import ExcelMgr, UserFA, Writer
 
 
 def main():
-
-    user = UserFA.ask_user()
+    try:
+        user = UserFA.ask_user()
+    except KeyboardInterrupt:
+        return
 
     ex_doc = ExcelMgr(user.name)
 

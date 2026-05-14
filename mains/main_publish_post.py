@@ -4,8 +4,10 @@ from src.essays import ContentMgr
 
 
 def main():
-
-    post_data = ContentMgr.get_content()
+    try:
+        post_data = ContentMgr.get_content()
+    except KeyboardInterrupt:
+        return
     Poster.add_post(title=post_data.title,
                     content=post_data.content,
                     labels=post_data.labels)

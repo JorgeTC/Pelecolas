@@ -14,7 +14,11 @@ def main():
         Documento.write_html()
 
         # Pregunto si quiere generar otra reseña
-        if not YesNo(question="¿Otra reseña? ", empty_ans=True).get_ans():
+        try:
+            other = YesNo(question="¿Otra reseña? ", empty_ans=True).get_ans()
+        except KeyboardInterrupt:
+            other = False
+        if not other:
             break
 
 

@@ -3,8 +3,10 @@ import src.essays.update_blog as UpdateBlog
 
 
 def main():
-
-    post = UpdateBlog.select_post_to_update()
+    try:
+        post = UpdateBlog.select_post_to_update()
+    except KeyboardInterrupt:
+        return
     UpdateBlog.update_post(post)
 
 

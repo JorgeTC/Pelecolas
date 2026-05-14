@@ -10,7 +10,10 @@ def main():
     # sin necesidad de cerrar la aplicación
     while True:
         # Objeto que escribe el html
-        Documento = Html()
+        try:
+            Documento = Html()
+        except KeyboardInterrupt:
+            break
         # Genero el html
         Documento.write_html()
 
@@ -22,7 +25,10 @@ def main():
                         labels=post_data.labels)
 
         # Pregunto si quiere generar otra reseña
-        other = YesNo(question="¿Otra reseña? ", empty_ans=True).get_ans()
+        try:
+            other = YesNo(question="¿Otra reseña? ", empty_ans=True).get_ans()
+        except KeyboardInterrupt:
+            other = False
 
         # Elimino el archivo html que acabo de generar
         Documento.delete_file()

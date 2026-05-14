@@ -23,7 +23,10 @@ def ask_title() -> str:
 
 
 def main():
-    essay_title = ask_title()
+    try:
+        essay_title = ask_title()
+    except KeyboardInterrupt:
+        return
     print(get_film_text(essay_title))
 
 
