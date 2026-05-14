@@ -43,7 +43,7 @@ class Html:
     HTML_OUTPUT_FOLDER = Config.get_folder_path(Section.HTML,
                                                 Param.OUTPUT_PATH_HTML)
 
-    def __init__(self, film: Pelicula | None = None):
+    def __init__(self, film: Pelicula):
 
         # Variable para el nombre del archivo
         self.file_name = ""
@@ -53,10 +53,6 @@ class Html:
         self.data = film
 
     def write_html(self):
-        # Si no tengo los datos de la película, los pido
-        if self.data is None:
-            self.data = ask_for_data()
-
         try:
             paragraphs = get_text(self.data)
         except KeyError as e:

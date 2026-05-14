@@ -1,5 +1,5 @@
 import __init__
-from src.essays.html import Html
+from src.essays.html import Html, ask_for_data
 from src.gui import YesNo
 
 
@@ -8,8 +8,14 @@ def main():
     # Inicializo un bucle para poder crear tantas reseñas como se quiera
     # sin necesidad de cerrar la aplicación
     while True:
+        try:
+            # Pido los datos de la película
+            film_data = ask_for_data()
+        except KeyboardInterrupt:
+            break
+
         # Objeto que escribe el html
-        Documento = Html()
+        Documento = Html(film_data)
         # Genero el html
         Documento.write_html()
 
