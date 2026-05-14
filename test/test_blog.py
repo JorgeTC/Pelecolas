@@ -15,7 +15,6 @@ from src.essays.blog_scraper import BlogScraper, find_title_by_content
 from src.essays.google_api import Poster
 from src.essays.html import Html
 from src.essays.html.content_mgr import ContentMgr
-from src.essays.html.make_html import ask_for_data
 from src.essays.html.quoter import QuoterDirector
 from src.essays.html.quoter.quoter_title import add_post_link
 from src.essays.list_title_mgr import TitleMgr
@@ -112,9 +111,8 @@ def signals() -> Pelicula:
 
 @mock.patch.object(Html, "HTML_OUTPUT_FOLDER", get_test_res_folder("dump"))
 def test_make_html(signals):
-    document = Html()
-    with mock.patch(mocks_ns.import_path(ask_for_data), return_value=signals):
-        document.write_html()
+    document = Html(signals)
+    document.write_html()
     created_file = document.HTML_OUTPUT_FOLDER / document.file_name
     assert created_file.is_file()
     reference_file = get_test_res_folder('html', 'Reseña Señales.html')
