@@ -14,6 +14,14 @@ from ..utils import is_valid
 
 
 class ReadWatched:
+
+    # Placeholder para añadir en valid_film_list.
+    # Es mejor añadir None que no añadir nada para poder avanzar la barra de iteración
+    DISCARDED_FILM = None
+
+    # Cierre a la lista de resultados futures
+    RESULTS_DONE = None
+
     def __init__(self, user_id: int) -> None:
         self.user_id = user_id
         self.results: Queue[Pelicula | None] = Queue()
@@ -31,7 +39,7 @@ class ReadWatched:
     def valid_film_list(self) -> Iterable[Pelicula | None]:
         # Lista de las películas válidas en la página actual.
         films_list = (self.init_film(box) for box in self.box_list)
-        valid_film_list = (film if is_valid(film) else None
+        valid_film_list = (film if is_valid(film) else self.DISCARDED_FILM
                            for film in films_list)
 
         return valid_film_list
@@ -40,11 +48,11 @@ class ReadWatched:
         # Iteración convencional de valid_film_list
         for self.index, film in enumerate(self.valid_film_list):
             # Si la película no es None, la leo
-            if film is not None:
+            if film is not self.DISCARDED_FILM:
                 self.results.put(self.read_film(film))
 
         # Añado un None para saber cuándo he acabado la iteración
-        self.results.put(None)
+        self.results.put(self.RESULTS_DONE)
 
     def iter(self) -> Iterable[Pelicula]:
         while (film := self.results.get()):

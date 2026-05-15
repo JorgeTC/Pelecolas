@@ -23,13 +23,13 @@ class ReadDataWatched(ReadWatched):
         exe = ThreadPoolExecutor(thread_name_prefix="ReadFilm")
         # Incluso aunque no tenga que leer la película la añado al Executor.
         # De lo contrario no se incrementaría la barra de progreso
-        futures = (exe.submit(read_film, film) if film is not None
+        futures = (exe.submit(read_film, film) if film is not self.DISCARDED_FILM
                    else exe.submit(lambda *_: None, film)
                    for film in self.valid_film_list)
         for future in futures:
             future.add_done_callback(self.add_to_queue)
         exe.shutdown(wait=True)
-        self.results.put(None)
+        self.results.put(self.RESULTS_DONE)
 
     @staticmethod
     def init_film(movie_box: FilmBox) -> Pelicula:
