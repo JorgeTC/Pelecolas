@@ -3,6 +3,7 @@ from contextlib import suppress
 from typing import NamedTuple
 
 from ... import word as Word
+from ...html.blog_csv_mgr import BlogCsvRow
 from ...aux_title_str import split_title_year, trim_year
 from .quoter_base import QuoterBase, find, insert_string_in_position
 
@@ -24,7 +25,7 @@ class QuoterTitle:
         ini_comillas_pos = find(text, QuoterBase.INI_QUOTE_CHAR)
         fin_comillas_pos = find(text, QuoterBase.FIN_QUOTE_CHAR)
         if len(ini_comillas_pos) != len(fin_comillas_pos):
-            assert ("Comillas impares, no se citará este párrafo")
+            logging.warning("Comillas impares, no se citará este párrafo")
             return text
 
         # Construyo una lista con todas las posibles citas
@@ -41,14 +42,8 @@ class QuoterTitle:
                 logging.debug(f"Title '{title.title}' not found in CSV during title quotes, skipping.")
                 continue
             # Guardo el título como viene escrito en el CSV
-            title_in_csv = QuoterBase.csv_content.get()[row].title
-            # Si la película ya está citada, no la cito otra vez
-            if title_in_csv in self._quoted_titles:
-                logging.debug(f"Quote not added for '{title.title}' since it is not its first occurrence.")
-                continue
-            # Si la cita es la película actual, no añado link
-            if title_in_csv == self.titulo:
-                logging.debug(f"Quote in '{title.title}' to itself, skipping.")
+            title_in_csv = row.title
+            if self._must_skip_title(title_in_csv, title.title):
                 continue
             # Guardo este título como ya citado
             self._quoted_titles.add(title_in_csv)
@@ -56,12 +51,23 @@ class QuoterTitle:
 
         return text
 
+    def _must_skip_title(self, title_in_csv: str, text_title: str) -> bool:
+        # Si la película ya está citada, no la cito otra vez
+        if title_in_csv in self._quoted_titles:
+            logging.debug(f"Quote not added for '{text_title}' since it is not its first occurrence.")
+            return True
+        # Si la cita es la película actual, no añado link
+        if title_in_csv == self.titulo:
+            logging.debug(f"Quote in '{text_title}' to itself, skipping.")
+            return True
 
-def add_post_link(text: str, citation: FilmCitation, row: int) -> str:
+        return False
+
+
+def add_post_link(text: str, citation: FilmCitation, row: BlogCsvRow) -> str:
     logging.debug(f"Adding link to '{citation.title}'")
     # Construyo el html para el enlace
-    url = QuoterBase.csv_content.get()[row].link
-    ini_link = QuoterBase.OPEN_LINK(url)
+    ini_link = QuoterBase.OPEN_LINK(row.link)
 
     # Escribo el cierre del link
     position = citation.end
@@ -76,17 +82,16 @@ def add_post_link(text: str, citation: FilmCitation, row: int) -> str:
     return text
 
 
-def row_in_csv(title: str) -> int:
+def row_in_csv(title: str) -> BlogCsvRow:
     csv_content = QuoterBase.csv_content.get()
     try:
-        return next(index
-                    for index, row in enumerate(csv_content)
+        return next(row for row in csv_content
                     if title.lower() == row.title.lower().strip("\""))
     except StopIteration:
         raise ValueError
 
 
-def row_in_csv_year_insensitive(title: str) -> int:
+def row_in_csv_year_insensitive(title: str) -> BlogCsvRow:
     # Comparo los títulos del word quitándoles el año
     matches_but_year = [word_title
                         for word_title in Word.LIST_TITLES
@@ -97,18 +102,17 @@ def row_in_csv_year_insensitive(title: str) -> int:
     return row_in_csv(matches_but_year[0])
 
 
-def row_in_csv_missing_year_in_word(title: str, year: str) -> int:
+def row_in_csv_missing_year_in_word(title: str, year: str) -> BlogCsvRow:
     # Hago la búsqueda sin atender al año
-    row_index = row_in_csv_year_insensitive(title)
+    csv_row = row_in_csv_year_insensitive(title)
 
     # Compruebo que el título coincidente sea del año correcto
-    year_in_csv = QuoterBase.csv_content.get()[row_index].year
-    if year != year_in_csv:
+    if year != csv_row.year:
         raise ValueError
-    return row_index
+    return csv_row
 
 
-def find_row_in_csv(title: str) -> int:
+def find_row_in_csv(title: str) -> BlogCsvRow:
     with suppress(ValueError):
         # Busco la fila del csv con coincidencia exacta
         return row_in_csv(title)
@@ -119,5 +123,5 @@ def find_row_in_csv(title: str) -> int:
         # Si el título no incluye año, busco si existe una película cuyo título coincida
         return row_in_csv_year_insensitive(only_title)
     else:
-        # Si el título no incluye año, busco si existe una película de ese año cuyo título coincida
+        # Si el título incluye año, busco si existe una película de ese año cuyo título coincida
         return row_in_csv_missing_year_in_word(only_title, year)

@@ -1,5 +1,6 @@
 import logging
 import urllib.parse
+from enum import Flag, auto
 from typing import Iterable, NamedTuple
 
 from src.aux_res_directory import get_res_folder
@@ -11,8 +12,12 @@ from .quoter_base import QuoterBase, insert_string_in_position
 
 
 class DirectorCitation(NamedTuple):
+    # Índice del carácter en el que empieza la cita
     position: int
+    # Director al que se está citando,
+    # no tiene por qué ser idéntico al texto que compone la cita
     director: str
+    # Cantidad de caracteres que compone la cita
     length: int
 
 
@@ -39,12 +44,10 @@ def load_trust_directors() -> set[str]:
     path = get_res_folder("Make_html", "Trust_directors.txt")
     if path.is_file():
         logging.debug(f"Loading trusted directors from {path}")
-        with open(path, encoding="utf-8") as file_directors:
-            directors.update(file_directors.read().splitlines())
+        directors.update(path.read_text(encoding="utf-8").splitlines())
 
     # Guardo de nuevo el archivo
-    with open(path, 'w', encoding="utf-8") as f:
-        f.write("\n".join(directors))
+    path.write_text("\n".join(directors), encoding="utf-8")
 
     # Ya los he añadido, los puedo borrar del ini
     Config.set_value(Section.HTML, Param.YES_ALWAYS_DIR, "")
@@ -73,7 +76,7 @@ class QuoterDirector:
 
         # Guardo las citaciones que vaya sugiriendo
         self._quoted_directors: set[str] = set()
-        self._personajes: set[str] = set()
+        self._asked_names: set[str] = set()
 
     def quote_directors(self, text: str) -> str:
         # Inicio una lista para buscar apariciones de los directores en el texto
@@ -85,27 +88,23 @@ class QuoterDirector:
                 ini_director_pos.append(citation)
 
         # Ahora ya tengo los índices que quería
-        while ini_director_pos:
-            text = add_director_link(text, ini_director_pos.pop())
+        # Itero al revés para no invalidar posiciones
+        for citation in reversed(ini_director_pos):
+            text = add_director_link(text, citation)
 
         return text
 
     def __quote_word(self, text: str, it_position: int, it_word: str) -> DirectorCitation | None:
 
         # Inicializo una lista con los personajes que se vayan a preguntar
-        personajes_preguntados: set[str] = set()
+        new_asked_names: set[str] = set()
 
         # Variable de retorno
         citation: DirectorCitation | None = None
 
         # Recorro todos los directores buscando la palabra que tengo
-        for director in self.ALL_DIRECTORS.get():
-            # No quiero citar dos veces el mismo director
-            if director in self._quoted_directors:
-                continue
-            # No quiero citar al director actual
-            if director == self.director:
-                continue
+        for director in self.__candidate_directors():
+
             position, word = complete_quote(text,
                                             it_position, it_word,
                                             director)
@@ -113,35 +112,48 @@ class QuoterDirector:
                 continue
             logging.debug(f"Possible director quote found: '{word}' for director '{director}'")
             # Si ya he preguntado por este nombre paso al siguiente
-            if word in self._personajes:
+            if word in self._asked_names:
                 continue
-            personajes_preguntados.add(word)
+            new_asked_names.add(word)
 
-            # Si son idénticos, evidentemente es una cita
-            if word == director:
-                confirmed = True
-            # Si es una referencia que siempre se ejecuta igual, es una cita
-            elif word in self.TRUST_DIRECTORS:
-                confirmed = True
-            # En caso contrario, pregunto
-            else:
-                print_context(text, position, word)
-                confirmed = ask_confirmation(word, director)
-            if not confirmed:
-                continue
-
-            citation = DirectorCitation(position=position,
-                                        director=director,
-                                        length=len(word))
-            # Lo guardo como director ya citado
-            self._quoted_directors.add(director)
-            break
+            if self.__is_confirmed(word, director, text, position):
+                citation = DirectorCitation(position=position,
+                                            director=director,
+                                            length=len(word))
+                # Lo guardo como director ya citado
+                self._quoted_directors.add(director)
+                break
 
         # Actualizo el conjunto de nombres ya preguntados
-        self._personajes.update(personajes_preguntados)
+        self._asked_names.update(new_asked_names)
 
         # Devuelvo la posible citación
         return citation
+
+    def __is_confirmed(self, word: str, director: str, text: str, position: int) -> bool:
+        # Si son idénticos, evidentemente es una cita
+        if word == director:
+            logging.debug(f"Exact citation: '{word}'")
+            return True
+        # Si es una referencia que siempre se ejecuta igual, es una cita
+        elif word in self.TRUST_DIRECTORS:
+            logging.debug(f"Auto-confirmed trust citation: '{word}' quotes '{director}'")
+            return True
+
+        # En caso contrario, pregunto
+        print_context(text, position, word)
+        return ask_confirmation(word, director)
+
+    def __candidate_directors(self):
+        for director in self.ALL_DIRECTORS.get():
+            # No quiero citar dos veces el mismo director
+            if director in self._quoted_directors:
+                continue
+            # No quiero citar al director actual
+            if director == self.director:
+                continue
+
+            yield director
 
 
 def ask_confirmation(nombre: str, director: str) -> bool:
@@ -154,14 +166,56 @@ def print_context(text: str, position: int, word: str) -> None:
     start = max(0, position - 50)
     end = min(len(text), position + len(word) + 50)
     context = text[start:end]
+
     # Calcular la posición relativa de la palabra en el contexto
     word_start_in_context = position - start
     # Resaltar solo la palabra en esa posición específica
     before = context[:word_start_in_context]
     after = context[word_start_in_context + len(word):]
     highlighted_context = before + f"\033[1m{word}\033[0m" + after
+
+    # Imprimir por pantalla
     Log("Contexto:")
     Log(highlighted_context)
+
+
+class HtmlContext(Flag):
+    '''
+    Conjunto de flags para saber si el texto al que estoy mirando
+    puede albergar la cita a un director.
+    El criterio se hace en base al contenido del texto.
+    No puede estar incluido en títulos entrecomillados, cursivas ni en links html.
+    '''
+    NONE = 0
+    # El título de una película no puede tener el nombre de un director
+    TITLE = auto()
+    # Si el texto es cursiva no debe interpretarse como que esté hablando de un director
+    ITALIC = auto()
+    # Si el texto html ya tiene un link, no puedo añadir otro
+    LINK = auto()
+
+
+def update_context_flag(index: int, text: str, context: HtmlContext) -> HtmlContext:
+    char = text[index]
+    # Empieza el título de una película, no puede haber directores ahí dentro
+    if char == QuoterBase.INI_QUOTE_CHAR:
+        context |= HtmlContext.TITLE
+    elif char == QuoterBase.FIN_QUOTE_CHAR:
+        context &= ~HtmlContext.TITLE
+
+    # Empieza una cursiva
+    if begins_italic(index, text):
+        context |= HtmlContext.ITALIC
+    elif ends_italic(index, text):
+        context &= ~HtmlContext.ITALIC
+
+    # Empieza un link
+    if begins_link(index, text):
+        context |= HtmlContext.LINK
+    elif ends_link(index, text):
+        context &= ~HtmlContext.LINK
+
+    return context
 
 
 def split_words(text: str) -> Iterable[tuple[int, str]]:
@@ -169,18 +223,15 @@ def split_words(text: str) -> Iterable[tuple[int, str]]:
     new_word = ""
     index_begin_word = 0
 
-    # Aún no he visto ningunas comillas que me digan que estoy en un título
-    in_title = False
-    # Aún no he visto que esté entre comillas
-    in_italic = False
-    # Aún no he visto que esté en un link
-    in_link = False
+    # Aún no he visto nada que me indique que estoy en un bloque
+    # que impida que exista una cita a un director
+    context = HtmlContext.NONE
 
     # Recorro los caracteres
     for index, char in enumerate(text):
 
         # Proceso las letras
-        if char.isalpha() and not in_title and not in_italic and not in_link:
+        if char.isalpha() and context == HtmlContext.NONE:
 
             # Comienza una palabra, me guardo la posición actual
             if not new_word:
@@ -194,25 +245,11 @@ def split_words(text: str) -> Iterable[tuple[int, str]]:
                 yield index_begin_word, new_word
                 new_word = ""
 
-            # Empieza el título de una película, no puede haber directores ahí dentro
-            if char == QuoterBase.INI_QUOTE_CHAR:
-                in_title = True
-            elif char == QuoterBase.FIN_QUOTE_CHAR:
-                in_title = False
+            # Compruebo si estoy en un bloque de código que pueda
+            # albergar una cita a un director
+            context = update_context_flag(index, text, context)
 
-            # Empieza una cursiva
-            if begins_italic(index, text):
-                in_italic = True
-            elif ends_italic(index, text):
-                in_italic = False
-
-            # Empieza un link
-            if begins_link(index, text):
-                in_link = True
-            elif ends_link(index, text):
-                in_link = False
-
-    if not in_title and not in_link and not in_italic:
+    if context == HtmlContext.NONE and new_word:
         yield index_begin_word, new_word
 
 
@@ -309,8 +346,8 @@ def add_director_link(text: str, cit: DirectorCitation) -> str:
                                      cit.position + cit.length)
 
     # Construyo el link
-    dir = urllib.parse.quote(cit.director)
-    link = QuoterBase.LINK_LABEL(dir)
+    director = urllib.parse.quote(cit.director)
+    link = QuoterBase.LINK_LABEL(director)
     # Construyo el html para el enlace
     ini_link = QuoterBase.OPEN_LINK(link)
     # Escribo el inicio del hipervínculo
