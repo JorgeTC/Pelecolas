@@ -13,7 +13,8 @@ def get_file_content(file_name: str) -> str:
 
 
 def mock_ask_confirmation(return_value: bool):
-    return mock.patch.object(QuoterDirector, '_QuoterDirector__ask_confirmation', return_value=return_value)
+    func_path = 'src.essays.html.quoter.quoter_director.ask_confirmation'
+    return mock.patch(func_path, return_value=return_value)
 
 
 @pytest.fixture

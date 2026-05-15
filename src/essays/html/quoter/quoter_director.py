@@ -4,7 +4,7 @@ from typing import Iterable, NamedTuple
 
 from src.aux_res_directory import get_res_folder
 from src.config import Config, Param, Section
-from src.gui import YesNo
+from src.gui import YesNo, Log
 
 from ...async_initializer import AsyncInitializer
 from .quoter_base import QuoterBase, insert_string_in_position
@@ -116,9 +116,20 @@ class QuoterDirector:
             if word in self._personajes:
                 continue
             personajes_preguntados.add(word)
-            # Pido confirmación al usuario de la cita
-            if not self.__ask_confirmation(word, director):
+
+            # Si son idénticos, evidentemente es una cita
+            if word == director:
+                confirmed = True
+            # Si es una referencia que siempre se ejecuta igual, es una cita
+            elif word in self.TRUST_DIRECTORS:
+                confirmed = True
+            # En caso contrario, pregunto
+            else:
+                print_context(text, position, word)
+                confirmed = ask_confirmation(word, director)
+            if not confirmed:
                 continue
+
             citation = DirectorCitation(position=position,
                                         director=director,
                                         length=len(word))
@@ -132,16 +143,25 @@ class QuoterDirector:
         # Devuelvo la posible citación
         return citation
 
-    def __ask_confirmation(self, nombre: str, director: str) -> bool:
-        # Si son idénticos, evidentemente es una cita
-        if nombre == director:
-            return True
-        # Si es una referencia que siempre se ejecuta igual, es una cita
-        if nombre in self.TRUST_DIRECTORS:
-            return True
-        # En caso contrario, pregunto
-        pregunta = f"¿Es {nombre} una cita de {director}? "
-        return YesNo(pregunta).get_ans()
+
+def ask_confirmation(nombre: str, director: str) -> bool:
+    pregunta = f"¿Es {nombre} una cita de {director}? "
+    return YesNo(pregunta).get_ans()
+
+
+def print_context(text: str, position: int, word: str) -> None:
+    # Extraer contexto alrededor de la palabra
+    start = max(0, position - 50)
+    end = min(len(text), position + len(word) + 50)
+    context = text[start:end]
+    # Calcular la posición relativa de la palabra en el contexto
+    word_start_in_context = position - start
+    # Resaltar solo la palabra en esa posición específica
+    before = context[:word_start_in_context]
+    after = context[word_start_in_context + len(word):]
+    highlighted_context = before + f"\033[1m{word}\033[0m" + after
+    Log("Contexto:")
+    Log(highlighted_context)
 
 
 def split_words(text: str) -> Iterable[tuple[int, str]]:
