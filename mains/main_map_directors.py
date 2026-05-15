@@ -20,11 +20,15 @@ def write_in_file(directors: dict[str, list[int]], user_name: str):
 
 
 def main():
-    user = UserFA.ask_user()
+    try:
+        user = UserFA.ask_user()
+    except KeyboardInterrupt:
+        return
 
     # Creo una barra de progreso
     bar = ProgressBar()
 
+    # Mapa que asocia a cada director qué notas le ha otorgado el usuario
     directors: dict[str, list[int]] = {}
     for film, progress in ReadWatched.read_directors(user.id):
         for director in film.directors:
