@@ -1,3 +1,4 @@
+import logging
 import os
 import re
 from contextlib import suppress
@@ -52,7 +53,12 @@ class Html:
         # quiero de ella su titulo, año, duración, y director
         self.data = film
 
+    @property
+    def file_path(self):
+        return self.HTML_OUTPUT_FOLDER / self.file_name
+
     def write_html(self):
+        logging.debug(f"Writing html for film '{self.data.titulo}'")
         try:
             paragraphs = get_text(self.data)
         except KeyError as e:
@@ -65,13 +71,14 @@ class Html:
         # Compongo el nombre completo del archivo
         self.file_name = HTML_FILE(self.file_name)
         # Abro el archivo en modo escritura
-        with open(self.HTML_OUTPUT_FOLDER / self.file_name,
-                  mode="w", encoding="utf-8") as html_file:
+        with open(self.file_path, mode="w", encoding="utf-8") as html_file:
+            logging.debug(f"Writing html file {self.file_path}")
             fill_html_file(html_file, self.data, paragraphs)
 
     def delete_file(self):
+        logging.debug(f"Removing temp file {self.file_path}")
         # Elimino el último html que he escrito
-        os.remove(self.HTML_OUTPUT_FOLDER / self.file_name)
+        os.remove(self.file_path)
 
 
 def fill_html_file(html_file: TextIO, film_data: Pelicula, paragraphs: list[str]):

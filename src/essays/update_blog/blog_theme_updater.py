@@ -91,14 +91,17 @@ class PostThemeUpdater:
 
 
 def update_image_url(film_data: Pelicula):
+    logging.debug(f"Checking if image url {film_data.url_image} in film '{film_data.id}' is valid")
     # Compruebo que la url de la imagen exista
     image_response = safe_response(film_data.url_image)
     if image_response.ok:
+        logging.debug(f"Image url {film_data.url_image} in film '{film_data.id}' is valid")
         return
 
     # Si no existe, borro el dato y pido al objeto que lo busque en FA
     film_data.url_image = None
     film_data.get_image_url()
+    logging.debug(f"Image url in film '{film_data.id}' was updated: {film_data.url_image}")
 
 
 class BlogThemeUpdater:
@@ -160,6 +163,7 @@ def exist_repeated_posts() -> bool:
 
 
 def download_film_data(film: Pelicula):
+    logging.debug(f"Downloading film data from film page {film.url_FA}")
     film.get_parsed_page()
     # Si no he conseguido leer nada de FA, salgo de la función
     if not film.exists():
@@ -174,6 +178,7 @@ def download_film_data(film: Pelicula):
 
 
 def parse_film_data(film: Pelicula, blog_scraper: BlogScraper):
+    logging.debug(f"Filling film object from hidden data '{blog_scraper.get_hidden_data(BlogHiddenData.TITLE)}'")
     # Leo en las notas ocultas del html los datos
     film.director = blog_scraper.get_hidden_data(BlogHiddenData.DIRECTOR)
     film.año = int(blog_scraper.get_hidden_data(BlogHiddenData.YEAR))
