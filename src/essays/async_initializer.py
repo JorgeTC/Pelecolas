@@ -1,3 +1,4 @@
+from concurrent.futures import Future
 from threading import Thread
 from typing import Callable, Generic, TypeVar
 import logging
@@ -9,7 +10,9 @@ class AsyncInitializer(Generic[StoredValue]):
 
     def __init__(self, initializer: Callable[[], StoredValue]):
         # Variable lenta de calcular y cuya inicialización se arranca en este constructor
-        self.value: StoredValue | None = None
+        # El futuro guardará el estado final de la inicialización: valor o excepción
+        # La excepción se lanzare cuando se acceda al valor, no durante la inicialización
+        self._future: Future[StoredValue] = Future()
         # Función que inicializará el objeto que necesito
         self.initializer = initializer
 
@@ -18,32 +21,23 @@ class AsyncInitializer(Generic[StoredValue]):
         # Daemon porque no quiero que el cierre del programa espere a que termine la inicialización:
         # si estoy cerrando el programa ya no necesito el valor que está calculando
         self.init_thread = Thread(target=self.initialize,
-                                  name=self.initializer.__name__,
+                                  name=getattr(self.initializer, "__name__", repr(self.initializer)),
                                   daemon=True)
         logging.debug(f"Starting async initialization in thread {self.init_thread.name}")
         # Inicio la ejecución
         self.init_thread.start()
 
-        # Atributo para guardar las excepciones que surjan durante la inicialización.
-        # No quiero que salten en el hilo de inicialización, sino cuando se me solicite el resultado.
-        self.exception: Exception | None = None
-
     def initialize(self):
         try:
-            self.value = self.initializer()
+            self._future.set_result(self.initializer())
             logging.debug(f"Finalized async initialization in thread {self.init_thread.name}")
         except Exception as e:
             logging.debug(f"Exception caught in thread {self.init_thread.name}: {e}")
             # Guardo la excepción. No la lanzo ahora, la lanzaré cuando se me pida el valor
-            self.exception = e
+            self._future.set_exception(e)
 
     def get(self) -> StoredValue:
-        # Antes de devolver nada, espero a que termine la inicialización
-        self.init_thread.join()
-
-        # Si la inicialización ha ido mal, no devuelvo el valor: lanzo la excepción
-        if self.exception:
-            raise self.exception
-
-        # La variable ha sido inicializada: la devuelvo
-        return self.value
+        logging.debug(f"Accessing to result of thread {self.init_thread.name}")
+        # Acceso al resultado.
+        # Si ha habido una excepción, se lanzará en este momento
+        return self._future.result()
