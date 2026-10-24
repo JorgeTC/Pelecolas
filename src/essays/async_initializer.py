@@ -37,7 +37,6 @@ class AsyncInitializer(Generic[StoredValue]):
             self._future.set_exception(e)
 
     def get(self) -> StoredValue:
-        logging.debug(f"Accessing to result of thread {self.init_thread.name}")
         # Acceso al resultado.
         # Si ha habido una excepción, se lanzará en este momento
         return self._future.result()

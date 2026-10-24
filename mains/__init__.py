@@ -22,4 +22,4 @@ init_logging()
 main_module = __import__("__main__")
 main_file = main_module.__file__
 main_name = Path(main_file).name
-logging.debug(f"***** {main_name} *****")
+logging.debug(f"{' ' + main_name + ' ':*^60}")

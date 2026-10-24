@@ -5,7 +5,7 @@ from .blog_theme_updater import (BlogThemeUpdater, PostThemeUpdater,
                                  exist_repeated_posts)
 
 Thread(target=exist_repeated_posts,
-       name="Check no repeated posts",
+       name="exist_repeated_posts",
        daemon=True).start()
 
 
