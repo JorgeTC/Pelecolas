@@ -63,7 +63,7 @@ class Html:
             paragraphs = get_text(self.data)
         except KeyError as e:
             raise KeyError(f"No se ha encontrado el texto para "
-                           f"{self.data.titulo}") from e
+                           f"'{self.data.titulo}'") from e
 
         # Limpio el titulo de la película por si tiene caracteres no válidos para un archivo de Windows
         self.file_name = "".join(i for i in self.data.titulo
@@ -72,11 +72,11 @@ class Html:
         self.file_name = HTML_FILE(self.file_name)
         # Abro el archivo en modo escritura
         with open(self.file_path, mode="w", encoding="utf-8") as html_file:
-            logging.debug(f"Writing html file {self.file_path}")
+            logging.debug(f"Writing html file '{self.file_path}'")
             fill_html_file(html_file, self.data, paragraphs)
 
     def delete_file(self):
-        logging.debug(f"Removing temp file {self.file_path}")
+        logging.debug(f"Removing temp file '{self.file_path}'")
         # Elimino el último html que he escrito
         os.remove(self.file_path)
 

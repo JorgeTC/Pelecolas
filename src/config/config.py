@@ -103,7 +103,7 @@ class Config:
 
     @classmethod
     def save_config(cls):
-        logging.info(f"Saving config file {cls.sz_path}")
+        logging.info(f"Saving config file '{cls.sz_path}'")
         with open(cls.sz_path, 'w', encoding="utf-8") as configfile:
             cls.config.write(configfile)
 

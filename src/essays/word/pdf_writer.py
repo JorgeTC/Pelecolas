@@ -40,7 +40,7 @@ class PDFWriter:
         pdf_dir = Config.get_folder_path(Section.DRIVE,
                                          Param.PDF_PATH)
         pdf_path = pdf_dir / "Reseñas.pdf"
-        logging.debug(f"Joining all PDFs into {pdf_path}")
+        logging.debug(f"Joining all PDFs into '{pdf_path}'")
         # Creo un objeto para unir pdf
         with PdfWriter() as merger:
             # Le doy todos los que necesita añadir
@@ -54,6 +54,7 @@ class PDFWriter:
     def clear_temp_pdf(cls):
         # Elimino los archivos pdf temporales que había escrito
         for file in cls.ALL_PDF:
+            logging.debug(f"Removing temp PDF '{file}'")
             file.unlink()
 
     @classmethod
@@ -64,7 +65,7 @@ class PDFWriter:
     @classmethod
     def linux_convert_all_word(cls):
         for docx in WordFolderMgr.SZ_ALL_DOCX:
-            logging.debug(f"Converting {docx} to PDF")
+            logging.debug(f"Converting '{docx}' to PDF")
             cls.libreoffice_convert_file(docx,
                                          'pdf', WordFolderMgr.WORD_FOLDER)
 
